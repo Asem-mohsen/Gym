@@ -22,6 +22,7 @@ use App\Http\Controllers\API\ServicesController;
 use App\Http\Controllers\API\TransactionController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\AboutController;
+use App\Http\Controllers\API\StripePaymentController;
 
 
 // API Routes
@@ -58,6 +59,12 @@ Route::prefix('v1')->group(function(){
                 Route::post('/current', 'current');
                 Route::post('/other', 'other');
                 Route::post('/all', 'all');
+            });
+        });
+
+        Route::prefix('booking')->group(function(){
+            Route::get(StripePaymentController::class)->group(function(){
+                Route::post('/payment', 'store');
             });
         });
 
@@ -168,9 +175,14 @@ Route::prefix('v1')->group(function(){
 
 
     // User Public
-
     Route::controller(HomeController::class)->group(function(){
         Route::get('/', 'index')->name('index');
+    });
+
+    Route::prefix('trainers')->group(function(){
+        Route::controller(UserController::class)->group(function(){
+            Route::get('/{user}/coach', 'coachProfile');
+        });
     });
 
     Route::prefix('memberships')->group(function(){

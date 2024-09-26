@@ -24,8 +24,18 @@ class BookingController extends Controller
     }
 
     // works
+    // retrive the booked item for admin
     public function show(Booking $booking)
     {
+        $booking->load('bookable');
+
+        return $this->data(compact('booking') , 'booking data retrieved successfully');
+    }
+
+    //
+    public function store(AddRequest $request)
+    {
+        $request->except('_method');
         $booking->load('bookable');
 
         return $this->data(compact('booking') , 'booking data retrieved successfully');

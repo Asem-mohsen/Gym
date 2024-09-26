@@ -62,6 +62,13 @@ class UserController extends Controller
     }
 
     // works
+    // this return the coach profile that the user will view
+    public function coachProfile(User $user)
+    {
+        return $this->data(compact('user') , 'Coach data retrieved successfully');
+    }
+
+    // works
     // method for admins to create users manullay
     public function addUsers(AddUserRequest $request)
     {
