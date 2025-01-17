@@ -18,8 +18,6 @@ class RegisterRequest extends FormRequest
             'name'       => ['required' , 'max:255'],
             'email'      => ['required' , 'email' , 'max:255' , 'unique:users,email,except,id'],
             'password'   => ['required' , 'max:255'],
-            'device_name'=> ['required'],
-            'operating_system' => ['required'],
         ];
     }
 }

@@ -4,8 +4,9 @@ namespace App\Http\Requests\Admins;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateRequest extends FormRequest
+class AddAdminRequest extends FormRequest
 {
+
     public function authorize(): bool
     {
         return true;
@@ -16,9 +17,11 @@ class UpdateRequest extends FormRequest
         return [
             'name'    => ['required' , 'max:255'],
             'email'   => ['required' , 'email' , 'max:255' , 'unique:users,email,except,id'],
+            'password'=> ['required' , 'max:255'],
             'address' => ['required' , 'max:255'],
             'phone'   => ['required' , 'numeric'],
-            'roleId'  => ['required' , 'exists:roles,id']
+            'is_admin' => ['required' , 'boolean'],
+            'role_id'  => ['required' , 'exists:roles,id']
         ];
     }
 }

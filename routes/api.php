@@ -10,7 +10,6 @@ use App\Http\Controllers\API\Auth\ForgetPasswordController;
 use App\Http\Controllers\API\Auth\RegisterController;
 use App\Http\Controllers\API\Auth\LogoutController;
 
-
 use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\HomeController;
@@ -54,16 +53,14 @@ Route::prefix('v1')->group(function(){
             });
         });
 
-        Route::prefix('logout')->group(function(){
-            Route::controller(LogoutController::class)->group(function(){
-                Route::post('/current', 'current');
-                Route::post('/other', 'other');
-                Route::post('/all', 'all');
-            });
+        Route::prefix('logout')->controller(LogoutController::class)->group(function(){
+            Route::post('/current', 'logoutFromCurrentSession');
+            Route::post('/all',  'logoutFromAllSessions');
+            Route::post('/others', 'logoutFromOtherSessions');
         });
 
         Route::prefix('booking')->group(function(){
-            Route::get(StripePaymentController::class)->group(function(){
+            Route::controller(StripePaymentController::class)->group(function(){
                 Route::post('/payment', 'store');
             });
         });
@@ -147,7 +144,7 @@ Route::prefix('v1')->group(function(){
         });
 
         Route::prefix('transactions')->group(function(){
-            Route::controller(TransactionsController::class)->group(function(){
+            Route::controller(TransactionController::class)->group(function(){
                 Route::get('/', 'index');
             });
         });

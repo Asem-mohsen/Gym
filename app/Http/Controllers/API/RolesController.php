@@ -3,55 +3,67 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Traits\ApiResponse;
-use App\Http\Requests\Roles\AddRequest;
-use App\Http\Requests\Roles\UpdateRequest;
+use App\Http\Requests\Roles\{ AddRoleRequest, UpdateRoleRequest};
 use App\Models\Role;
+use App\Services\RoleService;
+use Exception;
 
 class RolesController extends Controller
 {
-    use ApiResponse;
+    protected $rolesService;
 
-    // works
+    public function __construct(RoleService $roleService)
+    {
+        $this->rolesService = $roleService;
+    }
+
     public function index()
     {
-        $roles = Role::all();
-
-        return $this->data(compact('roles') , 'role data retrived successfully' , 200);
+        try {
+            $roles = $this->rolesService->getRoles();
+            return successResponse(compact('roles'), 'role data retrived successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error retrieving roles, please try again.');
+        }
     }
 
-    // works
-    public function store(AddRequest $request)
+    public function store(AddRoleRequest $request)
     {
-        $data = $request->except('_method' , 'token');
-
-        $newRole = Role::create($data);
-
-        return $this->data(compact('newRole') , 'Role created successfully' , 200);
+        try {
+            $roles = $this->rolesService->createRole($request->validated());
+            return successResponse(compact('roles'), 'role created successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error creating role, please try again.');
+        }
     }
 
-    // works
     public function edit(Role $role)
     {
-        return $this->data(compact('role') , 'Role retrieved successfully' , 200);
+        try {
+            $role = $this->rolesService->showRole($role);
+            return successResponse(compact('role'), 'role data retrived successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error retrieving roles, please try again.');
+        }
     }
 
-    // works
-    public function update(UpdateRequest $request , Role $role)
+    public function update(UpdateRoleRequest $request , Role $role)
     {
-        $data = $request->except('_method' , 'token');
-
-        Role::where('id' ,  $role->id)->update($data);
-
-        return $this->success('Role updated successfully');
+        try {
+            $role = $this->rolesService->updateRole($role,$request->validated());
+            return successResponse(compact('role'), 'role updated successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error updating roles, please try again.');
+        }
     }
 
-    // works
-    public function destroy(Request $request , Role $role)
+    public function destroy(Role $role)
     {
-        Role::where('id' ,  $role->id)->delete();
-
-        return $this->success('Role deleted successfully');
+        try {
+            $role = $this->rolesService->deleteRole($role);
+            return successResponse(compact('role'), 'role deleted successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error deleting roles, please try again.');
+        }
     }
 }

@@ -3,26 +3,29 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Traits\ApiResponse;
-use App\Models\User;
-use App\Models\Membership;
+use App\Services\MembershipService;
+use App\Services\UserService;
 
 class HomeController extends Controller
 {
-    use ApiResponse ;
+    protected $membershipService , $userService;
 
-    // works
+    public function __construct(MembershipService $membershipService , UserService $userService)
+    {
+        $this->membershipService = $membershipService;
+        $this->userService = $userService;
+    }
+    
     public function index()
     {
-        $memberships = Membership::all();
-        $users = User::where('isAdmin' , 3)->get(); //trainers
+        $memberships = $this->membershipService->getMemberships();
+        $trainers    = $this->userService->getTrainers();
 
         $data = [
             'memberships'=>$memberships,
-            'trainers'   =>$users
+            'trainers'   =>$trainers
         ];
 
-        return $this->data($data, 'Home data retrieved' , 200);
+        return successResponse($data, 'Home data retrieved');
     }
 }

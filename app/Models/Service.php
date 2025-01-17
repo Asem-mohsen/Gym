@@ -4,16 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Spatie\Translatable\HasTranslations;
 
 class Service extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTranslations;
 
     protected $table = 'services';
 
-    protected $fillable = ['name', 'description' , 'description_ar' , 'price' , 'duration'];
+    protected $fillable = ['name', 'description', 'price' , 'duration'];
 
-    public function bookings()
+    public $translatable = ['name','description'];
+
+    public function bookings(): MorphMany
     {
         return $this->morphMany(Booking::class, 'bookable');
     }

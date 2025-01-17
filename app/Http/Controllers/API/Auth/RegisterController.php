@@ -3,35 +3,27 @@
 namespace App\Http\Controllers\API\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Http\Requests\RegisterRequest;
-use App\Traits\ApiResponse;
+use App\Services\Auth\AuthService;
 
 class RegisterController extends Controller
 {
-    use ApiResponse ;
+    protected $authService;
+
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
 
     public function register(RegisterRequest $request)
     {
+        try {
+            $data = $request->only(['name', 'email', 'password']);
+            $response = $this->authService->register($data);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'roleId' => 2, // system user 
-        ]);
-
-        $user->token = $user->createToken($request->device_name)->plainTextToken;
-
-        $data = [
-            'user' => $user,
-            'token_type' => 'Bearer',
-            'device_name' => $request->device_name,
-            'operating_system' => $request->operating_system,
-        ];
-
-        return $this->data($data, 'User registered successfully');
-
+            return successResponse($response, 'User registered successfully');
+        } catch (\Exception $e) {
+            return failureResponse($e->getMessage(), 400);
+        }
     }
 }

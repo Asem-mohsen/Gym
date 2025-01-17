@@ -3,34 +3,27 @@
 namespace App\Http\Controllers\API\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Traits\ApiResponse;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use App\Http\Requests\LoginRequest;
+use App\Services\Auth\AuthService;
 
 class LoginController extends Controller
 {
-    use ApiResponse ;
+    protected $authService;
+
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
 
     public function login(LoginRequest $request)
     {
+        try {
+            $credentials = $request->only(['email', 'password']);
+            $data = $this->authService->login($credentials);
 
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-
-            $user = Auth::guard('sanctum')->user();
-
-            $accessToken = $user->createToken($request->device_name)->plainTextToken;
-
-            $data = [
-                'user' => $user ,
-                'token'=> $accessToken
-            ];
-
-            return $this->data($data , 'user logged in successfully', 200);
+            return successResponse($data, 'User logged in successfully');
+        } catch (\Exception $e) {
+            return failureResponse($e->getMessage(), $e->getCode());
         }
-
-        return $this->error(['message' => 'Authentication failed'], 'Please make sure that your data is valid' , 401);
     }
 }

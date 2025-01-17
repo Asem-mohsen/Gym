@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Roles;
+namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateRequest extends FormRequest
+class AddBookingRequest extends FormRequest
 {
 
     public function authorize(): bool
@@ -15,8 +15,7 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'        => ['required' , 'max:255'],
-            'description' => ['nullable' , 'max:1000'],
+            
         ];
     }
 }
