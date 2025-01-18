@@ -17,7 +17,6 @@ class AddMembershipRequest extends FormRequest
         return [
             'name'          => ['required' , 'max:255' , 'unique:memberships,name,except,id'],
             'description'   => ['nullable' , 'max:1000'],
-            'description_ar'=> ['nullable' , 'max:1000'],
             'price'         => ['required' , 'numeric'],
         ];
     }

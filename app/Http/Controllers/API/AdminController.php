@@ -4,17 +4,18 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admins\{ AddAdminRequest , UpdateAdminRequest};
-use App\Models\{ User, Role};
-use App\Services\AdminService;
+use App\Models\User;
+use App\Services\{ AdminService , RoleService};
 use Exception;
 
 class AdminController extends Controller
 {
-    protected $adminService;
+    protected $adminService , $roleService;
 
-    public function __construct(AdminService $adminService)
+    public function __construct(AdminService $adminService , RoleService $roleService)
     {
         $this->adminService = $adminService;
+        $this->roleService  = $roleService;
     }
 
     public function index()
@@ -29,7 +30,7 @@ class AdminController extends Controller
 
     public function create()
     {
-        $roles = Role::all();
+        $roles = $this->roleService->getRoles();
         return successResponse(compact('roles'), 'Roles for adding admins retrieved successfully');
     }
 
@@ -55,7 +56,7 @@ class AdminController extends Controller
 
     public function edit(User $user)
     {
-        $roles = Role::all();
+        $roles = $this->roleService->getRoles();
         return successResponse(compact('user', 'roles'), 'Admin retrieved successfully');
     }
 

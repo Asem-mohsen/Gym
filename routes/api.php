@@ -28,7 +28,7 @@ use App\Http\Controllers\API\StripePaymentController;
 Route::prefix('v1')->group(function(){
 
     // Auth
-    Route::middleware(['PreventAuth'])->group(function () {
+    Route::middleware(['preventAuth'])->group(function () {
 
         Route::post('/login'    , [LoginController::class , 'login']);
         Route::post('/register' , [RegisterController::class , 'register']);

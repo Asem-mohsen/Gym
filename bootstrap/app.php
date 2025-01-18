@@ -14,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
-            'PreventAuth' =>\App\Http\Middleware\PreventAuth::class,
+            'preventAuth' =>\App\Http\Middleware\PreventAuth::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
