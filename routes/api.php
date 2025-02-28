@@ -21,6 +21,7 @@ use App\Http\Controllers\API\ServicesController;
 use App\Http\Controllers\API\TransactionController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\AboutController;
+use App\Http\Controllers\API\SiteSettingController;
 use App\Http\Controllers\API\StripePaymentController;
 
 
@@ -66,7 +67,6 @@ Route::prefix('v1')->group(function(){
         });
 
     });
-
 
     // Admin
     Route::middleware(['auth:sanctum' ,'admin'])->group(function () {
@@ -158,6 +158,12 @@ Route::prefix('v1')->group(function(){
 
         Route::prefix('contact')->group(function(){
             Route::controller(ContactController::class)->group(function(){
+                Route::get('/', 'index');
+            });
+        });
+
+        Route::prefix('site-settings')->group(function(){
+            Route::controller(SiteSettingController::class)->group(function(){
                 Route::get('/', 'index');
             });
         });

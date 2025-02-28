@@ -16,10 +16,14 @@ class UpdateMembershipRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'          => ['required' , 'max:255'],
-            'description'   => ['nullable' , 'max:1000'],
-            'description_ar'=> ['nullable' , 'max:1000'],
-            'price'         => ['required' , 'numeric'],
+            'name.en'      => ['required' , 'max:255', 'string'],
+            'name.ar'      => ['required' , 'max:255', 'string'],
+            'description.en'=> ['nullable' , 'max:1000'],
+            'description.ar'=> ['nullable' , 'max:1000'],
+            'status'       => ['required' , 'in:1,0'],
+            'price'        => ['required' , 'numeric'],
+            'order'        => ['required' , 'numeric'],
+            'period'       => ['required'],
         ];
     }
 }

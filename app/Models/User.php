@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -24,6 +25,7 @@ class User extends Authenticatable
         'role_id',
         'password',
         'gender',
+        'status',
     ];
 
     protected $hidden = [
@@ -47,4 +49,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(Booking::class);
     }
+
+    public function site(): HasOne
+    {
+        return $this->hasOne(SiteSetting::class , 'owner_id');
+    }
+
+    public function managedBranches(): HasMany
+    {
+        return $this->hasMany(Branch::class, 'manager_id');
+    }
+
 }

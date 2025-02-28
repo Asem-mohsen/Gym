@@ -14,7 +14,7 @@ class SiteSettingController extends Controller
 
     public function __construct(SiteSettingService $siteSettingService)
     {
-        $this->$siteSettingService = $siteSettingService;
+        $this->siteSettingService = $siteSettingService;
     }
 
     public function index()

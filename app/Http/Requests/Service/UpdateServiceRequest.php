@@ -17,11 +17,13 @@ class UpdateServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'          => ['required' , 'max:255' ],
-            'description'   => ['nullable' , 'max:1000'],
-            'description_ar'=> ['nullable' , 'max:1000'],
-            'duration'      => ['nullable' , 'max:100'],
+            'name.en'       => ['required' , 'max:255', 'string'],
+            'name.ar'       => ['required' , 'max:255', 'string'],
+            'description.en'=> ['nullable' , 'max:1000'],
+            'description.ar'=> ['nullable' , 'max:1000'],
+            'duration'      => ['required' , 'max:100'],
             'price'         => ['required' , 'numeric'],
+            'image'         => ['nullable'],
         ];
     }
 }

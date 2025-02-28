@@ -30,7 +30,7 @@ class AdminController extends Controller
 
     public function create()
     {
-        $roles = $this->roleService->getRoles();
+        $roles = $this->roleService->getRoles(where: ['name' => 'admin']);
         return successResponse(compact('roles'), 'Roles for adding admins retrieved successfully');
     }
 

@@ -7,7 +7,7 @@ class AdminRepository
 {
     public function getAllAdmins()
     {
-        return User::where('is_admin', '1')->get();
+        return User::where('is_admin', '1')->with('roles')->get();
     }
 
     public function createAdmin(array $data)
@@ -18,12 +18,13 @@ class AdminRepository
     public function updateAdmin(User $user, array $data)
     {
         $user->update($data);
+
         return $user;
     }
 
     public function deleteAdmin(User $user)
     {
-        $user->delete();
+        return $user->delete();
     }
 
     public function findById(int $id): ?User

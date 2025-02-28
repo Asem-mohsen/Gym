@@ -15,9 +15,14 @@ class AddMembershipRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'          => ['required' , 'max:255' , 'unique:memberships,name,except,id'],
-            'description'   => ['nullable' , 'max:1000'],
-            'price'         => ['required' , 'numeric'],
+            'name.en'      => ['required' , 'max:255', 'string'],
+            'name.ar'      => ['required' , 'max:255', 'string'],
+            'description.en' => ['nullable' , 'max:1000'],
+            'description.ar' => ['nullable' , 'max:1000'],
+            'status'       => ['required' , 'in:1,0'],
+            'order'        => ['required' , 'numeric'],
+            'price'        => ['required' , 'numeric'],
+            'period'       => ['required'],
         ];
     }
 }

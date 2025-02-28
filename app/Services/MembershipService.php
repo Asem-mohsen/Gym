@@ -12,9 +12,9 @@ class MembershipService
         $this->membershipRepository = $membershipRepository;
     }
 
-    public function getMemberships()
+    public function getMemberships(array $withCount = [])
     {
-        return $this->membershipRepository->getAllMemberships();
+        return $this->membershipRepository->getAllMemberships(with: ['offers'] , withCount: $withCount);
     }
 
     public function createMembership(array $data)

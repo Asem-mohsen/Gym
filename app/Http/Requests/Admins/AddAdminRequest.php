@@ -20,8 +20,9 @@ class AddAdminRequest extends FormRequest
             'password'=> ['required' , 'max:255'],
             'address' => ['required' , 'max:255'],
             'phone'   => ['required' , 'numeric'],
-            'is_admin' => ['required' , 'boolean'],
-            'role_id'  => ['required' , 'exists:roles,id']
+            'role_id' => ['required' , 'exists:roles,id'],
+            'gender'  => ['required' , 'in:male,female'],
+            'status'  => ['required' , 'in:active,inactive'],
         ];
     }
 }

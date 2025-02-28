@@ -12,15 +12,17 @@ class UpdateSiteSettingRequest extends FormRequest
         return true;
     }
 
-
     public function rules(): array
     {
         return [
-            'gym_name' => 'sometimes|string',
-            'size' => 'sometimes|integer',
-            'address' => 'nullable|string',
-            'description' => 'nullable|string',
-            'contat_email' => 'nullable|email',
+            'gym_name.en'    => ['required' , 'max:255', 'string'],
+            'gym_name.ar'    => ['required' , 'max:255', 'string'],
+            'description.en' => ['nullable' , 'max:1000'],
+            'description.ar' => ['nullable' , 'max:1000'],
+            'size'           => ['sometimes', 'integer'],
+            'address.en'     => ['nullable' , 'max:1000'],
+            'address.ar'     => ['nullable' , 'max:1000'],
+            'contat_email'   => ['nullable' , 'email'],
         ];
     }
 }

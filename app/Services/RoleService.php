@@ -12,9 +12,9 @@ class RoleService
         $this->roleRepository = $roleRepository;
     }
 
-    public function getRoles()
+    public function getRoles(array $where = [] ,array $withCount = [])
     {
-        return $this->roleRepository->getAllRoles();
+        return $this->roleRepository->getAllRoles(where: $where , withCount: $withCount);
     }
 
     public function createRole(array $data)
@@ -29,7 +29,7 @@ class RoleService
 
     public function showRole($role)
     {
-        return $this->roleRepository->findById($role->id);
+        return $this->roleRepository->findWith(where:['id' => $role->id] ,with:['users'] , withCount:['users']);
     }
 
     public function deleteRole($role)

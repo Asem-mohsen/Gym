@@ -30,4 +30,14 @@ class ServiceRepository
     {
         return Service::find($id);
     }
+
+    public function selectServices()
+    {
+        return Service::select('id', 'name')->get()->map(function ($service) {
+            return [
+                'id' => $service->id,
+                'name' => $service->getTranslation('name', app()->getLocale()),
+            ];
+        });
+    }
 }

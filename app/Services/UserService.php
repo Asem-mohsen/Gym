@@ -37,9 +37,12 @@ class UserService
 
     public function updateUser($user, array $data)
     {
-        if (!empty($data['password'])) {
+        if (empty($data['password'])) {
+            unset($data['password']);
+        } else {
             $data['password'] = Hash::make($data['password']);
         }
+        
         return $this->userRepository->updateUser($user, $data);
     }
 

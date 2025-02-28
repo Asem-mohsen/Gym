@@ -15,7 +15,9 @@ return new class extends Migration
             $table->json('description');
             $table->integer('duration');
             $table->decimal('price', 8, 2);
+            $table->boolean('requires_payment')->default(false);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

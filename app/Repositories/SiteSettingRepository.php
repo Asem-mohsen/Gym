@@ -2,6 +2,7 @@
 namespace App\Repositories;
 
 use App\Models\SiteSetting;
+use Illuminate\Http\UploadedFile;
 
 class SiteSettingRepository
 {
@@ -18,6 +19,10 @@ class SiteSettingRepository
     public function updateSiteSetting(SiteSetting $siteSetting , array $data)
     {
         $siteSetting->update($data);
+
+        // Handle media uploads
+        $this->handleMediaUploads($siteSetting, $data);
+
         return $siteSetting;
     }
 
@@ -31,4 +36,19 @@ class SiteSettingRepository
         return SiteSetting::with('branches.phones')->find($id);
     }
 
+    private function handleMediaUploads(SiteSetting $siteSetting, array $data)
+    {
+        $mediaFields = [
+            'gym_logo' => 'gym_logo',
+            'favicon' => 'favicon',
+            'email_logo' => 'email_logo',
+            'footer_logo' => 'footer_logo',
+        ];
+
+        foreach ($mediaFields as $field => $collection) {
+            if (isset($data[$field]) && $data[$field] instanceof UploadedFile) {
+                $siteSetting->addMedia($data[$field])->toMediaCollection($collection);
+            }
+        }
+    }
 }

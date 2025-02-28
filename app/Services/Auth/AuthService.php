@@ -59,4 +59,20 @@ class AuthService
         return $user->createToken('API Token')->plainTextToken;
     }
 
+    /**
+    * Handle user login for web sessions.
+    */
+   public function webLoign(array $credentials): void
+   {
+       if (!Auth::attempt($credentials)) {
+           throw new \Exception('Invalid credentials provided.', 401);
+       }
+
+       $user = Auth::user();
+
+       if (!$user->status) {
+           Auth::logout();
+           throw new \Exception('Your account has been disabled.', 403);
+       }
+   }
 }

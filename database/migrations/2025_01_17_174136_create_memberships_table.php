@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('period'); // e.g., "1 month", "3 months"
             $table->json('description');
             $table->decimal('price', 8, 2);
+            $table->enum('billing_interval' , ['monthly', 'yearly']);
             $table->boolean('status')->default(1); // 1 => active, 0 => inactive
             $table->integer('order')->default(0);
             $table->timestamps();

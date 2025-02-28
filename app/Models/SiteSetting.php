@@ -17,6 +17,14 @@ class SiteSetting extends Model implements HasMedia
 
     public $translatable = ['gym_name','address', 'description'];
 
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('gym_logo')->singleFile();
+        $this->addMediaCollection('favicon')->singleFile();
+        $this->addMediaCollection('email_logo')->singleFile();
+        $this->addMediaCollection('footer_logo')->singleFile();
+    }
+    
     public function branches(): HasMany
     {
         return $this->hasMany(Branch::class, 'site_setting_id');

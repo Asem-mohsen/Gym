@@ -8,10 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class SiteSettingService 
 {
-    protected $siteSettingRepository;
-    protected $branchRepository;
-
-    public function __construct(SiteSettingRepository $siteSettingRepository, BranchRepository $branchRepository)
+    public function __construct(protected SiteSettingRepository $siteSettingRepository, protected BranchRepository $branchRepository)
     {
         $this->siteSettingRepository = $siteSettingRepository;
         $this->branchRepository = $branchRepository;
@@ -61,21 +58,6 @@ class SiteSettingService
             }
 
             return $siteSetting->load('branches.phones');
-        });
-    }
-
-    /**
-     * Delete a site setting by ID.
-     */
-    public function deleteSiteSetting(SiteSetting $siteSetting)
-    {
-        return DB::transaction(function () use ($siteSetting) {
-
-            foreach ($siteSetting->branches as $branch) {
-                $this->branchRepository->deleteBranch($branch);
-            }
-
-            $this->siteSettingRepository->deleteSiteSetting($siteSetting);
         });
     }
 
