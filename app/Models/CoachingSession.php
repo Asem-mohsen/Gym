@@ -4,14 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class CoachingSession extends Model
 {
     use HasFactory;
-
     protected $table = 'coaching_sessions';
-
-    public function bookings()
+    
+    public function bookings(): MorphMany
     {
         return $this->morphMany(Booking::class, 'bookable');
     }

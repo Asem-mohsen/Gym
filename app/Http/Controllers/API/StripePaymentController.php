@@ -7,12 +7,10 @@ use Illuminate\Http\Request;
 use Stripe\Stripe;
 use Stripe\Checkout\Session as StripeSession;
 use App\Http\Requests\Payments\StoreRequest;
-use App\Traits\ApiResponse;
 use App\Models\Payments;
 
 class StripePaymentController extends Controller
 {
-    use ApiResponse;
 
     public function store(StoreRequest $request)
     {
@@ -37,10 +35,10 @@ class StripePaymentController extends Controller
                 'cancel_url' => $YOUR_DOMAIN . '/',
             ]);
 
-            return $this->data(['url' => $checkout_session->url] , 'user will be redirected to payment gatway');
+            return successResponse(['url' => $checkout_session->url] , 'user will be redirected to payment gatway');
 
         } catch (\Exception $e) {
-            return $this->error(['error' => $e->getMessage()] , 'An error occured please try again' , 500);
+            return failureResponse(['error' => $e->getMessage()] , 'An error occured please try again' );
         }
 
     }

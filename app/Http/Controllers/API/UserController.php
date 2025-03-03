@@ -4,109 +4,112 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Traits\ApiResponse;
-use App\Http\Requests\Users\UpdateUser;
-use App\Http\Requests\Users\AddUserRequest;
+use App\Http\Requests\Users\{ UpdateUserRequest , AddUserRequest};
 use App\Models\User;
+use App\Services\UserService;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    use ApiResponse;
+    protected $userService;
 
-    // works
-    // return all gym member users for the admin panel
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     public function index()
     {
-        $users = User::where('isAdmin' , '0')->where('roleId', '2')->get();
-
-        return $this->data(compact('users') , 'all users retrieved successfully' , 200);
+        try {
+            $users = $this->userService->getUsers();
+            return successResponse(compact('users'), 'users data retrieved successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error retrieving users, please try again.');
+        }
     }
 
-    // works
-    // return all trainers for tha admin panel
     public function trainers()
     {
-        $trainers = User::where('isAdmin' , '0')->where('roleId', '3')->get();
-
-        return $this->data(compact('trainers') , 'all trainers retrieved successfully' , 200);
+        try {
+            $trainers = $this->userService->getTrainers();
+            return successResponse(compact('trainers'), 'trainers data retrieved successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error retrieving trainers, please try again.');
+        }
     }
 
-    // works
-    // return the user for the admin to edit
     public function editByAdmin(Request $request , User $user)
     {
-        $user->load('roles');
-
-        return $this->data(compact('user') , 'user data retrieved successfully' , 200);
+        try {
+            $this->userService->showUser($user);
+            $user->load('roles');
+            return successResponse(compact('user'), 'user data retrieved successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error retrieving user, please try again.');
+        }
     }
 
-    // works
-    // return the user for the user to edit
     public function edit(Request $request)
     {
-        $user = Auth::guard('sanctum')->user();
-
-        return $this->data(compact('user') , 'user data retrieved successfully' , 200);
+        try {
+            $user = Auth::guard('sanctum')->user();
+            return successResponse(compact('user'), 'user data retrieved successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error retrieving user, please try again.');
+        }
     }
 
-    // works
-    // return the user profile with any booked
     public function profile(Request $request)
     {
-        $user = Auth::guard('sanctum')->user();
-
-        $user->load('bookings.bookable');
-
-        return $this->data(compact('user') , 'user data retrieved successfully' , 200);
+        try {
+            $user = Auth::guard('sanctum')->user();
+            $user->load('bookings.bookable');
+            return successResponse(compact('user'), 'user data retrieved successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error retrieving user, please try again.');
+        }
     }
 
-    // works
-    // this return the coach profile that the user will view
     public function coachProfile(User $user)
     {
-        return $this->data(compact('user') , 'Coach data retrieved successfully');
+        try {
+            $user = $this->userService->showUser($user);
+            return successResponse(compact('user'), 'coach data retrieved successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error retrieving coach data, please try again.');
+        }
     }
 
-    // works
-    // method for admins to create users manullay
     public function addUsers(AddUserRequest $request)
     {
-        $data = $request->except('_method', 'token');
-
-        $data['isAdmin'] = 0 ;
-
-        $user = User::create($data);
-
-        return $this->data(compact('user') , $user->name . ' created successfully' , 200);
+        try {
+            $user = $this->userService->createUser($request->validated());
+            return successResponse(compact('user'), $user->name . ' created successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error creating user, please try again.');
+        }
     }
 
-    // works
-    public function update(UpdateUser $request)
+    public function update(UpdateUserRequest $request)
     {
-        $data = $request->except('_method', 'token');
-
-        $user = Auth::guard('sanctum')->user();
-
-        if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->input('password'));
+        try {
+            $user = Auth::guard('sanctum')->user();
+            $user = $this->userService->updateUser($user ,$request->validated());
+            return successResponse(message: 'user updated successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error updating user, please try again.');
         }
-
-        User::where('id' , $user->id)->update($data);
-
-        $updated_user = User::where('id' , $user->id)->first();
-
-        return $this->data(compact('updated_user') , 'user updated the data successfully' , 200);
     }
 
     public function destroy(Request $request)
     {
-        $user = Auth::guard('sanctum')->user();
-
-        $user->tokens()->delete();
-
-        $user->delete();
-
-        return $this->success('user deleted successfully');
+        try {
+            $user = Auth::guard('sanctum')->user();
+            $this->userService->deleteUser($user );
+            return successResponse(message: 'user deleted successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error deleting user, please try again.');
+        }
     }
 }

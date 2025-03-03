@@ -3,57 +3,67 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Http\Requests\Service\UpdateRequest;
-use App\Http\Requests\Service\AddRequest;
-use App\Traits\ApiResponse;
-use App\Models\User;
-use App\Models\Booking;
+use App\Http\Requests\Service\{AddServiceRequest , UpdateServiceRequest};
 use App\Models\Service;
+use App\Services\ServiceService;
+use Exception;
 
 class ServicesController extends Controller
 {
-    use ApiResponse;
+    protected $serviceService;
 
-    // works
+    public function __construct(ServiceService $serviceService)
+    {
+        $this->serviceService = $serviceService;
+    }
+
     public function index()
     {
-        $services = Service::all();
-
-        return $this->data(compact('services') , 'data retrieved successfully');
+        try {
+            $services = $this->serviceService->getServices();
+            return successResponse(compact('services'), 'Service data retrieved successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error retrieving services, please try again.');
+        }
     }
 
-    // works
-    public function store(AddRequest $request)
+    public function store(AddServiceRequest $request)
     {
-        $data = $request->except('_method' , 'token');
-
-        $service = Service::create($data);
-
-        return $this->data(compact('service') , $service->name . ' created successfully');
+        try {
+            $services = $this->serviceService->createService($request->validated());
+            return successResponse(compact('services'), 'Service data created successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error creating services, please try again.');
+        }
     }
 
-    // works
     public function edit(Service $service)
     {
-        return $this->data(compact('service') , $service->name . ' retrieved successfully');
+        try {
+            $service = $this->serviceService->showService($service);
+            return successResponse(compact('service'), 'Service data retrieved successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error retrieving services, please try again.');
+        }
     }
 
-    // works
-    public function update(UpdateRequest $request , Service $service)
+    public function update(UpdateServiceRequest $request , Service $service)
     {
-        $data = $request->except('_method' , 'token');
-
-        Service::where('id' , $service->id)->update($data);
-
-        return $this->success($service->name . ' updated successfully');
+        try {
+            $service = $this->serviceService->updateService($service , $request->validated());
+            return successResponse(compact('service'), 'Service data updated successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error updating services, please try again.');
+        }
     }
 
-    // works
-    public function destroy(Request $request , Service $service)
+    public function destroy(Service $service)
     {
-        Service::where('id' ,  $service->id)->delete();
-
-        return $this->success('Service deleted successfully');
+        try {
+            $this->serviceService->deleteService($service);
+            return successResponse(message: 'Service data deleted successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error deleting services, please try again.');
+        }
     }
 }

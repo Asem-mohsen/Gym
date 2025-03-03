@@ -3,70 +3,71 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Traits\ApiResponse;
-use App\Http\Requests\Admins\AddRequest;
-use App\Http\Requests\Admins\UpdateRequest;
+use App\Http\Requests\Admins\{ AddAdminRequest , UpdateAdminRequest};
 use App\Models\User;
-use App\Models\Role;
+use App\Services\{ AdminService , RoleService, SiteSettingService};
+use Exception;
 
 class AdminController extends Controller
 {
-    use ApiResponse;
+    protected int $siteSettingId;
 
-    // works
+    public function __construct(protected AdminService $adminService ,protected RoleService $roleService, protected SiteSettingService $siteSettingService)
+    {
+        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+        $this->adminService = $adminService;
+        $this->roleService  = $roleService;
+    }
+
     public function index()
     {
-        $admins = User::where('isAdmin', '1')->get();
-
-        return $this->data(compact('admins') , 'admins data retrieved successfully' , 200);
+        try {
+            $admins = $this->adminService->getAdmins($this->siteSettingId);
+            return successResponse(compact('admins'), 'Admins data retrieved successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error retrieving admins, please try again.');
+        }
     }
 
-    // works
     public function create()
     {
-        $roles = Role::all();
-
-        return $this->data(compact('roles') , 'roles for adding admins retrieved successfully' , 200);
+        $roles = $this->roleService->getRoles(where: ['name' => 'admin'] ,siteSettingId: $this->siteSettingId);
+        return successResponse(compact('roles'), 'Roles for adding admins retrieved successfully');
     }
 
-    // works
-    public function store(AddRequest $request)
+    public function store(AddAdminRequest $request)
     {
-        $data = $request->except('_method' , 'token');
-
-        $data['password'] = bcrypt($request->password);
-
-        $newAdmin = User::create($data);
-
-        return $this->data(compact('newAdmin') , 'Admin added successfully' , 200);
+        try {
+            $newAdmin = $this->adminService->createAdmin($request->validated(),$this->siteSettingId);
+            return successResponse(compact('newAdmin'), 'Admin added successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error happened while creating a new admin, please try again in a few minutes');
+        }
     }
 
-    //works
-    public function update(UpdateRequest $request , User $user)
+    public function update(UpdateAdminRequest $request, User $user)
     {
-        $data = $request->except('_method' , 'token');
-
-        $data['password'] = bcrypt($request->password);
-
-        User::where('id' , $user->id)->update($data);
-
-        return $this->success('Admin updated successfully' , 200);
+        try {
+            $updatedAdmin = $this->adminService->updateAdmin($user, $request->validated(), $this->siteSettingId);
+            return successResponse(compact('updatedAdmin'), 'Admin updated successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error happened while updating admin, please try again in a few minutes');
+        }
     }
 
-    // works
     public function edit(User $user)
     {
-        $roles = Role::all();
-
-        return $this->data(compact('user' , 'roles') , 'Admin retrieved successfully' , 200);
+        $roles = $this->roleService->getRoles(siteSettingId: $this->siteSettingId);
+        return successResponse(compact('user', 'roles'), 'Admin retrieved successfully');
     }
 
-    // works
-    public function destroy(Request $request , User $user)
+    public function destroy(User $user)
     {
-        User::where('id' ,  $user->id)->delete();
-
-        return $this->success('Admin deleted successfully');
+        try {
+            $this->adminService->deleteAdmin($user);
+            return successResponse(message: 'Admin deleted successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error happened while deleting admin, please try again in a few minutes');
+        }
     }
 }

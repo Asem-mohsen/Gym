@@ -3,41 +3,49 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Traits\ApiResponse;
-use App\Models\User;
-use App\Models\Membership;
+use App\Http\Requests\AddBookingRequest;
 use App\Models\Booking;
-
+use App\Services\BookingService;
+use Exception;
 
 class BookingController extends Controller
 {
-    use ApiResponse ;
+    protected $bookingService;
 
-    // works
-    // it return each booking with the bookable which is the something booked
+    public function __construct(BookingService $bookingService)
+    {
+        $this->bookingService = $bookingService;
+    }
+
     public function index()
     {
-        $bookings = Booking::with('bookable')->get();
-
-        return $this->data(compact('bookings') , 'data retrieved successfully');
+        try {
+            $bookings = $this->bookingService->getBookings();
+            return successResponse(compact('bookings'), 'Bookings retrieved successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error retrieving bookings, please try again.');
+        }
     }
 
-    // works
-    // retrive the booked item for admin
     public function show(Booking $booking)
     {
-        $booking->load('bookable');
-
-        return $this->data(compact('booking') , 'booking data retrieved successfully');
+        try {
+            $booking = $this->bookingService->showBooking($booking);
+            $booking->load('bookable');
+            return successResponse(compact('booking'), 'Booking retrieved successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error retrieving bookings, please try again.');
+        }
     }
 
-    //
-    public function store(AddRequest $request)
+    public function store(AddBookingRequest $request)
     {
-        $request->except('_method');
-        $booking->load('bookable');
-
-        return $this->data(compact('booking') , 'booking data retrieved successfully');
+        try {
+            $booking = $this->bookingService->createBooking($request->validated());
+            $booking->load('bookable');
+            return successResponse(compact('booking'), 'Booking created successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error creating bookings, please try again.');
+        }
     }
 }

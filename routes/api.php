@@ -1,15 +1,12 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
 
 // Authentication
 use App\Http\Controllers\API\Auth\LoginController;
 use App\Http\Controllers\API\Auth\ForgetPasswordController;
 use App\Http\Controllers\API\Auth\RegisterController;
 use App\Http\Controllers\API\Auth\LogoutController;
-
 
 use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\AdminController;
@@ -22,6 +19,7 @@ use App\Http\Controllers\API\ServicesController;
 use App\Http\Controllers\API\TransactionController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\AboutController;
+use App\Http\Controllers\API\SiteSettingController;
 use App\Http\Controllers\API\StripePaymentController;
 
 
@@ -29,7 +27,7 @@ use App\Http\Controllers\API\StripePaymentController;
 Route::prefix('v1')->group(function(){
 
     // Auth
-    Route::middleware(['PreventAuth'])->group(function () {
+    Route::middleware(['preventAuth'])->group(function () {
 
         Route::post('/login'    , [LoginController::class , 'login']);
         Route::post('/register' , [RegisterController::class , 'register']);
@@ -54,22 +52,19 @@ Route::prefix('v1')->group(function(){
             });
         });
 
-        Route::prefix('logout')->group(function(){
-            Route::controller(LogoutController::class)->group(function(){
-                Route::post('/current', 'current');
-                Route::post('/other', 'other');
-                Route::post('/all', 'all');
-            });
+        Route::prefix('logout')->controller(LogoutController::class)->group(function(){
+            Route::post('/current', 'logoutFromCurrentSession');
+            Route::post('/all',  'logoutFromAllSessions');
+            Route::post('/others', 'logoutFromOtherSessions');
         });
 
         Route::prefix('booking')->group(function(){
-            Route::get(StripePaymentController::class)->group(function(){
+            Route::controller(StripePaymentController::class)->group(function(){
                 Route::post('/payment', 'store');
             });
         });
 
     });
-
 
     // Admin
     Route::middleware(['auth:sanctum' ,'admin'])->group(function () {
@@ -147,7 +142,7 @@ Route::prefix('v1')->group(function(){
         });
 
         Route::prefix('transactions')->group(function(){
-            Route::controller(TransactionsController::class)->group(function(){
+            Route::controller(TransactionController::class)->group(function(){
                 Route::get('/', 'index');
             });
         });
@@ -161,6 +156,12 @@ Route::prefix('v1')->group(function(){
 
         Route::prefix('contact')->group(function(){
             Route::controller(ContactController::class)->group(function(){
+                Route::get('/', 'index');
+            });
+        });
+
+        Route::prefix('site-settings')->group(function(){
+            Route::controller(SiteSettingController::class)->group(function(){
                 Route::get('/', 'index');
             });
         });

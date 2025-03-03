@@ -3,62 +3,77 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Http\Requests\Membership\AddRequest;
-use App\Http\Requests\Membership\UpdateRequest;
-use App\Traits\ApiResponse;
-use App\Models\User;
+use App\Http\Requests\Membership\{AddMembershipRequest,UpdateMembershipRequest};
 use App\Models\Membership;
+use App\Services\{MembershipService, SiteSettingService};
+use Exception;
 
 class MembershipController extends Controller
 {
-    use ApiResponse;
+    protected int $siteSettingId;
+    public function __construct(protected MembershipService $membershipService, protected SiteSettingService $siteSettingService)
+    {
+        $this->membershipService = $membershipService;
+        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+    }
 
-    // works
     public function index()
     {
-        $memberships = Membership::where('status' , 1)->get();
-
-        return $this->data(compact('memberships'), 'Memberships retrieved' , 200);
+        try {
+            $memberships = $this->membershipService->getMemberships($this->siteSettingId);
+            return successResponse(compact('memberships'), 'Memberships data retrieved successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error retrieving memberships, please try again.');
+        }
     }
 
-    // works
-    public function store(AddRequest $request)
+    public function store(AddMembershipRequest $request)
     {
-        $data = $request->except('_method' , 'token');
-
-        $memberships = Membership::create($data);
-
-        return $this->data(compact('memberships'), 'Memberships added successfully' , 200);
+        try {
+            $membership = $this->membershipService->createMembership($request->validated());
+            return successResponse(compact('membership'), 'Membership data successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error creating membership, please try again.');
+        }
     }
 
-    // works
     public function show(Membership $membership)
     {
-        return $this->data(compact('membership'), $membership->name . ' membership retrieved' , 200);
+        try {
+            $membership = $this->membershipService->showMembership($membership);
+            return successResponse(compact('membership'), $membership->name .' data successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error fetching membership, please try again.');
+        }
     }
 
-    // works
     public function edit(Membership $membership)
     {
-        return $this->data(compact('membership'), $membership->name . ' membership retrieved' , 200);
+        try {
+            $membership = $this->membershipService->showMembership($membership);
+            return successResponse(compact('membership'), $membership->name .' data successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error fetching membership, please try again.');
+        }
     }
 
-    // works
-    public function update(UpdateRequest $request , Membership $membership)
+    public function update(UpdateMembershipRequest $request , Membership $membership)
     {
-        $data = $request->except('_method' , 'token');
-
-        Membership::where('id' ,  $membership->id)->update($data);
-
-        return $this->success('Memberships updated successfully');
+        try {
+            $updatedMembership = $this->membershipService->updateMembership($membership, $request->validated());
+            return successResponse(compact('updatedMembership'), 'Membership updated successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error happened while updating membership, please try again in a few minutes');
+        }
     }
 
-    // works
-    public function destroy(Request $request , Membership $membership)
+    public function destroy(Membership $membership)
     {
-        Membership::where('id' ,  $membership->id)->delete();
-
-        return $this->success('Membership deleted successfully');
+        try {
+            $this->membershipService->deleteMembership($membership);
+            return successResponse(message: 'Membership deleted successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error happened while deleting membership, please try again in a few minutes');
+        }
     }
 }
