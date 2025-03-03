@@ -5,38 +5,36 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\{ AddUserRequest , UpdateUserRequest};
 use App\Models\User;
-use App\Services\RoleService;
-use App\Services\UserService;
+use App\Services\{UserService , RoleService, SiteSettingService};
 use Exception;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    protected $userService;
+    protected int $siteSettingId;
 
-    protected $roleService;
-
-    public function __construct(UserService $userService , RoleService $roleService)
+    public function __construct(protected UserService $userService , protected RoleService $roleService, protected SiteSettingService $siteSettingService)
     {
         $this->userService = $userService;
         $this->roleService = $roleService;
+        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
     }
 
     public function index()
     {
-        $users = $this->userService->getUsers();
+        $users = $this->userService->getUsers($this->siteSettingId);
         return view('admin.users.index',compact('users'));
     }
 
     public function trainers()
     {
-        $trainers = $this->userService->getTrainers();
+        $trainers = $this->userService->getTrainers($this->siteSettingId);
         return view('admin.users.index',compact('trainers'));
     }
 
     public function edit(Request $request , User $user)
     {
-        $roles = $this->roleService->getRoles(where: ['name' => 'System User']);
+        $roles = $this->roleService->getRoles(where: ['name' => 'System User'] , siteSettingId: $this->siteSettingId);
         return view('admin.users.edit',get_defined_vars());
     }
 
@@ -48,7 +46,7 @@ class UserController extends Controller
     public function store(AddUserRequest $request)
     {
         try {
-            $this->userService->createUser($request->validated());
+            $this->userService->createUser($request->validated(), $this->siteSettingId);
             return redirect()->route('users.index')->with('success', 'User created successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while creating new user, please try again in a few minutes.');
@@ -58,7 +56,7 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request , User $user)
     {
         try {
-            $user = $this->userService->updateUser($user ,$request->validated());
+            $user = $this->userService->updateUser($user,$request->validated() ,$this->siteSettingId);
             return redirect()->route('users.index')->with('success', 'User updated successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while updating user, please try again in a few minutes.');

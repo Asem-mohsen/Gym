@@ -5,19 +5,22 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Offeres\{ AddOfferRequest , UpdateOfferRequest};
 use App\Models\Offer;
-use App\Services\OfferService;
+use App\Services\{ OfferService , SiteSettingService};
 use Exception;
 
 class OfferController extends Controller
 {
-    public function __construct(protected OfferService $offerService)
+    protected int $siteSettingId;
+
+    public function __construct(protected OfferService $offerService,  protected SiteSettingService $siteSettingService)
     {
         $this->offerService = $offerService;
+        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
     }
 
     public function index()
     {
-        $offers = $this->offerService->getOffers();
+        $offers = $this->offerService->getOffers($this->siteSettingId);
         return view('admin.offers.index',compact('offers'));
     }
 
@@ -29,7 +32,7 @@ class OfferController extends Controller
     public function store(AddOfferRequest $request)
     {
         try {
-            $this->offerService->createOffer($request->validated());
+            $this->offerService->createOffer($request->validated(), $this->siteSettingId);
             return redirect()->route('offers.index')->with('success', 'Offer created successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while creating offer, please try again in a few minutes.');
@@ -47,7 +50,7 @@ class OfferController extends Controller
             'services'              => $data['services'],
             'selectedMemberships'   => $data['selectedMemberships'],
             'selectedServices'      => $data['selectedServices'],
-            'allMembershipsSelected' => $data['allMembershipsSelected'],
+            'allMembershipsSelected'=> $data['allMembershipsSelected'],
             'allServicesSelected'   => $data['allServicesSelected'],
         ]);
     }
@@ -56,7 +59,7 @@ class OfferController extends Controller
     public function update(UpdateOfferRequest $request , Offer $offer)
     {
         try {
-            $this->offerService->updateOffer($offer , $request->validated());
+            $this->offerService->updateOffer($offer , $request->validated() , $this->siteSettingId);
             return redirect()->route('offers.index')->with('success', 'Offer updated successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while updating offer, please try again in a few minutes.');
@@ -75,13 +78,13 @@ class OfferController extends Controller
 
     public function getMemberships()
     {
-        $memberships = $this->offerService->fetchMemberships();
+        $memberships = $this->offerService->fetchMemberships($this->siteSettingId);
         return response()->json($memberships);
     }
 
     public function getServices()
     {
-        $services = $this->offerService->fetchServices();
+        $services = $this->offerService->fetchServices($this->siteSettingId);
         return response()->json($services);
     }
 }

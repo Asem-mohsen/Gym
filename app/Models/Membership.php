@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Spatie\Translatable\HasTranslations;
@@ -26,5 +27,10 @@ class Membership extends Model
     public function offers(): MorphToMany
     {
         return $this->morphToMany(Offer::class, 'offerable');
+    }
+
+    public function gym(): BelongsTo
+    {
+        return $this->belongsTo(SiteSetting::class, 'site_setting_id');
     }
 }

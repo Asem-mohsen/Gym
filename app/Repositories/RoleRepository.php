@@ -5,17 +5,18 @@ use App\Models\Role;
 
 class RoleRepository
 {
-    public function getAllRoles(array $select = ['*'], array $with = [], array $where = [], array $orderBy = [] , array $withCount = [])
+    public function getAllRoles(int $siteSettingId , array $select = ['*'], array $with = [], array $where = [], array $orderBy = [], array $withCount = [])
     {
         return Role::select($select)
-            ->when(! empty($with), fn ($query) => $query->with($with))
-            ->when(! empty($where), fn ($query) => $query->where($where))
-            ->when(! empty($orderBy), function ($query) use ($orderBy) {
+            ->when(!empty($with), fn($query) => $query->with($with))
+            ->when(!empty($where), fn($query) => $query->where($where))
+            ->when(!empty($orderBy), function ($query) use ($orderBy) {
                 foreach ($orderBy as $column => $direction) {
                     $query->orderBy($column, $direction);
                 }
             })
-            ->when(! empty($withCount), fn ($query) => $query->withCount($withCount))
+            ->when(!empty($withCount), fn($query) => $query->withCount($withCount))
+            ->where('site_setting_id', $siteSettingId)
             ->get();
     }
 

@@ -5,22 +5,22 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Membership\{AddMembershipRequest,UpdateMembershipRequest};
 use App\Models\Membership;
-use App\Services\MembershipService;
+use App\Services\{MembershipService, SiteSettingService};
 use Exception;
 
 class MembershipController extends Controller
 {
-    protected $membershipService;
-
-    public function __construct(MembershipService $membershipService)
+    protected int $siteSettingId;
+    public function __construct(protected MembershipService $membershipService, protected SiteSettingService $siteSettingService)
     {
         $this->membershipService = $membershipService;
+        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
     }
 
     public function index()
     {
         try {
-            $memberships = $this->membershipService->getMemberships();
+            $memberships = $this->membershipService->getMemberships($this->siteSettingId);
             return successResponse(compact('memberships'), 'Memberships data retrieved successfully');
         } catch (Exception $e) {
             return failureResponse('Error retrieving memberships, please try again.');

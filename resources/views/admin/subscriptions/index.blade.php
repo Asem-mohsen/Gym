@@ -96,13 +96,13 @@
                                     </div>
                                 </td>
                                 <td>
-                                    @if ($order->status == 'active')
+                                    @if ($subscription->status == 'active')
                                         <span class="badge badge-success">Active</span>
-                                    @elseif ($order->status == 'pending')
+                                    @elseif ($subscription->status == 'pending')
                                         <span class="badge badge-warning">Pending</span>
-                                    @elseif ($order->status == 'cancelled')
+                                    @elseif ($subscription->status == 'cancelled')
                                         <span class="badge badge-danger">Cancelled</span>
-                                    @elseif ($order->status == 'expired')
+                                    @elseif ($subscription->status == 'expired')
                                         <span class="badge badge-info">Expired</span>
                                     @endif
                                 </td>

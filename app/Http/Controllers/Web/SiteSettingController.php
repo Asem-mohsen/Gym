@@ -10,6 +10,7 @@ use Exception;
 
 class SiteSettingController extends Controller
 {
+
     public function __construct(protected SiteSettingService $siteSettingService , protected AdminService $adminService)
     {
         $this->siteSettingService = $siteSettingService;
@@ -19,7 +20,7 @@ class SiteSettingController extends Controller
     public function edit(SiteSetting $siteSetting)
     {
         $site = $this->siteSettingService->getSiteSettingById($siteSetting->id);
-        $users = $this->adminService->getAdmins();
+        $users = $this->adminService->getAdmins($siteSetting->id);
         return view('admin.site-settings.edit',get_defined_vars());
     }
 

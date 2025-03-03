@@ -5,9 +5,9 @@ use App\Interfaces\MembershipRepositoryInterface;
 use App\Models\Membership;
 use App\Models\Offerable;
 
-class MembershipRepository implements MembershipRepositoryInterface
+class MembershipRepository
 {
-    public function getAllMemberships(array $select = ['*'], array $with = [], array $where = [], array $orderBy = [] , array $withCount = [])
+    public function getAllMemberships(int $siteSettingId ,array $select = ['*'], array $with = [], array $where = [], array $orderBy = [] , array $withCount = [])
     {
         return Membership::select($select)
             ->when(! empty($with), fn ($query) => $query->with($with))
@@ -18,6 +18,7 @@ class MembershipRepository implements MembershipRepositoryInterface
                 }
             })
             ->when(! empty($withCount), fn ($query) => $query->withCount($withCount))
+            ->where('site_setting_id', $siteSettingId)
             ->get()
             ->map(function ($membership) {
                 $membership->price = $this->calculateDiscountedPrice($membership);
@@ -46,9 +47,9 @@ class MembershipRepository implements MembershipRepositoryInterface
         return Membership::find($id);
     }
 
-    public function selectMemberships()
+    public function selectMemberships(int $siteSettingId)
     {
-        return Membership::select('id', 'name')->get()->map(function ($membership) {
+        return Membership::where('site_setting_id', $siteSettingId)->select('id', 'name')->get()->map(function ($membership) {
             return [
                 'id' => $membership->id,
                 'name' => $membership->getTranslation('name', app()->getLocale()),

@@ -1,12 +1,15 @@
 @extends('layout.master')
 
-@section('title', 'Edit ' . $service->name)
+@section('title', 'Edit ' . $machine->name)
 
 @section('content')
 
+    <link rel="stylesheet" href="{{ asset('assets/plugins/select2/css/select2.min.css')}}">
+    <link rel="stylesheet" href="{{ asset('assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')}}">
+
     <div class="container-fluid py-4">
         <div class="card">
-            <form action="{{ route('services.update', $service->id) }}" enctype="multipart/form-data" method="post">
+            <form action="{{ route('machines.update', $machine->id) }}" enctype="multipart/form-data" method="post">
                 @csrf
                 @method('PUT')
                 <div class="row">
@@ -14,7 +17,7 @@
                         <div class="card-header pb-2">
                             <div class="d-flex align-items-center">
                                 <button class="btn btn-primary btn-sm mr-2">Edit</button>
-                                <p class="mb-0"> Service</p>
+                                <p class="mb-0"> Machine</p>
                             </div>
                         </div>
                         <div class="card-body">
@@ -22,37 +25,42 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="Service" class="form-control-label">Service Name (English)</label>
-                                        <input class="form-control" id="Service" type="text" name="name[en]" value="{{$service->getTranslation('name','en')}}" required>
+                                        <label for="code" class="form-control-label">Code</label>
+                                        <div class="input-group">
+                                            <input class="form-control" id="code" type="text" name="code" value="{{ $machine->code }}" required>
+                                            <button type="button" class="btn btn-primary remove-phones" onclick="generateUUID()">Generate</button>
+                                        </div>
                                     </div>
-                                    @error('name.en')
+                                    @error('code')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="Service" class="form-control-label">Service Name (Arabic)</label>
-                                        <input class="form-control" id="Service" type="text" name="name[ar]" value="{{$service->getTranslation('name','ar')}}" required>
+                                        <label for="name" class="form-control-label">Machine Name</label>
+                                        <input class="form-control" id="name" type="text" name="name" value="{{$machine->name}}" required>
                                     </div>
-                                    @error('name.ar')
+                                    @error('name')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="duration" class="form-control-label">Duration</label>
-                                        <input class="form-control" id="duration" type="text" name="duration" value="{{$service->duration}}" required>
+                                        <label for="type" class="form-control-label">Type</label>
+                                        <input class="form-control" id="type" type="text" name="type" value="{{$machine->type}}" required>
                                     </div>
-                                    @error('duration')
+                                    @error('type')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="price" class="form-control-label">Price</label>
-                                        <input class="form-control" id="price" type="text" name="price" value="{{$service->price}}" required>
-                                    </div>
-                                    @error('price')
+                                    <label for="branch" class="form-control-label">Branch</label>
+                                    <select class="select2bs4 form-control" name="branches[]" multiple>
+                                        @foreach ($branches as $branch)
+                                            <option value="{{$branch->id}}" {{ $machine->branches->contains($branch->id) ? 'selected' : '' }}>{{$branch->name}}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('branches')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -64,22 +72,46 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="description_en" class="form-control-label">Description (English)</label>
-                                        <textarea class="form-control" name="description[en]" id="description_en" required>{{$service->getTranslation('description','en')}}</textarea>
+                                        <label for="description" class="form-control-label">Description</label>
+                                        <textarea class="form-control" name="description" id="description" required>{{$machine->description}}</textarea>
                                     </div>
-                                    @error('description.en')
+                                    @error('description')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="description_ar" class="form-control-label">Description (Arabic)</label>
-                                        <textarea class="form-control" name="description[ar]" id="description_ar">{{$service->getTranslation('description','ar')}}</textarea>
-                                    </div>
-                                    @error('description.ar')
+                                    <label for="status" class="form-control-label">Status</label>
+                                    <select class="form-control" name="status" id="status">
+                                        <option value="available" {{ $machine->status == 'available' ? 'selected' : '' }}>Available</option>
+                                        <option value="in_use" {{ $machine->status == 'mix' ? 'in_use' : '' }}>In Use</option>
+                                        <option value="under_maintenance" {{ $machine->status == 'under_maintenance' ? 'selected' : '' }}>Under Maintenance</option>
+                                        <option value="needs_maintenance" {{ $machine->status == 'needs_maintenance' ? 'selected' : '' }}>Needs Maintenance</option>
+                                    </select>
+                                    @error('status')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="last_maintenance_date" class="form-control-label w-100">Last Maintenance Date</label>
+                                        <input class="form-control" id="last_maintenance_date" type="date" value="{{$machine->last_maintenance_date}}" name="last_maintenance_date">
+                                    </div>
+                                    @error('last_maintenance_date')
+                                        <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="next_maintenance_date" class="form-control-label w-100 text-center">Next Maintenance Date</label>
+                                        <input class="form-control" id="next_maintenance_date" type="date" value="{{$machine->next_maintenance_date}}" name="next_maintenance_date">
+                                    </div>
+                                    @error('next_maintenance_date')
+                                        <div class="alert alert-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="image" class="form-control-label">Image</label>
@@ -101,7 +133,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <a href="{{ route('services.index') }}"
+                                    <a href="{{ route('machines.index') }}"
                                         class="btn btn-danger w-100 mt-4 mb-0">Cancel</a>
                                 </div>
                             </div>
@@ -113,3 +145,20 @@
     </div>
 
 @endsection
+
+
+@section('Js')
+    <script src="{{asset( 'assets/plugins/select2/js/select2.full.min.js')}}"></script>
+    
+    <script>
+        $(function () {
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+        });
+
+        function generateUUID() {
+            document.getElementById('code').value = crypto.randomUUID();
+        }
+    </script>
+@stop

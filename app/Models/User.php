@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -45,6 +46,11 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class , 'role_id' , 'id');
     }
 
+    public function gyms(): BelongsToMany
+    {
+        return $this->belongsToMany(SiteSetting::class, 'gym_user', 'user_id', 'site_setting_id');
+    }
+
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
@@ -58,6 +64,11 @@ class User extends Authenticatable
     public function managedBranches(): HasMany
     {
         return $this->hasMany(Branch::class, 'manager_id');
+    }
+
+    public function getSiteSettingIdAttribute()
+    {
+        return $this->site?->id;
     }
 
 }

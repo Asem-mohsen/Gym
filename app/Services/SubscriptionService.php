@@ -1,19 +1,20 @@
 <?php 
 namespace App\Services;
 
-use App\Repositories\SubscriptionRepository;
-use Illuminate\Support\Facades\Hash;
+use App\Repositories\{ PaymentRepository , SubscriptionRepository };
+use Exception;
+use Illuminate\Support\Facades\DB;
 
 class SubscriptionService
 {
-    public function __construct(protected SubscriptionRepository $subscriptionRepository)
+    public function __construct(protected SubscriptionRepository $subscriptionRepository , protected PaymentRepository $paymentRepository)
     {
         $this->subscriptionRepository = $subscriptionRepository;
     }
 
-    public function getSubscriptions()
+    public function getSubscriptions(int $siteSettingId)
     {
-        $data = $this->subscriptionRepository->getAll();
+        $data = $this->subscriptionRepository->getAll($siteSettingId);
         return [$data['subscriptions'], $data['counts']];
     }
 
@@ -24,20 +25,47 @@ class SubscriptionService
 
     public function createSubscription(array $data)
     {
-        $data['password'] = Hash::make($data['password']);
-        $data['is_admin'] = 0 ;
-        return $this->subscriptionRepository->createSubscription($data);
+        DB::beginTransaction();
+    
+        try {
+            $subscription = $this->subscriptionRepository->createSubscription($data);
+    
+            if (!empty($data['offer_id'])) {
+                $this->paymentRepository->createPayment($subscription, $data);
+            }
+    
+            DB::commit();
+            return $subscription;
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw new Exception('Error creating subscription: ' . $e->getMessage());
+        }
     }
-
+    
     public function updateSubscription($subscription, array $data)
     {
-        if (empty($data['password'])) {
-            unset($data['password']);
-        } else {
-            $data['password'] = Hash::make($data['password']);
+        DB::beginTransaction();
+    
+        try {
+            $updatedSubscription = $this->subscriptionRepository->updateSubscription($subscription, $data);
+    
+            if (!empty($data['offer_id']) || !empty($data['amount'] )) {
+                $existingPayment = $subscription->payment;
+
+                if ($existingPayment) {
+                    $this->paymentRepository->updatePayment($existingPayment, $subscription ,$data);
+                } else {
+                    $this->paymentRepository->createPayment($updatedSubscription, $data);
+                }
+
+            }
+
+            DB::commit();
+            return $updatedSubscription;
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw new Exception('Error updating subscription: ' . $e->getMessage());
         }
-        
-        return $this->subscriptionRepository->updateSubscription($subscription, $data);
     }
 
     public function deleteSubscription($subscription)

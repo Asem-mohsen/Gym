@@ -94,7 +94,7 @@
                 <li class="nav-item">
                     <a href="{{ route('subscriptions.index') }}"
                         class="nav-link {{ request()->routeIs('subscriptions.index') ? 'active' : '' }}">
-                        <i class="nav-icon fa-solid fa-users"></i>
+                        <i class="nav-icon fa-solid fa-play"></i>
                         <p>
                             Subscriptions
                         </p>
@@ -104,7 +104,7 @@
                 <li class="nav-item">
                     <a href="{{ route('branches.index') }}"
                         class="nav-link {{ request()->routeIs('branches.index') ? 'active' : '' }}">
-                        <i class="nav-icon fa-solid fa-users"></i>
+                        <i class="nav-icon fa-solid fa-store"></i>
                         <p>
                             Branches
                         </p>
@@ -115,7 +115,7 @@
                  <li class="nav-item">
                     <a href="{{ route('lockers.index') }}"
                         class="nav-link {{ request()->routeIs('lockers.index') ? 'active' : '' }}">
-                        <i class="nav-icon fa-solid fa-users"></i>
+                        <i class="nav-icon fa-solid fa-lock"></i>
                         <p>
                             Lockers
                         </p>
@@ -126,7 +126,7 @@
                 <li class="nav-item">
                     <a href="{{ route('machines.index') }}"
                         class="nav-link {{ request()->routeIs('machines.index') ? 'active' : '' }}">
-                        <i class="nav-icon fa-solid fa-users"></i>
+                        <i class="nav-icon fa-solid fa-dumbbell"></i>
                         <p>
                             Machines
                         </p>
@@ -136,7 +136,7 @@
                 {{-- Products --}}
                 <li class="nav-item">
                     <a href="#" class="nav-link">
-                        <i class="nav-icon fa-solid fa-box-open"></i>
+                        <i class="nav-icon fa-solid fa-money-check-dollar"></i>
                         <p>
                             Services
                             <i class="right fas fa-angle-left"></i>
@@ -156,7 +156,7 @@
                 <li class="nav-item">
                     <a href="{{ route('offers.index') }}"
                         class="nav-link {{ request()->routeIs('offers.index') ? 'active' : '' }}">
-                        <i class="nav-icon fa-solid fa-money-bill-1-wave"></i>
+                        <i class="nav-icon fa-solid fa-wallet"></i>
                         <p>
                             Offers
                         </p>

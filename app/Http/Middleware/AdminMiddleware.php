@@ -11,7 +11,7 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if(Auth::guard('sanctum')->check() && Auth::guard('sanctum')->user()->role_id === 1){
+        if(Auth::guard('sanctum')->check() && Auth::guard('sanctum')->user()->roles->name === "Admin"){
             return $next($request);
         }
 

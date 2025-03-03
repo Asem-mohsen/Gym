@@ -6,23 +6,23 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class AddSubscriptionRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'user_id'       => ['required', 'exists:users,id'],
+            'membership_id' => ['required', 'exists:memberships,id'],
+            'branch_id'     => ['required', 'exists:branches,id'],
+            'status'        => ['required', 'in:active,pending,cancelled,expired'],
+            'offer_id'      => ['sometimes', 'nullable', 'exists:offers,id'],
+            'amount'        => ['nullable', 'required_if:status,active', 'numeric'],
+            'start_date'    => ['nullable', 'date'],
+            'end_date'      => ['nullable', 'date', 'after:start_date'],
         ];
     }
+    
 }

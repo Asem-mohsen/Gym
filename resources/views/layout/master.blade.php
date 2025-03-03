@@ -1,5 +1,10 @@
-@include('layout.header.head')
+<!DOCTYPE html>
+<html lang="en">
 
+  @include('layout.header.head')
+
+  <body class="hold-transition sidebar-mini layout-fixed">
+    
     <div class="wrapper">
 
         @include('layout.preloader.preloader')
@@ -36,4 +41,6 @@
         </aside>
     </div>
 
-@include('layout.footer.footer')
+    @include('layout.footer.footer')
+  </body>
+</html>

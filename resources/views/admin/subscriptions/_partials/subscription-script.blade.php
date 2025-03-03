@@ -1,5 +1,6 @@
 <script>
     $(document).ready(function () {
+        let selectedOfferId = "{{ $subscription->payment->offer_id }}";
 
         function fetchOffers() {
             $.ajax({
@@ -11,7 +12,8 @@
                     offersDropdown.append('<option value="">Select an Offer</option>');
 
                     $.each(response.offers, function (index, offer) {
-                        offersDropdown.append(`<option value="${offer.id}">${offer.name}</option>`);
+                        let isSelected = offer.id == selectedOfferId ? "selected" : "";
+                        offersDropdown.append(`<option value="${offer.id}" ${isSelected}>${offer.name}</option>`);
                     });
                 },
                 error: function () {
@@ -20,16 +22,10 @@
             });
         }
 
-        $("#status").change(function () {
-            let selectedStatus = $(this).val();
-
-            if (selectedStatus === "active") {
-                $("#amountPaidContainer").removeClass("d-none"); 
-                $("#offerContainer").removeClass("d-none"); 
-            } else {
-                $("#amountPaidContainer, #offerContainer, #offersListContainer").addClass("d-none");
-            }
-        });
+        if (selectedOfferId) {
+            $("#offersListContainer").removeClass("d-none");
+            fetchOffers();
+        }
 
         $("#apply_offer").change(function () {
             let applyOffer = $(this).val();

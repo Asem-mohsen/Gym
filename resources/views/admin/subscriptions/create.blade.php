@@ -45,13 +45,13 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="membersip_id" class="form-control-label">Membership</label>
-                                    <select class="form-control" name="membersip_id" id="membersip_id">
+                                    <label for="membership_id" class="form-control-label">Membership</label>
+                                    <select class="form-control" name="membership_id" id="membership_id">
                                         @foreach ($memberships as $membership)
                                             <option value="{{ $membership->id }}">{{ $membership->name }}</option>
                                         @endforeach
                                     </select>
-                                    @error('membersip_id')
+                                    @error('membership_id')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
                                 </div>

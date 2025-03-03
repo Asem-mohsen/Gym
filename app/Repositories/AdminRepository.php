@@ -5,9 +5,13 @@ use App\Models\User;
 
 class AdminRepository
 {
-    public function getAllAdmins()
+    public function getAllAdmins(int $siteSettingId)
     {
-        return User::where('is_admin', '1')->with('roles')->get();
+        return User::where('is_admin', '1')->with('roles')
+                ->whereHas('gyms', function ($query)use ($siteSettingId) {
+                    $query->where('site_setting_id', $siteSettingId);
+                })
+                ->get();
     }
 
     public function createAdmin(array $data)

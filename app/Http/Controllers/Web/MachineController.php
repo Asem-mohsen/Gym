@@ -5,15 +5,16 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Machines\AddMachineRequest;
 use App\Models\Machine;
-use App\Services\{ BranchService , MachineService};
+use App\Services\{ BranchService , MachineService, SiteSettingService};
 use Exception;
 
 class MachineController extends Controller
 {
-    public function __construct(protected MachineService $machineService , protected BranchService $branchService)
+    public function __construct(protected MachineService $machineService , protected BranchService $branchService, protected SiteSettingService $siteSettingService)
     {
         $this->machineService = $machineService;
         $this->branchService = $branchService;
+        $this->siteSettingService = $siteSettingService;
     }
 
     public function index()
@@ -25,7 +26,9 @@ class MachineController extends Controller
 
     public function create()
     {
-        $branches = $this->branchService->getBranches();
+        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+
+        $branches = $this->branchService->getBranches($siteSettingId);
         return view('admin.machines.create',compact('branches'));
     }
 
@@ -52,8 +55,10 @@ class MachineController extends Controller
 
     public function edit(Machine $machine)
     {
+        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+
         $machine  = $this->machineService->showMachine($machine->id);
-        $branches = $this->branchService->getBranches();
+        $branches = $this->branchService->getBranches($siteSettingId);
 
         return view('admin.machines.edit', get_defined_vars());
     }
@@ -72,7 +77,7 @@ class MachineController extends Controller
     {
         try {
             $this->machineService->deleteMachine($machine);
-            return redirect()->route('membership.index')->with('success', 'Machine deleted successfully.');
+            return redirect()->route('machines.index')->with('success', 'Machine deleted successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while deleting the machine, please try again in a few minutes.');
         }

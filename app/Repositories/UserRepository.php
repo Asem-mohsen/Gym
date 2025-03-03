@@ -5,14 +5,22 @@ use App\Models\User;
 
 class UserRepository
 {
-    public function getAllUsers()
+    public function getAllUsers(int $siteSettingId)
     {
-        return User::where('is_admin' , '0')->where('role_id', '2')->get();
+        return User::where('is_admin' , '0')->where('role_id', '2')
+            ->whereHas('gyms', function ($query) use ($siteSettingId) {
+                $query->where('site_setting_id', $siteSettingId);
+            })
+            ->get();
     }
 
-    public function getAllTrainers()
+    public function getAllTrainers(int $siteSettingId)
     {
-        return User::where('is_admin' , '0')->where('role_id', '3')->get();
+        return User::where('is_admin' , '0')->where('role_id', '3')
+            ->whereHas('gyms', function ($query) use ($siteSettingId) {
+                $query->where('site_setting_id', $siteSettingId);
+            })
+            ->get();
     }
 
     public function createUser(array $data)

@@ -2,6 +2,7 @@
 namespace App\Repositories;
 
 use App\Models\Payment;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 class PaymentRepository
@@ -17,10 +18,29 @@ class PaymentRepository
         ];
     }
     
-
-    public function updatePayment(Payment $payment, array $data)
+    public function createPayment(Model $paymentable, array $data)
     {
+        return Payment::create([
+            'user_id'          => $data['user_id'],
+            'paymentable_type' => get_class($paymentable),
+            'paymentable_id'   => $paymentable->id,
+            'amount'           => $data['amount'] ?? 0,
+            'offer_id'         => $data['offer_id'] ?? null,
+            'status'           => 'completed',
+        ]);
+    }
 
+
+    public function updatePayment(Payment $payment, Model $paymentable, array $data)
+    {
+        return $payment->update([
+            'user_id'  => $data['user_id'],
+            'paymentable_type' => get_class($paymentable),
+            'paymentable_id'   => $paymentable->id,
+            'amount'   => $data['amount'] ?? $payment->amount,
+            'offer_id' => $data['offer_id'] ?? $payment->offer_id,
+            'status'   => $payment->status,
+        ]);
     }
 
     public function deletePayment(Payment $payment)
@@ -30,9 +50,6 @@ class PaymentRepository
         });
     }
 
-    /**
-     * Find a branch by ID with its phones.
-     */
     public function findById(int $id)
     {
         return Payment::findOrFail($id);

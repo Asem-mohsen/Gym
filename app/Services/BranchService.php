@@ -10,9 +10,9 @@ class BranchService
         $this->branchRepository = $branchRepository;
     }
 
-    public function getBranches()
+    public function getBranches(int $siteSettingId)
     {
-        return $this->branchRepository->getBranches();
+        return $this->branchRepository->getBranches($siteSettingId, withSubscriptionCount: true);
     }
 
     public function createBranch(array $branchData , array $phonesData , int $siteId)

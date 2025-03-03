@@ -7,11 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class payment extends Model
+class Payment extends Model
 {
     use HasFactory;
-
-    protected $fillable = ['user_id', 'amount', 'status', 'offer_id'];
+    protected $guarded = ['id'];
 
     public function user(): BelongsTo
     {
@@ -26,5 +25,10 @@ class payment extends Model
     public function paymentable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function gym(): BelongsTo
+    {
+        return $this->belongsTo(SiteSetting::class, 'site_setting_id');
     }
 }

@@ -12,9 +12,9 @@ class ServiceService
         $this->serviceRepository = $serviceRepository;
     }
 
-    public function getServices()
+    public function getServices(int $siteSettingId)
     {
-        return $this->serviceRepository->getAllService();
+        return $this->serviceRepository->getAllService($siteSettingId);
     }
 
     public function createService(array $data)

@@ -32,7 +32,6 @@
                         @endphp
 
                         @foreach ($branches as $branch)
-                        
                             <tr>
                                 <td>
                                     {{ $i++ }}
@@ -41,7 +40,7 @@
                                 <td> {{$branch->manager->name}}</td>
                                 <td> {{$branch->location}} </td>
                                 <td> {{$branch->type}}</td>
-                                <td> {{$branch->users_count}}</td>
+                                <td> {{$branch->subscriptions_count}}</td>
                                 <td> {{date('d-M-Y' , strtotime( $branch->created_at))}} </td>
                                 <td class="d-flex justify-content-around gap-1 align-items-baseline">
                                     <a href="{{ route('branches.show',$branch->id)}}" target="_blank" class="text-success font-weight-bold text-xs" data-toggle="tooltip" data-original-title="check">

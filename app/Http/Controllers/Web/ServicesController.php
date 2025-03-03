@@ -5,19 +5,21 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Service\{AddServiceRequest , UpdateServiceRequest};
 use App\Models\Service;
-use App\Services\ServiceService;
+use App\Services\{SiteSettingService , ServiceService};
 use Exception;
 
 class ServicesController extends Controller
 {
-    public function __construct(protected ServiceService $serviceService)
+    public function __construct(protected ServiceService $serviceService, protected SiteSettingService $siteSettingService)
     {
         $this->serviceService = $serviceService;
+        $this->siteSettingService = $siteSettingService;
     }
 
     public function index()
     {
-        $services = $this->serviceService->getServices();
+        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+        $services = $this->serviceService->getServices($siteSettingId);
         return view('admin.services.index',compact('services'));
     }
 

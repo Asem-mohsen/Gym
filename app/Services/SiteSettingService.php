@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Models\SiteSetting;
 use App\Repositories\BranchRepository;
 use App\Repositories\SiteSettingRepository;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SiteSettingService 
@@ -12,6 +13,11 @@ class SiteSettingService
     {
         $this->siteSettingRepository = $siteSettingRepository;
         $this->branchRepository = $branchRepository;
+    }
+
+    public function getCurrentSiteSettingId(): ?int
+    {
+        return Auth::check() ? Auth::user()->site_setting_id : null;
     }
 
     public function createSiteSetting(array $siteSettingData, array $branchesData)
@@ -24,7 +30,7 @@ class SiteSettingService
                 unset($branchData['phones']);
 
                 $branchData['site_setting_id'] = $siteSetting->id;
-                $this->branchRepository->createBranch($branchData, $phones);
+                $this->branchRepository->createBranch($branchData, $phones , $siteSetting->id);
             }
 
             return $siteSetting->load('branches.phones');
@@ -54,7 +60,7 @@ class SiteSettingService
                 unset($branchData['phones']);
 
                 $branchData['site_setting_id'] = $siteSetting->id;
-                $this->branchRepository->createBranch($branchData, $phones);
+                $this->branchRepository->createBranch($branchData, $phones , $siteSetting->id);
             }
 
             return $siteSetting->load('branches.phones');

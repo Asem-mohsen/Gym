@@ -38,4 +38,10 @@ class Branch extends Model implements HasMedia
     {
         return $this->belongsToMany(Machine::class, 'branch_machine');
     }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class, 'branch_id');
+    }
+
 }

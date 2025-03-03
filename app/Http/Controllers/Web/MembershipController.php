@@ -5,19 +5,22 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Membership\{ AddMembershipRequest , UpdateMembershipRequest};
 use App\Models\Membership;
-use App\Services\MembershipService;
+use App\Services\{MembershipService, SiteSettingService};
 use Exception;
 
 class MembershipController extends Controller
 {
-    public function __construct(protected MembershipService $membershipService)
+    protected int $siteSettingId;
+
+    public function __construct(protected MembershipService $membershipService, protected SiteSettingService $siteSettingService)
     {
+        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
         $this->membershipService = $membershipService;
     }
 
     public function index()
     {
-        $memberships = $this->membershipService->getMemberships(withCount: ['bookings']);
+        $memberships = $this->membershipService->getMemberships(siteSettingId: $this->siteSettingId ,withCount: ['bookings']);
         $maxBookings = $memberships->max('bookings_count');
         return view('admin.memberships.index', get_defined_vars());
     }
@@ -30,7 +33,10 @@ class MembershipController extends Controller
     public function store(AddMembershipRequest $request)
     {
         try {
-            $this->membershipService->createMembership($request->validated());
+            $data = $request->validated();
+            $data['site_setting_id'] = $this->siteSettingId;
+
+            $this->membershipService->createMembership($data);
             return redirect()->route('membership.index')->with('success', 'Membership created successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while adding a new membership, please try again in a few minutes.');
@@ -53,7 +59,10 @@ class MembershipController extends Controller
     public function update(UpdateMembershipRequest $request , Membership $membership)
     {
         try {
-            $this->membershipService->updateMembership($membership, $request->validated());
+            $data = $request->validated();
+            $data['site_setting_id'] = $this->siteSettingId;
+
+            $this->membershipService->updateMembership($membership, $data);
             return redirect()->route('membership.index')->with('success', 'Membership updated successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while updating the membership, please try again in a few minutes.');

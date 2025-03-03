@@ -5,22 +5,22 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Roles\{AddRoleRequest,UpdateRoleRequest};
 use App\Models\Role;
-use App\Services\RoleService;
+use App\Services\{RoleService , SiteSettingService};
 use Exception;
 use Illuminate\Support\Facades\Log;
 
 class RolesController extends Controller
 {
-    protected $rolesService;
+    protected int $siteSettingId;
 
-    public function __construct(RoleService $roleService)
+    public function __construct(protected RoleService $rolesService, protected SiteSettingService $siteSettingService)
     {
-        $this->rolesService = $roleService;
+        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
     }
 
     public function index()
     {
-        $roles = $this->rolesService->getRoles(withCount: ['users']);
+        $roles = $this->rolesService->getRoles(siteSettingId: $this->siteSettingId , withCount: ['users']);
         return view('admin.roles.index',compact('roles'));
     }
 
@@ -32,7 +32,10 @@ class RolesController extends Controller
     public function store(AddRoleRequest $request)
     {
         try {
-            $this->rolesService->createRole($request->validated());
+            $data = $request->validated();
+            $data['site_setting_id'] = $this->siteSettingId;
+
+            $this->rolesService->createRole($data);
             return redirect()->route('roles.index')->with('success', 'Role created successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while creating a new role, please try again in a few minutes.');
@@ -48,7 +51,10 @@ class RolesController extends Controller
     public function update(UpdateRoleRequest $request , Role $role)
     {
         try {
-            $this->rolesService->updateRole($role,$request->validated());
+            $data = $request->validated();
+            $data['site_setting_id'] = $this->siteSettingId;
+
+            $this->rolesService->updateRole($role, $data);
             return redirect()->route('roles.index')->with('success', 'Role updated successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while updating the role, please try again in a few minutes.');

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Subscription\AddSubscriptionRequest;
 use App\Models\Subscription;
-use App\Services\{ BranchService , SubscriptionService , MembershipService, OfferService, UserService};
+use App\Services\{ BranchService , SubscriptionService , MembershipService, OfferService, SiteSettingService, UserService};
 use Exception;
 use Illuminate\Http\Request;
 
@@ -16,34 +16,41 @@ class SubscriptionController extends Controller
         protected UserService $userService,
         protected MembershipService $membershipService,
         protected BranchService $branchService,
+        protected SiteSettingService $siteSettingService,
         protected OfferService $offerService)
     {
         $this->subscriptionService = $subscriptionService;
         $this->userService = $userService;
         $this->membershipService = $membershipService;
         $this->branchService = $branchService;
+        $this->offerService = $offerService;
+        $this->siteSettingService = $siteSettingService;
     }
 
     public function index()
     {
-        [$subscriptions, $counts] = $this->subscriptionService->getSubscriptions();
+        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+        [$subscriptions, $counts] = $this->subscriptionService->getSubscriptions($siteSettingId );
         return view('admin.subscriptions.index', compact('subscriptions', 'counts'));
     }
 
     public function create()
     {
-        $memberships = $this->membershipService->getMemberships();
-        $users    = $this->userService->getUsers();
-        $branches = $this->branchService->getBranches();
+        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+        $memberships = $this->membershipService->getMemberships(siteSettingId: $siteSettingId);
+        $users    = $this->userService->getUsers($siteSettingId );
+        $branches = $this->branchService->getBranches($siteSettingId);
 
         return view('admin.subscriptions.create',get_defined_vars());
     }
 
     public function edit(Request $request , Subscription $subscription)
     {
-        $memberships = $this->membershipService->getMemberships();
-        $users    = $this->userService->getUsers();
-        $branches = $this->branchService->getBranches();
+        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+        $memberships = $this->membershipService->getMemberships(siteSettingId: $siteSettingId);
+        $users    = $this->userService->getUsers($siteSettingId );
+        $branches = $this->branchService->getBranches($siteSettingId);
+        $subscription = $this->subscriptionService->showSubscription($subscription->id);
 
         return view('admin.subscriptions.edit',get_defined_vars());
     }
@@ -86,7 +93,8 @@ class SubscriptionController extends Controller
 
     public function getOffers()
     {
-        $offers = $this->offerService->fetchOffers();
+        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+        $offers = $this->offerService->fetchOffers($siteSettingId );
         return response()->json(['offers' => $offers]);
     }
 }

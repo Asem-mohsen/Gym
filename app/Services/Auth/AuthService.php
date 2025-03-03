@@ -8,9 +8,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthService
 {
-    protected $userRepository;
-
-    public function __construct(UserRepository $userRepository)
+    public function __construct(protected UserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
     }

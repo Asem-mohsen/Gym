@@ -5,15 +5,16 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admins\{ AddAdminRequest , UpdateAdminRequest};
 use App\Models\User;
-use App\Services\{ AdminService , RoleService};
+use App\Services\{ AdminService , RoleService, SiteSettingService};
 use Exception;
 
 class AdminController extends Controller
 {
-    protected $adminService , $roleService;
+    protected int $siteSettingId;
 
-    public function __construct(AdminService $adminService , RoleService $roleService)
+    public function __construct(protected AdminService $adminService ,protected RoleService $roleService, protected SiteSettingService $siteSettingService)
     {
+        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
         $this->adminService = $adminService;
         $this->roleService  = $roleService;
     }
@@ -21,7 +22,7 @@ class AdminController extends Controller
     public function index()
     {
         try {
-            $admins = $this->adminService->getAdmins();
+            $admins = $this->adminService->getAdmins($this->siteSettingId);
             return successResponse(compact('admins'), 'Admins data retrieved successfully');
         } catch (Exception $e) {
             return failureResponse('Error retrieving admins, please try again.');
@@ -30,14 +31,14 @@ class AdminController extends Controller
 
     public function create()
     {
-        $roles = $this->roleService->getRoles(where: ['name' => 'admin']);
+        $roles = $this->roleService->getRoles(where: ['name' => 'admin'] ,siteSettingId: $this->siteSettingId);
         return successResponse(compact('roles'), 'Roles for adding admins retrieved successfully');
     }
 
     public function store(AddAdminRequest $request)
     {
         try {
-            $newAdmin = $this->adminService->createAdmin($request->validated());
+            $newAdmin = $this->adminService->createAdmin($request->validated(),$this->siteSettingId);
             return successResponse(compact('newAdmin'), 'Admin added successfully');
         } catch (Exception $e) {
             return failureResponse('Error happened while creating a new admin, please try again in a few minutes');
@@ -47,7 +48,7 @@ class AdminController extends Controller
     public function update(UpdateAdminRequest $request, User $user)
     {
         try {
-            $updatedAdmin = $this->adminService->updateAdmin($user, $request->validated());
+            $updatedAdmin = $this->adminService->updateAdmin($user, $request->validated(), $this->siteSettingId);
             return successResponse(compact('updatedAdmin'), 'Admin updated successfully');
         } catch (Exception $e) {
             return failureResponse('Error happened while updating admin, please try again in a few minutes');
@@ -56,7 +57,7 @@ class AdminController extends Controller
 
     public function edit(User $user)
     {
-        $roles = $this->roleService->getRoles();
+        $roles = $this->roleService->getRoles(siteSettingId: $this->siteSettingId);
         return successResponse(compact('user', 'roles'), 'Admin retrieved successfully');
     }
 

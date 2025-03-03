@@ -5,9 +5,9 @@ use App\Models\Service;
 
 class ServiceRepository
 {
-    public function getAllService()
+    public function getAllService(int $siteSettingId)
     {
-        return Service::all();
+        return Service::where('site_setting_id', $siteSettingId)->get();
     }
 
     public function createService(array $data)
@@ -31,9 +31,9 @@ class ServiceRepository
         return Service::find($id);
     }
 
-    public function selectServices()
+    public function selectServices(int $siteSettingId)
     {
-        return Service::select('id', 'name')->get()->map(function ($service) {
+        return Service::where('site_setting_id', $siteSettingId)->select('id', 'name')->get()->map(function ($service) {
             return [
                 'id' => $service->id,
                 'name' => $service->getTranslation('name', app()->getLocale()),

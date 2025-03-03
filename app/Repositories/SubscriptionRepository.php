@@ -5,17 +5,49 @@ use App\Models\Subscription;
 
 class SubscriptionRepository
 {
-    public function getAll()
+    public function getAll(int $siteSettingId)
     {
-        $subscriptions = Subscription::with(['user', 'membership', 'bookings'])->get();
-    
+        $subscriptions = Subscription::with(['user', 'membership', 'bookings'])
+            ->whereHas('user', function ($query) use ($siteSettingId)  {
+                $query->whereHas('gyms', function ($gymQuery) use ($siteSettingId) {
+                    $gymQuery->where('site_setting_id', $siteSettingId);
+                });
+            })
+            ->get();
+
         $counts = [
-            'pending' => Subscription::where('status', 'pending')->count(),
-            'active'  => Subscription::where('status', 'active')->count(),
-            'expired' => Subscription::where('status', 'expired')->count(),
-            'total'   => Subscription::count(),
+            'pending' => Subscription::where('status', 'pending')
+                ->whereHas('user', function ($query) use ($siteSettingId)  {
+                    $query->whereHas('gyms', function ($gymQuery) use ($siteSettingId) {
+                        $gymQuery->where('site_setting_id', $siteSettingId);
+                    });
+                })
+                ->count(),
+
+            'active'  => Subscription::where('status', 'active')
+                ->whereHas('user', function ($query) use ($siteSettingId)  {
+                    $query->whereHas('gyms', function ($gymQuery) use ($siteSettingId) {
+                        $gymQuery->where('site_setting_id', $siteSettingId);
+                    });
+                })
+                ->count(),
+
+            'expired' => Subscription::where('status', 'expired')
+                ->whereHas('user', function ($query) use ($siteSettingId)  {
+                    $query->whereHas('gyms', function ($gymQuery) use ($siteSettingId) {
+                        $gymQuery->where('site_setting_id', $siteSettingId);
+                    });
+                })
+                ->count(),
+
+            'total'   => Subscription::whereHas('user', function ($query) use ($siteSettingId)  {
+                    $query->whereHas('gyms', function ($gymQuery) use ($siteSettingId) {
+                        $gymQuery->where('site_setting_id', $siteSettingId);
+                    });
+                })
+                ->count(),
         ];
-    
+
         return [
             'subscriptions' => $subscriptions,
             'counts' => $counts,
@@ -41,6 +73,6 @@ class SubscriptionRepository
 
     public function findById(int $id): ?Subscription
     {
-        return Subscription::with(['user' , 'membership', 'bookings'])->findOrFail($id);
+        return Subscription::with(['user' , 'membership', 'bookings' , 'payment'])->findOrFail($id);
     }
 }

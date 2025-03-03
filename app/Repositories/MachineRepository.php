@@ -33,6 +33,6 @@ class MachineRepository
 
     public function findById(int $id): ?Machine
     {
-        return Machine::find($id);
+        return Machine::with('branches')->find($id);
     }
 }

@@ -16,30 +16,30 @@ class OfferService
         $this->serviceRepository = $serviceRepository;
     }
 
-    public function getOffers()
+    public function getOffers(int $siteSettingId)
     {
-        return $this->offerRepository->getAllOffers();
+        return $this->offerRepository->getAllOffers($siteSettingId);
     }
 
-    public function fetchMemberships()
+    public function fetchMemberships(int $siteSettingId)
     {
-        return $this->membershipRepository->selectMemberships();
+        return $this->membershipRepository->selectMemberships($siteSettingId);
     }
 
-    public function fetchServices()
+    public function fetchServices(int $siteSettingId)
     {
-        return $this->serviceRepository->selectServices();
+        return $this->serviceRepository->selectServices($siteSettingId);
     }
     
-    public function fetchOffers()
+    public function fetchOffers(int $siteSettingId)
     {
-        return $this->offerRepository->selectOffers();
+        return $this->offerRepository->selectOffers($siteSettingId);
     }
 
-    public function createOffer(array $data)
+    public function createOffer(array $data, int $siteSettingId)
     {
-        return DB::transaction(function () use ($data) {
-            $offer = $this->offerRepository->createOffer($data);
+        return DB::transaction(function () use ($data , $siteSettingId) {
+            $offer = $this->offerRepository->createOffer($data , $siteSettingId);
            
             $this->offerRepository->assignOfferables($offer, $data);
 
@@ -47,9 +47,9 @@ class OfferService
         });
     }
 
-    public function updateOffer($offer, array $data)
+    public function updateOffer($offer, array $data ,int $siteSettingId)
     {
-        return $this->offerRepository->updateOffer($offer, $data);
+        return $this->offerRepository->updateOffer($offer, $data, $siteSettingId);
     }
 
     public function showOffer($offerId)

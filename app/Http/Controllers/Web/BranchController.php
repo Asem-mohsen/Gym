@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Branches\{AddBranchRequest , UpdateBranchRequest};
 use App\Models\Branch;
-use App\Services\{AdminService, BranchService};
+use App\Services\{AdminService, BranchService, SiteSettingService};
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -13,21 +13,26 @@ use Illuminate\Support\Facades\Log;
 
 class BranchController extends Controller
 {
-    public function __construct(protected AdminService $adminService ,protected BranchService $branchService)
+    public function __construct(protected AdminService $adminService ,protected BranchService $branchService, protected SiteSettingService $siteSettingService)
     {
         $this->adminService = $adminService;
         $this->branchService  = $branchService;
+        $this->siteSettingService = $siteSettingService;
     }
 
     public function index()
     {
-        $branches = $this->branchService->getBranches();
+        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+
+        $branches = $this->branchService->getBranches($siteSettingId);
         return view('admin.branches.index',compact('branches'));
     }
 
     public function create()
     {
-        $users = $this->adminService->getAdmins();
+        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+
+        $users = $this->adminService->getAdmins($siteSettingId);
         return view('admin.branches.create',compact('users'));
     }
 
@@ -73,7 +78,8 @@ class BranchController extends Controller
 
     public function edit(Branch $branch)
     {
-        $users = $this->adminService->getAdmins();
+        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+        $users = $this->adminService->getAdmins($siteSettingId);
         $branch = $this->branchService->showBranch($branch);
         $existingPhones = $branch->phones->pluck('phone_number')->toArray();
 

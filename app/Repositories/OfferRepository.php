@@ -9,18 +9,19 @@ use Illuminate\Support\Facades\DB;
 
 class OfferRepository
 {
-    public function getAllOffers()
+    public function getAllOffers(int $siteSettingId)
     {
-        return Offer::all();
+        return Offer::where('site_setting_id', $siteSettingId)->get();
     }
 
-    public function createOffer(array $data)
+    public function createOffer(array $data , int $siteSettingId)
     {
-        return DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data, $siteSettingId) {
             $offer = Offer::create([
+                'site_setting_id' => $siteSettingId,
                 'title'       => $data['title'],
                 'description' => $data['description'],
-                'discount_type'  => $data['discount_type'],
+                'discount_type' => $data['discount_type'],
                 'discount_value'=> $data['discount_value'],
                 'start_date'  => $data['start_date'],
                 'end_date'    => $data['end_date'],
@@ -74,10 +75,11 @@ class OfferRepository
         Offerable::insert($offerables);
     }
 
-    public function updateOffer(Offer $offer, array $data)
+    public function updateOffer(Offer $offer, array $data, int $siteSettingId)
     {
-        return DB::transaction(function () use ($offer, $data) {
+        return DB::transaction(function () use ($offer, $data, $siteSettingId) {
             $offer->update([
+                'site_setting_id'=> $siteSettingId,
                 'title'          => $data['title'],
                 'description'    => $data['description'],
                 'start_date'     => $data['start_date'],
@@ -129,9 +131,9 @@ class OfferRepository
         ];
     }
     
-    public function selectOffers()
+    public function selectOffers(int $siteSettingId)
     {
-        return Offer::select('id', 'title')->get()->map(function ($offer) {
+        return Offer::where('site_setting_id' , $siteSettingId)->select('id', 'title')->get()->map(function ($offer) {
             return [
                 'id' => $offer->id,
                 'name' => $offer->getTranslation('title', app()->getLocale()),

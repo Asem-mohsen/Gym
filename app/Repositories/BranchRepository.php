@@ -2,18 +2,22 @@
 namespace App\Repositories;
 
 use App\Models\Branch;
-use App\Models\Phone;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class BranchRepository
 {
     /**
      * Get all branches with their phones.
      */
-    public function getBranches()
+    public function getBranches(int $siteSettingId ,$withSubscriptionCount = false)
     {
-        return Branch::with('phones')->get();
+        $query = Branch::where('site_setting_id', $siteSettingId)->with('phones');
+
+        if ($withSubscriptionCount) {
+            $query->withCount('subscriptions');
+        }
+
+        return $query->get();
     }
 
     /**

@@ -12,9 +12,9 @@ class RoleService
         $this->roleRepository = $roleRepository;
     }
 
-    public function getRoles(array $where = [] ,array $withCount = [])
+    public function getRoles(int $siteSettingId ,array $where = [] ,array $withCount = [])
     {
-        return $this->roleRepository->getAllRoles(where: $where , withCount: $withCount);
+        return $this->roleRepository->getAllRoles(siteSettingId: $siteSettingId , where: $where , withCount: $withCount);
     }
 
     public function createRole(array $data)
