@@ -1,4 +1,4 @@
-@extends('layout.master')
+@extends('layout.admin.master')
 
 @section('title' , 'View Admin')
 
@@ -75,7 +75,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Role</label>
-                                        <input class="form-control" type="text" name="role" disabled value="{{$admin->roles->name}}">
+                                        <input class="form-control" type="text" name="role" disabled value="{{$admin->role->name}}">
                                     </div>
                                 </div>
                             </div>
@@ -154,7 +154,7 @@
                                     {{ $admin->phone }}
                                 </div>
                                 <div class="h6 mt-4">
-                                    <i class="ni business_briefcase-24 mr-2"></i>{{$admin->roles->name}} - Gym
+                                    <i class="ni business_briefcase-24 mr-2"></i>{{$admin->role->name}} - Gym
                                 </div>
                                 <div>
                                 <i class="ni education_hat mr-2"></i>{{$admin->email}}

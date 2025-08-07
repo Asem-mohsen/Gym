@@ -55,7 +55,7 @@ class SiteSettingResource extends Resource
                     ->schema([
                         Select::make('owner_id')->label('Owner')
                             ->relationship('owner', 'name', function ($query) {
-                                $query->whereHas('roles', function ($q) { 
+                                $query->whereHas('role', function ($q) { 
                                     $q->where('name', 'Admin');
                                 });
                             })->preload()->required(),

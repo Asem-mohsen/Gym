@@ -1,157 +1,108 @@
-@extends('layout.master')
+@extends('layout.admin.master')
 
-@section('title' , 'Edit')
+@section('title','Edit Membership')
+
+@section('main-breadcrumb', 'Membership')
+@section('main-breadcrumb-link', route('membership.index'))
+
+@section('sub-breadcrumb','Edit Membership')
 
 @section('content')
-    <div class="card shadow-lg mx-4 card-profile-bottom">
-        <div class="card-body p-3">
-            <div class="row gx-4">
-                <div class="col-auto">
-                    <div class="avatar avatar-xl position-relative">
-                        <img src="{{ asset('assets/dist/img/user2-160x160.jpg') }}" alt="profile_image" class="w-100 border-radius-lg shadow-sm">
+
+<div class="col-md-12 mb-md-5 mb-xl-10">
+    <form action="{{ route('membership.update',$membership->id) }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
+            <div class="card">
+                <div class="card-body row">
+                    <div class="mb-10 col-md-6">
+                        <label for="name_en" class="required form-label">Membership Name (English)</label>
+                        <input type="text" name="name[en]" id="name_en" value="{{$membership->getTranslation('name','en')}}" class="form-control form-control-solid required" required/>
+                    </div>
+                    <div class="mb-10 col-md-6">
+                        <label for="name_ar" class="required form-label">Membership Name (Arabic)</label>
+                        <input type="text" name="name[ar]" id="name_ar" value="{{$membership->getTranslation('name','ar')}}" class="form-control form-control-solid required" required/>
+                    </div>
+                    <div class="mb-10 col-md-6">
+                        <label for="period" class="required form-label">Period</label>
+                        @php
+                            $options = [
+                                ['value' => 'Month',   'label' => 'Month'],
+                                ['value' => '3 Month', 'label' => '3 Month'],
+                                ['value' => '6 Month', 'label' => '6 Month'],
+                                ['value' => 'Year',    'label' => 'Year'],
+                                ['value' => '2 Years', 'label' => '2 Years'],
+                                ['value' => '3 Years', 'label' => '3 Years'],
+                                ['value' => '4 Years', 'label' => '4 Years'],
+                                ['value' => '6 Years', 'label' => '6 Years'],
+                            ];
+                        @endphp
+                        @include('_partials.select',[
+                            'options' => $options,
+                            'name' => 'period',
+                            'id' => 'period',
+                            'selectedValue' => $membership->period
+                        ])
+                    </div>
+                    <div class="mb-10 col-md-6">
+                        <label for="price" class="required form-label">Price</label>
+                        <input type="number" name="price" id="price" value="{{ $membership->price }}" class="form-control form-control-solid required" required/>
+                    </div>
+                    <div class="mb-10 col-md-6">
+                        <label for="order" class="required form-label">Order</label>
+                        <input type="number" name="order" id="order" value="{{ $membership->order }}" class="form-control form-control-solid required" required/>
+                    </div>
+                    <div class="mb-10 col-md-6">
+                        <label for="status" class="required form-label">Status</label>
+                        @php
+                            $options = [
+                                ['value' => '1', 'label' => 'Active'],
+                                ['value' => '0', 'label' => 'Inactive'],
+                            ];
+                        @endphp
+                        @include('_partials.select',[
+                            'options' => $options,
+                            'name' => 'status',
+                            'id' => 'status',
+                            'selectedValue' => $membership->status
+                        ])
+                    </div>
+                    <div class="mb-10 col-md-6">
+                        <label for="features" class="form-label form-control-solid">Features</label>
+                        @php
+                            $options = [];
+                            foreach($features as $feature){
+                                $options[] = [
+                                    'value' => $feature['id'],
+                                    'label' => $feature['name']
+                                ];
+                            }
+                        @endphp
+                        @include('_partials.select-multiple',[
+                            'options' => $options,
+                            'name' => 'features',
+                            'id' => 'features',
+                            'values' => $membership->features->pluck('id')->toArray(),
+                            'notRequired' => true,
+                        ])
+                    </div>
+                    <div class="mb-10 col-md-6">
+                        <label for="description_en" class="required form-label">Description (English)</label>
+                        <textarea name="description[en]" id="description_en" class="form-control form-control-solid required" required>{{ $membership->getTranslation('description','ar') }}</textarea>
+                    </div>
+                    <div class="mb-10 col-md-6">
+                        <label for="description_ar" class="required form-label">Description (Arabic)</label>
+                        <textarea name="description[ar]" id="description_ar" class="form-control form-control-solid required" required>{{ $membership->getTranslation('description','ar') }}</textarea>
                     </div>
                 </div>
 
-                <x-authenticated-user-info />
-
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <a href="{{ route('membership.index') }}" class="btn btn-dark">Cancel</a>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="container-fluid py-4">
-        <form action="{{ route('membership.update',$membership->id) }}" method="post">
-            @csrf
-            @method('PUT')
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header pb-2">
-                            <div class="d-flex align-items-center">
-                                <button class="btn btn-primary btn-sm ms-auto m-2">Edit</button>
-                                <p class="mb-0">{{$membership->name}}</p>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <p class="text-uppercase text-sm">{{$membership->name}} Information</p>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="name_en" class="form-control-label">Membership Name (English)</label>
-                                        <input class="form-control" type="text" name="name[en]" id="name_en" value="{{$membership->getTranslation('name','en')}}" required>
-                                    </div>
-                                    @error('name.en')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="name_ar" class="form-control-label">Membership Name (Arabic)</label>
-                                        <input class="form-control" type="text" name="name[ar]" id="name_ar" value="{{$membership->getTranslation('name','ar')}}" required>
-                                    </div>
-                                    @error('name.ar')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="period" class="form-control-label">Period</label>
-                                    <select class="form-control" name="period" id="period">
-                                        <option @selected($membership->period) value="{{ $membership->period }}">{{ $membership->period }}</option>
-                                        <option value="Month">Month</option>
-                                        <option value="3 Month">3 Month</option>
-                                        <option value="6 Month">6 Month</option>
-                                        <option value="Year">Year</option>
-                                        <option value="2 Years">2 Years</option>
-                                        <option value="3 Years">3 Years</option>
-                                        <option value="4 Years">4 Years</option>
-                                        <option value="5 Years">5 Years</option>
-                                        <option value="6 Years">6 Years</option>
-                                    </select>
-                                    @error('period')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="price" class="form-control-label">Price</label>
-                                    <input class="form-control" type="number"  name="price" id="price" value="{{ $membership->price }}" required>
-                                    @error('price')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="order" class="form-control-label">Order</label>
-                                    <input class="form-control" type="number"  name="order" id="order" value="{{ $membership->order }}" required>
-                                    @error('order')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-control-label d-block">Status</label>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="status" id="status_active" value="1" 
-                                            @checked(isset($membership) && $membership->status == 1)>
-                                        <label class="form-check-label text-success fw-bold" for="status_active">
-                                            <i class="fas fa-check-circle"></i> Active
-                                        </label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" name="status" id="status_inactive" value="0"
-                                            @checked(isset($membership) && $membership->status == 0)>
-                                        <label class="form-check-label text-danger fw-bold" for="status_inactive">
-                                            <i class="fas fa-times-circle"></i> Inactive
-                                        </label>
-                                    </div>
-                                    @error('status')
-                                        <div class="alert alert-danger mt-2">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <hr class="horizontal dark">
-                            <p class="text-uppercase text-sm">More Information</p>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="description_en" class="form-control-label">Description (English)</label>
-                                        <textarea class="form-control" name="description[en]" id="description_en">{{$membership->getTranslation('description','en')}}</textarea>
-                                    </div>
-                                    @error('description.en')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="description_ar" class="form-control-label">Description (Arabic)</label>
-                                        <textarea class="form-control" name="description[ar]" id="description_ar">{{$membership->getTranslation('description','en')}}</textarea>
-                                    </div>
-                                    @error('description.ar')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <hr class="horizontal dark">
-
-                            <p class="text-uppercase text-sm">Control</p>
-                            <div class="justify-content-center row">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <button type="submit" class="btn btn-md btn-success w-100 mt-4 mb-0">Update</button>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <a href="{{ route('membership.index')}}" class="btn btn-md btn-danger w-100 mt-4 mb-0">Cancel</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
+    </form>
+</div>
 
 @endsection

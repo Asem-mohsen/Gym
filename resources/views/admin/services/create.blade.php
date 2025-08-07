@@ -1,114 +1,55 @@
-@extends('layout.master')
+@extends('layout.admin.master')
 
-@section('title', 'Add New Service')
+@section('title', 'Add Service')
+
+@section('main-breadcrumb', 'Service')
+@section('main-breadcrumb-link', route('services.index'))
+
+@section('sub-breadcrumb','Create Service')
 
 @section('content')
 
-    <div class="container-fluid py-4">
+<div class="col-md-12 mb-md-5 mb-xl-10">
+    <form action="{{ route('services.store') }}" enctype="multipart/form-data" method="POST">
+        @csrf
         <div class="card">
-            <form action="{{ route('services.store') }}" enctype="multipart/form-data" method="post">
-                @csrf
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card-header pb-2">
-                            <div class="d-flex align-items-center">
-                                <button class="btn btn-primary btn-sm mr-2">Add</button>
-                                <p class="mb-0"> New Service</p>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <p class="text-uppercase text-sm">Information</p>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="service_en" class="form-control-label">Service Name (English)</label>
-                                        <input class="form-control" id="service_en" type="text" name="name[en]" value="{{old('name_en')}}" required>
-                                    </div>
-                                    @error('name.en')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="service_ar" class="form-control-label">Service Name (Arabic)</label>
-                                        <input class="form-control" id="service_ar" type="text" name="name[ar]" value="{{old('name_ar')}}" required>
-                                    </div>
-                                    @error('name.ar')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="duration" class="form-control-label">Duration</label>
-                                        <input class="form-control" id="duration" type="text" name="duration" value="{{old('duration')}}" required>
-                                    </div>
-                                    @error('duration')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="price" class="form-control-label">Price</label>
-                                        <input class="form-control" id="price" type="text" name="price" value="{{old('price')}}" required>
-                                    </div>
-                                    @error('price')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <hr class="horizontal dark">
-                            <p class="text-uppercase text-sm">More Information</p>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="description_en" class="form-control-label">Description (English)</label>
-                                        <textarea class="form-control" name="description[en]" id="description_en" required></textarea>
-                                    </div>
-                                    @error('description.en')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="description_ar" class="form-control-label">Description (Arabic)</label>
-                                        <textarea class="form-control" name="description[ar]" id="description_ar"></textarea>
-                                    </div>
-                                    @error('description.ar')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="image" class="form-control-label">Image</label>
-                                        <input type="file" class="form-control" id="image" name="image" accept="image/*" style="padding: 4px;">
-                                    </div>
-                                    @error('image')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="justify-content-center row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <button type="submit" class="btn btn-primary w-100 mt-4 mb-0">Add</button>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <a href="{{ route('services.index') }}"
-                                        class="btn btn-danger w-100 mt-4 mb-0">Cancel</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="card-body row">
+                <div class="mb-10 col-md-6">
+                    <label for="service_en" class="required form-label">Service Name (English)</label>
+                    <input type="text" value="{{ old('name_en') }}" id="service_en" name="name[en]" class="form-control form-control-solid required" required/>
                 </div>
-            </form>
+                <div class="mb-10 col-md-6">
+                    <label for="service_ar" class="required form-label">Service Name (Arabic)</label>
+                    <input type="text" value="{{ old('name_ar') }}" id="service_ar" name="name[ar]" class="form-control form-control-solid required" required/>
+                </div>
+                <div class="mb-10 col-md-6">
+                    <label for="duration" class="required form-label">Duration</label>
+                    <input type="text" id="duration" value="{{ old('duration') }}" name="duration" class="form-control form-control-solid required" required/>
+                </div>
+                <div class="mb-10 col-md-6">
+                    <label for="price" class="required form-label">Price</label>
+                    <input type="text" id="price" value="{{ old('price') }}" name="price" class="form-control form-control-solid required" required/>
+                </div>
+                <div class="mb-10 col-md-6">
+                    <label for="description_en" class="required form-label">Description (English)</label>
+                    <textarea id="description_en" name="description[en]" class="form-control form-control-solid required" required>{{ old('description_en') }}</textarea>
+                </div>
+                <div class="mb-10 col-md-6">
+                    <label for="description_ar" class="required form-label">Description (Arabic)</label>
+                    <textarea id="description_ar" name="description[ar]" class="form-control form-control-solid required" required >{{ old('description_ar') }}</textarea>
+                </div>
+                <div class="mb-10 col-md-6">
+                    <label for="image" class="required form-label">Image</label>
+                    <input type="file" id="image" name="image" class="form-control form-control-solid required" accept="image/*" required/>
+                </div>
+
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <a href="{{ route('services.index') }}" class="btn btn-dark">Cancel</a>
+                </div>
+            </div>
         </div>
-    </div>
+    </form>
+</div>
 
 @endsection

@@ -73,4 +73,11 @@ class AuthService
            throw new \Exception('Your account has been disabled.', 403);
        }
    }
+
+   public function handleUnauthorizedAccess(User $user): void
+    {
+        $user->update(['status' => false]);
+
+        Auth::logout();
+    }
 }

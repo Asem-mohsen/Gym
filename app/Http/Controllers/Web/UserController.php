@@ -28,13 +28,19 @@ class UserController extends Controller
 
     public function trainers()
     {
-        $trainers = $this->userService->getTrainers($this->siteSettingId);
-        return view('admin.users.index',compact('trainers'));
+        $users = $this->userService->getTrainers($this->siteSettingId);
+        return view('admin.users.index',compact('users'));
+    }
+
+    public function create()
+    {
+        $roles = $this->roleService->getRoles(siteSettingId: $this->siteSettingId);
+        return view('admin.users.create',compact('roles'));
     }
 
     public function edit(Request $request , User $user)
     {
-        $roles = $this->roleService->getRoles(where: ['name' => 'System User'] , siteSettingId: $this->siteSettingId);
+        $roles = $this->roleService->getRoles(siteSettingId: $this->siteSettingId);
         return view('admin.users.edit',get_defined_vars());
     }
 
@@ -46,18 +52,27 @@ class UserController extends Controller
     public function store(AddUserRequest $request)
     {
         try {
-            $this->userService->createUser($request->validated(), $this->siteSettingId);
-            return redirect()->route('users.index')->with('success', 'User created successfully.');
+            $data = $request->validated();
+            if ($request->hasFile('image')) {
+                $data['image'] = $request->file('image');
+            }
+            $this->userService->createUser($data, $this->siteSettingId);
+            return redirect()->back()->with('success', 'User created successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while creating new user, please try again in a few minutes.');
         }
     }
 
-    public function update(UpdateUserRequest $request , User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
         try {
-            $user = $this->userService->updateUser($user,$request->validated() ,$this->siteSettingId);
-            return redirect()->route('users.index')->with('success', 'User updated successfully.');
+            $data = $request->validated();
+
+            if ($request->hasFile('image')) {
+                $data['image'] = $request->file('image');
+            }
+            $user = $this->userService->updateUser($user, $data, $this->siteSettingId);
+            return redirect()->back()->with('success', 'User updated successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while updating user, please try again in a few minutes.');
         }
@@ -67,7 +82,7 @@ class UserController extends Controller
     {
         try {
             $this->userService->deleteUser($user);
-            return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+            return redirect()->back()->with('success', 'User deleted successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while deleting user, please try again in a few minutes.');
         }

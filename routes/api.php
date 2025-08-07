@@ -19,6 +19,7 @@ use App\Http\Controllers\API\ServicesController;
 use App\Http\Controllers\API\TransactionController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\AboutController;
+use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\SiteSettingController;
 use App\Http\Controllers\API\StripePaymentController;
 
@@ -169,6 +170,21 @@ Route::prefix('v1')->group(function(){
         Route::prefix('about')->group(function(){
             Route::controller(AboutController::class)->group(function(){
                 Route::get('/', 'index');
+            });
+        });
+
+        Route::prefix('galleries')->group(function(){
+            Route::controller(GalleryController::class)->group(function(){
+                Route::get('/site', 'getSiteGalleries');
+                Route::get('/branch/{branchId}', 'getBranchGalleries');
+                Route::get('/{id}', 'show');
+                Route::post('/site', 'createSiteGallery');
+                Route::post('/branch/{branchId}', 'createBranchGallery');
+                Route::put('/{id}', 'update');
+                Route::delete('/{id}', 'destroy');
+                Route::delete('/{galleryId}/media/{mediaId}', 'removeMedia');
+                Route::post('/reorder', 'reorder');
+                Route::get('/stats', 'stats');
             });
         });
 

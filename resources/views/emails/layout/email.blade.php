@@ -10,7 +10,7 @@
     <meta name="supported-color-schemes" content="light dark" />
     <title>@yield('title')</title>
 
-    @include('layout.sections.styles.email-styles')
+    @include('emails.layout.sections.styles.email-styles')
 
 </head>
 
@@ -22,7 +22,7 @@
                     <tr>
                         <td class="email-masthead">
                             <a href="#" class="f-fallback email-masthead_name">
-                                {{ $appName }}
+                                {{ config('app.name') }}
                             </a>
                         </td>
                     </tr>
@@ -45,7 +45,7 @@
                                 <tr>
                                     <td class="content-cell" align="center">
                                         <p class="f-fallback sub align-center">
-                                            {{ $appName }}
+                                            {{ config('app.name') }}
                                             <br>1234 Street Rd.
                                             <br>Suite 1234
                                         </p>

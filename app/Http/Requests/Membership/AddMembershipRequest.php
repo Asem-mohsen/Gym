@@ -23,6 +23,8 @@ class AddMembershipRequest extends FormRequest
             'order'        => ['required' , 'numeric'],
             'price'        => ['required' , 'numeric'],
             'period'       => ['required'],
+            'features'     => ['nullable', 'array'],
+            'features.*'   => ['exists:features,id'],
         ];
     }
 }

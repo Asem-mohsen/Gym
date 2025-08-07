@@ -21,7 +21,8 @@ class AddUserRequest extends FormRequest
             'address' => ['required' , 'max:255'],
             'gender'  => ['required' , 'max:15'],
             'phone'   => ['required' , 'numeric'],
-            'role_id'  => ['required' , 'exists:roles,id']
+            'role_id' => ['required' , 'exists:roles,id'],
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 }

@@ -1,92 +1,43 @@
-@extends('auth.layouts.master')
+@extends('layout.admin.auth-layout')
 
-@section('title' , 'Sign In')
+@section('title', 'Sign In')
 
-@section('content')
-    <section class="auth h-100">
-        <x-auth-session-status class="mb-4" :status="session('status')" />
-        <div class="h-100">
-            <div class="row noHegiht h-100">
-                <div class="wrapper h-100">
-                    <div class="col-md-6 box details" style="background-image:url({{ asset("assets/dist/img/web/SignIn/RobotHand.webp")}});">
-                    </div>
-                    <div class="col-md-5 box">
-                        <div class="form">
-                            <div class="content">
-                                <a href="{{route('admin.dashboard')}}" class="ZhomeName">Gym Name</a>
-                                <h3 class="login-form__title">login to your account</h3>
-                            </div>
-
-                            <form method='POST' action="{{ route('auth.login') }}">
-                                @csrf
-                                <div class="inputs login-form__form">
-                                    <div class="login-form__field position-relative" style="height:82px">
-                                        <input type="email" id="email" name="email" placeholder="Email Address" required />
-                                        <i class="fa-solid fa-envelope"></i>
-                                    </div>
-                                    <x-input-error :messages="$errors->get('email')" class="mt-1" />
-
-                                    <div class="login-form__field position-relative password-input" style="height:82px">
-                                        <input type="password" class="password" id="password" name="password" placeholder="Passowrd" required/>
-                                        <i class="fa fa-eye toggler" id="eye"></i>
-                                    </div>
-                                    <x-input-error :messages="$errors->get('password')" class="mt-1" />
-
-                                    <div class="flex items-center justify-end mt-4">
-                                        @if (Route::has('password.request'))
-                                            <a class="ForgetPassword underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                                                Foreget your password ? 
-                                            </a>
-                                        @endif
-
-                                        <button type="submit" class="thm-btn contact-one__btn">
-                                            Login
-                                        </button>
-                                    </div>
-
-
-                                    <p class="text-center mt-2 mb-3" style="color: #acacac;">Login with social media accounts</p>
-
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="col-md-1 small-sidenav">
-                        <ul class="small-sidenav-ul">
-                            <li><a href="{{ config('app.frontend_url') }}" title="Website"><i class="fa-solid fa-house"></i></a></li>
-                            <li><a href="{{ config('app.frontend_url') . '/shop'}}" title="Shop"><i class="fa-solid fa-store"></i></a></li>
-                            <li><a href="{{ config('app.frontend_url') . '/about'}}" title="Smarven"><i class="fa-solid fa-circle-info"></i></a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+@section('form')
+    <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" data-kt-redirect-url="{{ route('admin.dashboard') }}" method="POST" action="{{ route('auth.login') }}">
+        @csrf
+        <div class="text-center mb-11">
+            <h1 class="text-gray-900 fw-bolder mb-3">Sign In</h1>
         </div>
-    </section>
+        <div class="fv-row mb-8">
+            <input type="text" placeholder="Email" name="email" class="form-control bg-transparent" />
+            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        </div>
+        <div class="fv-row mb-3" data-kt-password-meter="true">
+            <div class="position-relative mb-3">
+                <input class="form-control bg-transparent"
+                    type="password" placeholder="Password" name="password" autocomplete="off" required />
+
+                <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2"
+                    data-kt-password-meter-control="visibility">
+                        <i class="ki-duotone ki-eye-slash fs-1"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span></i>
+                        <i class="ki-duotone ki-eye d-none fs-1"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                </span>
+            </div>
+            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        </div>
+
+        <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
+            <a href="{{ route('auth.forget-password.index') }}" class="link-primary">Forgot Password ?</a>
+        </div>
+
+        <div class="d-grid mb-10">
+            <button type="submit" id="kt_sign_in_submit" class="btn btn-primary">
+                <span class="indicator-label">Sign In</span>
+
+                <span class="indicator-progress">Please wait... 
+                <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+
+            </button>
+        </div>
+    </form>
 @endsection
-
-@section('Js')
-    <script>
-        $("[placeholder]").focus(function () {
-            $(this).attr("data-text", $(this).attr("placeholder"));
-            $(this).attr("placeholder", "");
-        }).blur(function () {
-            $(this).attr("placeholder", $(this).attr("data-text"));
-        });
-
-        // Eye toggler Password
-        document.getElementById('eye').addEventListener('click', function () {
-            let passwordField = document.getElementById('password');
-            let eyeIcon = document.getElementById('eye');
-
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-            } else {
-                passwordField.type = 'password';
-            }
-
-            eyeIcon.classList.toggle('fa-eye');
-            eyeIcon.classList.toggle('fa-eye-slash');
-        });
-    </script>
-@stop
-

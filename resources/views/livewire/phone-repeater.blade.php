@@ -3,8 +3,8 @@
     
     <div class="d-flex flex-wrap w-100">
         @foreach($phones as $index => $phone)
-            <div class="col-md-4 d-flex align-items-center">
-                <input type="text" class="form-control" name="phones" wire:model="phones.{{ $index }}.phone_number" required>
+            <div class="mb-10 col-md-4 d-flex align-items-center">
+                <input type="text" class="form-control form-control-solid" name="phones" wire:model="phones.{{ $index }}.phone_number" required>
                 @if($index > 0)
                     <button class="btn btn-danger remove-phones" wire:click.prevent="removePhone({{ $index }})">X</button>
                 @endif

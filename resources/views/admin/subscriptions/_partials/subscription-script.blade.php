@@ -1,6 +1,6 @@
 <script>
     $(document).ready(function () {
-        let selectedOfferId = "{{ $subscription->payment->offer_id }}";
+        let selectedOfferId = "{{ $selectedOfferId ?? '' }}";
 
         function fetchOffers() {
             $.ajax({

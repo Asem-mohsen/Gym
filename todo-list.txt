@@ -1,0 +1,10 @@
+-------------- TODO -----------------
+1- Lockers handling
+2- API protection via policies
+3- CRUD Check
+4- Images handling
+5- Security among admins
+6- Master filament manager
+7- Sessions of the coaches and handle bookings
+8- Payments via stripe
+9- Frontend with angular

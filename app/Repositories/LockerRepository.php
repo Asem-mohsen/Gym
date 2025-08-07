@@ -26,4 +26,9 @@ class LockerRepository
         $locker->delete();
     }
 
+    public function findByRecoveryToken($token)
+    {
+        return Locker::where('recovery_token', $token)->first();
+    }
+
 }

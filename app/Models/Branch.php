@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Translatable\HasTranslations;
@@ -42,6 +43,11 @@ class Branch extends Model implements HasMedia
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class, 'branch_id');
+    }
+
+    public function galleries(): MorphMany
+    {
+        return $this->morphMany(Gallery::class, 'galleryable');
     }
 
 }

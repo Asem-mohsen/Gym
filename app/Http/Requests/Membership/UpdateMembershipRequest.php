@@ -24,6 +24,8 @@ class UpdateMembershipRequest extends FormRequest
             'price'        => ['required' , 'numeric'],
             'order'        => ['required' , 'numeric'],
             'period'       => ['required'],
+            'features'     => ['nullable', 'array'],
+            'features.*'   => ['exists:features,id'],
         ];
     }
 }

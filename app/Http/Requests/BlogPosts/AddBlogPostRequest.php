@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Http\Requests\BlogPosts;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class AddBlogPostRequest extends FormRequest
+{
+
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'title'       => ['required' , 'string' , 'max:255'],
+            'content'     => ['required' , 'string'],
+            'categories'  => ['required' , 'array' , 'min:1'],
+            'categories.*'=> ['string', 'max:255'],
+            'tags'        => ['required' , 'array', 'min:1'],
+            'tags.*'      => ['string', 'max:255'],
+            'status'      => ['required', 'in:draft,published,archived'],
+            'image'       => ['required' , 'image' , 'mimes:jpeg,png,jpg,gif,svg' , 'max:2048'],
+        ];
+    }
+}
