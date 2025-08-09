@@ -76,9 +76,9 @@ class BlogRepository
     /**
      * Find a branch by ID with its phones.
      */
-    public function findById(int $id)
+    public function findById(int $id, array $with = [])
     {
-        return BlogPost::find($id);
+        return BlogPost::with($with)->find($id);
     }
 
 }

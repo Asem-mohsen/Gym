@@ -19,6 +19,7 @@ use App\Http\Controllers\API\ServicesController;
 use App\Http\Controllers\API\TransactionController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\AboutController;
+use App\Http\Controllers\API\BlogController;
 use App\Http\Controllers\API\ClassesController;
 use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\SiteSettingController;
@@ -122,6 +123,13 @@ Route::prefix('v1')->group(function(){
             Route::controller(ClassesController::class)->group(function(){
                 Route::get('/', 'index');
                 Route::get('/{class}', 'show');
+            });
+        });
+
+        Route::prefix('blog')->group(function(){
+            Route::controller(BlogController::class)->group(function(){
+                Route::get('/', 'index');
+                Route::get('/{blogPost}', 'show');
             });
         });
 

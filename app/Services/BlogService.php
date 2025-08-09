@@ -31,7 +31,6 @@ class BlogService
 
     public function createBlogPost(array $data, int $userId)
     {
-        Log::info('createBlogPost called', ['data' => $data, 'userId' => $userId]);
         $categoryNames = $data['categories'] ?? [];
         $tagNames = $data['tags'] ?? [];
         unset($data['categories'], $data['tags']);
@@ -49,16 +48,14 @@ class BlogService
             Log::info('Blog post created', ['blogPost' => $blogPost]);
 
             $categoryIds = $this->handleCategories($categoryNames);
-            Log::info('Category IDs', ['categoryIds' => $categoryIds]);
+
             $tagIds = $this->handleTags($tagNames);
-            Log::info('Tag IDs', ['tagIds' => $tagIds]);
 
             $blogPost->categories()->sync($categoryIds);
             $blogPost->tags()->sync($tagIds);
 
             if ($image) {
                 $blogPost->addMedia($image)->toMediaCollection('blog_post_images');
-                Log::info('Image added to media collection');
             }
 
             return $blogPost;
@@ -77,9 +74,9 @@ class BlogService
         return $this->blogRepository->updateBlogPost($blogPost,$newData);
     }
 
-    public function showBlogPost($blogPost)
+    public function showBlogPost($blogPostId, array $with = [])
     {
-        return $this->blogRepository->findById($blogPost->id);
+        return $this->blogRepository->findById($blogPostId, $with);
     }
 
     public function deleteBlogPost($blogPost)
