@@ -3,28 +3,38 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Services\{SiteSettingService , MembershipService};
+use App\Models\SiteSetting;
+use App\Services\{ClassService, GalleryService, SiteSettingService , MembershipService};
 use App\Services\UserService;
 
 class HomeController extends Controller
 {
-    protected int $siteSettingId;
-
-    public function __construct(protected MembershipService $membershipService ,protected UserService $userService, protected SiteSettingService $siteSettingService)
+    public function __construct(
+        protected MembershipService $membershipService,
+        protected SiteSettingService $siteSettingService,
+        protected GalleryService $galleryService,
+        protected ClassService $classService,
+        protected UserService $userService
+    )
     {
         $this->membershipService = $membershipService;
+        $this->galleryService = $galleryService;
+        $this->classService = $classService;
         $this->userService = $userService;
-        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
     }
-    
-    public function index()
+
+    public function index(SiteSetting $gym)
     {
-        $memberships = $this->membershipService->getMemberships(siteSettingId: $this->siteSettingId);
-        $trainers    = $this->userService->getTrainers($this->siteSettingId);
+        $memberships = $this->membershipService->getMemberships(siteSettingId: $gym->id);
+        $galleries = $this->galleryService->getGalleriesForModel(model: $gym, limit: 6);
+        $classes = $this->classService->getClasses(siteSettingId: $gym->id);
+        $trainers = $this->userService->getTrainers(siteSettingId: $gym->id);
 
         $data = [
             'memberships'=>$memberships,
-            'trainers'   =>$trainers
+            'trainers'   =>$trainers,
+            'galleries'  =>$galleries,
+            'classes'    =>$classes
         ];
 
         return successResponse($data, 'Home data retrieved');

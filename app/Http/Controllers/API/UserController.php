@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\Users\{ UpdateUserRequest , AddUserRequest};
 use App\Models\User;
+use App\Models\SiteSetting;
 use App\Services\SiteSettingService;
 use App\Services\UserService;
 use Exception;
@@ -74,9 +75,14 @@ class UserController extends Controller
         }
     }
 
-    public function coachProfile(User $user)
+    public function coachProfile(User $user, SiteSetting $gym)
     {
         try {
+            // Check if the user belongs to the specified gym
+            if (!$user->gyms()->where('site_setting_id', $gym->id)->exists()) {
+                return failureResponse('Invalid coach or gym', 400);
+            }
+            
             $user = $this->userService->showUser($user);
             return successResponse(compact('user'), 'coach data retrieved successfully');
         } catch (Exception $e) {
