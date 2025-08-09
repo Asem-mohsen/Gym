@@ -17,11 +17,10 @@ class UpdateUserRequest extends FormRequest
         return [
             'name'    => ['required' , 'max:255'],
             'email'   => ['required' , 'email' , 'max:255'],
-            'password'=> ['nullable' , 'max:255'],
+            'password'=> ['nullable' , 'max:255' , 'confirmed'],
             'address' => ['required' , 'max:255'],
             'gender'  => ['required' , 'max:15'],
             'phone'   => ['required' , 'numeric'],
-            'role_id' => ['required' , 'exists:roles,id'],
             'image'   => ['nullable' , 'image' , 'mimes:jpeg,png,jpg,gif' , 'max:2048'],
         ];
     }

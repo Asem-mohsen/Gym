@@ -21,9 +21,9 @@ class UserService
         return $this->userRepository->getAllTrainers($siteSettingId);
     }
 
-    public function showUser($user)
+    public function showUser($user, array $with = [])
     {
-        return $this->userRepository->findById($user->id);
+        return $this->userRepository->findById($user->id, $with);
     }
 
     public function createUser(array $data, int $siteSettingId)

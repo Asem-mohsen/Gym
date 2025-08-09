@@ -23,34 +23,23 @@ class UserController extends Controller
         $this->siteSettingId = $siteSettingService->getCurrentSiteSettingId();
     }
 
-    public function index()
+    public function index(User $user , SiteSetting $gym)
     {
         try {
-            $users = $this->userService->getUsers(siteSettingId: $this->siteSettingId);
+            $users = $this->userService->getUsers(siteSettingId: $gym->id);
             return successResponse(compact('users'), 'users data retrieved successfully');
         } catch (Exception $e) {
             return failureResponse('Error retrieving users, please try again.');
         }
     }
 
-    public function trainers()
+    public function trainers(SiteSetting $gym)
     {
         try {
-            $trainers = $this->userService->getTrainers(siteSettingId: $this->siteSettingId);
+            $trainers = $this->userService->getTrainers(siteSettingId: $gym->id);
             return successResponse(compact('trainers'), 'trainers data retrieved successfully');
         } catch (Exception $e) {
             return failureResponse('Error retrieving trainers, please try again.');
-        }
-    }
-
-    public function editByAdmin(Request $request , User $user)
-    {
-        try {
-            $this->userService->showUser($user);
-            $user->load('role');
-            return successResponse(compact('user'), 'user data retrieved successfully');
-        } catch (Exception $e) {
-            return failureResponse('Error retrieving user, please try again.');
         }
     }
 
@@ -64,18 +53,17 @@ class UserController extends Controller
         }
     }
 
-    public function profile(Request $request)
+    public function profile(SiteSetting $gym, User $user)
     {
         try {
-            $user = Auth::guard('sanctum')->user();
-            $user->load('bookings.bookable');
-            return successResponse(compact('user'), 'user data retrieved successfully');
+            $user = $this->userService->showUser($user, ['bookings.bookable']);
+            return successResponse($user, 'user data retrieved successfully');
         } catch (Exception $e) {
             return failureResponse('Error retrieving user, please try again.');
         }
     }
 
-    public function coachProfile(User $user, SiteSetting $gym)
+    public function coachProfile(SiteSetting $gym, User $user)
     {
         try {
             // Check if the user belongs to the specified gym
@@ -90,32 +78,21 @@ class UserController extends Controller
         }
     }
 
-    public function addUsers(AddUserRequest $request)
+    public function update(UpdateUserRequest $request ,SiteSetting $gym, User $user)
     {
         try {
-            $user = $this->userService->createUser($request->validated(), $this->siteSettingId);
-            return successResponse(compact('user'), $user->name . ' created successfully');
-        } catch (Exception $e) {
-            return failureResponse('Error creating user, please try again.');
-        }
-    }
-
-    public function update(UpdateUserRequest $request)
-    {
-        try {
-            $user = Auth::guard('sanctum')->user();
-            $user = $this->userService->updateUser($user ,$request->validated(), $this->siteSettingId);
-            return successResponse(message: 'user updated successfully');
+            $user = $this->userService->updateUser($user ,$request->validated(), $gym->id);
+            return successResponse(data: $user, message: 'user updated successfully');
         } catch (Exception $e) {
             return failureResponse('Error updating user, please try again.');
         }
     }
 
-    public function destroy(Request $request)
+    public function destroy(SiteSetting $gym, User $user)
     {
         try {
-            $user = Auth::guard('sanctum')->user();
-            $this->userService->deleteUser($user );
+            if($user->id != Auth::guard('sanctum')->user()->id) return failureResponse('You are not allowed to delete this user', 403);
+            $this->userService->deleteUser($user);
             return successResponse(message: 'user deleted successfully');
         } catch (Exception $e) {
             return failureResponse('Error deleting user, please try again.');

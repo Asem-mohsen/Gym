@@ -27,9 +27,9 @@ class GalleryService
     /**
      * Get a specific gallery by ID
      */
-    public function getGalleryById(int $id): ?Gallery
+    public function getGalleryById(int $id, array $with = []): ?Gallery
     {
-        return $this->galleryRepository->findById($id);
+        return $this->galleryRepository->findById($id, $with);
     }
 
     /**

@@ -84,6 +84,11 @@ class ClassService
         return $class->load(['trainers', 'schedules', 'pricings']);
     }
 
+    public function showClass($class)
+    {
+        return $this->classRepository->findById($class->id, ['schedules', 'pricings', 'trainers']);
+    }
+
     public function deleteClass($class)
     {
         // Cascade deletes handled by DB

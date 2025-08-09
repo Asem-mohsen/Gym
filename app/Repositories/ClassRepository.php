@@ -8,7 +8,7 @@ class ClassRepository
 {
     public function getClasses(int $siteSettingId)
     {
-        return ClassModel::where('site_setting_id', $siteSettingId)->where('status', 'active')->get();
+        return ClassModel::where('site_setting_id', $siteSettingId)->where('status', 'active')->with('schedules', 'pricings','trainers')->get();
     }
 
     public function getAll($with = [])
