@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Services\Auth\LogoutService;
+use Illuminate\Http\Request;
 
 class LogoutController extends Controller
 {
@@ -17,10 +18,10 @@ class LogoutController extends Controller
     /**
      * Logout from the current session.
      */
-    public function logoutFromCurrentSession()
+    public function logoutFromCurrentSession(Request $request)
     {
         try {
-            $this->logoutService->logoutFromCurrentSession();
+            $this->logoutService->logoutFromCurrentSession($request);
             return successResponse(message: 'Successfully logged out from the current session');
         } catch (\Exception $e) {
             return failureResponse($e->getMessage(), 500);
@@ -30,10 +31,10 @@ class LogoutController extends Controller
     /**
      * Logout from all sessions.
      */
-    public function logoutFromAllSessions()
+    public function logoutFromAllSessions(Request $request)
     {
         try {
-            $this->logoutService->logoutFromAllSessions();
+            $this->logoutService->logoutFromAllSessions($request);
             return successResponse(message: 'Successfully logged out from all sessions');
         } catch (\Exception $e) {
             return failureResponse($e->getMessage(), 500);
@@ -43,10 +44,10 @@ class LogoutController extends Controller
     /**
      * Logout from all other sessions except the current one.
      */
-    public function logoutFromOtherSessions()
+    public function logoutFromOtherSessions(Request $request)
     {
         try {
-            $this->logoutService->logoutFromOtherSessions();
+            $this->logoutService->logoutFromOtherSessions($request);
             return successResponse(message: 'Successfully logged out from all other sessions except this one');
         } catch (\Exception $e) {
             return failureResponse($e->getMessage(), 500);
