@@ -45,7 +45,7 @@ class MembershipController extends Controller
         }
     }
 
-    public function show(Membership $membership, SiteSetting $gym)
+    public function show(SiteSetting $gym, Membership $membership)
     {
         try {
             // Validate that the membership belongs to the specified gym
@@ -54,7 +54,7 @@ class MembershipController extends Controller
             }
             
             $membership = $this->membershipService->showMembership($membership);
-            return successResponse(compact('membership'), $membership->name .' data successfully');
+            return successResponse(compact('membership'), $membership->name .' retrieved successfully');
         } catch (Exception $e) {
             return failureResponse('Error fetching membership, please try again.');
         }
