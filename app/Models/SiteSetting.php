@@ -68,6 +68,11 @@ class SiteSetting extends Model implements HasMedia
         return $this->hasMany(Role::class, 'site_setting_id');
     }
 
+    public function classes(): HasMany
+    {
+        return $this->hasMany(ClassModel::class, 'site_setting_id');
+    }
+
     public function galleries(): MorphMany
     {
         return $this->morphMany(Gallery::class, 'galleryable');
