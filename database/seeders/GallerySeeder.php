@@ -14,11 +14,9 @@ class GallerySeeder extends Seeder
      */
     public function run(): void
     {
-        // Get existing site settings and branches
         $siteSettings = SiteSetting::all();
         $branches = Branch::all();
 
-        // Create galleries for site settings
         foreach ($siteSettings as $siteSetting) {
             // Main gym gallery
             Gallery::factory()->create([
@@ -52,26 +50,30 @@ class GallerySeeder extends Seeder
         }
 
         // Create galleries for branches
-        foreach ($branches as $branch) {
-            // Branch specific gallery
-            Gallery::factory()->create([
-                'title' => $branch->name . ' Branch Gallery',
-                'description' => 'Exclusive photos from ' . $branch->name . ' branch',
-                'galleryable_type' => Branch::class,
-                'galleryable_id' => $branch->id,
-                'is_active' => true,
-                'sort_order' => 1,
-            ]);
+        if ($branches->isNotEmpty()) {
+            foreach ($branches as $branch) {
+                // Branch specific gallery
+                Gallery::factory()->create([
+                    'title' => $branch->name . ' Branch Gallery',
+                    'description' => 'Exclusive photos from ' . $branch->name . ' branch',
+                    'galleryable_type' => Branch::class,
+                    'galleryable_id' => $branch->id,
+                    'is_active' => true,
+                    'sort_order' => 1,
+                ]);
 
-            // Branch equipment gallery
-            Gallery::factory()->create([
-                'title' => $branch->name . ' Equipment',
-                'description' => 'Equipment and facilities available at ' . $branch->name . ' branch',
-                'galleryable_type' => Branch::class,
-                'galleryable_id' => $branch->id,
-                'is_active' => true,
-                'sort_order' => 2,
-            ]);
+                // Branch equipment gallery
+                Gallery::factory()->create([
+                    'title' => $branch->name . ' Equipment',
+                    'description' => 'Equipment and facilities available at ' . $branch->name . ' branch',
+                    'galleryable_type' => Branch::class,
+                    'galleryable_id' => $branch->id,
+                    'is_active' => true,
+                    'sort_order' => 2,
+                ]);
+            }
+        } else {
+            $this->command->warn('No branches found. Skipping branch galleries...');
         }
 
         // Create some inactive galleries for testing

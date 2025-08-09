@@ -18,10 +18,19 @@ class CoachingSessionsSeeder extends Seeder
 
     public function run(): void
     {
-        $trainers = $this->userService->getTrainers();
+        // Get the first site setting ID or create one if none exists
+        $siteSettingId = \App\Models\SiteSetting::first()?->id ?? 1;
+        
+        $trainers = $this->userService->getTrainers(siteSettingId: $siteSettingId);
+        $users = $this->userService->getUsers(siteSettingId: $siteSettingId);
 
-        $users = $this->userService->getUsers();
+        // Check if we have trainers and users available
+        if ($trainers->isEmpty() || $users->isEmpty()) {
+            $this->command->warn('No trainers or users available for coaching sessions. Skipping...');
+            return;
+        }
 
+        // Create coaching sessions
         foreach (range(1, 20) as $index) {
             DB::table('coaching_sessions')->insert([
                 'coach_id' => $trainers->random()->id,
