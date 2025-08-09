@@ -135,10 +135,26 @@
                                 ]
                             ],
                             [
+                                'title' => 'Blog',
+                                'icon' => 'fa-solid fa-newspaper',
+                                'active' => function() {
+                                    return request()->routeIs('blog-posts.*');
+                                },
+                                'route' => 'blog-posts.index'
+                            ],
+                            [
+                                'title' => 'Gallery',
+                                'icon' => 'fa-solid fa-images',
+                                'active' => function() {
+                                    return request()->routeIs('galleries.*');
+                                },
+                                'route' => 'galleries.index'
+                            ],
+                            [
                                 'title' => 'Site',
                                 'icon' => 'fa-solid fa-chart-simple',
                                 'active' => function() {
-                                    return request()->routeIs('blog-posts.*') ||  request()->routeis('galleries.*') || request()->routeIs('site-settings.edit') || request()->routeIs('features.*');
+                                    return request()->routeIs('site-settings.edit') || request()->routeIs('features.*');
                                 },
                                 'subItems' => [
                                     [
@@ -155,26 +171,13 @@
                                             return request()->routeIs('features.*');
                                         }
                                     ],
-                                    [
-                                        'title' => 'Blog',
-                                        'route' => 'blog-posts.index',
-                                        'active' => function() {
-                                            return request()->routeIs('blog-posts.*');
-                                        }
-                                    ],
-                                    [
-                                        'title' => 'Gallery',
-                                        'route' => 'galleries.index',
-                                        'active' => function() {
-                                            return request()->routeIs('galleries.*');
-                                        }
-                                    ],
                                 ]
                             ],
                         ];
                     @endphp
 
                     @foreach ($menuItems as $item)
+                        @if (isset($item['subItems']))
                             <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ $item['active']() ? 'here show' : '' }}">
                                 <span class="menu-link">
                                     <span class="menu-icon">
@@ -224,6 +227,16 @@
                                     @endforeach
                                 </div>
                             </div>
+                        @else
+                            <div class="menu-item">
+                                <a class="menu-link {{ $item['active']() ? 'active' : '' }}" href="{{ route($item['route']) }}">
+                                    <span class="menu-icon">
+                                        <i class="{{ $item['icon'] }}"></i>
+                                    </span>
+                                    <span class="menu-title">{{ $item['title'] }}</span>
+                                </a>
+                            </div>
+                        @endif
                     @endforeach
 
                 </div>

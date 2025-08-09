@@ -7,6 +7,7 @@ use App\Http\Requests\Features\{AddFeatureRequest, UpdateFeatureRequest};
 use App\Models\Feature;
 use App\Services\FeatureService;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class FeatureController extends Controller
 {
@@ -31,7 +32,7 @@ class FeatureController extends Controller
         try {
             $data = $request->validated();
             $this->featureService->createFeature($data);
-            return redirect()->route('feature.index')->with('success', 'Feature created successfully.');
+            return redirect()->route('features.index')->with('success', 'Feature created successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while adding a new feature, please try again in a few minutes.');
         }
@@ -54,7 +55,7 @@ class FeatureController extends Controller
         try {
             $data = $request->validated();
             $this->featureService->updateFeature($feature, $data);
-            return redirect()->route('feature.index')->with('success', 'Feature updated successfully.');
+            return redirect()->route('features.index')->with('success', 'Feature updated successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while updating the feature, please try again in a few minutes.');
         }
@@ -64,7 +65,7 @@ class FeatureController extends Controller
     {
         try {
             $this->featureService->deleteFeature($feature);
-            return redirect()->route('feature.index')->with('success', 'Feature deleted successfully.');
+            return redirect()->route('features.index')->with('success', 'Feature deleted successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while deleting the feature, please try again in a few minutes.');
         }

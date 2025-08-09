@@ -39,7 +39,7 @@
                         'options' => $options,
                         'name' => 'status',
                         'id' => 'status',
-                        'selected' => $feature->status,
+                        'selectedValue' => $feature->status,
                     ])
                 </div>
                 <div class="mb-10 col-md-6">

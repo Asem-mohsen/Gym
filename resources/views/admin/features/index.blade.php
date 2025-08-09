@@ -67,7 +67,7 @@
                                 </td>
                                 <td>{{ $feature->order }}</td>
                                 <td>
-                                    @if($feature->status === 1)
+                                    @if($feature->status == 1)
                                         <x-badge 
                                             :color="'success'" 
                                             content="Active"
