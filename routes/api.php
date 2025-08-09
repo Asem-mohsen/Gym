@@ -212,7 +212,8 @@ Route::prefix('v1')->group(function(){
 
         Route::prefix('contact')->group(function(){
             Route::controller(ContactController::class)->group(function(){
-                Route::get('/contact-us', 'contactUs');
+                Route::get('/', 'index');
+                Route::post('/', 'sendMessage');
             });
         });
 

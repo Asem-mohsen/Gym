@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Contact\ContactRequest;
 use App\Models\SiteSetting;
 use App\Services\ContactService;
 use Illuminate\Http\Request;
@@ -15,16 +16,19 @@ class ContactController extends Controller
         $this->contactService = $contactService;
     }
 
-    public function contactUs(Request $request, SiteSetting $gym)
+    public function index(SiteSetting $gym)
+    {
+        $data = [
+            'gym' => $gym,
+        ];
+
+        return successResponse($data, 'Contact data retrieved successfully');
+    }
+    
+    public function sendMessage(ContactRequest $request, SiteSetting $gym)
     {
         try {
-            $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|max:255',
-                'phone' => 'required|string|max:20',
-                'subject' => 'required|string|max:255',
-                'message' => 'required|string|max:1000',
-            ]);
+            $validatedData = $request->validated();
 
             $contact = $this->contactService->storeContact($validatedData, $gym->id);
             
