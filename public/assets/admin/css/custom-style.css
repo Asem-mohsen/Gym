@@ -1,0 +1,10 @@
+/* avatar image */
+img.avatar.avatar-sm.me-3 {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+}
+.menu-content .symbol div, .app-navbar-item .symbol div{
+    background-image: url(../img/avatar.jpg);
+    background-size: contain;
+}

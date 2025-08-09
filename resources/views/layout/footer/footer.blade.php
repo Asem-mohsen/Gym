@@ -1,3 +1,0 @@
-{!! getScripts() !!}
-
-@yield('Js')

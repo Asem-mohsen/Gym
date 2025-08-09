@@ -10,10 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
-    use HasFactory, Notifiable , HasApiTokens;
+    use HasFactory, Notifiable , HasApiTokens, InteractsWithMedia;
 
     protected $table = 'users';
 
@@ -41,7 +43,7 @@ class User extends Authenticatable
         ];
     }
 
-    public function roles(): BelongsTo
+    public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class , 'role_id' , 'id');
     }
@@ -69,6 +71,31 @@ class User extends Authenticatable
     public function getSiteSettingIdAttribute()
     {
         return $this->site?->id;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->is_admin === 1 || strtolower($this->role?->name) === 'admin';
+    }
+
+    /**
+     * Get the user's image URL based on gender and media availability
+     *
+     * @return string
+     */
+    public function getUserImageAttribute(): string
+    {
+        $userImage = $this->getFirstMediaUrl('user_images');
+        
+        if ($userImage) {
+            return $userImage;
+        }
+        
+        if ($this->gender === 'male') {
+            return asset('assets/admin/img/boy-avatar.jpg');
+        }
+        
+        return asset('assets/admin/img/women-avatar.webp');
     }
 
 }

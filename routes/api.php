@@ -19,6 +19,7 @@ use App\Http\Controllers\API\ServicesController;
 use App\Http\Controllers\API\TransactionController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\AboutController;
+use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\SiteSettingController;
 use App\Http\Controllers\API\StripePaymentController;
 
@@ -172,50 +173,68 @@ Route::prefix('v1')->group(function(){
             });
         });
 
-    });
-
-
-    // User Public
-    Route::controller(HomeController::class)->group(function(){
-        Route::get('/', 'index')->name('index');
-    });
-
-    Route::prefix('trainers')->group(function(){
-        Route::controller(UserController::class)->group(function(){
-            Route::get('/{user}/coach', 'coachProfile');
+        Route::prefix('galleries')->group(function(){
+            Route::controller(GalleryController::class)->group(function(){
+                Route::get('/site', 'getSiteGalleries');
+                Route::get('/branch/{branchId}', 'getBranchGalleries');
+                Route::get('/{id}', 'show');
+                Route::post('/site', 'createSiteGallery');
+                Route::post('/branch/{branchId}', 'createBranchGallery');
+                Route::put('/{id}', 'update');
+                Route::delete('/{id}', 'destroy');
+                Route::delete('/{galleryId}/media/{mediaId}', 'removeMedia');
+                Route::post('/reorder', 'reorder');
+                Route::get('/stats', 'stats');
+            });
         });
+
     });
 
-    Route::prefix('memberships')->group(function(){
-        Route::controller(MembershipController::class)->group(function(){
-            Route::get('/', 'index');
-            Route::get('/{membership}/membership', 'show');
+
+    // User Public - Gym-specific routes
+    Route::prefix('{gym:slug}')->group(function(){
+        Route::controller(HomeController::class)->group(function(){
+            Route::get('/', 'index')->name('index');
         });
-    });
 
-    Route::prefix('contact')->group(function(){
-        Route::controller(ContactController::class)->group(function(){
-            Route::get('/contact-us', 'contactUs');
+        Route::prefix('trainers')->group(function(){
+            Route::controller(UserController::class)->group(function(){
+                Route::get('/{user}/coach', 'coachProfile');
+            });
         });
-    });
 
-    Route::prefix('about')->group(function(){
-        Route::controller(AboutController::class)->group(function(){
-            Route::get('/about-us', 'aboutUs');
+        Route::prefix('memberships')->group(function(){
+            Route::controller(MembershipController::class)->group(function(){
+                Route::get('/', 'index');
+                Route::get('/{membership}/membership', 'show');
+            });
         });
-    });
 
-    Route::prefix('booking')->group(function(){
-        Route::controller(BookingController::class)->group(function(){
-            Route::post('/membership/booking', 'bookMembership');
-            Route::post('/coach/booking', 'bookCoach');
-            Route::post('/service/booking', 'bookService');
+        Route::prefix('contact')->group(function(){
+            Route::controller(ContactController::class)->group(function(){
+                Route::get('/', 'index');
+                Route::post('/', 'sendMessage');
+            });
         });
-    });
 
-    Route::prefix('services')->group(function(){
-        Route::controller(ServicesController::class)->group(function(){
-            Route::get('/services', 'services');
+        Route::prefix('about')->group(function(){
+            Route::controller(AboutController::class)->group(function(){
+                Route::get('/about-us', 'aboutUs');
+            });
+        });
+
+        Route::prefix('booking')->group(function(){
+            Route::controller(BookingController::class)->group(function(){
+                Route::post('/membership/booking', 'bookMembership');
+                Route::post('/coach/booking', 'bookCoach');
+                Route::post('/service/booking', 'bookService');
+            });
+        });
+
+        Route::prefix('services')->group(function(){
+            Route::controller(ServicesController::class)->group(function(){
+                Route::get('/services', 'services');
+            });
         });
     });
 

@@ -5,8 +5,10 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Service\{AddServiceRequest , UpdateServiceRequest};
 use App\Models\Service;
+use App\Models\SiteSetting;
 use App\Services\ServiceService;
 use Exception;
+use Illuminate\Http\Request;
 
 class ServicesController extends Controller
 {
@@ -20,8 +22,26 @@ class ServicesController extends Controller
     public function index()
     {
         try {
-            $services = $this->serviceService->getServices();
+            // This method is for admin routes, so we need to get site_setting_id from authenticated user
+            // For now, we'll require it to be passed in the request
+            $siteSettingId = request()->input('site_setting_id');
+            
+            if (!$siteSettingId) {
+                return failureResponse('site_setting_id is required', 400);
+            }
+
+            $services = $this->serviceService->getServices($siteSettingId);
             return successResponse(compact('services'), 'Service data retrieved successfully');
+        } catch (Exception $e) {
+            return failureResponse('Error retrieving services, please try again.');
+        }
+    }
+
+    public function services(SiteSetting $gym)
+    {
+        try {
+            $services = $this->serviceService->getServices($gym->id);
+            return successResponse(compact('services'), 'Services data retrieved successfully');
         } catch (Exception $e) {
             return failureResponse('Error retrieving services, please try again.');
         }

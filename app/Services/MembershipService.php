@@ -14,7 +14,7 @@ class MembershipService
 
     public function getMemberships(int $siteSettingId ,array $withCount = [])
     {
-        return $this->membershipRepository->getAllMemberships(siteSettingId: $siteSettingId , with: ['offers'] , withCount: $withCount);
+        return $this->membershipRepository->getAllMemberships(siteSettingId: $siteSettingId , with: ['offers', 'features'] , withCount: $withCount);
     }
 
     public function createMembership(array $data)
@@ -29,7 +29,7 @@ class MembershipService
 
     public function showMembership($membership)
     {
-        return $this->membershipRepository->findById($membership->id);
+        return $this->membershipRepository->findById($membership->id)->load('features');
     }
 
     public function deleteMembership($membership)

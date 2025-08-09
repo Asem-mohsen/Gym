@@ -1,39 +1,55 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('') }}">
-        @csrf
+@extends('layout.admin.auth-layout')
 
-        <!-- Password Reset Token -->
-        <input type="hidden" name="token" value="{{ $request->route('token') }}">
+@section('title','Reset Password')
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+@section('form')
+<div class="card">
+    <div class="card-body">
+        <form method="POST" action="{{ route('auth.forget-password.reset') }}">
+            @csrf
+            <input type="hidden" name="token" value="{{ $token }}">
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+            <input type="hidden" name="email" value="{{ $email }}">
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+            <div data-kt-password-meter="true">
+                <label class="form-label fw-semibold fs-6 mb-2">
+                    Password
+                </label>
+                <div class="position-relative mb-3">
+                    <input class="form-control form-control-solid required" type="password" placeholder="" name="password" autocomplete="off" required />
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                type="password"
-                                name="password_confirmation" required autocomplete="new-password" />
+                    <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2" data-kt-password-meter-control="visibility">
+                        <i class="ki-duotone ki-eye-slash fs-1"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span></i>
+                        <i class="ki-duotone ki-eye d-none fs-1"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                    </span>
+                </div>
+            </div>
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
+            <div data-kt-password-meter="true">
+                <label class="form-label fw-semibold fs-6 mb-2">
+                   Confirm Password
+                </label>
+                <div class="position-relative mb-3">
+                    <input class="form-control form-control-solid required" type="password" placeholder="" name="password_confirmation" id="password_confirmation" autocomplete="off" required />
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Reset Password') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+                    <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2" data-kt-password-meter-control="visibility">
+                        <i class="ki-duotone ki-eye-slash fs-1"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span></i>
+                        <i class="ki-duotone ki-eye d-none fs-1"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="d-grid mb-10">
+                <button type="submit" id="kt_sign_in_submit" class="btn btn-primary">
+                    <span class="indicator-label">Reset Password</span>
+
+                    <span class="indicator-progress">Please wait...
+                    <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+@endsection
+

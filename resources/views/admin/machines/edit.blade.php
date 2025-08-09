@@ -1,4 +1,4 @@
-@extends('layout.master')
+@extends('layout.admin.master')
 
 @section('title', 'Edit ' . $machine->name)
 

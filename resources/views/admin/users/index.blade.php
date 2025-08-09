@@ -1,88 +1,116 @@
-@extends('layout.master')
+@extends('layout.admin.master')
 
-@section('title' , 'Users')
+@section('title', 'Users')
+
+@section('main-breadcrumb', 'Users')
+@section('main-breadcrumb-link', route('users.index'))
+
+@section('sub-breadcrumb', 'Index')
+
+@section('css')
+    <link href="{{ asset('assets/plugins/custom/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
+@endsection
 
 @section('content')
 
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                {{-- Buttons --}}
-                <div class="btn-group w-fit pb-2">
-                    <a href="{{ route('users.create') }}" class="btn btn-dark p-2"><i class="fa-solid fa-plus mr-1"></i>Add New User</a>
+<div class="col-md-12 mb-md-5 mb-xl-10">
+    <div class="card">
+
+        <div class="card-header border-0 pt-6">
+
+            <div class="card-title">
+
+                <div class="d-flex align-items-center position-relative my-1">
+                    <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-5">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                    </i>
+                    <input type="text" data-kt-table-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Search" />
                 </div>
-                <table id="example1" class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Address</th>
-                            <th>Joined</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php
-                            $i = 1;
-                        @endphp
-                        @foreach ($users as $user)
-                            <tr>
-                                <td>
-                                    {{ $i++ }}
-                                </td>
-                                <td>
-                                    <div class="d-flex px-2 py-1">
-                                        <div>
-                                            <img src="{{ asset('assets/dist/img/avatar.png') }}" class="avatar avatar-sm me-3" alt="{{$user->name}}">
-                                        </div>
-                                        <div class="d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-sm">{{$user->name}}</h6>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>{{$user->email}}</td>
-                                <td>
-                                    {{ $user->phone }}
-                                </td>
-                                <td>
-                                    @if ($user->address)
-                                        {{ \Illuminate\Support\Str::limit($user->address, 25) }}
-                                    @else
-                                        No data
-                                    @endif
-                                </td>
-                                <td>{{ $user->created_at->format('d F Y') }}</td>
-                                <td>
-                                    <div class="d-flex justify-content-around gap-1 align-items-baseline">
-                                        <a href="{{ Route('users.show',$user->id) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Your Profile">
-                                            Check
-                                        </a>
-                                        <a href="{{ route('users.edit',$user->id) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit">
-                                            Edit
-                                        </a>
-                                        <form action="{{ route('users.destroy' ,$user->id )}}" method="post">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="border-0 bg-transparent p-0 text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Delete">
-                                                Delete
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+
             </div>
+
+            <div class="card-toolbar">
+                <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
+                    <a href="{{ route('users.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add User</a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card-body pt-0">
+
+            <table class="table table-striped table-row-dashed align-middle table-row-dashed fs-6 gy-5" id="kt_table">
+                <thead>
+                    <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0 table-head">
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Address</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="fw-semibold text-gray-600">
+                    @foreach ($users as $key => $user)
+                        <tr>
+                            <td>
+                                {{ ++$key }}
+                            </td>
+                            <td>
+                                <div class="d-flex px-2 py-1">
+                                    <div>
+                                        <img src="{{ $user->user_image }}" class="avatar avatar-sm me-3" alt="{{$user->name}}">
+                                    </div>
+                                    <div class="d-flex flex-column justify-content-center">
+                                        <h6 class="mb-0 text-sm">{{$user->name}}</h6>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{$user->email}}</td>
+                            <td>{{$user->phone}}</td>
+                            <td>{{$user->role->name}}</td>
+                            <td>
+                                @if ($user->address)
+                                    {{ \Illuminate\Support\Str::limit($user->address, 25) }}
+                                @else
+                                    No data
+                                @endif
+                            </td>
+                            <td>{{ $user->created_at->format('d F Y') }}</td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <x-table-icon-link 
+                                        :route="route('users.edit',$user->id)" 
+                                        colorClass="primary"
+                                        title="Edit"
+                                        iconClasses="fa-solid fa-pen"
+                                    />
+                                    <x-table-icon-link 
+                                        :route="route('users.show',$user->id)" 
+                                        colorClass="success"
+                                        title="View"
+                                        iconClasses="fa-solid fa-eye"
+                                    />
+                                    <form action="{{ route('users.destroy' ,$user->id )}}" method="post">
+                                        @csrf
+                                        @method('DELETE')
+                                        <x-icon-button
+                                            colorClass="danger"
+                                            title="Delete"
+                                            iconClasses="fa-solid fa-trash"
+                                        />
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
 @endsection
-
-@section('Js')
-    @include('_partials.scripts.datatables-init-script')
-@stop
