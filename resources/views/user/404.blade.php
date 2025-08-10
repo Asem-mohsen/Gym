@@ -3,12 +3,7 @@
 @section('title', 'Gym')
 
 @section('content')
-    <!-- Page Preloder -->
-    <!-- <div id="preloder">
-        <div class="loader"></div>
-    </div> -->
 
-    <!-- 404 Section Begin -->
     <section class="section-404">
         <div class="container">
             <div class="row">

@@ -207,8 +207,8 @@
                                         <li>{{ $feature->name }}</li>
                                     @endforeach
                                 </ul>
-                                <a href="{{ route('memberships.show', $membership->id) }}" class="primary-btn pricing-btn">Enroll now</a>
-                                <a href="{{ route('memberships.show', $membership->id) }}" class="thumb-icon"><i class="fa fa-picture-o"></i></a>
+                                <a href="{{ route('user.memberships.show', ['siteSetting' => $siteSetting->slug, 'membership' => $membership->id]) }}" class="primary-btn pricing-btn">Enroll now</a>
+                                <a href="{{ route('user.memberships.show', ['siteSetting' => $siteSetting->slug, 'membership' => $membership->id]) }}" class="thumb-icon"><i class="fa fa-picture-o"></i></a>
                             </div>
                         </div>
                     @endforeach

@@ -40,9 +40,9 @@ class SiteSettingService
     /**
      * Get all site settings.
      */
-    public function getAllSiteSettings()
+    public function getAllSiteSettings($with = [])
     {
-        return $this->siteSettingRepository->getSiteSettings();
+        return $this->siteSettingRepository->getSiteSettings($with);
     }
 
     /**

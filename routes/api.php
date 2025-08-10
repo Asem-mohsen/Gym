@@ -8,13 +8,10 @@ use App\Http\Controllers\API\Auth\ForgetPasswordController;
 use App\Http\Controllers\API\Auth\RegisterController;
 use App\Http\Controllers\API\Auth\LogoutController;
 
-use App\Http\Controllers\API\DashboardController;
-use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\HomeController;
 use App\Http\Controllers\API\BookingController;
 use App\Http\Controllers\API\ContactController;
 use App\Http\Controllers\API\MembershipController;
-use App\Http\Controllers\API\RolesController;
 use App\Http\Controllers\API\ServicesController;
 use App\Http\Controllers\API\TransactionController;
 use App\Http\Controllers\API\UserController;
