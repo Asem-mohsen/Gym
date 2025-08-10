@@ -21,7 +21,8 @@ use App\Http\Controllers\API\ClassesController;
 use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\SiteSettingController;
 use App\Http\Controllers\API\StripePaymentController;
-
+use App\Http\Controllers\API\PaymentController;
+use App\Http\Controllers\API\GymContextController;
 
 // API Routes
 Route::prefix('v1')->group(function(){
@@ -38,6 +39,14 @@ Route::prefix('v1')->group(function(){
             Route::post('/forget-password/reset','resetPassword');
         });
 
+    });
+
+    // Gym Context Management (available for both guests and authenticated users)
+    Route::controller(GymContextController::class)->group(function(){
+        Route::get('/gym-context', 'getCurrentContext');
+        Route::post('/gym-context', 'updateContext');
+        Route::delete('/gym-context', 'clearContext');
+        Route::post('/gym-context/validate', 'validateContext');
     });
 
     // User Authencticated
@@ -58,10 +67,26 @@ Route::prefix('v1')->group(function(){
             Route::post('/others', 'logoutFromOtherSessions');
         });
 
+        // Payment routes for authenticated users
+        Route::prefix('{gym:slug}')->group(function(){
+            Route::prefix('payments')->group(function(){
+                Route::controller(PaymentController::class)->group(function(){
+                    Route::post('/create-intent', 'createPaymentIntent')->name('payments.create-intent');
+                    Route::post('/confirm', 'confirmPayment')->name('payments.confirm');
+                });
+            });
+
+            Route::prefix('mobile')->group(function(){
+                Route::controller(PaymentController::class)->group(function(){
+                    Route::post('/enroll-membership', 'mobileEnrollMembership')->name('mobile.enroll-membership');
+                    Route::get('/payment-status/{paymentIntentId}', 'getPaymentStatus')->name('mobile.payment-status');
+                });
+            });
+        });
     });
 
     // User Public - Gym-specific routes
-    Route::prefix('{gym:slug}')->group(function(){
+    Route::prefix('{gym:slug}')->middleware(['store.gym.context', 'share.site.setting'])->group(function(){
         Route::controller(HomeController::class)->group(function(){
             Route::get('/', 'index')->name('index');
         });

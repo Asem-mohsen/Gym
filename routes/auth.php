@@ -10,6 +10,7 @@ use App\Http\Controllers\Web\Auth\LogoutController;
 Route::prefix('auth')->middleware(['guest'])->group(function () {
     Route::get('/login', [LoginController::class, 'index'])->name('auth.login.index');
     Route::post('/login', [LoginController::class, 'login'])->name('auth.login');
+    Route::get('/register', [RegisterController::class, 'index'])->name('auth.register.index');
     Route::post('/register', [RegisterController::class, 'register'])->name('auth.register');
 
     Route::prefix('forget-password')->controller(ForgetPasswordController::class)->group(function () {

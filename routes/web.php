@@ -18,7 +18,7 @@ use App\Http\Controllers\Web\User\NotFoundController;
 // Public Routes
 Route::get('/', [GymSelectionController::class, 'index'])->name('gym.selection');
 
-Route::prefix('gym/{siteSetting:slug}')->name('user.')->group(function () {
+Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.context', 'share.site.setting'])->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('/about-us', [AboutController::class, 'aboutUs'])->name('about-us');
 
@@ -44,6 +44,11 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->group(function () {
     Route::prefix('memberships')->group(function () {
         Route::get('/', [MembershipController::class, 'index'])->name('memberships.index');
         Route::get('/{membership}/membership', [MembershipController::class, 'show'])->name('memberships.show');
+        Route::get('/success', [MembershipController::class, 'success'])->name('memberships.success');
+    });
+
+    Route::prefix('payments')->middleware(['auth:web'])->group(function () {
+        Route::post('/create-intent', [App\Http\Controllers\Web\User\PaymentController::class, 'createPaymentIntent'])->name('payments.create-intent');
     });
 
 });
@@ -52,12 +57,6 @@ Route::get('/404', [NotFoundController::class, 'index'])->name('404');
 
 Route::fallback(function () {
     return redirect()->route('404');
-});
-
-Route::prefix('booking')->group(function () {
-    Route::post('/membership/booking', [BookingController::class, 'bookMembership'])->name('booking.book-membership');
-    Route::post('/coach/booking', [BookingController::class, 'bookCoach'])->name('booking.book-coach');
-    Route::post('/service/booking', [BookingController::class, 'bookService'])->name('booking.book-service');
 });
 
 require __DIR__.'/auth.php';

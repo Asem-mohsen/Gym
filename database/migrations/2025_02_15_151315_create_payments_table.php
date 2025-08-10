@@ -14,10 +14,12 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('site_setting_id')->nullable()->constrained()->onDelete('set null');
             $table->morphs('paymentable');
             $table->decimal('amount', 10, 2);
             $table->foreignId('offer_id')->nullable()->constrained()->onDelete('set null');
             $table->enum('status', ['pending', 'completed', 'failed'])->default('pending');
+            $table->string('stripe_payment_intent_id')->nullable();
             $table->timestamps();
         });
     }

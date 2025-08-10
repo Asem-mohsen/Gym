@@ -66,8 +66,8 @@
                 <div class="fs-widget">
                     <h4>Support</h4>
                     <ul>
-                        <li><a href="{{route('auth.login')}}">Login</a></li>
-                        <li><a href="{{route('auth.register')}}">Register</a></li>
+                        <li><a href="{{route('auth.login.index', ['siteSetting' => $siteSetting->slug])}}">Login</a></li>
+                        <li><a href="{{route('auth.register.index', ['siteSetting' => $siteSetting->slug])}}">Register</a></li>
                         <li><a href="{{route('user.contact' , ['siteSetting' => $siteSetting->slug])}}">Subscribe</a></li>
                         <li><a href="{{route('user.contact' , ['siteSetting' => $siteSetting->slug])}}">Contact</a></li>
                     </ul>
@@ -125,4 +125,7 @@
 <script src="{{ asset('assets/user/js/jquery.slicknav.js') }}"></script>
 <script src="{{ asset('assets/user/js/owl.carousel.min.js') }}"></script>
 <script src="{{ asset('assets/user/js/main.js') }}"></script>
+
+@include('components.gym-context-handler')
+
 @yield('Js')

@@ -1,7 +1,19 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
-    </div>
+@extends('layout.admin.auth-layout')
+
+@section('title', 'Verify Email')
+
+@section('form')
+<div class="card">
+    <div class="card-body">
+        @if(isset($gymContext))
+            <div class="alert alert-info mb-8">
+                <strong>Verifying email for:</strong> {{ $gymContext['name'] }}
+            </div>
+        @endif
+        
+        <div class="mb-4 text-sm text-gray-600">
+            {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
+        </div>
 
     @if (session('status') == 'verification-link-sent')
         <div class="mb-4 font-medium text-sm text-green-600">
@@ -20,7 +32,7 @@
             </div>
         </form>
 
-        <form method="POST" action="{{ route('auth.logout') }}">
+        <form method="POST" action="{{ route('auth.logout.current', ['siteSetting' => $gymContext['slug'] ?? '']) }}">
             @csrf
 
             <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -28,4 +40,5 @@
             </button>
         </form>
     </div>
-</x-guest-layout>
+</div>
+@endsection

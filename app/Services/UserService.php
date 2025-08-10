@@ -1,6 +1,7 @@
 <?php 
 namespace App\Services;
 
+use App\Models\Role;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Hash;
 
@@ -28,19 +29,30 @@ class UserService
 
     public function createUser(array $data, int $siteSettingId)
     {
+        $role = Role::firstOrCreate(
+            [
+                'name' => 'System User',
+                'site_setting_id' => $siteSettingId
+            ],
+            [
+                'description' => 'Default system user role',
+            ]
+        );
+    
         $image = $data['image'] ?? null;
         unset($data['image']);
-
+    
         $data['password'] = Hash::make($data['password']);
         $data['is_admin'] = 0;
-
+        $data['role_id'] = $role->id; // Assign the correct role_id
+    
         $user = $this->userRepository->createUser($data);
         $user->gyms()->attach($siteSettingId);
-
+    
         if ($image) {
             $user->addMedia($image)->toMediaCollection('user_images');
         }
-
+    
         return $user;
     }
 

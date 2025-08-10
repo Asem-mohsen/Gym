@@ -59,4 +59,21 @@ class Offer extends Model
         return Payment::where('offer_id', $this->id)->distinct('user_id')->count('user_id');
     }
 
+    /**
+     * Check if the offer is currently active
+     */
+    public function isActive(): bool
+    {
+        $today = Carbon::today();
+        $startDate = Carbon::parse($this->start_date);
+        $endDate = $this->end_date ? Carbon::parse($this->end_date) : null;
+        
+        // Check if today is between start and end dates
+        if ($endDate) {
+            return $today->between($startDate, $endDate);
+        }
+        
+        // If no end date, check if start date has passed
+        return $today->gte($startDate);
+    }
 }

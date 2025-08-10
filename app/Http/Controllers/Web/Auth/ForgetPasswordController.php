@@ -5,15 +5,20 @@ namespace App\Http\Controllers\Web\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ForgetPassword\{ResetPasswordRequest, SendCodeRequest, VerifyCodeRequest};
 use App\Services\Auth\ForgetPasswordService;
+use App\Services\GymContextService;
 use Illuminate\Http\Request;
 
 class ForgetPasswordController extends Controller
 {
-    public function __construct(protected ForgetPasswordService $forgetPasswordService) {}
+    public function __construct(
+        protected ForgetPasswordService $forgetPasswordService,
+        protected GymContextService $gymContextService
+    ) {}
 
     public function index()
     {
-        return view('auth.forgot-password');
+        $gymContext = $this->gymContextService->getCurrentGymContext();
+        return view('auth.forgot-password', compact('gymContext'));
     }
 
     public function sendCode(SendCodeRequest $request)
@@ -22,8 +27,12 @@ class ForgetPasswordController extends Controller
 
         $success = $this->forgetPasswordService->sendResetToken($validated['email']);
 
+        $gymContext = $this->gymContextService->getCurrentGymContext();
+        $redirectRoute = $gymContext ? 'auth.login.index' : 'auth.login.index';
+        $routeParams = $gymContext ? ['siteSetting' => $gymContext['slug']] : [];
+        
         return $success
-            ? to_route('auth.login.index')->with('success', 'If the provided email is registered in our system, a password reset link has been sent to it.')
+            ? to_route($redirectRoute, $routeParams)->with('success', 'If the provided email is registered in our system, a password reset link has been sent to it.')
             : back()->withErrors(['email' => 'Email not found']);
     }
 
@@ -53,18 +62,24 @@ class ForgetPasswordController extends Controller
 
         $status = $this->forgetPasswordService->resetPassword($validated['email'], $validated['token'], $validated['password']);
 
+        $gymContext = $this->gymContextService->getCurrentGymContext();
+        $redirectRoute = $gymContext ? 'auth.login.index' : 'auth.login.index';
+        $routeParams = $gymContext ? ['siteSetting' => $gymContext['slug']] : [];
+        
         return match ($status) {
             'expired' => back()->withErrors(['token' => 'Token expired. We sent you a new one.']),
             'invalid' => back()->withErrors(['token' => 'Invalid token.']),
-            'success' => to_route('auth.login.index')->with('success', 'Password successfully reset.'),
+            'success' => to_route($redirectRoute, $routeParams)->with('success', 'Password successfully reset.'),
         };
     }
 
     public function resetForm(Request $request)
     {
+        $gymContext = $this->gymContextService->getCurrentGymContext();
         return view('auth.reset-password', [
             'token' => $request->token,
             'email' => $request->email,
+            'gymContext' => $gymContext,
         ]);
     }
 }

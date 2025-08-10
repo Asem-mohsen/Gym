@@ -3,8 +3,17 @@
 @section('title', 'Sign In')
 
 @section('form')
-    <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" data-kt-redirect-url="{{ route('admin.dashboard') }}" method="POST" action="{{ route('auth.login') }}">
+    <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" data-kt-redirect-url="{{ route('user.home' , ['siteSetting' => $gymContext['slug']]) }}" method="POST" action="{{ route('auth.login') }}">
         @csrf
+        
+        <input type="hidden" name="site_setting_id" value="{{ $gymContext['id'] ?? '' }}">
+        
+        @if(isset($gymContext))
+            <div class="mb-3">
+                 <h2 class="text-center">{{ $gymContext['name'] }}</h2>
+            </div>
+        @endif
+        
         <div class="text-center mb-11">
             <h1 class="text-gray-900 fw-bolder mb-3">Sign In</h1>
         </div>
@@ -26,8 +35,9 @@
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
-        <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
+        <div class="d-flex flex-column flex-wrap gap-3 fs-base fw-semibold mb-8">
             <a href="{{ route('auth.forget-password.index') }}" class="link-primary">Forgot Password ?</a>
+            <a href="{{ route('auth.register.index') }}" class="link-primary">Register</a>
         </div>
 
         <div class="d-grid mb-10">
