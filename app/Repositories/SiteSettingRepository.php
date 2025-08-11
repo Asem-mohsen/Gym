@@ -6,9 +6,9 @@ use Illuminate\Http\UploadedFile;
 
 class SiteSettingRepository
 {
-    public function getSiteSettings()
+    public function getSiteSettings($with = [])
     {
-        return SiteSetting::with('branches.phones')->get();
+        return SiteSetting::with($with)->get();
     }
 
     public function createSiteSetting(array $data)

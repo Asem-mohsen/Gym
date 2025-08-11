@@ -5,24 +5,27 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\User\HomeController;
 use App\Http\Controllers\Web\Admin\BookingController;
 use App\Http\Controllers\Web\User\ContactController;
-use App\Http\Controllers\Web\Admin\MembershipController;
+use App\Http\Controllers\Web\User\MembershipController;
 use App\Http\Controllers\Web\User\ServicesController;
-use App\Http\Controllers\Web\UserController;
 use App\Http\Controllers\Web\User\AboutController;
 use App\Http\Controllers\Web\User\BlogController;
 use App\Http\Controllers\Web\User\ClassesController;
 use App\Http\Controllers\Web\User\GalleryController;
 use App\Http\Controllers\Web\User\TeamController;
+use App\Http\Controllers\Web\User\GymSelectionController;
+use App\Http\Controllers\Web\User\NotFoundController;
 
 // Public Routes
-Route::redirect('/', '/gym');
+Route::get('/', [GymSelectionController::class, 'index'])->name('gym.selection');
 
-Route::prefix('gym/{siteSetting:slug}')->name('user.')->group(function () {
+Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.context', 'share.site.setting'])->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('/about-us', [AboutController::class, 'aboutUs'])->name('about-us');
+
     Route::get('/class-details', [ClassesController::class, 'classDetails'])->name('classes');
     Route::get('/classes', [ClassesController::class, 'index'])->name('classes.index');
     Route::get('/classes/{class}', [ClassesController::class, 'show'])->name('classes.show');
+
     Route::get('/services', [ServicesController::class, 'index'])->name('services');
     Route::get('/trainers', [TeamController::class, 'index'])->name('team');
 
@@ -37,28 +40,24 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->group(function () {
 
     Route::get('/contact', [ContactController::class, 'index'])->name('contact');
     Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+
+    Route::prefix('memberships')->group(function () {
+        Route::get('/', [MembershipController::class, 'index'])->name('memberships.index');
+        Route::get('/{membership}/membership', [MembershipController::class, 'show'])->name('memberships.show');
+        Route::get('/success', [MembershipController::class, 'success'])->name('memberships.success');
+    });
+
+    Route::prefix('payments')->middleware(['auth:web'])->group(function () {
+        Route::post('/create-intent', [App\Http\Controllers\Web\User\PaymentController::class, 'createPaymentIntent'])->name('payments.create-intent');
+    });
+
 });
 
+Route::get('/404', [NotFoundController::class, 'index'])->name('404');
 
-Route::prefix('trainers')->group(function () {
-    Route::get('/{user}/coach', [UserController::class, 'coachProfile'])->name('trainers.coach-profile');
+Route::fallback(function () {
+    return redirect()->route('404');
 });
-
-Route::prefix('memberships')->group(function () {
-    Route::get('/', [MembershipController::class, 'index'])->name('memberships.index');
-    Route::get('/{membership}/membership', [MembershipController::class, 'show'])->name('memberships.show');
-});
-
-Route::prefix('services')->group(function () {
-    Route::get('/services', [ServicesController::class, 'services'])->name('services.index');
-});
-
-Route::prefix('booking')->group(function () {
-    Route::post('/membership/booking', [BookingController::class, 'bookMembership'])->name('booking.book-membership');
-    Route::post('/coach/booking', [BookingController::class, 'bookCoach'])->name('booking.book-coach');
-    Route::post('/service/booking', [BookingController::class, 'bookService'])->name('booking.book-service');
-});
-
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('site_settings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('owner_id')->constrained('users')->onDelete('cascade');;
+            $table->foreignId('owner_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->json('gym_name');  
             $table->integer('size'); 
             $table->json('address')->nullable();

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Users;
 
+use App\Models\Role;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AddUserRequest extends FormRequest
@@ -14,7 +15,7 @@ class AddUserRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'name'    => ['required' , 'max:255'],
             'email'   => ['required' , 'email' , 'max:255' , 'unique:users,email,except,id'],
             'password'=> ['required' , 'max:255'],
@@ -24,5 +25,32 @@ class AddUserRequest extends FormRequest
             'role_id' => ['required' , 'exists:roles,id'],
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
+
+        if ($this->input('role_id') && $this->isTrainerRole()) {
+            $rules = array_merge($rules, [
+                'weight' => 'nullable|numeric|min:0|max:999.99',
+                'height' => 'nullable|numeric|min:0|max:999.99',
+                'date_of_birth' => 'nullable|date|before:today',
+                'brief_description' => 'nullable|string|max:1000',
+                'facebook_url' => 'nullable|url|max:255',
+                'twitter_url' => 'nullable|url|max:255',
+                'instagram_url' => 'nullable|url|max:255',
+                'youtube_url' => 'nullable|url|max:255',
+            ]);
+        }
+
+        return $rules;
+    }
+
+    /**
+     * Check if the selected role is trainer
+     */
+    private function isTrainerRole(): bool
+    {
+        $roleId = $this->input('role_id');
+        if (!$roleId) return false;
+
+        $role = Role::find($roleId);
+        return $role && strtolower($role->name) === 'trainer';
     }
 }

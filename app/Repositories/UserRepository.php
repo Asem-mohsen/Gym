@@ -36,11 +36,15 @@ class UserRepository
 
     public function deleteUser(User $user)
     {
+        $user->bookings()->delete();
+        $user->coachingSessions()->delete();
+        $user->gyms()->detach();
+        $user->tokens()->delete();
         $user->delete();
     }
 
-    public function findById(int $id): ?User
+    public function findById(int $id, array $with = []): ?User
     {
-        return User::find($id);
+        return User::with($with)->find($id);
     }
 }

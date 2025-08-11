@@ -41,6 +41,7 @@
                         'options' => $options,
                         'name' => 'role_id',
                         'id' => 'role_id',
+                        'changeFuncion' => 'toggleTrainerSection()'
                     ])
                 </div>
                 <div class="mb-10 col-md-6">
@@ -77,7 +78,7 @@
                 </div>
                 <div class="mb-10 col-md-6">
                     <label for="address" class="required form-label">Address</label>
-                    <textarea name="address" class="form-control form-control-solid required" required >{{ old('name') }}</textarea>
+                    <textarea name="address" class="form-control form-control-solid required" required >{{ old('address') }}</textarea>
                 </div>
                 <div class="mb-10 col-md-6">
                     <label for="country" class="required form-label">Country</label>
@@ -91,6 +92,48 @@
                     <label for="phone" class="required form-label">Phone</label>
                     <input type="text" value="{{ old('phone') }}" name="phone" class="form-control form-control-solid required" required/>
                 </div>
+
+                <!-- Trainer Information Section -->
+                <div id="trainer-info-section" class="card col-12" style="display: none;">
+
+                    <h4 class="mb-4 mt-5">Trainer Information</h4>
+                    
+                    <div class="row">
+                        <div class="mb-10 col-md-6">
+                            <label for="weight" class="form-label">Weight (kg)</label>
+                            <input type="number" step="0.01" min="0" max="999.99" value="{{ old('weight') }}" name="weight" class="form-control form-control-solid" placeholder="e.g., 75.5"/>
+                        </div>
+                        <div class="mb-10 col-md-6">
+                            <label for="height" class="form-label">Height (cm)</label>
+                            <input type="number" step="0.01" min="0" max="999.99" value="{{ old('height') }}" name="height" class="form-control form-control-solid" placeholder="e.g., 175.0"/>
+                        </div>
+                        <div class="mb-10 col-md-6">
+                            <label for="date_of_birth" class="form-label">Date of Birth</label>
+                            <input type="date" value="{{ old('date_of_birth') }}" name="date_of_birth" class="form-control form-control-solid"/>
+                        </div>
+                        <div class="mb-10 col-12">
+                            <label for="brief_description" class="form-label">Brief Description / Highlights</label>
+                            <textarea name="brief_description" class="form-control form-control-solid" rows="4" placeholder="Tell us about the trainer's experience, specialties, achievements...">{{ old('brief_description') }}</textarea>
+                        </div>
+                        <div class="mb-10 col-md-6">
+                            <label for="facebook_url" class="form-label">Facebook URL</label>
+                            <input type="url" value="{{ old('facebook_url') }}" name="facebook_url" class="form-control form-control-solid" placeholder="https://facebook.com/username"/>
+                        </div>
+                        <div class="mb-10 col-md-6">
+                            <label for="twitter_url" class="form-label">Twitter URL</label>
+                            <input type="url" value="{{ old('twitter_url') }}" name="twitter_url" class="form-control form-control-solid" placeholder="https://twitter.com/username"/>
+                        </div>
+                        <div class="mb-10 col-md-6">
+                            <label for="instagram_url" class="form-label">Instagram URL</label>
+                            <input type="url" value="{{ old('instagram_url') }}" name="instagram_url" class="form-control form-control-solid" placeholder="https://instagram.com/username"/>
+                        </div>
+                        <div class="mb-10 col-md-6">
+                            <label for="youtube_url" class="form-label">YouTube URL</label>
+                            <input type="url" value="{{ old('youtube_url') }}" name="youtube_url" class="form-control form-control-solid" placeholder="https://youtube.com/@username"/>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card-footer">
                     <button type="submit" class="btn btn-success">Save</button>
                     <a href="{{ route('users.index') }}" class="btn btn-dark">Cancel</a>
@@ -100,4 +143,8 @@
     </form>
 </div>
 
+@endsection
+
+@section('js')
+    @include('admin.users.scripts.scripts')
 @endsection

@@ -14,6 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             \App\Http\Middleware\ShareSiteSetting::class,
+            \App\Http\Middleware\StoreGymContext::class,
+        ]);
+        $middleware->api(append: [
+            \App\Http\Middleware\StoreGymContext::class,
         ]);
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
@@ -28,6 +32,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
             'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+            'store.gym.context' => \App\Http\Middleware\StoreGymContext::class,
+            'share.site.setting' => \App\Http\Middleware\ShareSiteSetting::class,
+            'require.gym.context' => \App\Http\Middleware\RequireGymContext::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

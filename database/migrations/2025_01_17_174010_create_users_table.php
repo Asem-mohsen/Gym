@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('address')->nullable();
             $table->enum('gender', ['male', 'female'])->nullable();
             $table->string('phone')->nullable();
-            $table->boolean('status')->default(0); // 0 => deactivated, 1 => active
+            $table->boolean('status')->default(1); // 0 => deactivated, 1 => active
             $table->boolean('is_admin')->default(0);
             $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
             $table->timestamp('email_verified_at')->nullable();

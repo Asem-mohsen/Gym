@@ -5,7 +5,13 @@
 @section('form')
 <div class="card">
     <div class="card-body">
-        <form method="POST" action="{{ route('auth.forget-password.reset') }}">
+        @if(isset($gymContext))
+            <div class="alert alert-info mb-8">
+                <strong>Resetting password for:</strong> {{ $gymContext['name'] }}
+            </div>
+        @endif
+        
+        <form method="POST" action="{{ route('auth.forget-password.reset', ['siteSetting' => $gymContext['slug'] ?? '']) }}">
             @csrf
             <input type="hidden" name="token" value="{{ $token }}">
 

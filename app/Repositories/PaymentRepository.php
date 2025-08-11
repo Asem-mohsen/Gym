@@ -26,7 +26,8 @@ class PaymentRepository
             'paymentable_id'   => $paymentable->id,
             'amount'           => $data['amount'] ?? 0,
             'offer_id'         => $data['offer_id'] ?? null,
-            'status'           => 'completed',
+            'site_setting_id'  => $data['site_setting_id'] ?? null,
+            'status'           => $data['status'] ?? 'completed',
         ]);
     }
 

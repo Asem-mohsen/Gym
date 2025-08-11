@@ -24,9 +24,9 @@ class GalleryRepository
     /**
      * Get a specific gallery by ID
      */
-    public function findById(int $id): ?Gallery
+    public function findById(int $id, array $with = []): ?Gallery
     {
-        return Gallery::with('media')->find($id);
+        return Gallery::with($with)->find($id);
     }
 
     /**

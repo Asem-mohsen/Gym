@@ -12,9 +12,9 @@
                     <div class="breadcrumb-text">
                         <h2>Classes detail</h2>
                         <div class="bt-option">
-                            <a href="./index.html">Home</a>
-                            <a href="#">Classes</a>
-                            <span>Body building</span>
+                            <a href="{{ route('user.home' , ['siteSetting' => $siteSetting->slug ]) }}">Home</a>
+                            <a href="{{ route('user.classes.index' , ['siteSetting' => $siteSetting->slug ]) }}">Classes</a>
+                            <span>{{ $class->name }}</span>
                         </div>
                     </div>
                 </div>
@@ -30,11 +30,11 @@
                 <div class="col-lg-8">
                     <div class="class-details-text">
                         <div class="cd-pic">
-                            <img src="img/classes/class-details/class-detailsl.jpg" alt="">
+                            <img src="{{ $class->getFirstMediaUrl('class_images') }}" alt="{{ $class->name }}">
                         </div>
                         <div class="cd-text">
                             <div class="cd-single-item">
-                                <h3>Body buiding</h3>
+                                <h3>{{ $class->name }}</h3>
                                 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
                                     incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
                                     exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
@@ -43,7 +43,7 @@
                                     laudantium. Excepteur sint occaecat cupidatat non proident sculpa.</p>
                             </div>
                             <div class="cd-single-item">
-                                <h3>Trainer</h3>
+                                <h3>Trainer{{ $class->trainers->count() > 1 ? 's' : '' }}</h3>
                                 <p>Dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
                                     labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
                                     ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
@@ -52,40 +52,29 @@
                             </div>
                         </div>
                         <div class="cd-trainer">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="cd-trainer-pic">
-                                        <img src="img/classes/class-details/trainer-profile.jpg" alt="">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="cd-trainer-text">
-                                        <div class="trainer-title">
-                                            <h4>Athart Rachel</h4>
-                                            <span>Gym Trainer</span>
+                            @foreach ($class->trainers as $trainer)
+                                <div class="row mb-5 align-items-center">
+                                    @if ($loop->iteration % 2 != 0) 
+                                        <div class="col-md-6">
+                                            <div class="cd-trainer-pic">
+                                                <img src="{{ $trainer->getFirstMediaUrl('user_images') }}" alt="">
+                                            </div>
                                         </div>
-                                        <div class="trainer-social">
-                                            <a href="#"><i class="fa fa-facebook"></i></a>
-                                            <a href="#"><i class="fa fa-twitter"></i></a>
-                                            <a href="#"><i class="fa fa-youtube-play"></i></a>
-                                            <a href="#"><i class="fa fa-instagram"></i></a>
-                                            <a href="#"><i class="fa  fa-envelope-o"></i></a>
+                                        <div class="col-md-6">
+                                            @include('_partials.trainer_text', ['trainer' => $trainer])
                                         </div>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-                                            tempor incididunt ut labore et dolore magna aliqua viverra maecenas lacus
-                                            vel facilisis.</p>
-                                        <ul class="trainer-info">
-                                            <li><span>Age</span>35</li>
-                                            <li><span>Weight</span>148lbs</li>
-                                            <li><span>Height</span>10' 2``</li>
-                                            <li><span>Occupation</span>no-founder</li>
-                                        </ul>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-                                            tempor incididunt ut labore et dolore magna aliqua viverra maecenas lacus
-                                            vel facilisis. </p>
-                                    </div>
+                                    @else
+                                        <div class="col-md-6">
+                                            @include('_partials.trainer_text', ['trainer' => $trainer])
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="cd-trainer-pic">
+                                                <img src="{{ $trainer->getFirstMediaUrl('user_images') }}" alt="">
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
-                            </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -94,64 +83,39 @@
                         <div class="so-categories">
                             <h5 class="title">Categories</h5>
                             <ul>
-                                <li><a href="#">Yoga <span>12</span></a></li>
-                                <li><a href="#">Runing <span>32</span></a></li>
-                                <li><a href="#">Weightloss <span>86</span></a></li>
-                                <li><a href="#">Cario <span>25</span></a></li>
-                                <li><a href="#">Body buiding <span>36</span></a></li>
-                                <li><a href="#">Nutrition <span>15</span></a></li>
+                                @foreach ($categories as $category)
+                                    <li><a href="#">{{ $category->name }} <span>{{ $category->blog_posts_count }}</span></a></li>
+                                @endforeach
                             </ul>
                         </div>
                         <div class="so-latest">
                             <h5 class="title">Latest posts</h5>
-                            <div class="latest-large set-bg" data-setbg="img/letest-blog/latest-1.jpg">
-                                <div class="ll-text">
-                                    <h5><a href="#">This Japanese Way of Making Iced Coffee Is a Game...</a></h5>
-                                    <ul>
-                                        <li>Aug 20, 2019</li>
-                                        <li>20 Comment</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="latest-item">
-                                <div class="li-pic">
-                                    <img src="img/letest-blog/latest-2.jpg" alt="">
-                                </div>
-                                <div class="li-text">
-                                    <h6><a href="#">Grilled Potato and Green Bean Salad</a></h6>
-                                    <span class="li-time">Aug 15, 2019</span>
-                                </div>
-                            </div>
-                            <div class="latest-item">
-                                <div class="li-pic">
-                                    <img src="img/letest-blog/latest-3.jpg" alt="">
-                                </div>
-                                <div class="li-text">
-                                    <h6><a href="#">The $8 French Rosé I Buy in Bulk Every Summer</a></h6>
-                                    <span class="li-time">Aug 15, 2019</span>
-                                </div>
-                            </div>
-                            <div class="latest-item">
-                                <div class="li-pic">
-                                    <img src="img/letest-blog/latest-4.jpg" alt="">
-                                </div>
-                                <div class="li-text">
-                                    <h6><a href="#">Ina Garten's Skillet-Roasted Lemon Chicken</a></h6>
-                                    <span class="li-time">Aug 15, 2019</span>
-                                </div>
-                            </div>
-                            <div class="latest-item">
-                                <div class="li-pic">
-                                    <img src="img/letest-blog/latest-5.jpg" alt="">
-                                </div>
-                                <div class="li-text">
-                                    <h6><a href="#">The Best Weeknight Baked Potatoes, 3 Creative Ways</a></h6>
-                                    <span class="li-time">Aug 15, 2019</span>
-                                </div>
-                            </div>
+                            @foreach ($blogPosts as $index => $blogPost)
+                                @if($index === 0)
+                                    <div class="latest-large set-bg" data-setbg="{{ $blogPost->getFirstMediaUrl('blog_post_images') }}">
+                                        <div class="ll-text">
+                                            <h5><a href="{{ route('user.blog.show', ['siteSetting' => $siteSetting->slug, 'blogPost' => $blogPost->id]) }}">{{ $blogPost->title }}</a></h5>
+                                            <ul>
+                                                <li>{{ $blogPost->published_at->format('d F Y') }}</li>
+                                                <li>{{ $blogPost->comments->count() }} Comment</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="latest-item">
+                                        <div class="li-pic">
+                                            <img src="{{ $blogPost->getFirstMediaUrl('blog_post_images') }}" alt="">
+                                        </div>
+                                        <div class="li-text">
+                                            <h6><a href="{{ route('user.blog.show', ['siteSetting' => $siteSetting->slug, 'blogPost' => $blogPost->id]) }}">{{ $blogPost->title }}</a></h6>
+                                            <span class="li-time">{{ $blogPost->published_at->format('d F Y') }}</span>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endforeach
                         </div>
-                        <div class="so-banner set-bg" data-setbg="img/sidebar-banner.jpg">
-                            <h5>Banner 300x300</h5>
+                        <div class="so-banner set-bg" data-setbg="{{ asset('assets/user/img/sidebar-banner.jpg') }}">
+                            <h5>{{$class->name}}</h5>
                         </div>
                     </div>
                 </div>

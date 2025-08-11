@@ -15,10 +15,14 @@ class PaymentService
         return $this->paymentRepository->getPayments();
     }
 
-
-    public function updatePayment($payment, array $data)
+    public function createPayment($paymentable, array $data)
     {
-        return $this->paymentRepository->updatePayment($payment, $data);
+        return $this->paymentRepository->createPayment($paymentable, $data);
+    }
+
+    public function updatePayment($payment, $paymentable, array $data)
+    {
+        return $this->paymentRepository->updatePayment($payment, $paymentable, $data);
     }
 
     public function showPayment($paymentId)

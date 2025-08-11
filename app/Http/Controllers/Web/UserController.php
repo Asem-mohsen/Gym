@@ -34,14 +34,14 @@ class UserController extends Controller
 
     public function create()
     {
-        $roles = $this->roleService->getRoles(siteSettingId: $this->siteSettingId);
-        return view('admin.users.create',compact('roles'));
+        $roles = $this->roleService->getRolesForSelect(siteSettingId: $this->siteSettingId);
+        return view('admin.users.create', compact('roles'));
     }
 
-    public function edit(Request $request , User $user)
+    public function edit(Request $request, User $user)
     {
-        $roles = $this->roleService->getRoles(siteSettingId: $this->siteSettingId);
-        return view('admin.users.edit',get_defined_vars());
+        $roles = $this->roleService->getRolesForSelect(siteSettingId: $this->siteSettingId);
+        return view('admin.users.edit', compact('user', 'roles'));
     }
 
     public function show(Request $request , User $user)

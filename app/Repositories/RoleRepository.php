@@ -56,4 +56,26 @@ class RoleRepository
             ->first();
         
     }
+
+    public function getRoleByName(string $name, int $siteSettingId): ?Role
+    {
+        return Role::where('name', $name)
+            ->where('site_setting_id', $siteSettingId)
+            ->first();
+    }
+
+    /**
+     * Get roles formatted for select components with ID as key
+     */
+    public function getRolesForSelect(int $siteSettingId): array
+    {
+        $roles = $this->getAllRoles($siteSettingId);
+        $formattedRoles = [];
+        
+        foreach ($roles as $role) {
+            $formattedRoles[$role->id] = $role;
+        }
+        
+        return $formattedRoles;
+    }
 }
