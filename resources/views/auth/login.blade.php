@@ -3,7 +3,7 @@
 @section('title', 'Sign In')
 
 @section('form')
-    <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" data-kt-redirect-url="{{ route('user.home' , ['siteSetting' => $gymContext['slug']]) }}" method="POST" action="{{ route('auth.login') }}">
+    <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" data-kt-redirect-url="{{ route('user.home' , ['siteSetting' => $gymContext['slug'] ?? '']) }}" method="POST" action="{{ route('auth.login') }}">
         @csrf
         
         <input type="hidden" name="site_setting_id" value="{{ $gymContext['id'] ?? '' }}">

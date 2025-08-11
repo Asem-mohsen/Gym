@@ -17,6 +17,14 @@ class RoleService
         return $this->roleRepository->getAllRoles(siteSettingId: $siteSettingId , where: $where , withCount: $withCount);
     }
 
+    /**
+     * Get roles formatted for select components with ID as key
+     */
+    public function getRolesForSelect(int $siteSettingId): array
+    {
+        return $this->roleRepository->getRolesForSelect($siteSettingId);
+    }
+
     public function createRole(array $data)
     {
         return $this->roleRepository->createRole($data);

@@ -25,7 +25,6 @@ class UserRepository
 
     public function createUser(array $data)
     {
-        $data['role_id'] = 2;
         return User::create($data);
     }
 

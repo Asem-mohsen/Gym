@@ -34,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
             'store.gym.context' => \App\Http\Middleware\StoreGymContext::class,
             'share.site.setting' => \App\Http\Middleware\ShareSiteSetting::class,
+            'require.gym.context' => \App\Http\Middleware\RequireGymContext::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

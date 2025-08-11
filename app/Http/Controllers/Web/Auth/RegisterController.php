@@ -35,7 +35,7 @@ class RegisterController extends Controller
 
         $data = $request->validated();
         $data['site_setting_id'] = $gymContext['id'];
-
+        
         $user = $this->userService->createUser($data, $gymContext['id']);
 
         Auth::login($user);

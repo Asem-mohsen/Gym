@@ -86,7 +86,7 @@ class ClassService
 
     public function showClass($class)
     {
-        return $this->classRepository->findById($class->id, ['schedules', 'pricings', 'trainers']);
+        return $this->classRepository->findById($class->id, ['schedules', 'pricings', 'trainers', 'media']);
     }
 
     public function deleteClass($class)

@@ -68,6 +68,11 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(Branch::class, 'manager_id');
     }
 
+    public function trainerInformation(): HasOne
+    {
+        return $this->hasOne(TrainerInformation::class);
+    }
+
     public function getSiteSettingIdAttribute()
     {
         return $this->site?->id;

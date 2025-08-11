@@ -1,4 +1,4 @@
-<select class="form-select form-select-solid" name="{{ $name }}" data-control="select2" data-placeholder="{{ $placehoder ?? 'Select a value' }}" data-kt-repeater="select2" data-allow-clear="true"
+<select class="form-select form-select-solid" name="{{ $name }}" data-control="select2" data-placeholder="{{ $placeholder ?? 'Select a value' }}" data-kt-repeater="select2" data-allow-clear="true"
         @if (isset($id)) id="{{ $id }}" @endif 
         @if (!isset($notRequired) || !$notRequired ) required @endif
         @if (isset($isDisabled) && $isDisabled) disabled @endif
