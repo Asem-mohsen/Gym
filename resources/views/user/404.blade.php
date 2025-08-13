@@ -16,7 +16,11 @@
                             <input type="text" placeholder="Enter your keyword">
                             <button type="submit"><i class="fa fa-search"></i></button>
                         </form>
-                        <a href="{{ route('user.home' , ['siteSetting' => $siteSetting->slug]) }}"><i class="fa fa-home"></i> Go back home</a>
+                        @if($siteSetting)
+                            <a href="{{ route('user.home' , ['siteSetting' => $siteSetting->slug]) }}"><i class="fa fa-home"></i> Go back home</a>
+                        @else
+                            <a href="{{ url('/') }}"><i class="fa fa-home"></i> Go back home</a>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -34,7 +38,11 @@
                            <div class="hi-text">
                                <span>Shape your body</span>
                                <h1>Be <strong>strong</strong> traning hard</h1>
-                               <a href="{{ route('user.contact' , ['siteSetting' => $siteSetting->slug]) }}" class="primary-btn">Get info</a>
+                               @if($siteSetting)
+                                   <a href="{{ route('user.contact' , ['siteSetting' => $siteSetting->slug]) }}" class="primary-btn">Get info</a>
+                               @else
+                                   <a href="{{ url('/contact') }}" class="primary-btn">Get info</a>
+                               @endif
                            </div>
                        </div>
                    </div>
@@ -47,7 +55,11 @@
                            <div class="hi-text">
                                <span>Shape your body</span>
                                <h1>Be <strong>strong</strong> traning hard</h1>
-                               <a href="{{ route('user.contact' , ['siteSetting' => $siteSetting->slug]) }}" class="primary-btn">Get info</a>
+                               @if($siteSetting)
+                                   <a href="{{ route('user.contact' , ['siteSetting' => $siteSetting->slug]) }}" class="primary-btn">Get info</a>
+                               @else
+                                   <a href="{{ url('/contact') }}" class="primary-btn">Get info</a>
+                               @endif
                            </div>
                        </div>
                    </div>
@@ -309,13 +321,17 @@
                            <span>Our Team</span>
                            <h2>TRAIN WITH EXPERTS</h2>
                        </div>
-                       <a href="{{ route('user.contact' , ['siteSetting' => $siteSetting->slug]) }}" class="primary-btn btn-normal appoinment-btn">appointment</a>
+                       @if($siteSetting)
+                           <a href="{{ route('user.contact' , ['siteSetting' => $siteSetting->slug]) }}" class="primary-btn btn-normal appoinment-btn">appointment</a>
+                       @else
+                           <a href="{{ url('/contact') }}" class="primary-btn btn-normal appoinment-btn">appointment</a>
+                       @endif
                    </div>
                </div>
            </div>
            <div class="row">
                <div class="ts-slider owl-carousel">
-                    @foreach ($trainers as $trainer)
+                    @forelse ($trainers as $trainer)
                     <div class="col-lg-4">
                         <div class="ts-item set-bg" data-setbg="{{ $trainer->getFirstMediaUrl('user_images') }}">
                             <div class="ts_text">
@@ -324,8 +340,12 @@
                             </div>
                         </div>
                     </div>
-                   @endforeach
-               </div>
+                   @empty
+                   <div class="col-lg-12 text-center">
+                       <p>No trainers available at the moment.</p>
+                   </div>
+                   @endforelse
+               </ts-slider>
            </div>
        </div>
    </section>

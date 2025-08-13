@@ -16,10 +16,21 @@ class NotFoundController extends Controller
 
     public function index()
     {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $siteSetting = $this->siteSettingService->getSiteSettingById($siteSettingId);
-        $trainers = $this->userService->getTrainers(siteSettingId: $siteSettingId);
+        try {
+            $siteSettingId = $this->siteSettingService->getCurrentSiteSettingIdOrFallback();
+            $siteSetting = $this->siteSettingService->getSiteSettingById($siteSettingId);
+            $trainers = $this->userService->getTrainers(siteSettingId: $siteSettingId);
 
-        return view('user.404', compact('trainers', 'siteSetting'));
+            return view('user.404', compact('trainers', 'siteSetting'));
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            \Illuminate\Support\Facades\Log::warning('404 page error: ' . $e->getMessage());
+            
+            // If no site settings are available, show a basic 404 page
+            return view('user.404', [
+                'trainers' => collect(),
+                'siteSetting' => null
+            ]);
+        }
     }
 }
