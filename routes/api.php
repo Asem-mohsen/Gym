@@ -17,6 +17,8 @@ use App\Http\Controllers\API\TransactionController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\AboutController;
 use App\Http\Controllers\API\BlogController;
+use App\Http\Controllers\API\CommentController;
+use App\Http\Controllers\API\BlogPostShareController;
 use App\Http\Controllers\API\ClassesController;
 use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\SiteSettingController;
@@ -149,9 +151,29 @@ Route::prefix('v1')->group(function(){
         });
 
         Route::prefix('blog')->group(function(){
+            
             Route::controller(BlogController::class)->group(function(){
                 Route::get('/', 'index');
                 Route::get('/{blogPost}', 'show');
+            });
+            
+            Route::prefix('{blogPost}/comments')->group(function(){
+                Route::controller(CommentController::class)->group(function(){
+                    Route::get('/', 'getComments');
+                    Route::post('/', 'store');
+                    Route::put('/{comment}', 'update');
+                    Route::delete('/{comment}', 'destroy');
+                    Route::post('/{comment}/reply', 'reply');
+                    Route::post('/{comment}/like', 'toggleLike');
+                });
+            });
+            
+            Route::prefix('{blogPost}/shares')->group(function(){
+                Route::controller(BlogPostShareController::class)->group(function(){
+                    Route::post('/', 'share');
+                    Route::get('/statistics', 'getShareStatistics');
+                    Route::get('/urls', 'getSharingUrls');
+                });
             });
         });
 

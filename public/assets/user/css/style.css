@@ -2353,9 +2353,8 @@ ol {
 
 .blog-details-text .blog-details-tag-share .share span {
 	font-size: 14px;
-	color: #c4c4c4;
+	color: white;
 	text-transform: uppercase;
-	margin-right: 30px;
 }
 
 .blog-details-text .blog-details-tag-share .share a {
@@ -2442,10 +2441,12 @@ ol {
 	position: relative;
 	padding-left: 30px;
 	margin-bottom: 35px;
+	transition: all 0.3s ease;
 }
 
 .blog-details-text .comment-option .co-item.reply-comment {
 	margin-left: 30px;
+	border-left: 2px solid #e8e8e8;
 }
 
 .blog-details-text .comment-option .co-item:after {

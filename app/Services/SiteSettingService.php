@@ -88,4 +88,52 @@ class SiteSettingService
     {
         return $this->siteSettingRepository->updateSiteSetting($siteSetting, $data);
     }
+
+    /**
+     * Get a site setting by slug.
+     */
+    public function getSiteSettingBySlug(string $slug)
+    {
+        return $this->siteSettingRepository->getSiteSettings()->where('slug', $slug)->first();
+    }
+
+    /**
+     * Get the first available site setting as a fallback.
+     */
+    public function getFirstSiteSetting()
+    {
+        return $this->siteSettingRepository->getSiteSettings()->first();
+    }
+
+    /**
+     * Get the default site setting (first available or by specific slug).
+     */
+    public function getDefaultSiteSetting()
+    {
+        $defaultSiteSetting = $this->getSiteSettingBySlug('nitro');
+        
+        if (!$defaultSiteSetting) {
+            $defaultSiteSetting = $this->getFirstSiteSetting();
+        }
+        
+        return $defaultSiteSetting;
+    }
+
+    /**
+     * Get current site setting ID or fallback to default.
+     */
+    public function getCurrentSiteSettingIdOrFallback(): int
+    {
+        $siteSettingId = $this->getCurrentSiteSettingId();
+        
+        if ($siteSettingId === null) {
+            $defaultSiteSetting = $this->getDefaultSiteSetting();
+            if ($defaultSiteSetting) {
+                return $defaultSiteSetting->id;
+            }
+            throw new \Exception("No site settings available.", 404);
+        }
+        
+        return $siteSettingId;
+    }
 }
