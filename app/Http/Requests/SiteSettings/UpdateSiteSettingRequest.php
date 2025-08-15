@@ -23,6 +23,9 @@ class UpdateSiteSettingRequest extends FormRequest
             'address.en'     => ['nullable' , 'max:1000'],
             'address.ar'     => ['nullable' , 'max:1000'],
             'contat_email'   => ['nullable' , 'email'],
+            'facebook_url'   => ['nullable' , 'url'],
+            'x_url'          => ['nullable' , 'url'],
+            'instagram_url'  => ['nullable' , 'url'],
         ];
     }
 }
