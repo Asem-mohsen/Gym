@@ -2557,7 +2557,7 @@ ol {
 	color: #c4c4c4;
 }
 
-.leave-comment form button {
+.leave-comment form button , .leave-comment form a {
 	font-size: 14px;
 	color: #ffffff;
 	text-transform: uppercase;

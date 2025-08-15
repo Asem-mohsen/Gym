@@ -144,21 +144,6 @@
     box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
 }
 
-#comment-form button {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 600;
-    transition: background 0.3s ease;
-}
-
-#comment-form button:hover {
-    background: #0056b3;
-}
 
 /* Share Button Styles */
 .share-btn {

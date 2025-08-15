@@ -51,20 +51,34 @@
 
                     <p class="text-uppercase text-sm fw-bold">Media</p>
                     <div class="mb-10 col-md-6">
-                        <label for="gym_logo" class="required form-label">Gym Logo</label>
+                        <label for="gym_logo" class="form-label">Gym Logo</label>
                         <input type="file" class="form-control" id="gym_logo" name="gym_logo" accept="image/*">
                     </div>
                     <div class="mb-10 col-md-6">
-                        <label for="favicon" class="required form-label">Fav Icon</label>
+                        <label for="favicon" class="form-label">Fav Icon</label>
                         <input type="file" class="form-control" id="favicon" name="favicon" accept="image/*">
                     </div>
                     <div class="mb-10 col-md-6">
-                        <label for="email_logo" class="required form-label">Email Logo</label>
+                        <label for="email_logo" class="form-label">Email Logo</label>
                         <input type="file" class="form-control" id="email_logo" name="email_logo" accept="image/*">
                     </div>
                     <div class="mb-10 col-md-6">
-                        <label for="footer_logo" class="required form-label">Footer Logo</label>
+                        <label for="footer_logo" class="form-label">Footer Logo</label>
                         <input type="file" class="form-control" id="footer_logo" name="footer_logo" accept="image/*">
+                    </div>
+
+                    <p class="text-uppercase text-sm fw-bold">Social Media</p>
+                    <div class="mb-10 col-md-6">
+                        <label for="facebook_url" class="required form-label">Facebook URL</label>
+                        <input type="text" value="{{ $site->facebook_url }}" id="facebook_url" name="facebook_url" class="form-control form-control-solid required" required/>
+                    </div>
+                    <div class="mb-10 col-md-6">
+                        <label for="x_url" class="required form-label">X URL</label>
+                        <input type="text" value="{{ $site->x_url }}" id="x_url" name="x_url" class="form-control form-control-solid required" required/>
+                    </div>
+                    <div class="mb-10 col-md-6">
+                        <label for="instagram_url" class="required form-label">Instagram URL</label>
+                        <input type="text" value="{{ $site->instagram_url }}" id="instagram_url" name="instagram_url" class="form-control form-control-solid required" required/>
                     </div>
 
                     <div class="card-footer">

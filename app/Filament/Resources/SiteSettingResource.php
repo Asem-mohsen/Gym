@@ -71,6 +71,13 @@ class SiteSettingResource extends Resource
                         SpatieMediaLibraryFileUpload::make("email_logo")->label('Email Logo')->collection("email_logo"),
                         SpatieMediaLibraryFileUpload::make("footer_logo")->label('Footer Logo')->collection("footer_logo"),
                     ])->columns(2),
+
+                Fieldset::make('Social Media')
+                    ->schema([
+                        TextInput::make('facebook_url')->label('Facebook URL')->url(),
+                        TextInput::make('x_url')->label('X URL')->url(),
+                        TextInput::make('instagram_url')->label('Instagram URL')->url(),
+                    ])->columns(2),
             ]);
     }
 

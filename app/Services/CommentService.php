@@ -40,7 +40,7 @@ class CommentService
                 'user_id' => $userId,
                 'parent_id' => $data['parent_id'] ?? null,
                 'content' => $data['content'],
-                'status' => $userId ? 'approved' : 'pending', // Auto-approve authenticated users
+                'status' => $userId ? 'approved' : 'pending',
             ];
 
             $comment = $this->commentRepository->createComment($commentData);
