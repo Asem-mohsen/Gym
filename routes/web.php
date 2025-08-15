@@ -38,7 +38,6 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.c
     Route::get('/blog', [BlogController::class, 'index'])->name('blog');
     Route::get('/blog/{blogPost}', [BlogController::class, 'show'])->name('blog.show');
 
-    // Comment and share routes
     Route::prefix('blog/{blogPost}')->group(function () {
         Route::post('/comments', [BlogController::class, 'storeComment'])->name('blog.comments.store');
         Route::post('/comments/{comment}/reply', [BlogController::class, 'storeReply'])->name('blog.comments.reply');

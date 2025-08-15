@@ -22,7 +22,13 @@ class AddBlogPostRequest extends FormRequest
             'tags'        => ['required' , 'array', 'min:1'],
             'tags.*'      => ['string', 'max:255'],
             'status'      => ['required', 'in:draft,published,archived'],
+            'description' => ['required' , 'string'],
+            'quote_author_name' => ['nullable' , 'string' , 'max:255'],
+            'quote_author_title' => ['string' , 'max:255', 'required_with:quote_author_name'],
+            'author_comment' => ['required' , 'string'],
             'image'       => ['required' , 'image' , 'mimes:jpeg,png,jpg,gif,svg' , 'max:2048'],
+            'images'      => ['nullable' , 'array'],
+            'images.*'    => ['image' , 'mimes:jpeg,png,jpg,gif,svg' , 'max:2048'],
         ];
     }
 }

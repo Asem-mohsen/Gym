@@ -21,8 +21,6 @@ class StoreCommentRequest extends FormRequest
     {
         return [
             'content' => 'required|string|min:3|max:1000',
-            'parent_id' => 'nullable|exists:comments,id',
-            'blog_post_id' => 'required|exists:blog_posts,id',
         ];
     }
 

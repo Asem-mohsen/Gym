@@ -76,20 +76,15 @@
             <div class="col-lg-4 col-md-6">
                 <div class="fs-widget">
                     <h4>Tips & Guides</h4>
-                    <div class="fw-recent">
-                        <h6><a href="#">Physical fitness may help prevent depression, anxiety</a></h6>
-                        <ul>
-                            <li>3 min read</li>
-                            <li>20 Comment</li>
-                        </ul>
-                    </div>
-                    <div class="fw-recent">
-                        <h6><a href="#">Fitness: The best exercise to lose belly fat and tone up...</a></h6>
-                        <ul>
-                            <li>3 min read</li>
-                            <li>20 Comment</li>
-                        </ul>
-                    </div>
+                    @foreach ($blogPosts->take(2) as $blogPost)
+                        <div class="fw-recent">
+                            <h6><a href="{{route('user.blog.show', ['blogPost' => $blogPost->id, 'siteSetting' => $siteSetting->slug])}}">{{$blogPost->title}}</a></h6>
+                            <ul>
+                                <li>{{$blogPost->created_at->diffForHumans()}}</li>
+                                <li>{{$blogPost->comments_count}} Comment</li>
+                            </ul>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>

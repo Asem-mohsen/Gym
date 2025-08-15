@@ -11,7 +11,7 @@ class BlogRepository
     /**
      * Get all branches with their phones.
      */
-    public function getBlogPosts(int $siteSettingId, $isPublished = true)
+    public function getBlogPosts(int $siteSettingId, $isPublished = true, $take = null)
     {
         return BlogPost::with(['user.role', 'categories', 'tags'])
             ->whereHas('user.role', function ($query) use ($siteSettingId) {
@@ -19,6 +19,9 @@ class BlogRepository
             })
             ->when($isPublished, function ($query) {
                 $query->where('status', 'published');
+            })
+            ->when($take, function ($query) use ($take) {
+                $query->take($take);
             })
             ->get();
     }

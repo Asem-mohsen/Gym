@@ -12,7 +12,7 @@
                     <div class="breadcrumb-text">
                         <h2>About us</h2>
                         <div class="bt-option">
-                            <a href="./index.html">Home</a>
+                            <a href="{{route('user.home', ['siteSetting' => $siteSetting->slug])}}">Home</a>
                             <span>About</span>
                         </div>
                     </div>
