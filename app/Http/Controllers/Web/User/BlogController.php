@@ -28,13 +28,14 @@ class BlogController extends Controller
         $this->shareService = $shareService;
     }
 
-    public function index(SiteSetting $siteSetting)
+    public function index(Request $request, SiteSetting $siteSetting)
     {
-        $blogPosts = $this->blogService->getBlogPosts($siteSetting->id, true);
+        $blogPosts = $this->blogService->getBlogPosts(siteSettingId: $siteSetting->id, isPublished: true, perPage: 5, orderBy: 'created_at', orderByDirection: 'desc');
+        $futurePosts =  $this->blogService->getBlogPosts(siteSettingId: $siteSetting->id, isPublished: true, take: 5, orderBy: 'created_at', orderByDirection: 'desc');
         $categories = $this->blogService->getCategories(withCount: ['blogPosts']);
         $tags = $this->blogService->getTags(withCount: ['blogPosts']);
         
-        return view('user.blog' , compact('blogPosts' , 'categories' , 'tags'));
+        return view('user.blog' , compact('blogPosts' , 'categories' , 'tags', 'futurePosts'));
     }
 
     public function show(SiteSetting $siteSetting, BlogPost $blogPost)

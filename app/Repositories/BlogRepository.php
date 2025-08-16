@@ -11,9 +11,9 @@ class BlogRepository
     /**
      * Get all branches with their phones.
      */
-    public function getBlogPosts(int $siteSettingId, $isPublished = true, $take = null , $orderBy = 'created_at' , $orderByDirection = 'desc')
+    public function getBlogPosts(int $siteSettingId, $isPublished = true, ?int $perPage = null, ?int $take = null, $orderBy = 'created_at', $orderByDirection = 'desc')
     {
-        return BlogPost::with(['user.role', 'categories', 'tags'])
+        $query = BlogPost::with(['user.role', 'categories', 'tags'])
             ->whereHas('user.role', function ($query) use ($siteSettingId) {
                 $query->where('site_setting_id', $siteSettingId);
             })
@@ -25,8 +25,12 @@ class BlogRepository
             })
             ->when($orderBy, function ($query) use ($orderBy, $orderByDirection) {
                 $query->orderBy($orderBy, $orderByDirection);
-            })
-            ->get();
+            });
+            
+        return $perPage 
+            ? $query->paginate($perPage)
+            : $query->get();
+            
     }
 
     public function getCategories(array $withCount = [])

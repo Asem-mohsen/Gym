@@ -29,7 +29,7 @@ class UserServicePorvider extends ServiceProvider
                 $blogService = new BlogService(new BlogRepository());
                 
                 try {
-                    $blogPosts = $blogService->getBlogPosts($currentGymContext['id'], true, 2, 'created_at', 'desc');
+                    $blogPosts = $blogService->getBlogPosts(siteSettingId: $currentGymContext['id'], isPublished: true, take: 2, orderBy:'created_at', orderByDirection: 'desc');
                     if ($blogPosts->isNotEmpty()) {
                         $view->with('blogPosts', $blogPosts);
                         return;
@@ -39,7 +39,8 @@ class UserServicePorvider extends ServiceProvider
                 }
                 
                 try {
-                    $blogPosts = $blogService->getBlogPosts($currentGymContext['id'], true, 2);
+                    $blogPosts = $blogService->getBlogPosts(siteSettingId: $currentGymContext['id'], isPublished: true,take:2);
+                    
                     $view->with('blogPosts', $blogPosts);
                 } catch (\Exception $e) {
                     $view->with('blogPosts', collect([]));
@@ -51,7 +52,7 @@ class UserServicePorvider extends ServiceProvider
                     $blogService = new BlogService(new BlogRepository());
                     
                     try {
-                        $blogPosts = $blogService->getBlogPosts($defaultSiteId, true, 2, 'created_at', 'desc');
+                        $blogPosts = $blogService->getBlogPosts(siteSettingId: $defaultSiteId, isPublished: true, take:2, orderBy:'created_at', orderByDirection:'desc');
                         if ($blogPosts->isNotEmpty()) {
                             $view->with('blogPosts', $blogPosts);
                             return;
@@ -60,7 +61,7 @@ class UserServicePorvider extends ServiceProvider
                         Log::warning('Failed to get blog posts by site for default site: ' . $e->getMessage());
                     }
                     
-                    $blogPosts = $blogService->getBlogPosts($defaultSiteId, true, 2);
+                    $blogPosts = $blogService->getBlogPosts(siteSettingId: $defaultSiteId, isPublished: true, take:2);
                     $view->with('blogPosts', $blogPosts);
                 } catch (\Exception $e) {
                     $view->with('blogPosts', collect([]));

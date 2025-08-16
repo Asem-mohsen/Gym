@@ -2172,6 +2172,48 @@ ol {
 	background: #555555;
 }
 
+/* Custom Laravel Pagination Styles for Blog */
+.blog-pagination .pagination .page-link:hover {
+    background: #555555 !important;
+    color: #ffffff !important;
+    text-decoration: none;
+}
+
+.blog-pagination .pagination .page-item.active .page-link {
+    background: #555555 !important;
+    color: #ffffff !important;
+    border: none;
+}
+
+.blog-pagination .pagination .page-item.disabled .page-link {
+    background: #151515 !important;
+    color: #666666 !important;
+    cursor: not-allowed;
+}
+
+.blog-pagination .pagination .page-item:first-child .page-link,
+.blog-pagination .pagination .page-item:last-child .page-link {
+    border-radius: 0;
+}
+
+/* Active state for custom pagination */
+.blog-pagination a.active {
+    background: #555555 !important;
+    color: #ffffff !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .blog-pagination .pagination .page-link {
+        font-size: 16px;
+        padding: 8px 16px;
+    }
+    
+    .blog-pagination .pagination li {
+        margin: 0 3px;
+    }
+}
+
 /*--------------------------
   Blog Detils Hero Section
 --------------------------*/

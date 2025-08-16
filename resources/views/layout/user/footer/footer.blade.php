@@ -76,12 +76,12 @@
             <div class="col-lg-4 col-md-6">
                 <div class="fs-widget">
                     <h4>Tips & Guides</h4>
-                    @foreach ($blogPosts->take(2) as $blogPost)
+                    @foreach ($blogPosts as $blogPost)
                         <div class="fw-recent">
                             <h6><a href="{{route('user.blog.show', ['blogPost' => $blogPost->id, 'siteSetting' => $siteSetting->slug])}}">{{$blogPost->title}}</a></h6>
                             <ul>
                                 <li>{{$blogPost->created_at->diffForHumans()}}</li>
-                                <li>{{$blogPost->comments_count}} Comment</li>
+                                <li>{{$blogPost->comments->count()}} Comment</li>
                             </ul>
                         </div>
                     @endforeach

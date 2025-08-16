@@ -67,9 +67,11 @@
                     </div>
                 </div>
             </div>
-            <div class="map">
-                <iframe src="{{$siteSetting->site_map}}" loading="lazy" height="550" style="border:0;" allowfullscreen=""></iframe>
-            </div>
+            @if($siteSetting->site_map)
+                <div class="map">
+                    <iframe src="{{$siteSetting->site_map}}" loading="lazy" height="550" style="border:0;" allowfullscreen=""></iframe>
+                </div>
+            @endif
         </div>
     </section>
     <!-- Contact Section End -->
