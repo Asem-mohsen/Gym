@@ -18,9 +18,8 @@ class ServicesController extends Controller
 
     public function index(SiteSetting $siteSetting)
     {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $services = $this->serviceService->getServices($siteSettingId);
-        $memberships = $this->membershipService->getMemberships($siteSettingId);
+        $services = $this->serviceService->getServices($siteSetting->id);
+        $memberships = $this->membershipService->getMemberships($siteSetting->id);
 
         return view('user.services',compact('services','memberships'));
     }
