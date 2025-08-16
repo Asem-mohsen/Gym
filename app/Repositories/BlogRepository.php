@@ -11,7 +11,7 @@ class BlogRepository
     /**
      * Get all branches with their phones.
      */
-    public function getBlogPosts(int $siteSettingId, $isPublished = true, $take = null)
+    public function getBlogPosts(int $siteSettingId, $isPublished = true, $take = null , $orderBy = 'created_at' , $orderByDirection = 'desc')
     {
         return BlogPost::with(['user.role', 'categories', 'tags'])
             ->whereHas('user.role', function ($query) use ($siteSettingId) {
@@ -22,6 +22,9 @@ class BlogRepository
             })
             ->when($take, function ($query) use ($take) {
                 $query->take($take);
+            })
+            ->when($orderBy, function ($query) use ($orderBy, $orderByDirection) {
+                $query->orderBy($orderBy, $orderByDirection);
             })
             ->get();
     }

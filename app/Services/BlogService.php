@@ -18,9 +18,9 @@ class BlogService
         $this->blogRepository = $blogRepository;
     }
 
-    public function getBlogPosts(int $siteSettingId, $isPublished = true, $take = null)
+    public function getBlogPosts(int $siteSettingId, $isPublished = true, $take = null , $orderBy = 'created_at' , $orderByDirection = 'desc')
     {
-        return $this->blogRepository->getBlogPosts($siteSettingId, $isPublished, $take);
+        return $this->blogRepository->getBlogPosts($siteSettingId, $isPublished, $take, $orderBy, $orderByDirection);
     }
 
     public function getCategories(array $withCount = [])
