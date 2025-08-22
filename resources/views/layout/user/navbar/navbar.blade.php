@@ -24,6 +24,10 @@
                 </ul>
             </li>
             <li><a href="{{route('user.contact', ['siteSetting' => $siteSetting->slug])}}">Contact</a></li>
+            @auth
+                <li class="{{ request()->routeIs('user.invitations.*') ? 'active' : '' }}"><a href="{{ route('user.invitations.index', ['siteSetting' => $siteSetting->slug]) }}">My Invitations</a></li>
+                <li class="{{ request()->routeIs('profile.*') ? 'active' : '' }}"><a href="{{ route('profile.index', ['siteSetting' => $siteSetting->slug]) }}">My Profile</a></li>
+            @endauth
         </ul>
     </nav>
     <div id="mobile-menu-wrap"></div>
@@ -68,9 +72,57 @@
             </div>
             <div class="col-lg-3">
                 <div class="top-option">
+                    
+                    @auth
+                        <div class="user-profile-dropdown">
+                            <div class="user-avatar" id="userProfileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-user"></i>
+                                <span class="user-name">{{ auth()->user()->name }}</span>
+                                <i class="fa fa-chevron-down"></i>
+                            </div>
+                            <div class="dropdown-menu" aria-labelledby="userProfileDropdown">
+                                <div class="dropdown-header">
+                                    <div class="user-info">
+                                        <div class="user-avatar-small">
+                                            <i class="fa fa-user"></i>
+                                        </div>
+                                        <div class="user-details">
+                                            <h6>{{ auth()->user()->name }}</h6>
+                                            <small>{{ auth()->user()->email }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{{ route('profile.index', ['siteSetting' => $siteSetting->slug]) }}">
+                                    <i class="fa fa-user-circle"></i> My Profile
+                                </a>
+                                <a class="dropdown-item" href="{{ route('profile.edit', ['siteSetting' => $siteSetting->slug]) }}">
+                                    <i class="fa fa-edit"></i> Edit Profile
+                                </a>
+                                <a class="dropdown-item" href="{{ route('user.invitations.index', ['siteSetting' => $siteSetting->slug]) }}">
+                                    <i class="fa fa-envelope"></i> My Invitations
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <form action="{{ route('auth.logout.current') }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item logout-btn">
+                                        <i class="fa fa-sign-out"></i> Logout
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @else
+                        <div class="auth-buttons">
+                            <a href="{{ route('auth.login.index') }}" class="btn-outline-primary">
+                                <i class="fa fa-user"></i>
+                            </a>
+                        </div>
+                    @endauth
+                    
                     <div class="to-search search-switch">
                         <i class="fa fa-search"></i>
                     </div>
+
                     <div class="to-social">
                         <a href="{{$siteSetting->facebook_url}}"><i class="fa fa-facebook"></i></a>
                         <a href="{{$siteSetting->x_url}}"><i class="fa fa-twitter"></i></a>
@@ -85,3 +137,6 @@
     </div>
 </header>
 <!-- Header End -->
+
+
+@include('layout.user.navbar.assets.script')

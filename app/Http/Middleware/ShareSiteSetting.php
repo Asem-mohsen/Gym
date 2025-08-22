@@ -12,7 +12,7 @@ class ShareSiteSetting
     {
         $siteSetting = $request->route('siteSetting');
 
-        if ($siteSetting) {
+        if ($siteSetting && is_object($siteSetting)) {
             $siteSetting->load('branches.phones');
             view()->share('siteSetting', $siteSetting);
             

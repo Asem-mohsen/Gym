@@ -58,6 +58,11 @@ class SiteSetting extends Model implements HasMedia
         return $this->hasMany(Service::class, 'site_setting_id');
     }
 
+    public function galleries(): HasMany
+    {
+        return $this->hasMany(Gallery::class, 'site_setting_id');
+    }
+
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class, 'site_setting_id');
@@ -71,11 +76,6 @@ class SiteSetting extends Model implements HasMedia
     public function classes(): HasMany
     {
         return $this->hasMany(ClassModel::class, 'site_setting_id');
-    }
-
-    public function galleries(): MorphMany
-    {
-        return $this->morphMany(Gallery::class, 'galleryable');
     }
 
     public function getRouteKeyName()

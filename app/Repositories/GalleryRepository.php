@@ -22,6 +22,18 @@ class GalleryRepository
     }
 
     /**
+     * Get all galleries for a site setting
+     */
+    public function getGalleriesForSiteSetting(int $siteSettingId, int $limit = 10): Collection
+    {
+        return Gallery::where('site_setting_id', $siteSettingId)
+            ->with(['media' => fn($q) => $q->limit($limit)])
+            ->active()
+            ->ordered()
+            ->get();
+    }
+
+    /**
      * Get a specific gallery by ID
      */
     public function findById(int $id, array $with = []): ?Gallery
@@ -37,6 +49,20 @@ class GalleryRepository
         $data['galleryable_type'] = get_class($model);
         $data['galleryable_id'] = $model->id;
         
+        if (isset($model->site_setting_id)) {
+            $data['site_setting_id'] = $model->site_setting_id;
+        } elseif (method_exists($model, 'siteSetting')) {
+            $data['site_setting_id'] = $model->siteSetting->id;
+        }
+        
+        return Gallery::create($data);
+    }
+
+    /**
+     * Create a new gallery directly with site_setting_id
+     */
+    public function createGalleryDirectly(array $data): Gallery
+    {
         return Gallery::create($data);
     }
 

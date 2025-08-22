@@ -18,9 +18,9 @@
                         <label for="user_id" class="required form-label">User</label>
                         @php
                             $options = [];
-                            foreach($users as $id => $user){
+                            foreach($users as $user){
                                 $options[] = [
-                                    'value' => $id,
+                                    'value' => $user->id,
                                     'label' => $user->name
                                 ];
                             }
@@ -35,9 +35,9 @@
                         <label for="membership_id" class="required form-label">Membership</label>
                         @php
                             $options = [];
-                            foreach($memberships as $id => $membership){
+                            foreach($memberships as $membership){
                                 $options[] = [
-                                    'value' => $id,
+                                    'value' => $membership->id,
                                     'label' => $membership->name
                                 ];
                             }
@@ -52,9 +52,9 @@
                         <label for="branch_id" class="required form-label">Branch</label>
                         @php
                             $options = [];
-                            foreach($branches as $id => $branch){
+                            foreach($branches as $branch){
                                 $options[] = [
-                                    'value' => $id,
+                                    'value' => $branch->id,
                                     'label' => $branch->name
                                 ];
                             }

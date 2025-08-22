@@ -19,9 +19,9 @@
                         <label for="user_id" class="required form-label">User</label>
                         @php
                             $options = [];
-                            foreach($users as $id => $user){
+                            foreach($users as $user){
                                 $options[] = [
-                                    'value' => $id,
+                                    'value' => $user->id,
                                     'label' => $user->name
                                 ];
                             }
@@ -37,9 +37,9 @@
                         <label for="membership_id" class="required form-label">Membership</label>
                         @php
                             $options = [];
-                            foreach($memberships as $id => $membership){
+                            foreach($memberships as $membership){
                                 $options[] = [
-                                    'value' => $id,
+                                    'value' => $membership->id,
                                     'label' => $membership->name
                                 ];
                             }
@@ -55,9 +55,9 @@
                         <label for="branch_id" class="required form-label">Branch</label>
                         @php
                             $options = [];
-                            foreach($branches as $id => $branch){
+                            foreach($branches as $branch){
                                 $options[] = [
-                                    'value' => $id,
+                                    'value' => $branch->id,
                                     'label' => $branch->name
                                 ];
                             }
@@ -83,7 +83,7 @@
                             'options' => $options,
                             'name' => 'status',
                             'id' => 'status',
-                            'selectedValue' => $subscription->status
+                            'selectedValue' => $subscription->status,
                         ])
                     </div>
                     <div class="mb-10 col-md-6">
@@ -98,6 +98,7 @@
                             'options' => $options,
                             'name' => 'apply_offer',
                             'id' => 'apply_offer',
+                            'selectedValue' => $subscription->membership->payment?->offer_id ? 'yes' : 'no'
                         ])
                     </div>
                     <div class="mb-10 col-md-6 d-none" id="offersListContainer">
@@ -106,12 +107,12 @@
                             'options' => [],
                             'name' => 'offer_id',
                             'id' => 'offer_id',
-                            'selectedValue' => $subscription->payment->offer_id ? 'yes' : 'no'
+                            'selectedValue' => $subscription->payment?->offer_id
                         ])
                     </div>        
                     <div class="mb-10 col-md-6 d-none" id="amountPaidContainer">
                         <label for="amount" class="required form-label">Amount Paid</label>
-                        <input type="text" id="amount" value="{{ $subscription->payment->amount ?? 0 }}" name="amount" class="form-control form-control-solid" required/>
+                        <input type="text" id="amount" value="{{ $subscription->membership->payment->amount ?? 0 }}" name="amount" class="form-control form-control-solid" required/>
                     </div>
                     <div class="mb-10 col-md-6">
                         <label for="start_date" class="required form-label">Start date</label>
@@ -135,5 +136,5 @@
 @endsection
 
 @section('js')
-    @include('admin.subscriptions._partials.subscription-script', ['selectedOfferId' => $subscription->payment->offer_id ?? null])
+    @include('admin.subscriptions._partials.subscription-script', ['selectedOfferId' => $subscription->membership->payment->offer_id ?? null])
 @endsection

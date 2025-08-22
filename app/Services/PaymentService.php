@@ -2,17 +2,23 @@
 namespace App\Services;
 
 use App\Repositories\PaymentRepository;
+use App\Services\SiteSettingService;
 
 class PaymentService
 {
-    public function __construct(protected PaymentRepository $paymentRepository)
+    protected int $siteSettingId;
+
+    public function __construct(
+        protected PaymentRepository $paymentRepository,
+        protected SiteSettingService $siteSettingService
+    )
     {
-        $this->paymentRepository = $paymentRepository;
+        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
     }
 
     public function getPayments()
     {
-        return $this->paymentRepository->getPayments();
+        return $this->paymentRepository->getPayments($this->siteSettingId);
     }
 
     public function createPayment($paymentable, array $data)
@@ -23,15 +29,5 @@ class PaymentService
     public function updatePayment($payment, $paymentable, array $data)
     {
         return $this->paymentRepository->updatePayment($payment, $paymentable, $data);
-    }
-
-    public function showPayment($paymentId)
-    {
-        return $this->paymentRepository->findById($paymentId);
-    }
-
-    public function deletePayment($payment)
-    {
-        return $this->paymentRepository->deletePayment($payment);
     }
 }

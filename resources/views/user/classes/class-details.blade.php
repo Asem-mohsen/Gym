@@ -2,6 +2,10 @@
 
 @section('title', 'Class Details')
 
+@section('css')
+    @include('user.classes.assets.style')
+@endsection
+
 @section('content')
 
     <!-- Breadcrumb Section Begin -->
@@ -35,20 +39,60 @@
                         <div class="cd-text">
                             <div class="cd-single-item">
                                 <h3>{{ $class->name }}</h3>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-                                    incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                    exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-                                    irure Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                                    tempor incididunt ut labore et dolore magna aliqua accusantium doloremque
-                                    laudantium. Excepteur sint occaecat cupidatat non proident sculpa.</p>
+                                <p>
+                                    {!! $class->description !!}
+                                </p>
                             </div>
+                            
+                            <!-- Class Details Section -->
+                            <div class="cd-single-item">
+                                <h3>Class Details</h3>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="class-detail-item">
+                                            <h5><i class="fa fa-clock-o"></i> Schedules</h5>
+                                            @if($class->schedules->count() > 0)
+                                                <ul class="schedule-list">
+                                                    @foreach($class->schedules as $schedule)
+                                                        <li>
+                                                            <strong>{{ ucfirst($schedule->day) }}:</strong> 
+                                                            {{ date('g:i A', strtotime($schedule->start_time)) }} - {{ date('g:i A', strtotime($schedule->end_time)) }}
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            @else
+                                                <p>No schedules available</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="class-detail-item">
+                                            <h5><i class="fa fa-money"></i> Pricing</h5>
+                                            @if($class->pricings->count() > 0)
+                                                <ul class="pricing-list">
+                                                    @foreach($class->pricings as $pricing)
+                                                        <li>
+                                                            <strong>${{ number_format($pricing->price, 2) }}</strong> 
+                                                            <span>{{ $pricing->duration }}</span>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            @else
+                                                <p>Pricing not available</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <div class="cd-single-item">
                                 <h3>Trainer{{ $class->trainers->count() > 1 ? 's' : '' }}</h3>
-                                <p>Dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
-                                    labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                                    ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-                                    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur officia
-                                    deserunt mollit.</p>
+                                <p>
+                                    Our certified trainer{{ $class->trainers->count() > 1 ? 's are' : ' is' }} dedicated to helping members
+                                    achieve their fitness goals through expert guidance, motivation, and safe training practices.
+                                    They bring experience, professionalism, and a passion for fitness to every class, ensuring that
+                                    participants of all levels can train effectively and enjoyably.
+                                </p>
                             </div>
                         </div>
                         <div class="cd-trainer">
@@ -117,6 +161,58 @@
                         <div class="so-banner set-bg" data-setbg="{{ asset('assets/user/img/sidebar-banner.jpg') }}">
                             <h5>{{$class->name}}</h5>
                         </div>
+
+                        <!-- Booking Section -->
+                        <div class="cd-single-item booking-form-container">
+                            <h3>Book This Class</h3>
+                            <form action="{{ route('user.classes.book', ['siteSetting' => $siteSetting->slug, 'class' => $class->id]) }}" method="POST" class="booking-form">
+                                @csrf
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="branch_id">Select Branch *</label>
+                                            <select name="branch_id" id="branch_id" class="form-control" required>
+                                                <option value="">Choose a branch</option>
+                                                @foreach($branches as $branch)
+                                                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="schedule_id">Select Schedule *</label>
+                                            <select name="schedule_id" id="schedule_id" class="form-control" required>
+                                                <option value="">Choose a schedule</option>
+                                                @foreach($class->schedules as $schedule)
+                                                    <option value="{{ $schedule->id }}">
+                                                        {{ ucfirst($schedule->day) }} - {{ date('g:i A', strtotime($schedule->start_time)) }} to {{ date('g:i A', strtotime($schedule->end_time)) }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                @auth
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <button type="submit" class="btn btn-primary btn-lg btn-block">
+                                                <i class="fa fa-calendar-check-o"></i> Book Class
+                                            </button>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <a href="{{ route('auth.login.index') }}" class="btn btn-primary btn-lg btn-block">
+                                                <i class="fa fa-user-plus"></i> Login to Book Class
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endauth
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -125,148 +221,12 @@
     <!-- Class Details Section End -->
 
     <!-- Class Timetable Section Begin -->
-    <section class="class-timetable-section class-details-timetable spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="class-details-timetable_title">
-                        <h5>Classes timetable</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="class-timetable details-timetable">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>Monday</th>
-                                    <th>Tuesday</th>
-                                    <th>Wednesday</th>
-                                    <th>Thursday</th>
-                                    <th>Friday</th>
-                                    <th>Saturday</th>
-                                    <th>Sunday</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="class-time">6.00am - 8.00am</td>
-                                    <td class="dark-bg hover-dp ts-meta" data-tsmeta="workout">
-                                        <h5>WEIGHT LOOSE</h5>
-                                        <span>RLefew D. Loee</span>
-                                    </td>
-                                    <td class="hover-dp ts-meta" data-tsmeta="fitness">
-                                        <h5>Cardio</h5>
-                                        <span>RLefew D. Loee</span>
-                                    </td>
-                                    <td class="dark-bg hover-dp ts-meta" data-tsmeta="workout">
-                                        <h5>Yoga</h5>
-                                        <span>Keaf Shen</span>
-                                    </td>
-                                    <td class="hover-dp ts-meta" data-tsmeta="fitness">
-                                        <h5>Fitness</h5>
-                                        <span>Kimberly Stone</span>
-                                    </td>
-                                    <td class="dark-bg blank-td"></td>
-                                    <td class="hover-dp ts-meta" data-tsmeta="motivation">
-                                        <h5>Boxing</h5>
-                                        <span>Rachel Adam</span>
-                                    </td>
-                                    <td class="dark-bg hover-dp ts-meta" data-tsmeta="workout">
-                                        <h5>Body Building</h5>
-                                        <span>Robert Cage</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="class-time">10.00am - 12.00am</td>
-                                    <td class="blank-td"></td>
-                                    <td class="dark-bg hover-dp ts-meta" data-tsmeta="fitness">
-                                        <h5>Fitness</h5>
-                                        <span>Kimberly Stone</span>
-                                    </td>
-                                    <td class="hover-dp ts-meta" data-tsmeta="workout">
-                                        <h5>WEIGHT LOOSE</h5>
-                                        <span>RLefew D. Loee</span>
-                                    </td>
-                                    <td class="dark-bg hover-dp ts-meta" data-tsmeta="motivation">
-                                        <h5>Cardio</h5>
-                                        <span>RLefew D. Loee</span>
-                                    </td>
-                                    <td class="hover-dp ts-meta" data-tsmeta="workout">
-                                        <h5>Body Building</h5>
-                                        <span>Robert Cage</span>
-                                    </td>
-                                    <td class="dark-bg hover-dp ts-meta" data-tsmeta="motivation">
-                                        <h5>Karate</h5>
-                                        <span>Donald Grey</span>
-                                    </td>
-                                    <td class="blank-td"></td>
-                                </tr>
-                                <tr>
-                                    <td class="class-time">5.00pm - 7.00pm</td>
-                                    <td class="dark-bg hover-dp ts-meta" data-tsmeta="fitness">
-                                        <h5>Boxing</h5>
-                                        <span>Rachel Adam</span>
-                                    </td>
-                                    <td class="hover-dp ts-meta" data-tsmeta="motivation">
-                                        <h5>Karate</h5>
-                                        <span>Donald Grey</span>
-                                    </td>
-                                    <td class="dark-bg hover-dp ts-meta" data-tsmeta="workout">
-                                        <h5>Body Building</h5>
-                                        <span>Robert Cage</span>
-                                    </td>
-                                    <td class="blank-td"></td>
-                                    <td class="dark-bg hover-dp ts-meta" data-tsmeta="workout">
-                                        <h5>Yoga</h5>
-                                        <span>Keaf Shen</span>
-                                    </td>
-                                    <td class="hover-dp ts-meta" data-tsmeta="motivation">
-                                        <h5>Cardio</h5>
-                                        <span>RLefew D. Loee</span>
-                                    </td>
-                                    <td class="dark-bg hover-dp ts-meta" data-tsmeta="fitness">
-                                        <h5>Fitness</h5>
-                                        <span>Kimberly Stone</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="class-time">7.00pm - 9.00pm</td>
-                                    <td class="hover-dp ts-meta" data-tsmeta="motivation">
-                                        <h5>Cardio</h5>
-                                        <span>RLefew D. Loee</span>
-                                    </td>
-                                    <td class="dark-bg blank-td"></td>
-                                    <td class="hover-dp ts-meta" data-tsmeta="fitness">
-                                        <h5>Boxing</h5>
-                                        <span>Rachel Adam</span>
-                                    </td>
-                                    <td class="dark-bg hover-dp ts-meta" data-tsmeta="workout">
-                                        <h5>Yoga</h5>
-                                        <span>Keaf Shen</span>
-                                    </td>
-                                    <td class="hover-dp ts-meta" data-tsmeta="motivation">
-                                        <h5>Karate</h5>
-                                        <span>Donald Grey</span>
-                                    </td>
-                                    <td class="dark-bg hover-dp ts-meta" data-tsmeta="fitness">
-                                        <h5>Boxing</h5>
-                                        <span>Rachel Adam</span>
-                                    </td>
-                                    <td class="hover-dp ts-meta" data-tsmeta="workout">
-                                        <h5>WEIGHT LOOSE</h5>
-                                        <span>RLefew D. Loee</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <x-user.class-timetable 
+        :timetableData="$timetableData" 
+        :classTypes="$classTypes" 
+        :siteSetting="$siteSetting" 
+        variant="compact"
+    />
     <!-- Class Timetable Section End -->
 
 @endsection

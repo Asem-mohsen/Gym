@@ -4,6 +4,7 @@ namespace App\Http\Requests\Membership;
 
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Enums\MembershipPeriod;
 
 class UpdateMembershipRequest extends FormRequest
 {
@@ -18,12 +19,19 @@ class UpdateMembershipRequest extends FormRequest
         return [
             'name.en'      => ['required' , 'max:255', 'string'],
             'name.ar'      => ['required' , 'max:255', 'string'],
-            'description.en'=> ['nullable' , 'max:1000'],
-            'description.ar'=> ['nullable' , 'max:1000'],
+            'subtitle.en'  => ['nullable' , 'max:1000'],
+            'subtitle.ar'  => ['nullable' , 'max:1000'],
+            'general_description.en' => ['nullable' , 'max:1000'],
+            'general_description.ar' => ['nullable' , 'max:1000'],
             'status'       => ['required' , 'in:1,0'],
             'price'        => ['required' , 'numeric'],
             'order'        => ['required' , 'numeric'],
-            'period'       => ['required'],
+            'invitation_limit' => ['required', 'integer', 'min:0'],
+            'period'       => ['required', 'string', function($attribute, $value, $fail) {
+                if (!MembershipPeriod::isValid($value)) {
+                    $fail('The selected period is invalid.');
+                }
+            }],
             'features'     => ['nullable', 'array'],
             'features.*'   => ['exists:features,id'],
         ];

@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Web\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\BlogPost;
-use App\Models\SiteSetting;
+use App\Models\{BlogPost, SiteSetting, Comment};
 use App\Services\{BlogService, CommentService, BlogPostShareService};
 use Illuminate\Http\Request;
-use App\Models\Comment;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Comments\StoreCommentRequest;
 use Exception;
@@ -66,11 +64,7 @@ class BlogController extends Controller
         try {
             $userId = Auth::id();
             
-            $comment = $this->commentService->createComment(
-                ['content' => $validated['content']],
-                $blogPost->id,
-                $userId
-            );
+             $this->commentService->createComment(['content' => $validated['content']],$blogPost->id,$userId);
 
             return redirect()->back()->with('success', 'Comment posted successfully!');
         } catch (Exception $e) {

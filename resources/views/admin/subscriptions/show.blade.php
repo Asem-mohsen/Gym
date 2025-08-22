@@ -1,411 +1,277 @@
 @extends('layout.admin.master')
 
-@section('title' , 'Order')
+@section('title' , 'Subscription Details')
+
+@section('main-breadcrumb', 'Subscription')
+@section('main-breadcrumb-link', route('subscriptions.index'))
+
+@section('sub-breadcrumb','Show Subscription')
 
 @section('content')
 
-    <div class="container my-5">
+<div class="row">
+    <!-- Subscription Information -->
+    <div class="col-md-6 mb-5">
         <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Subscription Information</h3>
+            </div>
             <div class="card-body">
-                <ul class="nav nav-tabs nav-primary justify-content-center" id="custom-tabs-one-tab" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="custom-tabs-one-home-tab" data-toggle="pill" href="#order" aria-selected="true">Order Information</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="custom-tabs-one-profile-tab" data-toggle="pill" href="#User" role="tab" aria-controls="custom-tabs-one-profile" aria-selected="false">User</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="custom-tabs-one-messages-tab" data-toggle="pill" href="#Product" aria-selected="false">Product Information</a>
-                    </li>
-                    @if ($order->user)
-                        <li class="nav-item">
-                            <a class="nav-link" id="custom-tabs-one-settings-tab" data-toggle="pill" href="#Billing" role="tab" aria-controls="custom-tabs-one-settings" aria-selected="false">Billing</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="custom-tabs-one-settings-tab" data-toggle="pill" href="#PrevOrders" role="tab" aria-controls="custom-tabs-one-settings" aria-selected="false">Previous Orders</a>
-                        </li>
-                    @endif
-                </ul>
-                <div class="tab-content py-3">
-                    <!-- Order -->
-                    <div class="tab-pane fade show active" id="order" role="tabpanel">
-                        <div class="wrapper">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table id="example2" class="table table-striped table-bordered">
-                                            <thead>
-                                                <th scope="col" width="10%">#</th>
-                                                <th scope="col" width="20%">Data</th>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>User</td>
-                                                    <td>{{$order->user->name ?? "Unkown User"}}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Number of Products</td>
-                                                    <td>{{$order->products->count()}}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Placed Date</td>
-                                                    <td>{{$order->created_at }}</td>
-                                                </tr>
-                                                @if ($order->promotions->isNotEmpty())
-                                                    @foreach ($order->promotions as $promotion)
-                                                        <tr>
-                                                            <td>Promocode</td>
-                                                            <td>
-                                                                {{$promotion->code }}
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>The Code Save</td>
-                                                            <td>{{$promotions->discount_amount . "%" }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Total</td>
-                                                            <td>{{$order->total_amount . " EGP" }}</td>
-                                                        </tr>
-                                                    @endforeach
-                                                @else
-                                                    <tr>
-                                                        <td>Total</td>
-                                                        <td>{{$order->total_amount . " EGP" }}</td>
-                                                    </tr>
-                                                @endif
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Subscription ID:</div>
+                    <div class="col-md-8">{{ $subscription->id }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Status:</div>
+                    <div class="col-md-8">
+                        <span class="badge badge-{{ $subscription->status === 'active' ? 'success' : ($subscription->status === 'pending' ? 'warning' : ($subscription->status === 'cancelled' ? 'danger' : 'secondary')) }}">
+                            {{ ucfirst($subscription->status) }}
+                        </span>
                     </div>
-                    <!-- User -->
-                    <div class="tab-pane fade" id="User" role="tabpanel">
-                        <div class="wrapper">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table id="example2" class="table table-striped table-bordered">
-                                            <thead>
-                                                <th scope="col" width="10%">#</th>
-                                                <th scope="col" width="20%">Data</th>
-                                            </thead>
-                                                <tr>
-                                                    <td>User</td>
-                                                    <td>{{$order->user->name ?? "Unkown User"}}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Email</td>
-                                                    <td>{{$order->user->email ?? "Unkown email"}}</td>
-                                                </tr>
-                                                @forelse($order->user->phones->take(2) as $phone)
-                                                    <tr>
-                                                        <td>Phone</td>
-                                                        <td>{{$phone->phone}}</td>
-                                                    </tr>
-                                                @empty
-                                                    <tr>
-                                                        <td>Phone</td>
-                                                        <td>-</td>
-                                                    </tr>
-                                                @endforelse
-                                                <tr>
-                                                    <td>User Address</td>
-                                                    <td>{{$order->user->address->street_address}}</td>
-                                                </tr>
-                                                    <tr>
-                                                    <td>City</td>
-                                                    <td>{{$order->user->address->city->name}}</td>
-                                                </tr>
-                                                    <tr>
-                                                    <td>Country</td>
-                                                    <td>{{$order->user->address->country->country}}</td>
-                                                </tr>
-                                                    <tr>
-                                                    <td>Building</td>
-                                                    <td>{{$order->user->address->building}}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Floor</td>
-                                                    <td>{{$order->user->address->floor}}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Apartment</td>
-                                                    <td>{{$order->user->address->apartment}}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Status</td>
-                                                    <td>
-                                                        @if ($order->user->status)
-                                                            <span class="badge badge-sm bg-success">Active</span>
-                                                        @else
-                                                            <span class="badge badge-sm bg-danger">Not Active</span>
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Product -->
-                    <div class="tab-pane fade" id="Product" role="tabpanel">
-                        <div class="wrapper">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table id="example2" class="table table-striped table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col" width="5%">#</th>
-                                                    <th scope="col" width="20%">Product</th>
-                                                    <th scope="col" width="20%">Quantity</th>
-                                                    <th scope="col" width="20%">Category</th>
-                                                    <th scope="col" width="20%">Price</th>
-                                                    <th scope="col" width="15%">Stock</th>
-                                                    <th scope="col" width="20%">Platform</th>
-                                                    <th scope="col" width="20%">Brand</th>
-                                                    <th scope="col" width="10%">Bundle</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($order->products as $index => $orderProduct)
-                                                    @php
-                                                        $product = $orderProduct->product;
-                                                    @endphp
-                                                    <tr>
-                                                        <td>{{ $index + 1 }}</td>
-                                                        <td>{{ $product->translations->name }}</td>
-                                                        <td>{{ $orderProduct->quantity }}</td>
-                                                        <td>
-                                                            <div class="d-flex px-2 py-1">
-                                                                <div class="d-flex flex-column justify-content-center">
-                                                                    <h6 class="mb-0">{{ $product->subcategory->category->name }}</h6>
-                                                                    <span class="text-sm">{{ $product->subcategory->name }}</span>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            @if ($product->isOnSale())
-                                                                <div>
-                                                                    <span class="text-decoration-line-through">
-                                                                        {{ $product->price . ' EGP' }}
-                                                                    </span>
-                                                                    <br>
-                                                                    <span>
-                                                                        {{ $product->sale->sale_price . ' EGP' }}
-                                                                    </span>
-                                                                </div>
-                                                            @else
-                                                                {{ $product->price . ' EGP' }}
-                                                            @endif
-                                                        </td>
-                                                        <td>{{ $product->quantity }}</td>
-                                                        <td class="Platforms-orders">
-                                                            <div class="d-flex gap-2 align-items-center">
-                                                                @foreach($product->platforms as $platform)
-                                                                    <a href="{{ route('Platform.edit', $platform->id) }}">
-                                                                        <div class="platform d-flex align-items-center border pr-1 rounded">
-                                                                            <img src="{{ $platform->getFirstMediaUrl('platform-image') }}" width="60" alt="{{ $platform->name }}">
-                                                                            <p class="text-black m-0">{{ $platform->name }}</p>
-                                                                        </div>
-                                                                    </a>
-                                                                @endforeach
-                                                            </div>
-                                                        </td>
-                                                        <td>{{ $product->brand->name }}</td>
-                                                        <td>
-                                                            @if ($product->is_bundle)
-                                                                Bundle
-                                                            @else
-                                                                Not a Bundle
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Billing -->
-                    <div class="tab-pane fade" id="Billing" role="tabpanel">
-                        <div class="wrapper">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table id="example2" class="table table-striped table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Data</td>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>User</td>
-                                                    <td>{{$order->user->name ?? "Unkown User"}}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Amount</td>
-                                                    <td>{{$order->total_amount . " EGP"}}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Payment Type</td>
-                                                    @if ($order->transaction_id != NULL)
-                                                        <td>{{$order->payment->type}}</td>
-                                                    @else
-                                                        <td>
-                                                            <span class="badge badge-sm bg-warning">Pending</span>
-                                                        </td>
-                                                    @endif
-
-                                                </tr>
-                                                <tr>
-                                                    @if ($order->transaction_id != NULL)
-                                                        <td>Transaction ID </td>
-                                                        <td>{{$order->transaction_id}}</td>
-                                                    @endif
-                                                </tr>
-                                                <tr>
-                                                    <td>Status</td>
-                                                    <td>
-                                                        @if ($order->status === \App\Enums\OrderStatusEnum::COMPLETED->value)
-                                                            <span class="badge badge-success">Paid</span>
-                                                        @elseif ($order->status === \App\Enums\OrderStatusEnum::PENDING->value)
-                                                            <span class="badge badge-warning">Pending</span>
-                                                        @elseif ($order->status === \App\Enums\OrderStatusEnum::CANCELLED->value)
-                                                            <span class="badge badge-danger">Cancelled</span>
-                                                        @elseif ($order->status === \App\Enums\OrderStatusEnum::REFUNDED->value)
-                                                            <span class="badge badge-info">Refunded</span>
-                                                        @elseif ($order->status === \App\Enums\OrderStatusEnum::CASH_ON_DELIVERY->value)
-                                                            <span class="badge badge-success">Cash on delivery</span>
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                                @if ($order->promotions->isNotEmpty())
-                                                    @foreach ($order->promotions as $promotion)
-                                                        <tr>
-                                                            <td>Promocode</td>
-                                                            <td>
-                                                                {{$promotion->code }}
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>The Code Save</td>
-                                                            <td>{{$promotion->discount_amount . "%" }}</td>
-                                                        </tr>
-                                                    @endforeach
-                                                @else
-                                                    <tr>
-                                                        <td>Total</td>
-                                                        <td>{{$order->total_amount . " EGP" }}</td>
-                                                    </tr>
-                                                @endif
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Previous Orders -->
-                    <div class="tab-pane fade" id="PrevOrders" role="tabpanel">
-                        <div class="wrapper">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <h3 class="align-middle text-center text-lg font-weight-bold">
-                                            Previous Orders
-                                        </h3>
-                                        <table id="PrevOrder" class="table table-striped table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>OrderID</th>
-                                                    <th>Num of products</td>
-                                                    <th>Paid With</th>
-                                                    <th>Promocode</th>
-                                                    <th>Status</th>
-                                                    <th>Total</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                            </thead>
-
-                                            <tbody>
-                                                @foreach ($previousOrders as $prevOrder)
-                                                    <tr>
-                                                        <td class="align-middle text-center">
-                                                            {{$prevOrder->id}}
-                                                        </td>
-                                                        <td>
-                                                            {{$prevOrder->products->count()}}
-                                                        </td>
-                                                        <td class="align-middle text-center">
-                                                            @if (!empty($prevOrder->transaction_id))
-                                                                {{-- <td>{{$prevOrder->transaction->source_data_sub_type}}</td> --}}
-                                                            @else
-                                                                <span class="badge badge-sm bg-warning">Pending</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="align-middle text-center">
-                                                            @if (!empty($prevOrder->promotions))
-                                                                @foreach ($prevOrder->promotions as $promotion)
-                                                                    <p class="text-xs font-weight-bold mb-0">{{ $promotion->code ?? 'No code' }}</p>
-                                                                @endforeach
-                                                            @else
-                                                                <p class="text-xs font-weight-bold mb-0">No promo code used</p>
-                                                            @endif
-                                                        </td>
-                                                        <td class="align-middle text-center text-sm">
-                                                            @if ($order->status === \App\Enums\OrderStatusEnum::COMPLETED->value)
-                                                                <span class="badge badge-success">Paid</span>
-                                                            @elseif ($order->status === \App\Enums\OrderStatusEnum::PENDING->value)
-                                                                <span class="badge badge-warning">Pending</span>
-                                                            @elseif ($order->status === \App\Enums\OrderStatusEnum::CANCELLED->value)
-                                                                <span class="badge badge-danger">Cancelled</span>
-                                                            @elseif ($order->status === \App\Enums\OrderStatusEnum::REFUNDED->value)
-                                                                <span class="badge badge-info">Refunded</span>
-                                                            @elseif ($order->status === \App\Enums\OrderStatusEnum::CASH_ON_DELIVERY->value)
-                                                                <span class="badge badge-success">Cash on delivery</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="align-middle text-center">
-                                                            {{$prevOrder->total_amount . " EGP"}}
-                                                        </td>
-                                                        <td class="align-middle text-center">
-                                                            <a href="{{route('Orders.ShopOrders.show' , $prevOrder->id)}}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Check">
-                                                                Check
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Start Date:</div>
+                    <div class="col-md-8">{{ \Carbon\Carbon::parse($subscription->start_date)->format('M d, Y') }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">End Date:</div>
+                    <div class="col-md-8">{{ \Carbon\Carbon::parse($subscription->end_date)->format('M d, Y') }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Duration:</div>
+                    <div class="col-md-8">{{ \Carbon\Carbon::parse($subscription->start_date)->diffInDays($subscription->end_date) }} days</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Created At:</div>
+                    <div class="col-md-8">{{ $subscription->created_at->format('M d, Y H:i') }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Updated At:</div>
+                    <div class="col-md-8">{{ $subscription->updated_at->format('M d, Y H:i') }}</div>
                 </div>
             </div>
         </div>
     </div>
 
-@endsection
+    <!-- User Information -->
+    <div class="col-md-6 mb-5">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">User Information</h3>
+            </div>
+            <div class="card-body">
+                @if($subscription->user)
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">User ID:</div>
+                    <div class="col-md-8">{{ $subscription->user->id }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Name:</div>
+                    <div class="col-md-8">{{ $subscription->user->name }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Email:</div>
+                    <div class="col-md-8">{{ $subscription->user->email }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Phone:</div>
+                    <div class="col-md-8">{{ $subscription->user->phone ?? 'N/A' }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Role:</div>
+                    <div class="col-md-8">{{ $subscription->user->role->name ?? 'N/A' }}</div>
+                </div>
+                @else
+                <div class="alert alert-warning">User information not available</div>
+                @endif
+            </div>
+        </div>
+    </div>
 
-@section('Js')
-    <!-- Page specific script -->
-    <script>
-        $(function () {
-            $("#PrevOrder").DataTable({
-                "responsive": true, "lengthChange": false, "autoWidth": false,
-                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-        });
-    </script>
-@stop
+    <!-- Membership Information -->
+    <div class="col-md-6 mb-5">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Membership Information</h3>
+            </div>
+            <div class="card-body">
+                @if($subscription->membership)
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Membership ID:</div>
+                    <div class="col-md-8">{{ $subscription->membership->id }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Name:</div>
+                    <div class="col-md-8">{{ $subscription->membership->name }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Description:</div>
+                    <div class="col-md-8">{{ $subscription->membership->general_description ?? 'N/A' }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Original Price:</div>
+                    <div class="col-md-8">{{ $subscription->membership->price }} {{ config('app.currency', 'USD') }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Duration:</div>
+                    <div class="col-md-8">{{ $subscription->membership->period }}</div>
+                </div>
+                @else
+                <div class="alert alert-warning">Membership information not available</div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Branch Information -->
+    <div class="col-md-6 mb-5">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Branch Information</h3>
+            </div>
+            <div class="card-body">
+                @if($subscription->branch)
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Branch ID:</div>
+                        <div class="col-md-8">{{ $subscription->branch->id }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Name:</div>
+                        <div class="col-md-8">{{ $subscription->branch->name }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Type:</div>
+                        <div class="col-md-8">{{ $subscription->branch->type ?? 'Not Specified' }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Address:</div>
+                        <div class="col-md-8">{{ $subscription->branch->location ?? 'N/A' }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-bold">Phone:</div>
+                        <div class="col-md-8">{{ $subscription->branch->phone ?? 'N/A' }}</div>
+                    </div>
+                @else
+                    <div class="alert alert-warning">Branch information not available</div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Information -->
+    <div class="col-md-12 mb-5">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Payment Information</h3>
+            </div>
+            <div class="card-body">
+                @if($subscription->membership->payment)
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Payment ID:</div>
+                            <div class="col-md-8">{{ $subscription->membership->payment->id }}</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Amount:</div>
+                            <div class="col-md-8">{{ $subscription->membership->payment->amount }} {{ config('app.currency', 'USD') }}</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Payment Method:</div>
+                            <div class="col-md-8">{{ $subscription->membership->payment->payment_method ?? 'N/A' }}</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Transaction ID:</div>
+                            <div class="col-md-8">{{ $subscription->membership->payment->transaction_id ?? 'N/A' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Status:</div>
+                            <div class="col-md-8">
+                                <span class="badge badge-{{ $subscription->membership->payment->status === 'completed' ? 'success' : ($subscription->membership->payment->status === 'pending' ? 'warning' : 'danger') }}">
+                                    {{ ucfirst($subscription->membership->payment->status) }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Completed At:</div>
+                            <div class="col-md-8">{{ $subscription->membership->payment->completed_at ? $subscription->membership->payment->completed_at->format('M d, Y H:i') : 'N/A' }}</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Failed At:</div>
+                            <div class="col-md-8">{{ $subscription->membership->payment->failed_at ? $subscription->membership->payment->failed_at->format('M d, Y H:i') : 'N/A' }}</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Created At:</div>
+                            <div class="col-md-8">{{ $subscription->membership->payment->created_at->format('M d, Y H:i') }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                @if($subscription->membership->payment->offer)
+                <hr>
+                <h5 class="mb-3">Applied Offer</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Offer Name:</div>
+                            <div class="col-md-8">{{ $subscription->membership->payment->offer->name }}</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Discount Type:</div>
+                            <div class="col-md-8">{{ ucfirst($subscription->membership->payment->offer->discount_type) }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Discount Value:</div>
+                            <div class="col-md-8">
+                                {{ $subscription->membership->payment->offer->discount_value }}
+                                {{ $subscription->membership->payment->offer->discount_type === 'percentage' ? '%' : config('app.currency', 'EGP') }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-bold">Valid Until:</div>
+                            <div class="col-md-8">{{ $subscription->membership->payment->offer->valid_until ? \Carbon\Carbon::parse($subscription->membership->payment->offer->valid_until)->format('M d, Y') : 'N/A' }}</div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                @else
+                <div class="alert alert-warning">No payment information available for this subscription</div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <a href="{{ route('subscriptions.edit', $subscription->id) }}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Edit Subscription
+                        </a>
+                        <a href="{{ route('subscriptions.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                    <div>
+                        <form action="{{ route('subscriptions.destroy', $subscription->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this subscription?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Delete Subscription
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@endsection

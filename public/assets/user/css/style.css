@@ -438,9 +438,221 @@ ol {
 	transition: all 0.3s;
 }
 
+/* User Profile Dropdown Styles */
+.user-profile-dropdown {
+    position: relative;
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.user-avatar {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 15px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-avatar:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.user-avatar i.fa-user {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.user-name {
+    margin-right: 8px;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.user-avatar i.fa-chevron-down {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.user-avatar[aria-expanded="true"] i.fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 250px;
+    background: #fff;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    padding: 0;
+    margin-top: 10px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-header {
+    padding: 20px;
+    background: linear-gradient(135deg, #0c0806 0%, #f36001 86%);
+    color: white;
+    border-radius: 10px 10px 0 0;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-avatar-small {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+}
+
+.user-avatar-small i {
+    font-size: 18px;
+}
+
+.user-details h6 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+}
+
+.user-details small {
+    opacity: 0.8;
+    font-size: 12px;
+}
+
+.dropdown-divider {
+    margin: 0;
+    border-top: 1px solid #e9ecef;
+}
+
+.dropdown-item {
+    padding: 12px 20px;
+    color: #495057;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+}
+
+.dropdown-item:hover {
+    background: #f8f9fa;
+    color: #ee5e02;
+    text-decoration: none;
+}
+
+.dropdown-item i {
+    margin-right: 10px;
+    width: 16px;
+    text-align: center;
+}
+
+.logout-btn {
+    color: #dc3545 !important;
+}
+
+.logout-btn:hover {
+    background: #f8d7da !important;
+    color: #721c24 !important;
+}
+
+/* Auth Buttons Styles */
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+    margin-right: 15px;
+}
+
+.auth-buttons .btn {
+    padding: 8px 15px;
+    font-size: 14px;
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.auth-buttons .btn-outline-primary {
+    color: #fff;
+    border: none;
+    padding: 0px;
+}
+
+.auth-buttons .btn-outline-primary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.auth-buttons .btn-primary {
+    background: #fff;
+    color: #333;
+    border-color: #fff;
+}
+
+.auth-buttons .btn-primary:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .user-name {
+        display: none;
+    }
+    
+    .auth-buttons {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .auth-buttons .btn {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+    
+    .dropdown-menu {
+        min-width: 200px;
+        right: -50px;
+    }
+}
+
+/* Bootstrap Dropdown Override */
+.dropdown-toggle::after {
+    display: none;
+}
+
 .top-option {
 	text-align: right;
 	padding: 9px 0;
+	display: flex;
+    align-items: center;
 }
 
 .top-option .to-search {
@@ -1434,7 +1646,7 @@ ol {
 
 .ss-text {
 	background: #252525;
-	padding: 72px 30px;
+	padding: 15px 20px;
 	height: 293px;
 	position: relative;
 	z-index: 1;
@@ -1442,13 +1654,20 @@ ol {
 	-o-transition: all 0.3s;
 	transition: all 0.3s;
 }
-
+.
 .ss-text:hover {
 	background: #363636;
 }
 
 .ss-text:hover a {
 	color: #f36100;
+}
+
+.ss-text p {
+	color:white;
+}
+.ss-text p span {
+	color:#f36100;
 }
 
 .ss-text:hover:after {
@@ -1470,6 +1689,10 @@ ol {
 	-webkit-transition: all 0.2s;
 	-o-transition: all 0.2s;
 	transition: all 0.2s;
+}
+.ss-text.reverse:after {
+    left: auto;
+    right: 3px;
 }
 
 .ss-text.second-row:after {
@@ -1498,6 +1721,30 @@ ol {
 	transition: all 0.3s;
 }
 
+.text-secondary-color{
+	color: #f36100 !important;
+}
+
+.bg-primary-gym{
+	background: #151515 !important;
+}
+.border-color-primary-gym{
+	border-color: #3e3e3e !important;
+}
+
+.bg-secondary-gym{
+	background: #f36100 !important;
+}
+.btn-primary-gym{
+	background: #f36100;
+	border: none;
+	padding: 15px 30px;
+	font-size: 16px;
+	font-weight: 600;
+	border-radius: 6px;
+	transition: all 0.3s ease;
+	color:white;
+}
 /*---------------------
   Class Timetable Section
 -----------------------*/

@@ -23,6 +23,11 @@ class SubscriptionService
         return $this->subscriptionRepository->findById($subscriptionId);
     }
 
+    public function getActiveSubscription(int $userId, int $siteSettingId)
+    {
+        return $this->subscriptionRepository->getActiveSubscription($userId,$siteSettingId);
+    }
+
     public function createSubscription(array $data)
     {
         DB::beginTransaction();

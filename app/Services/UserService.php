@@ -84,6 +84,10 @@ class UserService
             $data['password'] = Hash::make($data['password']);
         }
 
+        if (!isset($data['role_id'])) {
+            unset($data['role_id']);
+        }
+
         $updatedUser = $this->userRepository->updateUser($user, $data);
         $updatedUser->gyms()->syncWithoutDetaching([$siteSettingId]);
 

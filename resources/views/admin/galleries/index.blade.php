@@ -16,38 +16,6 @@
 <div class="col-md-12 mb-md-5 mb-xl-10">
     <div class="card">
 
-        {{-- @if($stats)
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <div class="info-box">
-                        <span class="info-box-icon bg-info"><i class="fa fa-images"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Total Galleries</span>
-                            <span class="info-box-number">{{ $stats['total_galleries'] }}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="info-box">
-                        <span class="info-box-icon bg-success"><i class="fa fa-image"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Total Images</span>
-                            <span class="info-box-number">{{ $stats['total_images'] }}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="info-box">
-                        <span class="info-box-icon bg-warning"><i class="fa fa-hdd"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Total Size</span>
-                            <span class="info-box-number">{{ $stats['total_size_mb'] }} MB</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif --}}
-
         <div class="card-header border-0 pt-6">
 
             <div class="card-title">

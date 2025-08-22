@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\ShareSiteSetting::class,
             \App\Http\Middleware\StoreGymContext::class,
+            \App\Http\Middleware\GymResourceAuthorization::class,
         ]);
         $middleware->api(append: [
             \App\Http\Middleware\StoreGymContext::class,
@@ -35,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'store.gym.context' => \App\Http\Middleware\StoreGymContext::class,
             'share.site.setting' => \App\Http\Middleware\ShareSiteSetting::class,
             'require.gym.context' => \App\Http\Middleware\RequireGymContext::class,
+            'gym.resource.auth' => \App\Http\Middleware\GymResourceAuthorization::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

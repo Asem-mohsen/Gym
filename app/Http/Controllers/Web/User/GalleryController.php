@@ -3,11 +3,8 @@
 namespace App\Http\Controllers\Web\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\Branch;
-use App\Models\Gallery;
-use App\Models\SiteSetting;
+use App\Models\{Branch, SiteSetting};
 use App\Services\GalleryService;
-use Illuminate\Http\Request;
 
 class GalleryController extends Controller
 {
@@ -34,7 +31,7 @@ class GalleryController extends Controller
     {
         $gallery = $this->galleryService->getGalleryById($id);
         
-        if (!$gallery || !$gallery->is_active || $gallery->galleryable_id !== $siteSetting->id) {
+        if (!$gallery || !$gallery->is_active || $gallery->site_setting_id !== $siteSetting->id) {
             abort(404, 'Gallery not found');
         }
 
@@ -62,7 +59,7 @@ class GalleryController extends Controller
         $branch = Branch::where('site_setting_id', $siteSetting->id)->findOrFail($branchId);
         $gallery = $this->galleryService->getGalleryById($galleryId);
         
-        if (!$gallery || !$gallery->is_active || $gallery->galleryable_id !== $branch->id) {
+        if (!$gallery || !$gallery->is_active || $gallery->site_setting_id !== $siteSetting->id) {
             abort(404, 'Gallery not found');
         }
 

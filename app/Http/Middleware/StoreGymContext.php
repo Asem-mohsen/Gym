@@ -23,9 +23,9 @@ class StoreGymContext
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->route('siteSetting')) {
-            $siteSetting = $request->route('siteSetting');
-            
+        $siteSetting = $request->route('siteSetting');
+        
+        if ($siteSetting && is_object($siteSetting)) {
             // Store gym context using the service
             $this->gymContextService->storeGymContext(
                 $siteSetting->id,

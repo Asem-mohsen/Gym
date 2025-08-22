@@ -25,15 +25,12 @@
                     <h2>{{$membership->name . ' Plan'}}</h2>
                     <div class="price">{{ $membership->price . ' EGP' }}</div>
                     <div>
-                        <p>{{$membership->description}}</p>
+                        <p>{{$membership->subtitle}}</p>
                     </div>
                     <ul class="features">
-                        <li><i class="fas fa-check-circle"></i>{{$membership->period}}</li>
-                        <li><i class="fas fa-check-circle"></i> Unlimited Websites</li>
-                        <li><i class="fas fa-check-circle"></i> 1 User</li>
-                        <li><i class="fas fa-check-circle"></i> 100MB Space/website</li>
-                        <li><i class="fas fa-check-circle"></i> Continuous deployment</li>
-                        <li><i class="fas fa-times-circle"></i> No priority support</li>
+                        @foreach($membership->features as $feature)
+                            <li><i class="fa fa-check-circle"></i>{{$feature->getTranslation('name', app()->getLocale())}}</li>
+                        @endforeach
                     </ul>
                     <a href="{{ route('membership.edit',$membership->id) }}" class="edit-plan text-white font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit">
                         Edit

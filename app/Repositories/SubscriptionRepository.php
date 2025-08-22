@@ -53,8 +53,18 @@ class SubscriptionRepository
             'counts' => $counts,
         ];
     }
-    
 
+    public function getActiveSubscription(int $userId, int $siteSettingId)
+    {
+        return Subscription::where('user_id', $userId)
+            ->whereHas('branch', function ($query) use ($siteSettingId) {
+                $query->where('site_setting_id', $siteSettingId);
+            })
+            ->where('status', 'active')
+            ->where('end_date', '>=', now()->toDateString())
+            ->first();
+    }
+    
     public function createSubscription(array $data)
     {
         return Subscription::create($data);
@@ -73,6 +83,6 @@ class SubscriptionRepository
 
     public function findById(int $id): ?Subscription
     {
-        return Subscription::with(['user' , 'membership', 'bookings' , 'payment'])->findOrFail($id);
+        return Subscription::with(['user' , 'membership.payment.offer', 'bookings' , 'branch'])->findOrFail($id);
     }
 }

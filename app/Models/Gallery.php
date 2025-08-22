@@ -37,6 +37,11 @@ class Gallery extends Model implements HasMedia
         return $this->morphTo();
     }
 
+    public function siteSetting(): BelongsTo
+    {
+        return $this->belongsTo(SiteSetting::class, 'site_setting_id');
+    }
+
     /**
      * Scope to get only active galleries
      */
@@ -51,6 +56,14 @@ class Gallery extends Model implements HasMedia
     public function scopeOrdered($query)
     {
         return $query->orderBy('sort_order', 'asc');
+    }
+
+    /**
+     * Scope to filter by site setting
+     */
+    public function scopeForSiteSetting($query, $siteSettingId)
+    {
+        return $query->where('site_setting_id', $siteSettingId);
     }
 
     /**

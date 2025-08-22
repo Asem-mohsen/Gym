@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Web;
+namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\{ AddUserRequest , UpdateUserRequest};
@@ -87,4 +87,5 @@ class UserController extends Controller
             return redirect()->back()->with('error', 'Error happened while deleting user, please try again in a few minutes.');
         }
     }
+   
 }

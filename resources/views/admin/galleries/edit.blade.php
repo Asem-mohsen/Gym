@@ -30,8 +30,8 @@
                         <label for="is_active" class="required form-label">Status</label>
                         @php
                             $options = [
-                                ['value' => 'active',  'label' => 'Active'],
-                                ['value' => 'inactive', 'label' => 'Inactive'],
+                                ['value' => '1',  'label' => 'Active'],
+                                ['value' => '0', 'label' => 'Inactive'],
                             ];
                         @endphp
                         @include('_partials.select',[
