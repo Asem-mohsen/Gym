@@ -2,9 +2,12 @@
 
 @section('title', $membership->name)
 
+@section('css')
+    @include('user.memberships.assets.style')
+@endsection
+
 @section('content')
 
-    <!-- Breadcrumb Section Begin -->
     <section class="breadcrumb-section set-bg" data-setbg="{{ asset('assets/user/img/breadcrumb-bg.jpg') }}">
         <div class="container">
             <div class="row">
@@ -26,56 +29,169 @@
     <!-- Membership Details Section Begin -->
     <section class="pricing-section spad">
         <div class="container">
-            <div class="row justify-content-center">
+            <div class="row">
+                <!-- Left Column - Membership Details -->
                 <div class="col-lg-8">
-                    <div class="ps-item text-center">
-                        <h3>{{ $membership->name }}</h3>
-                        <div class="pi-price">
-                            <h2>$ {{ $membership->price }}</h2>
-                            <span>{{ $membership->duration }}</span>
+                    <div class="membership-details-card">
+                        <!-- Header with Price -->
+                        <div class="membership-header text-center mb-4">
+                            <h1 class="membership-title mb-3">{{ $membership->name }} Membership</h1>
+                            <div class="price-section">
+                                <div class="price-amount">EGP {{ number_format($membership->price, 2) }}</div>
+                                <div class="price-period">{{ $membership->period }}</div>
+                            </div>
                         </div>
-                        <p class="mb-4">{{ $membership->description }}</p>
-                        
-                        @if($membership->offers->count() > 0)
-                            <div class="offers-section mb-4">
-                                <h5 class="text-success">Special Offers Available!</h5>
-                                @foreach($membership->offers as $offer)
-                                    <div class="offer-item">
-                                        <span class="badge bg-warning">{{ $offer->title }}</span>
-                                        <small class="text-muted d-block">{{ $offer->description }}</small>
-                                        @if($offer->remaining_days)
-                                            <small class="text-danger">Expires in {{ $offer->remaining_days }} days</small>
-                                        @endif
+
+                        @if($userSubscription)
+                            <div class="alert subscription-status-alert mb-4">
+                                <div class="d-flex align-items-center text-center justify-content-center">
+                                    <div>
+                                        <h5 class="mb-1 text-white">You're Already Subscribed!</h5>
+                                        <p class="mb-2 text-white">Your subscription is active and will expire on <strong>{{ \Carbon\Carbon::parse($userSubscription->end_date)->format('F j, Y') }}</strong></p>
+                                        <div class="subscription-details">
+                                            <small class=" text-white">
+                                                <strong>Branch:</strong> {{ $userSubscription->branch->name ?? 'N/A' }} |
+                                                <strong>Start Date:</strong> {{ \Carbon\Carbon::parse($userSubscription->start_date)->format('M j, Y') }} |
+                                                <strong>Days Remaining:</strong> {{ \Carbon\Carbon::parse($userSubscription->end_date)->diffInDays(now()) }} days
+                                            </small>
+                                        </div>
                                     </div>
-                                @endforeach
+                                </div>
                             </div>
                         @endif
 
-                        <ul class="features-list mb-4">
-                            @foreach ($membership->features as $feature)
-                                <li><i class="fa fa-check text-success"></i> {{ $feature->name }}</li>
-                            @endforeach
-                        </ul>
-                        
-                        <div class="text-center">
+                        @if($membership->general_description)
+                            <!-- Membership Description -->
+                            <div class="membership-description mb-4">
+                                <h4 class="section-title mb-3">
+                                    About This Membership
+                                </h4>
+                                <div class="description-content">
+                                    {{$membership->general_description}}
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Special Offers -->
+                        @if($membership->offers->count() > 0)
+                            <div class="offers-section mb-4">
+                                <h4 class="section-title mb-3">
+                                    <i class="fa fa-gift text-success me-2"></i>
+                                    Special Offers Available!
+                                </h4>
+                                <div class="offers-grid">
+                                    @foreach($membership->offers as $offer)
+                                        <div class="offer-card">
+                                            <div class="offer-badge">{{ $offer->title }}</div>
+                                            <p class="offer-description">{{ $offer->description }}</p>
+                                            @if($offer->remaining_days)
+                                                <div class="offer-expiry">
+                                                    <i class="fa fa-clock text-danger me-1"></i>
+                                                    Expires in {{ $offer->remaining_days }} days
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Action Buttons -->
+                        <div class="action-section text-center">
                             @auth
-                                <button type="button" class="btn btn-primary btn-lg enroll-btn" 
-                                        data-membership-id="{{ $membership->id }}"
-                                        data-membership-name="{{ $membership->name }}"
-                                        data-membership-price="${{ $membership->price }}"
-                                        data-offer-id="{{ $membership->offers->first()?->id ?? "" }}">
-                                    Enroll Now
-                                </button>
+                                @if(!$userSubscription)
+                                    <form id="payment-form" action="{{ route('user.payments.paymob.initialize', ['siteSetting' => $siteSetting->slug]) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <input type="hidden" name="membership_id" value="{{ $membership->id }}">
+                                        <input type="hidden" name="offer_id" value="{{ $membership->offers->first()?->id ?? "" }}">
+                                        <input type="hidden" name="site_setting_id" value="{{ $siteSetting->id }}">
+                                        <button type="submit" class="btn btn-primary btn-lg enroll-btn" id="enroll-btn">
+                                            <span id="button-text">
+                                                <i class="fa fa-credit-card me-2"></i>
+                                                Enroll Now
+                                            </span>
+                                            <div id="button-spinner" class="spinner-border spinner-border-sm d-none" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </button>
+                                    </form>
+                                @else
+                                    <div class="already-subscribed-message">
+                                        <button class="btn btn-success btn-lg" disabled>
+                                            <i class="fa fa-check-circle me-2"></i>
+                                            Already Subscribed
+                                        </button>
+                                        <p class="text-muted mt-2">You can renew your subscription when it expires</p>
+                                    </div>
+                                @endif
                             @else
-                                <div class="d-grid gap-2">
+                                <div class="guest-message">
                                     <a href="{{ route('auth.register.index') }}" class="btn btn-primary btn-lg">
-                                        Create Account to Enroll
+                                        <i class="fa fa-user-plus me-2"></i>
+                                        Join Us to Enroll
                                     </a>
-                                    <a href="{{ route('auth.login.index') }}" class="btn btn-outline-primary">
-                                        Already have an account? Login
-                                    </a>
+                                    <p class="text-muted mt-2">Create an account to access this membership</p>
                                 </div>
                             @endauth
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Features -->
+                <div class="col-lg-4">
+                    <div class="features-sidebar">
+                        <div class="features-card">
+                            <div class="features-header">
+                                <h3 class="features-title">
+                                    <i class="fa fa-list-check text-primary me-2"></i>
+                                    Membership Features
+                                </h3>
+                                <p class="features-subtitle">Everything included in your membership</p>
+                            </div>
+                            
+                            <div class="features-list">
+                                @forelse ($membership->features as $feature)
+                                    <div class="feature-item">
+                                        <div class="feature-icon">
+                                            <i class="fa fa-check-circle text-success"></i>
+                                        </div>
+                                        <div class="feature-content">
+                                            <h6 class="feature-name">{{ $feature->name }}</h6>
+                                            @if($feature->description)
+                                                <p class="feature-description">{{ $feature->description }}</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="no-features">
+                                        <i class="fa fa-info-circle text-muted"></i>
+                                        <p class="text-white">No specific features listed for this membership</p>
+                                    </div>
+                                @endforelse
+                            </div>
+
+                            <!-- Membership Summary -->
+                            <div class="membership-summary">
+                                <h5 class="summary-title">Membership Summary</h5>
+                                <div class="summary-item">
+                                    <span class="summary-label">Duration:</span>
+                                    <span class="summary-value">{{ $membership->period }}</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Billing:</span>
+                                    <span class="summary-value">{{ ucfirst($membership->billing_interval) }}</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Features:</span>
+                                    <span class="summary-value">{{ $membership->features->count() }} included</span>
+                                </div>
+                                @if($membership->offers->count() > 0)
+                                    <div class="summary-item">
+                                        <span class="summary-label">Offers:</span>
+                                        <span class="summary-value text-success">{{ $membership->offers->count() }} available</span>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -90,7 +206,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
-                        <div class="section-title">
+                        <div class="section-title border-0">
                             <span>Our Expert Trainers</span>
                             <h2>TRAIN WITH EXPERTS</h2>
                         </div>
@@ -108,172 +224,9 @@
     @endif
     <!-- Trainers Section End -->
 
-    <!-- Payment Modal -->
-    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="paymentModalLabel">Complete Your Enrollment</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="enrollment-summary mb-4">
-                        <h6>Enrollment Summary</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p><strong>Membership:</strong> <span id="modal-membership-name"></span></p>
-                                <p><strong>Price:</strong> $<span id="modal-membership-price"></span></p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>Duration:</strong> <span id="modal-membership-duration"></span></p>
-                                @if($membership->offers->count() > 0)
-                                    <p><strong>Offer Applied:</strong> <span class="text-success">{{ $membership->offers->first()->title }}</span></p>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div id="stripe-payment-form">
-                        <div id="card-element" class="form-control mb-3"></div>
-                        <div id="card-errors" class="text-danger mb-3" role="alert"></div>
-                        
-                        <button type="button" class="btn btn-primary w-100 border-0" id="submit-payment">
-                            <span id="payment-button-text">Pay Now</span>
-                            <div id="payment-spinner" class="spinner-border spinner-border-sm d-none" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <x-user.branch-selection-helper />
 @endsection
 
 @section('Js')
-<script src="https://js.stripe.com/v3/"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Stripe
-        const stripe = Stripe('{{ config("services.stripe.public") }}');
-        const elements = stripe.elements();
-        
-        // Create card element
-        const cardElement = elements.create('card', {
-            style: {
-                base: {
-                    fontSize: '16px',
-                    color: '#424770',
-                    '::placeholder': {
-                        color: '#aab7c4',
-                    },
-                },
-                invalid: {
-                    color: '#9e2146',
-                },
-            },
-        });
-        
-        cardElement.mount('#card-element');
-        
-        // Handle enrollment button click
-        document.querySelectorAll('.enroll-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                console.log('Enrollment button clicked');
-                const membershipId = this.dataset.membershipId;
-                const membershipName = this.dataset.membershipName;
-                const membershipPrice = this.dataset.membershipPrice;
-                const offerId = this.dataset.offerId;
-                
-                console.log('Membership data:', { membershipId, membershipName, membershipPrice, offerId });
-                
-                // Update modal content
-                document.getElementById('modal-membership-name').textContent = membershipName;
-                document.getElementById('modal-membership-price').textContent = membershipPrice;
-                document.getElementById('modal-membership-duration').textContent = '{{ $membership->duration }}';
-                
-                // Show modal
-                const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
-                modal.show();
-            });
-        });
-        
-        // Handle payment submission
-        document.getElementById('submit-payment').addEventListener('click', function() {
-            console.log('Payment submission started');
-            const button = this;
-            const buttonText = document.getElementById('payment-button-text');
-            const spinner = document.getElementById('payment-spinner');
-            
-            // Show loading state
-            button.disabled = true;
-            buttonText.textContent = 'Processing...';
-            spinner.classList.remove('d-none');
-            
-            const paymentData = {
-                membership_id: '{{ $membership->id }}',
-                offer_id: '{{ $membership->offers->first()?->id ?? "" }}',
-                site_setting_id: '{{ $siteSetting->id }}'
-            };
-            
-            console.log('Payment data:', paymentData);
-            console.log('Payment URL:', '{{ route("user.payments.create-intent", ["siteSetting" => $siteSetting->slug]) }}');
-            
-            // Create payment intent
-            fetch('{{ route("user.payments.create-intent", ["siteSetting" => $siteSetting->slug]) }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(paymentData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Payment intent response:', data);
-                if (data.success) {
-                    // Confirm payment with Stripe
-                    return stripe.confirmCardPayment(data.data.client_secret, {
-                        payment_method: {
-                            card: cardElement,
-                            billing_details: {
-                                name: '{{ auth()->user()->name ?? "" }}',
-                                email: '{{ auth()->user()->email ?? "" }}'
-                            }
-                        }
-                    });
-                } else {
-                    throw new Error(data.message || 'Failed to create payment intent');
-                }
-            })
-            .then(result => {
-                console.log('Stripe payment result:', result);
-                if (result.error) {
-                    // Show error
-                    console.error('Payment error:', result.error);
-                    document.getElementById('card-errors').textContent = result.error.message;
-                    button.disabled = false;
-                    buttonText.textContent = 'Pay Now';
-                    spinner.classList.add('d-none');
-                } else {
-                    // Payment successful
-                    console.log('Payment successful:', result.paymentIntent);
-                    if (result.paymentIntent.status === 'succeeded') {
-                        // Redirect to success page or show success message
-                        window.location.href = '{{ route("user.memberships.success", ["siteSetting" => $siteSetting->slug]) }}?payment_intent=' + result.paymentIntent.id;
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('card-errors').textContent = error.message;
-                button.disabled = false;
-                buttonText.textContent = 'Pay Now';
-                spinner.classList.add('d-none');
-            });
-        });
-    });
-</script>
+    @include('user.memberships.assets.scripts')
 @endsection

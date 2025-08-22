@@ -24,6 +24,7 @@ class GallerySeeder extends Seeder
                 'description' => 'Showcasing our state-of-the-art equipment and facilities',
                 'galleryable_type' => SiteSetting::class,
                 'galleryable_id' => $siteSetting->id,
+                'site_setting_id' => $siteSetting->id,
                 'is_active' => true,
                 'sort_order' => 1,
             ]);
@@ -34,6 +35,7 @@ class GallerySeeder extends Seeder
                 'description' => 'Highlights from our gym events, competitions, and special activities',
                 'galleryable_type' => SiteSetting::class,
                 'galleryable_id' => $siteSetting->id,
+                'site_setting_id' => $siteSetting->id,
                 'is_active' => true,
                 'sort_order' => 2,
             ]);
@@ -44,6 +46,7 @@ class GallerySeeder extends Seeder
                 'description' => 'Inspiring transformations and success stories from our members',
                 'galleryable_type' => SiteSetting::class,
                 'galleryable_id' => $siteSetting->id,
+                'site_setting_id' => $siteSetting->id,
                 'is_active' => true,
                 'sort_order' => 3,
             ]);
@@ -58,6 +61,7 @@ class GallerySeeder extends Seeder
                     'description' => 'Exclusive photos from ' . $branch->name . ' branch',
                     'galleryable_type' => Branch::class,
                     'galleryable_id' => $branch->id,
+                    'site_setting_id' => $branch->site_setting_id,
                     'is_active' => true,
                     'sort_order' => 1,
                 ]);
@@ -68,6 +72,7 @@ class GallerySeeder extends Seeder
                     'description' => 'Equipment and facilities available at ' . $branch->name . ' branch',
                     'galleryable_type' => Branch::class,
                     'galleryable_id' => $branch->id,
+                    'site_setting_id' => $branch->site_setting_id,
                     'is_active' => true,
                     'sort_order' => 2,
                 ]);

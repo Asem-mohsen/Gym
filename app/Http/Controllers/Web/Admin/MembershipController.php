@@ -20,8 +20,9 @@ class MembershipController extends Controller
 
     public function index()
     {
-        $memberships = $this->membershipService->getMemberships(siteSettingId: $this->siteSettingId ,withCount: ['bookings']);
-        $maxBookings = $memberships->max('bookings_count');
+        $memberships = $this->membershipService->getMemberships(siteSettingId: $this->siteSettingId ,withCount: ['payment']);
+        $maxBookings = $memberships->max('payment_count');
+
         return view('admin.memberships.index', get_defined_vars());
     }
 
@@ -51,6 +52,11 @@ class MembershipController extends Controller
 
     public function show(Membership $membership)
     {
+        // Security check: Ensure the membership belongs to the current gym
+        if ($membership->site_setting_id !== $this->siteSettingId) {
+            abort(404, 'Membership not found in this gym.');
+        }
+
         $membership = $this->membershipService->showMembership($membership);
 
         return view('admin.memberships.show', get_defined_vars());
@@ -58,6 +64,11 @@ class MembershipController extends Controller
 
     public function edit(Membership $membership)
     {
+        // Security check: Ensure the membership belongs to the current gym
+        if ($membership->site_setting_id !== $this->siteSettingId) {
+            abort(404, 'Membership not found in this gym.');
+        }
+
         $membership = $this->membershipService->showMembership($membership);
         $features = $this->featureService->selectFeatures();
         return view('admin.memberships.edit', get_defined_vars());
@@ -66,6 +77,11 @@ class MembershipController extends Controller
     public function update(UpdateMembershipRequest $request , Membership $membership)
     {
         try {
+            // Security check: Ensure the membership belongs to the current gym
+            if ($membership->site_setting_id !== $this->siteSettingId) {
+                abort(404, 'Membership not found in this gym.');
+            }
+
             $data = $request->validated();
             $data['site_setting_id'] = $this->siteSettingId;
 
@@ -86,6 +102,11 @@ class MembershipController extends Controller
     public function destroy(Membership $membership)
     {
         try {
+            // Security check: Ensure the membership belongs to the current gym
+            if ($membership->site_setting_id !== $this->siteSettingId) {
+                abort(404, 'Membership not found in this gym.');
+            }
+
             $this->membershipService->deleteMembership($membership);
             return redirect()->route('membership.index')->with('success', 'Membership deleted successfully.');
         } catch (Exception $e) {

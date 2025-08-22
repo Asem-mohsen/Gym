@@ -15,7 +15,7 @@ class PaymentsController extends Controller
     public function index()
     {
         $payments = $this->paymentService->getPayments();
-        // dd($payments);
+
         return view('admin.payments.index' , get_defined_vars());
     }
 }

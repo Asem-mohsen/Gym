@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Web\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\BlogPost;
-use App\Models\SiteSetting;
+use App\Models\{BlogPost, SiteSetting, Comment};
 use App\Services\{BlogService, CommentService, BlogPostShareService};
 use Illuminate\Http\Request;
-use App\Models\Comment;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Comments\StoreCommentRequest;
 use Exception;
@@ -28,13 +26,14 @@ class BlogController extends Controller
         $this->shareService = $shareService;
     }
 
-    public function index(SiteSetting $siteSetting)
+    public function index(Request $request, SiteSetting $siteSetting)
     {
-        $blogPosts = $this->blogService->getBlogPosts($siteSetting->id, true);
+        $blogPosts = $this->blogService->getBlogPosts(siteSettingId: $siteSetting->id, isPublished: true, perPage: 5, orderBy: 'created_at', orderByDirection: 'desc');
+        $futurePosts =  $this->blogService->getBlogPosts(siteSettingId: $siteSetting->id, isPublished: true, take: 5, orderBy: 'created_at', orderByDirection: 'desc');
         $categories = $this->blogService->getCategories(withCount: ['blogPosts']);
         $tags = $this->blogService->getTags(withCount: ['blogPosts']);
         
-        return view('user.blog' , compact('blogPosts' , 'categories' , 'tags'));
+        return view('user.blog' , compact('blogPosts' , 'categories' , 'tags', 'futurePosts'));
     }
 
     public function show(SiteSetting $siteSetting, BlogPost $blogPost)
@@ -65,11 +64,7 @@ class BlogController extends Controller
         try {
             $userId = Auth::id();
             
-            $comment = $this->commentService->createComment(
-                ['content' => $validated['content']],
-                $blogPost->id,
-                $userId
-            );
+             $this->commentService->createComment(['content' => $validated['content']],$blogPost->id,$userId);
 
             return redirect()->back()->with('success', 'Comment posted successfully!');
         } catch (Exception $e) {

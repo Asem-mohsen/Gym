@@ -6,6 +6,7 @@ use App\Repositories\ClassRepository;
 use App\Repositories\ClassScheduleRepository;
 use App\Repositories\ClassPricingRepository;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class ClassService
 {
@@ -26,6 +27,56 @@ class ClassService
     public function getClasses(int $siteSettingId)
     {
         return $this->classRepository->getClasses($siteSettingId);
+    }
+
+    public function getClassesWithSchedules(int $siteSettingId)
+    {
+        return $this->classRepository->getClassesWithSchedules($siteSettingId);
+    }
+
+    public function getTimetableData(int $siteSettingId)
+    {
+        $classes = $this->classRepository->getClassesWithSchedules($siteSettingId);
+        
+        $timetableData = [];
+        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        
+        $timeSlots = [];
+        foreach ($classes as $class) {
+            foreach ($class->schedules as $schedule) {
+                $timeSlot = $this->createCustomTimeSlotFromTime($schedule->start_time, $schedule->end_time);
+                $timeSlots[$timeSlot] = $timeSlot;
+            }
+        }
+        
+        foreach ($timeSlots as $timeSlot) {
+            $timetableData[$timeSlot] = [];
+            foreach ($days as $day) {
+                $timetableData[$timeSlot][$day] = null;
+            }
+        }
+        
+        foreach ($classes as $class) {
+            foreach ($class->schedules as $schedule) {
+                $timeSlot = $this->createCustomTimeSlotFromTime($schedule->start_time, $schedule->end_time);
+                
+                $timetableData[$timeSlot][$schedule->day] = $class;
+            }
+        }
+        
+        return $timetableData;
+    }
+
+    public function getClassTypes(int $siteSettingId)
+    {
+        return $this->classRepository->getClassTypes($siteSettingId);
+    }
+
+    private function createCustomTimeSlotFromTime($startTime, $endTime)
+    {
+        $startFormatted = date('g:ia', strtotime($startTime));
+        $endFormatted = date('g:ia', strtotime($endTime));
+        return "{$startFormatted} - {$endFormatted}";
     }
 
     public function createClass(array $data , int $siteSettingId)
@@ -91,7 +142,6 @@ class ClassService
 
     public function deleteClass($class)
     {
-        // Cascade deletes handled by DB
         return $this->classRepository->delete($class);
     }
 } 

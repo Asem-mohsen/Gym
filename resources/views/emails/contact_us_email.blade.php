@@ -1,4 +1,4 @@
-@extends('layout.email')
+@extends('emails.layout.email')
 
 @section('title','Contact Us')
 

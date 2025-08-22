@@ -103,16 +103,6 @@ class GalleryController extends Controller
         }
 
         // Check if gallery belongs to user's site setting
-        if ($gallery->galleryable_type === SiteSetting::class) {
-            return $user->site_setting_id === $gallery->galleryable_id;
-        }
-
-        // Check if gallery belongs to a branch in user's site setting
-        if ($gallery->galleryable_type === Branch::class) {
-            $branch = Branch::find($gallery->galleryable_id);
-            return $branch && $user->site_setting_id === $branch->site_setting_id;
-        }
-
-        return false;
+        return $user->site_setting_id === $gallery->site_setting_id;
     }
 } 

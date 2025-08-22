@@ -25,6 +25,14 @@ class GalleryService
     }
 
     /**
+     * Get all galleries for a site setting
+     */
+    public function getGalleriesForSiteSetting(int $siteSettingId, int $limit = 10): Collection
+    {
+        return $this->galleryRepository->getGalleriesForSiteSetting($siteSettingId, $limit);
+    }
+
+    /**
      * Get a specific gallery by ID
      */
     public function getGalleryById(int $id, array $with = []): ?Gallery
@@ -33,12 +41,12 @@ class GalleryService
     }
 
     /**
-     * Create a new gallery with media
+     * Create a new gallery directly with site_setting_id
      */
-    public function createGallery(array $data, Model $model, array $mediaFiles = []): Gallery
+    public function createGalleryDirectly(array $data, array $mediaFiles = []): Gallery
     {
-        return DB::transaction(function () use ($data, $model, $mediaFiles) {
-            $gallery = $this->galleryRepository->createGallery($data, $model);
+        return DB::transaction(function () use ($data, $mediaFiles) {
+            $gallery = $this->galleryRepository->createGalleryDirectly($data);
 
             // Add media files if provided
             foreach ($mediaFiles as $mediaData) {
@@ -88,59 +96,7 @@ class GalleryService
     {
         return $this->galleryRepository->removeMediaFromGallery($gallery, $mediaId);
     }
-
-    /**
-     * Update media properties
-     */
-    public function updateMediaProperties(Gallery $gallery, int $mediaId, array $properties): bool
-    {
-        return $this->galleryRepository->updateMediaProperties($gallery, $mediaId, $properties);
-    }
-
-    /**
-     * Reorder galleries
-     */
-    public function reorderGalleries(array $galleryIds): void
-    {
-        $this->galleryRepository->reorderGalleries($galleryIds);
-    }
-
-    /**
-     * Get galleries with pagination
-     */
-    public function getGalleriesPaginated(Model $model, int $perPage = 10)
-    {
-        return $this->galleryRepository->getGalleriesPaginated($model, $perPage);
-    }
-
-    /**
-     * Search galleries
-     */
-    public function searchGalleries(Model $model, string $search): Collection
-    {
-        return $this->galleryRepository->searchGalleries($model, $search);
-    }
-
-    /**
-     * Bulk upload media to gallery
-     */
-    public function bulkUploadMedia(Gallery $gallery, array $files, array $titles = []): void
-    {
-        DB::transaction(function () use ($gallery, $files, $titles) {
-            foreach ($files as $index => $file) {
-                if ($file instanceof UploadedFile) {
-                    $customProperties = [
-                        'title' => $titles[$index] ?? $file->getClientOriginalName(),
-                        'alt_text' => $titles[$index] ?? $file->getClientOriginalName(),
-                        'caption' => '',
-                    ];
-
-                    $this->galleryRepository->addMediaToGallery($gallery, $file, $customProperties);
-                }
-            }
-        });
-    }
-
+    
     /**
      * Get gallery statistics
      */

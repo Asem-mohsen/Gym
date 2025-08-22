@@ -10,6 +10,22 @@ class ServiceRepository
         return Service::where('site_setting_id', $siteSettingId)->get();
     }
 
+    public function getAvailableServices(int $siteSettingId)
+    {
+        return Service::where('site_setting_id', $siteSettingId)
+                     ->available()
+                     ->ordered()
+                     ->get();
+    }
+
+    public function getServicesWithBranches(int $siteSettingId)
+    {
+        return Service::where('site_setting_id', $siteSettingId)
+                     ->with('branches')
+                     ->ordered()
+                     ->get();
+    }
+
     public function createService(array $data)
     {
         return Service::create($data);
@@ -28,7 +44,7 @@ class ServiceRepository
 
     public function findById(int $id): ?Service
     {
-        return Service::find($id);
+        return Service::with('branches', 'galleries')->find($id);
     }
 
     public function selectServices(int $siteSettingId)

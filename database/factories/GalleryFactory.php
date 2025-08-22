@@ -28,6 +28,7 @@ class GalleryFactory extends Factory
             'galleryable_id' => $galleryableType === SiteSetting::class 
                 ? SiteSetting::factory() 
                 : Branch::factory(),
+            'site_setting_id' => SiteSetting::factory(),
             'is_active' => $this->faker->boolean(80), // 80% chance of being active
             'sort_order' => $this->faker->numberBetween(0, 100),
         ];
@@ -61,6 +62,7 @@ class GalleryFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'galleryable_type' => SiteSetting::class,
             'galleryable_id' => $siteSetting->id,
+            'site_setting_id' => $siteSetting->id,
         ]);
     }
 
@@ -72,6 +74,7 @@ class GalleryFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'galleryable_type' => Branch::class,
             'galleryable_id' => $branch->id,
+            'site_setting_id' => $branch->site_setting_id,
         ]);
     }
 } 

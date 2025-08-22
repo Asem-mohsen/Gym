@@ -58,7 +58,7 @@
                         <li><a href="{{route('user.about-us' , ['siteSetting' => $siteSetting->slug])}}">About</a></li>
                         <li><a href="{{route('user.blog' , ['siteSetting' => $siteSetting->slug])}}">Blog</a></li>
                         <li><a href="{{route('user.classes.index' , ['siteSetting' => $siteSetting->slug])}}">Classes</a></li>
-                        <li><a href="{{route('user.contact' , ['siteSetting' => $siteSetting->slug])}}">Contact</a></li>
+                        <li><a href="{{route('user.memberships.index' , ['siteSetting' => $siteSetting->slug])}}">Memberships</a></li>
                     </ul>
                 </div>
             </div>
@@ -66,22 +66,26 @@
                 <div class="fs-widget">
                     <h4>Support</h4>
                     <ul>
-                        <li><a href="{{route('auth.login.index', ['siteSetting' => $siteSetting->slug])}}">Login</a></li>
-                        <li><a href="{{route('auth.register.index', ['siteSetting' => $siteSetting->slug])}}">Register</a></li>
+                        @if(Auth::check())
+                            <li><a href="{{route('user.invitations.index' , ['siteSetting' => $siteSetting->slug])}}">Invitations</a></li>
+                        @else
+                            <li><a href="{{route('auth.login.index')}}">Login</a></li>
+                            <li><a href="{{route('auth.register.index')}}">Register</a></li>
+                        @endif
+                        <li><a href="{{route('user.services' , ['siteSetting' => $siteSetting->slug])}}">Services</a></li>
                         <li><a href="{{route('user.contact' , ['siteSetting' => $siteSetting->slug])}}">Subscribe</a></li>
-                        <li><a href="{{route('user.contact' , ['siteSetting' => $siteSetting->slug])}}">Contact</a></li>
                     </ul>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6">
                 <div class="fs-widget">
                     <h4>Tips & Guides</h4>
-                    @foreach ($blogPosts->take(2) as $blogPost)
+                    @foreach ($blogPosts as $blogPost)
                         <div class="fw-recent">
                             <h6><a href="{{route('user.blog.show', ['blogPost' => $blogPost->id, 'siteSetting' => $siteSetting->slug])}}">{{$blogPost->title}}</a></h6>
                             <ul>
                                 <li>{{$blogPost->created_at->diffForHumans()}}</li>
-                                <li>{{$blogPost->comments_count}} Comment</li>
+                                <li>{{$blogPost->comments->count()}} Comment</li>
                             </ul>
                         </div>
                     @endforeach
@@ -119,8 +123,11 @@
 <script src="{{ asset('assets/user/js/jquery.barfiller.js') }}"></script>
 <script src="{{ asset('assets/user/js/jquery.slicknav.js') }}"></script>
 <script src="{{ asset('assets/user/js/owl.carousel.min.js') }}"></script>
+<script src="{{ asset('assets/admin/js/toastr.min.js') }}"></script>
 <script src="{{ asset('assets/user/js/main.js') }}"></script>
 
 @include('components.gym-context-handler')
+
+@include('components.toastr')
 
 @yield('Js')

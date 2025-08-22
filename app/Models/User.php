@@ -73,6 +73,21 @@ class User extends Authenticatable implements HasMedia
         return $this->hasOne(TrainerInformation::class);
     }
 
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function sentInvitations(): HasMany
+    {
+        return $this->hasMany(Invitation::class, 'inviter_id');
+    }
+
+    public function usedInvitations(): HasMany
+    {
+        return $this->hasMany(Invitation::class, 'used_by_id');
+    }
+
     public function getSiteSettingIdAttribute()
     {
         return $this->site?->id;

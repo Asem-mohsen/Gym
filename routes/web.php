@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Web\User\HomeController;
-use App\Http\Controllers\Web\Admin\BookingController;
 use App\Http\Controllers\Web\User\ContactController;
 use App\Http\Controllers\Web\User\MembershipController;
 use App\Http\Controllers\Web\User\ServicesController;
@@ -13,6 +12,7 @@ use App\Http\Controllers\Web\User\ClassesController;
 use App\Http\Controllers\Web\User\GalleryController;
 use App\Http\Controllers\Web\User\TeamController;
 use App\Http\Controllers\Web\User\GymSelectionController;
+use App\Http\Controllers\Web\User\InvitationController;
 use App\Http\Controllers\Web\User\NotFoundController;
 
 // Public Routes
@@ -25,8 +25,12 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.c
     Route::get('/class-details', [ClassesController::class, 'classDetails'])->name('classes');
     Route::get('/classes', [ClassesController::class, 'index'])->name('classes.index');
     Route::get('/classes/{class}', [ClassesController::class, 'show'])->name('classes.show');
+    Route::post('/classes/{class}/book', [ClassesController::class, 'book'])->name('classes.book')->middleware(['auth:web']);
 
     Route::get('/services', [ServicesController::class, 'index'])->name('services');
+    Route::get('/services/{service}', [ServicesController::class, 'show'])->name('services.show');
+    Route::post('/services/{service}/book', [ServicesController::class, 'book'])->name('services.book')->middleware(['auth:web']);
+
     Route::get('/trainers', [TeamController::class, 'index'])->name('team');
 
     Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery');
@@ -51,14 +55,29 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.c
     Route::prefix('memberships')->group(function () {
         Route::get('/', [MembershipController::class, 'index'])->name('memberships.index');
         Route::get('/{membership}/membership', [MembershipController::class, 'show'])->name('memberships.show');
-        Route::get('/success', [MembershipController::class, 'success'])->name('memberships.success');
     });
 
     Route::prefix('payments')->middleware(['auth:web'])->group(function () {
         Route::post('/create-intent', [App\Http\Controllers\Web\User\PaymentController::class, 'createPaymentIntent'])->name('payments.create-intent');
+        Route::post('/paymob/initialize', [App\Http\Controllers\Web\User\PaymobPaymentController::class, 'initializePayment'])->name('payments.paymob.initialize');
+        Route::post('/paymob/process-with-branch', [App\Http\Controllers\Web\User\PaymobPaymentController::class, 'processPaymentWithBranch'])->name('payments.paymob.process-with-branch');
+        Route::get('/create/{bookingId}', [App\Http\Controllers\Web\User\PaymentController::class, 'createPayment'])->name('payment.create');
+    });
+
+    Route::prefix('invitations')->middleware(['auth:web'])->controller(InvitationController::class)->group(function () {
+        Route::get('/', 'index')->name('invitations.index');
+        Route::get('/create', 'create')->name('invitations.create');
+        Route::post('/', 'store')->name('invitations.store');
+        Route::get('/verify', 'verify')->name('invitations.verify');
+        Route::get('/scan/{qrCode}', 'scanAndVerify')->name('invitations.scan');
+        Route::post('/{invitation}/resend', 'resend')->name('invitations.resend');
     });
 
 });
+
+// Paymob callback routes (no auth required, no site setting context)
+Route::post('/paymob/callback', [App\Http\Controllers\Web\User\PaymobPaymentController::class, 'handleCallback'])->name('payments.paymob.callback');
+Route::get('/paymob/callback', [App\Http\Controllers\Web\User\PaymobPaymentController::class, 'handleCallback'])->name('payments.paymob.callback.get');
 
 Route::get('/404', [NotFoundController::class, 'index'])->name('404');
 

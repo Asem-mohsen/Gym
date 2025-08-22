@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Web\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\{ Membership, SiteSetting};
-use App\Services\{MembershipService, UserService};
+use App\Services\{MembershipService, SubscriptionService, UserService};
+use Illuminate\Support\Facades\Auth;
 
 class MembershipController extends Controller
 {
@@ -12,10 +13,12 @@ class MembershipController extends Controller
 
     public function __construct(
         protected MembershipService $membershipService,
-        protected UserService $userService
+        protected UserService $userService,
+        protected SubscriptionService $subscriptionService
     ) {
         $this->membershipService = $membershipService;
         $this->userService = $userService;
+        $this->subscriptionService = $subscriptionService;
     }
 
     public function index(SiteSetting $siteSetting)
@@ -29,14 +32,15 @@ class MembershipController extends Controller
     {
         $membership = $this->membershipService->showMembership($membership);
         $trainers = $this->userService->getTrainers(siteSettingId: $siteSetting->id);
+        
+        $userSubscription = null;
+        if (Auth::check()) {
+            $userSubscription = $this->subscriptionService->getActiveSubscription(
+                userId: Auth::user()->id,
+                siteSettingId: $siteSetting->id
+            );
+        }
 
         return view('user.memberships.show', get_defined_vars());
-    }
-
-    public function success(SiteSetting $siteSetting)
-    {
-        $paymentIntentId = request()->query('payment_intent');
-        
-        return view('user.memberships.success', compact('siteSetting', 'paymentIntentId'));
     }
 }

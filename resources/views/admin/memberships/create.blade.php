@@ -25,16 +25,7 @@
                     <div class="mb-10 col-md-6">
                         <label for="period" class="required form-label">Period</label>
                         @php
-                            $options = [
-                                ['value' => 'Month',   'label' => 'Month'],
-                                ['value' => '3 Month', 'label' => '3 Month'],
-                                ['value' => '6 Month', 'label' => '6 Month'],
-                                ['value' => 'Year',    'label' => 'Year'],
-                                ['value' => '2 Years', 'label' => '2 Years'],
-                                ['value' => '3 Years', 'label' => '3 Years'],
-                                ['value' => '4 Years', 'label' => '4 Years'],
-                                ['value' => '6 Years', 'label' => '6 Years'],
-                            ];
+                            $options = \App\Enums\MembershipPeriod::getOptions();
                         @endphp
                         @include('_partials.select',[
                             'options' => $options,
@@ -49,6 +40,11 @@
                     <div class="mb-10 col-md-6">
                         <label for="order" class="required form-label">Order</label>
                         <input type="number" name="order" id="order" value="{{ old('order') }}" class="form-control form-control-solid required" required/>
+                    </div>
+                    <div class="mb-10 col-md-6">
+                        <label for="invitation_limit" class="required form-label">Invitation Limit</label>
+                        <input type="number" name="invitation_limit" id="invitation_limit" value="{{ old('invitation_limit', 0) }}" class="form-control form-control-solid required" min="0" required/>
+                        <small class="form-text text-muted">Number of invitations members can send with this membership</small>
                     </div>
                     <div class="mb-10 col-md-6">
                         <label for="status" class="required form-label">Status</label>
@@ -83,13 +79,23 @@
                             'notRequired' => true,
                         ])
                     </div>
+                    
+                    <div class="mb-10 col-md-6">
+                        <label for="subtitle_en" class="required form-label">Subtitle (English)</label>
+                        <textarea name="subtitle[en]" id="subtitle_en" class="form-control form-control-solid required" required>{{ old('subtitle.en') }}</textarea>
+                    </div>
+                    <div class="mb-10 col-md-6">
+                        <label for="subtitle_ar" class="required form-label">Subtitle (Arabic)</label>
+                        <textarea name="subtitle[ar]" id="subtitle_ar" class="form-control form-control-solid required" required>{{ old('subtitle.ar') }}</textarea>
+                    </div>
+
                     <div class="mb-10 col-md-6">
                         <label for="description_en" class="required form-label">Description (English)</label>
-                        <textarea name="description[en]" id="description_en" class="form-control form-control-solid required" required>{{ old('description.en') }}</textarea>
+                        <textarea name="general_description[en]" id="description_en" class="form-control form-control-solid required" required>{{ old('general_description.en') }}</textarea>
                     </div>
                     <div class="mb-10 col-md-6">
                         <label for="description_ar" class="required form-label">Description (Arabic)</label>
-                        <textarea name="description[ar]" id="description_ar" class="form-control form-control-solid required" required>{{ old('description.ar') }}</textarea>
+                        <textarea name="general_description[ar]" id="description_ar" class="form-control form-control-solid required" required>{{ old('general_description.ar') }}</textarea>
                     </div>
                 </div>
 

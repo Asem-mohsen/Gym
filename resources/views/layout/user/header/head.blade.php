@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="{{ asset('assets/user/css/barfiller.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ asset('assets/user/css/magnific-popup.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ asset('assets/user/css/slicknav.min.css') }}" type="text/css">
+    <link rel="stylesheet" href="{{ asset('assets/admin/css/toastr.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ asset('assets/user/css/style.css') }}" type="text/css">
 </head>
 

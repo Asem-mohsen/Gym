@@ -8,7 +8,7 @@ use App\Http\Controllers\Web\Admin\MembershipController;
 use App\Http\Controllers\Web\Admin\RolesController;
 use App\Http\Controllers\Web\Admin\ServicesController;
 use App\Http\Controllers\Web\Admin\TransactionController;
-use App\Http\Controllers\Web\UserController;
+use App\Http\Controllers\Web\Admin\UserController;
 use App\Http\Controllers\Web\Admin\BranchController;
 use App\Http\Controllers\Web\Admin\ClassController;
 use App\Http\Controllers\Web\Admin\LockerController;

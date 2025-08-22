@@ -7,7 +7,6 @@ use App\Http\Requests\Features\{AddFeatureRequest, UpdateFeatureRequest};
 use App\Models\Feature;
 use App\Services\FeatureService;
 use Exception;
-use Illuminate\Support\Facades\Log;
 
 class FeatureController extends Controller
 {

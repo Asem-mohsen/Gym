@@ -27,7 +27,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 p-0">
-                    @foreach ($blogPosts as $blogPost)
+                    @forelse ($blogPosts as $blogPost)
                         <div class="blog-item">
                             <div class="bi-pic">
                                 <img src="{{ $blogPost->getFirstMediaUrl('blog_post_images') }}" alt="">
@@ -41,14 +41,34 @@
                                 <p>{{ $blogPost->excerpt }}</p>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <div class="blog-item">
+                            <div class="bi-text text-white text-center p-0">
+                                <h5 class="h-100 align-content-center">No blog posts found</h5>
+                            </div>
+                        </div>
+                    @endforelse
 
-                    <div class="blog-pagination">
-                        <a href="#">1</a>
-                        <a href="#">2</a>
-                        <a href="#">3</a>
-                        <a href="#">Next</a>
-                    </div>
+                    @if($blogPosts->count() > 0)
+                        <div class="blog-pagination">
+                            @if($blogPosts->currentPage() > 1)
+                                <a href="{{ $blogPosts->previousPageUrl() }}">Previous</a>
+                            @endif
+                            
+                            @for($i = 1; $i <= $blogPosts->lastPage(); $i++)
+                                @if($i == $blogPosts->currentPage())
+                                    <a href="#" class="active">{{ $i }}</a>
+                                @else
+                                    <a href="{{ $blogPosts->url($i) }}">{{ $i }}</a>
+                                @endif
+                            @endfor
+                            
+                            @if($blogPosts->currentPage() < $blogPosts->lastPage())
+                                <a href="{{ $blogPosts->nextPageUrl() }}">Next</a>
+                            @endif
+                        </div>
+                    @endif
+                    
 
                 </div>
                 <div class="col-lg-4 col-md-8 p-0">
@@ -63,7 +83,7 @@
                         </div>
                         <div class="so-latest">
                             <h5 class="title">Feature posts</h5>
-                            @foreach ($blogPosts as $index => $blogPost)
+                            @foreach ($futurePosts as $index => $blogPost)
                                 @if($index === 0)
                                     <div class="latest-large set-bg" data-setbg="{{ $blogPost->getFirstMediaUrl('blog_post_images') }}">
                                         <div class="ll-text">

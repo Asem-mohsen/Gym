@@ -18,9 +18,16 @@ class BlogService
         $this->blogRepository = $blogRepository;
     }
 
-    public function getBlogPosts(int $siteSettingId, $isPublished = true, $take = null)
+    public function getBlogPosts(int $siteSettingId, $isPublished = true, $perPage = null, $take = null, $orderBy = 'created_at', $orderByDirection = 'desc')
     {
-        return $this->blogRepository->getBlogPosts($siteSettingId, $isPublished, $take);
+        return $this->blogRepository->getBlogPosts(
+            $siteSettingId,
+            (bool) $isPublished,
+            $perPage !== null ? (int) $perPage : null,
+            $take !== null ? (int) $take : null,
+            $orderBy,
+            $orderByDirection
+        );
     }
 
     public function getCategories(array $withCount = [])

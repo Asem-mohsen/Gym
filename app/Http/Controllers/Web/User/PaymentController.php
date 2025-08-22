@@ -6,9 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Membership;
 use App\Models\Offer;
 use App\Models\Payment;
+use App\Models\Booking;
+use App\Models\ClassModel;
+use App\Models\Service;
+use App\Models\SiteSetting;
 use App\Services\PaymentService;
+use App\Services\Payments\PaymobService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
@@ -16,7 +22,8 @@ use Stripe\PaymentIntent;
 class PaymentController extends Controller
 {
     public function __construct(
-        private PaymentService $paymentService
+        private PaymentService $paymentService,
+        private PaymobService $paymobService
     ) {}
 
     /**
@@ -101,5 +108,67 @@ class PaymentController extends Controller
         }
 
         return $originalPrice;
+    }
+
+    /**
+     * Create payment for class booking
+     */
+    public function createPayment(Request $request, SiteSetting $siteSetting, $bookingId)
+    {
+        $booking = Booking::findOrFail($bookingId);
+        
+        if ($booking->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to booking');
+        }
+
+        $class = $booking->bookable;
+
+        try {
+            DB::beginTransaction();
+
+            // Step 1: Get authentication token
+            $authToken = $this->paymobService->getAuthToken();
+            if (!$authToken) {
+                throw new \Exception('Failed to authenticate with Paymob');
+            }
+
+            // Step 2: Create order
+            $orderData = $this->paymobService->createOrderForBookable($authToken, $class, $booking);
+            if (!$orderData) {
+                throw new \Exception('Failed to create order on Paymob');
+            }
+
+            // Step 3: Create payment key
+            $paymentKeyData = $this->paymobService->createPaymentKeyForBookable($authToken, $orderData, $class, $booking);
+            if (!$paymentKeyData) {
+                throw new \Exception('Failed to create payment key');
+            }
+
+            // Step 4: Create payment record
+            $this->paymentService->createPayment($class, [
+                'user_id' => Auth::id(),
+                'site_setting_id' => $siteSetting->id,
+                'amount' => $booking->amount,
+                'branch_id' => $booking->branch_id,
+                'status' => 'pending',
+                'paymob_order_id' => $orderData['id'],
+                'paymob_payment_key' => $paymentKeyData['token'],
+                'currency' => 'EGP',
+                'paymentable_type' => $booking->bookable_type,
+                'paymentable_id' => $class->id,
+            ]);
+
+            DB::commit();
+
+            // Step 5: Return payment URL for redirection
+            $paymentUrl = $this->paymobService->getIframeUrl($paymentKeyData['token']);
+            
+            return redirect($paymentUrl);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return back()->with('error', 'Payment initialization failed: ' . $e->getMessage());
+        }
     }
 }

@@ -48,6 +48,9 @@
                         <th>Description</th>
                         <th>Duration</th>
                         <th>Price</th>
+                        <th>Booking Type</th>
+                        <th>Branches</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -57,15 +60,72 @@
                             <td>
                                 {{ ++$key }}
                             </td>
-                            <td>{{$service->name}}</td>
                             <td>
-                                {{ \Illuminate\Support\Str::limit($service->description, 100, '...') }}
+                                <div class="d-flex flex-column">
+                                    <span class="fw-bold">{{ $service->getTranslation('name', 'en') }}</span>
+                                    <small class="text-muted">{{ $service->getTranslation('name', 'ar') }}</small>
+                                </div>
                             </td>
                             <td>
-                                {{$service->duration}}
+                                <div class="d-flex flex-column">
+                                    <span>{{ \Illuminate\Support\Str::limit($service->getTranslation('description', 'en'), 50, '...') }}</span>
+                                    <small class="text-muted">{{ \Illuminate\Support\Str::limit($service->getTranslation('description', 'ar'), 50, '...') }}</small>
+                                </div>
                             </td>
                             <td>
-                                {{$service->price . " EGP"}}
+                                @if($service->duration > 0)
+                                    {{ $service->duration }} min
+                                @else
+                                    <span class="text-muted">N/A</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($service->price > 0)
+                                    {{ number_format($service->price, 2) }} EGP
+                                @else
+                                    <span class="text-success">Free</span>
+                                @endif
+                            </td>
+                            <td>
+                                @switch($service->booking_type)
+                                    @case('unbookable')
+                                        <span class="badge badge-light-info">Unbookable</span>
+                                        @break
+                                    @case('free_booking')
+                                        <span class="badge badge-light-success">Free Booking</span>
+                                        @break
+                                    @case('paid_booking')
+                                        <span class="badge badge-light-warning">
+                                            Paid Booking
+                                            @if($service->booking_fee)
+                                                <br><small>{{ number_format($service->booking_fee, 2) }} EGP</small>
+                                            @endif
+                                        </span>
+                                        @break
+                                    @default
+                                        <span class="badge badge-light-secondary">Unknown</span>
+                                @endswitch
+                            </td>
+                            <td>
+                                @if($service->branches->count() > 0)
+                                    <div class="d-flex flex-column">
+                                        @foreach($service->branches->take(2) as $branch)
+                                            <small>{{ $branch->getTranslation('name', 'en') }}</small>
+                                        @endforeach
+                                        @if($service->branches->count() > 2)
+                                            <small class="text-muted">+{{ $service->branches->count() - 2 }} more</small>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="text-muted">All Branches</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($service->is_available)
+                                    <span class="badge badge-light-success">Available</span>
+                                @else
+                                    <span class="badge badge-light-danger">Unavailable</span>
+                                @endif
                             </td>
                             <td>
                                 <div class="d-flex gap-1">

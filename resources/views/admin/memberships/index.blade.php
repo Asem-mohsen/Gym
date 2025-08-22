@@ -49,6 +49,7 @@
                             <th>Name</th>
                             <th>Period</th>
                             <th>Features</th>
+                            <th>Invitation Limit</th>
                             <th>Num. Subscriptions</th>
                             <th>Description</th>
                             <th>Price</th>
@@ -79,10 +80,11 @@
                                         <span class="text-muted">No features</span>
                                     @endif
                                 </td>
-                                <td>{{$membership->bookings_count }}</td>
+                                <td>{{ $membership->invitation_limit ?? 0 }}</td>
+                                <td>{{$membership->payment_count }}</td>
                                 <td>
-                                    @if ($membership->description)
-                                        {{ \Illuminate\Support\Str::limit($membership->description, 25) }}
+                                    @if ($membership->subtitle)
+                                        {{ \Illuminate\Support\Str::limit($membership->subtitle, 25) }}
                                     @else
                                         -
                                     @endif
@@ -141,7 +143,7 @@
                     <h2>{{$membership->name}}</h2>
                     <div class="price">{{ $membership->price . ' EGP' }}</div>
                     <div>
-                        <p>{{$membership->description}}</p>
+                        <p>{{$membership->subtitle}}</p>
                     </div>
                     <ul class="features">
                         <li><i class="fas fa-check-circle"></i>{{$membership->period}}</li>
