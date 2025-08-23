@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\{ AdminService , RoleService, SiteSettingService};
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
@@ -18,10 +19,12 @@ class AdminController extends Controller
         $this->siteSettingService = $siteSettingService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $admins = $this->adminService->getAdmins($siteSettingId);
+        $perPage = $request->get('per_page', 15);
+        $search = $request->get('search');
+        $admins = $this->adminService->getAdmins($siteSettingId, $perPage, $search);
         return view('admin.admins.index',compact('admins'));
     }
 

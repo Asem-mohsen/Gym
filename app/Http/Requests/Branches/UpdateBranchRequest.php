@@ -29,9 +29,10 @@ class UpdateBranchRequest extends FormRequest
             'location.ar' => ['required' , 'max:1000'],
             'type'        => ['required' , 'in:mix,men,ladies'],
             'size'        => ['required'],
-            'facebook_url'=> ['nullable'],
-            'x_url'       => ['nullable'],
-            'instagram_url'=>['nullable'],
+            'facebook_url'=> ['nullable', 'url'],
+            'x_url'       => ['nullable', 'url'],
+            'instagram_url'=>['nullable', 'url'],
+            'map_url'     => ['nullable', 'url'],
             'phones'       =>['required', 'array' , 'min:1'],
         ];
     }

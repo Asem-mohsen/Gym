@@ -29,9 +29,19 @@ class ClassRepository
             ->values();
     }
 
-    public function getAll($with = [])
+    public function getAll($with = [], $perPage = 15, $search = null, $type = null)
     {
-        return ClassModel::with($with)->get();
+        $query = ClassModel::with($with);
+        
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+        
+        if ($type) {
+            $query->where('type', $type);
+        }
+        
+        return $query->paginate($perPage);
     }
 
     public function findById($id, $with = [])

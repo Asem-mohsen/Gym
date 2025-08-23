@@ -5,13 +5,22 @@ use App\Models\User;
 
 class AdminRepository
 {
-    public function getAllAdmins(int $siteSettingId)
+    public function getAllAdmins(int $siteSettingId, $perPage = 15, $search = null)
     {
-        return User::where('is_admin', '1')->with('role')
+        $query = User::where('is_admin', '1')->with('role')
                 ->whereHas('gyms', function ($query)use ($siteSettingId) {
                     $query->where('site_setting_id', $siteSettingId);
-                })
-                ->get();
+                });
+        
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+        
+        return $query->paginate($perPage);
     }
 
     public function createAdmin(array $data)

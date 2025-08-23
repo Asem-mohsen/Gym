@@ -12,9 +12,9 @@ class AdminService
         $this->adminRepository = $adminRepository;
     }
 
-    public function getAdmins(int $siteSettingId)
+    public function getAdmins(int $siteSettingId, $perPage = 15, $search = null)
     {
-        return $this->adminRepository->getAllAdmins($siteSettingId);
+        return $this->adminRepository->getAllAdmins($siteSettingId, $perPage, $search);
     }
 
     public function createAdmin(array $data, int $siteSettingId)

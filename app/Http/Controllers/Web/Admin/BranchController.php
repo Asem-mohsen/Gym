@@ -60,13 +60,7 @@ class BranchController extends Controller
             $branchData = Arr::except($validated, ['phones']);
             $phonesData = $validated['phones'] ?? [];
     
-            Log::info('Updating branch', [
-                'branch_id' => $branch->id,
-                'branchData' => $branchData,
-                'phonesData' => $phonesData
-            ]);
-    
-            $this->branchService->updateBranch($branch, $phonesData, $branchData);
+            $this->branchService->updateBranch($branch, $branchData, $phonesData);
     
             return redirect()->route('branches.index')->with('success', 'Branch updated successfully.');
         } catch (Exception $e) {
@@ -74,7 +68,6 @@ class BranchController extends Controller
             return redirect()->back()->with('error', 'Error happened while updating branch, please try again in a few minutes.');
         }
     }
-    
 
     public function edit(Branch $branch)
     {
@@ -88,7 +81,8 @@ class BranchController extends Controller
 
     public function show(Branch $branch)
     {
-        return view('admin.branches.show', get_defined_vars());
+        $branch = $this->branchService->showBranch($branch);
+        return view('admin.branches.show', compact('branch'));
     }
 
     public function destroy(Branch $branch)

@@ -72,8 +72,8 @@
                             <li><a href="{{route('auth.login.index')}}">Login</a></li>
                             <li><a href="{{route('auth.register.index')}}">Register</a></li>
                         @endif
-                        <li><a href="{{route('user.services' , ['siteSetting' => $siteSetting->slug])}}">Services</a></li>
-                        <li><a href="{{route('user.contact' , ['siteSetting' => $siteSetting->slug])}}">Subscribe</a></li>
+                        <li><a href="{{route('user.services.index' , ['siteSetting' => $siteSetting->slug])}}">Services</a></li>
+                        <li><a href="{{route('user.contact' , ['siteSetting' => $siteSetting->slug])}}">Contact Us</a></li>
                     </ul>
                 </div>
             </div>

@@ -48,6 +48,7 @@
                         <th>Manager</th>
                         <th>Location</th>
                         <th>Type</th>
+                        <th>Map</th>
                         <th>Subscribers</th>
                         <th>Created at</th>
                         <th>Actions</th>
@@ -63,6 +64,19 @@
                             <td> {{$branch->manager->name}}</td>
                             <td> {{$branch->location}} </td>
                             <td> {{$branch->type}}</td>
+                            <td>
+                                @if($branch->map_url)
+                                    <a href="{{ $branch->map_url }}" target="_blank" class="btn btn-sm btn-light-primary">
+                                        <i class="ki-duotone ki-map fs-2">
+                                            <span class="path1"></span>
+                                            <span class="path2"></span>
+                                        </i>
+                                        View Map
+                                    </a>
+                                @else
+                                    <span class="text-muted">No map</span>
+                                @endif
+                            </td>
                             <td> {{$branch->subscriptions_count}}</td>
                             <td> {{date('d-M-Y' , strtotime( $branch->created_at))}} </td>
                             <td>

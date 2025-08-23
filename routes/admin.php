@@ -19,6 +19,10 @@ use App\Http\Controllers\Web\Admin\SiteSettingController;
 use App\Http\Controllers\Web\Admin\SubscriptionController;
 use App\Http\Controllers\Web\Admin\GalleryController;
 use App\Http\Controllers\Web\Admin\FeatureController;
+use App\Http\Controllers\Web\Admin\ScoreDashboardController;
+use App\Http\Controllers\Web\Admin\ReviewRequestController;
+use App\Http\Controllers\Web\Admin\ResourcesController;
+use App\Http\Controllers\Web\Admin\GymDeactivationController;
 
 // Admin Routes
 Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
@@ -75,5 +79,30 @@ Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
 
     Route::prefix('transactions')->group(function () {
         Route::get('/', [TransactionController::class, 'index'])->name('admin.transactions.index');
+    });
+
+    Route::prefix('score-management')->group(function () {
+        Route::get('/', [ScoreDashboardController::class, 'index'])->name('admin.score-dashboard');
+        Route::get('/documents', [ScoreDashboardController::class, 'documents'])->name('admin.documents.index');
+        Route::get('/documents/{document}/download', [ScoreDashboardController::class, 'downloadDocument'])->name('admin.documents.download');
+        
+        Route::resource('branch-scores', ScoreDashboardController::class)->except(['index']);
+        
+        Route::resource('review-requests', ReviewRequestController::class);
+    });
+
+    Route::prefix('resources')->group(function () {
+        Route::get('/', [ResourcesController::class, 'index'])->name('admin.resources');
+        Route::get('/{document}/download', [ResourcesController::class, 'download'])->name('admin.resources.download');
+        Route::get('/{document}/view', [ResourcesController::class, 'view'])->name('admin.resources.view');
+    });
+
+    // Gym Deactivation Routes
+    Route::prefix('deactivation')->controller(GymDeactivationController::class)->group(function () {
+        Route::get('/', 'index')->name('admin.deactivation.index');
+        Route::post('/gym/{siteSetting}/deactivate', 'deactivateGym')->name('admin.gym.deactivate');
+        Route::post('/branch/{branch}/deactivate', 'deactivateBranch')->name('admin.branch.deactivate');
+        Route::get('/gym/preview', 'getGymDataPreview')->name('admin.gym.preview');
+        Route::get('/branch/{branch}/preview', 'getBranchDataPreview')->name('admin.branch.preview');
     });
 });

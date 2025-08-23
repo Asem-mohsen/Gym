@@ -20,9 +20,9 @@ class BranchService
         return $this->branchRepository->createBranch($branchData, $phonesData , $siteId);
     }
 
-    public function updateBranch($branch, array $phonesData, array $newData)
+    public function updateBranch($branch, array $branchData, array $phonesData)
     {
-        return $this->branchRepository->updateBranch($branch,$newData,$phonesData);
+        return $this->branchRepository->updateBranch($branch, $branchData, $phonesData);
     }
 
     public function showBranch($branch)

@@ -8,6 +8,7 @@ use App\Models\Service;
 use App\Services\{SiteSettingService , ServiceService, BranchService};
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 class ServicesController extends Controller
 {
@@ -21,11 +22,18 @@ class ServicesController extends Controller
         $this->branchService = $branchService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $services = $this->serviceService->getServicesWithBranches($siteSettingId);
-        return view('admin.services.index',compact('services'));
+        $perPage = $request->get('per_page', 15);
+        $search = $request->get('search');
+        $branchId = $request->get('branch_id');
+        
+        $services = $this->serviceService->getServicesWithPagination($siteSettingId, $perPage, $search, $branchId);
+        
+        $branches = $this->branchService->getBranches($siteSettingId);
+        
+        return view('admin.services.index', compact('services', 'branches'));
     }
 
     public function create()

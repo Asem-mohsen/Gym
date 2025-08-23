@@ -115,14 +115,5 @@
 @endsection
 
 @section('js')
-    <script src="{{ asset('assets/plugins/custom/datatables/datatables.bundle.js') }}"></script>
-    <script>
-        $(document).ready(function() {
-            $('#kt_table').DataTable({
-                "language": {
-                    "lengthMenu": "Show _MENU_",
-                },
-            });
-        });
-    </script>
-@endsection 
+    @include('_partials.dataTable-script')
+@endsection
