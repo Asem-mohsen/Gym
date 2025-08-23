@@ -16,6 +16,7 @@ class Payment extends Model
     protected $casts = [
         'completed_at' => 'datetime',
         'failed_at' => 'datetime',
+        'amount' => 'decimal:2',
     ];
 
     public function user(): BelongsTo

@@ -42,9 +42,15 @@ class MembershipRepository
         $membership->delete();
     }
 
-    public function findById(int $id): ?Membership
+    public function findById(int $id, array $with = []): ?Membership
     {
-        return Membership::find($id);
+        $membership = Membership::with($with)->find($id);
+    
+        if ($membership) {
+            $membership->price = $this->calculateDiscountedPrice($membership);
+        }
+    
+        return $membership;
     }
 
     public function selectMemberships(int $siteSettingId)

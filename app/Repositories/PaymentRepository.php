@@ -117,12 +117,19 @@ class PaymentRepository
             ->select(
                 DB::raw('CASE 
                     WHEN paymob_payment_key IS NOT NULL THEN "Card"
-                    ELSE "Cash"
+                    WHEN payment_method = "cash" THEN "Cash"
+                    ELSE "Online"
                 END as payment_method'),
                 DB::raw('COUNT(*) as count'),
                 DB::raw('SUM(amount) as total_amount')
             )
-            ->groupBy('payment_method')
+            ->groupBy(
+                DB::raw('CASE 
+                    WHEN paymob_payment_key IS NOT NULL THEN "Card"
+                    WHEN payment_method = "cash" THEN "Cash"
+                    ELSE "Online"
+                END')
+            )
             ->get();
 
         // Add cash_collected bookings to payment methods

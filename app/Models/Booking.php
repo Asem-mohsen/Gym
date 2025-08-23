@@ -17,6 +17,8 @@ class Booking extends Model
     protected $casts = [
         'booking_date' => 'date',
         'amount' => 'decimal:2',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function bookable(): MorphTo

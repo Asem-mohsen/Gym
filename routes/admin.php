@@ -23,6 +23,7 @@ use App\Http\Controllers\Web\Admin\ScoreDashboardController;
 use App\Http\Controllers\Web\Admin\ReviewRequestController;
 use App\Http\Controllers\Web\Admin\ResourcesController;
 use App\Http\Controllers\Web\Admin\GymDeactivationController;
+use App\Http\Controllers\Web\Admin\CashPaymentController;
 
 // Admin Routes
 Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
@@ -59,6 +60,15 @@ Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
     Route::resource('branches',BranchController::class);
 
     Route::resource('payments',PaymentsController::class)->only(['index']);
+
+    // Cash Payments Management Routes
+    Route::prefix('cash-payments')->controller(CashPaymentController::class)->name('admin.cash-payments.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/mark-collected', 'markAsCollected')->name('mark-collected');
+        Route::post('/mark-pending', 'markAsPending')->name('mark-pending');
+        Route::get('/export', 'export')->name('export');
+        Route::get('/statistics', 'getStatistics')->name('statistics');
+    });
 
     Route::get('site-settings/edit', [SiteSettingController::class, 'edit'])->name('site-settings.edit');
     Route::put('site-settings/update', [SiteSettingController::class, 'update'])->name('site-settings.update');
