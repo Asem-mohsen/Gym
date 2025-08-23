@@ -55,27 +55,37 @@
                         'name' => 'assign_to',
                         'id' => 'assign_to',
                         'notRequired' => true,
-                        'value' => $offer->assign_to,
+                        'values' => $assignedModels,
                     ])
                 </div>
                 <div class="mb-10 col-md-6 d-none" id="membership_container">
                     <label for="memberships" class="required form-label">Select Membership</label>
                      @include('_partials.select-multiple',[
-                        'options' => [],
+                        'options' => array_merge(
+                            [['value' => 'all', 'label' => 'All Memberships']],
+                            $memberships->map(function($membership) {
+                                return ['value' => $membership->id, 'label' => $membership->getTranslation('name', app()->getLocale())];
+                            })->toArray()
+                        ),
                         'name' => 'memberships',
                         'id' => 'memberships',
                         'notRequired' => true,
-                        'value' => $offer->memberships,
+                        'values' => $allMembershipsSelected ? ['all'] : $selectedMemberships,
                     ])
                 </div>
                 <div class="mb-10 col-md-6 d-none" id="service_container">
                     <label for="services" class="required form-label">Select Service</label>
                      @include('_partials.select-multiple',[
-                        'options' => [],
+                        'options' => array_merge(
+                            [['value' => 'all', 'label' => 'All Services']],
+                            $services->map(function($service) {
+                                return ['value' => $service->id, 'label' => $service->getTranslation('name', app()->getLocale())];
+                            })->toArray()
+                        ),
                         'name' => 'services',
                         'id' => 'services',
                         'notRequired' => true,
-                        'value' => $offer->services,
+                        'values' => $allServicesSelected ? ['all'] : $selectedServices,
                     ])
                 </div>
                 <div class="mb-10 col-md-6">

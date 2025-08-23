@@ -7,6 +7,9 @@
     });
 
     $(document).ready(function() {
+        // Initialize containers on page load
+        initializeContainers();
+        
         $('#assign_to').change(function() {
             let selectedOptions = $(this).val();
     
@@ -28,6 +31,18 @@
                 $('#services').html('');
             }
         });
+        
+        function initializeContainers() {
+            let selectedOptions = $('#assign_to').val();
+            
+            if (selectedOptions && selectedOptions.includes("App\\Models\\Membership")) {
+                $('#membership_container').removeClass('d-none');
+            }
+            
+            if (selectedOptions && selectedOptions.includes("App\\Models\\Service")) {
+                $('#service_container').removeClass('d-none');
+            }
+        }
     
         function fetchMemberships() {
             $.ajax({

@@ -40,7 +40,7 @@ class OfferRepository
         if (in_array("App\Models\Membership", $data['assign_to'])) {
             $membershipIds = $data['memberships'] ?? [];
             if (in_array('all', $membershipIds)) {
-                $membershipIds = Membership::pluck('id')->toArray();
+                $membershipIds = Membership::where('site_setting_id', $offer->site_setting_id)->pluck('id')->toArray();
             }
 
             foreach ($membershipIds as $id) {
@@ -58,7 +58,7 @@ class OfferRepository
         if (in_array("App\Models\Service", $data['assign_to'])) {
             $serviceIds = $data['services'] ?? [];
             if (in_array('all', $serviceIds)) {
-                $serviceIds = Service::pluck('id')->toArray();
+                $serviceIds = Service::where('site_setting_id', $offer->site_setting_id)->pluck('id')->toArray();
             }
 
             foreach ($serviceIds as $id) {
@@ -112,12 +112,11 @@ class OfferRepository
         $selectedMemberships = $offer->offerables->where('offerable_type', 'App\Models\Membership')->pluck('offerable_id')->toArray();
         $selectedServices = $offer->offerables->where('offerable_type', 'App\Models\Service')->pluck('offerable_id')->toArray();
     
-        $memberships = Membership::all();
-        $services = Service::all();
+        $memberships = Membership::where('site_setting_id', $offer->site_setting_id)->get();
+        $services = Service::where('site_setting_id', $offer->site_setting_id)->get();
     
-        // Check if "All" was selected
-        $allMembershipsSelected = count($selectedMemberships) === Membership::count();
-        $allServicesSelected = count($selectedServices) === Service::count();
+        $allMembershipsSelected = count($selectedMemberships) === $memberships->count() && $memberships->count() > 0;
+        $allServicesSelected = count($selectedServices) === $services->count() && $services->count() > 0;
     
         return [
             'offer'                 => $offer,

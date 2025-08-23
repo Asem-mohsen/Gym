@@ -150,10 +150,17 @@
                                 'title' => 'Financials',
                                 'icon' => 'fa-solid fa-money-bill',
                                 'active' => function() {
-                                    return request()->routeIs('payments.index') || request()->routeIs('offers.*');
+                                    return request()->routeIs('payments.index') || request()->routeIs('offers.*') || request()->routeIs('admin.cash-payments.*');
                                 },
                                 'subItems' =>
                                 [
+                                    [
+                                        'title' => 'Cash Payments',
+                                        'route' => 'admin.cash-payments.index',
+                                        'active' => function() {
+                                            return request()->routeIs('admin.cash-payments.*');
+                                        }
+                                    ],
                                     [
                                         'title' => 'Payments',
                                         'route' => 'payments.index',
