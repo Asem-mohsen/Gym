@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\{ AddUserRequest , UpdateUserRequest};
 use App\Models\User;
-use App\Services\{UserService , RoleService, SiteSettingService};
+use App\Services\{UserService , RoleService, SiteSettingService, BranchService};
 use Exception;
 use Illuminate\Http\Request;
 
@@ -13,23 +13,38 @@ class UserController extends Controller
 {
     protected int $siteSettingId;
 
-    public function __construct(protected UserService $userService , protected RoleService $roleService, protected SiteSettingService $siteSettingService)
+    public function __construct(protected UserService $userService , protected RoleService $roleService, protected SiteSettingService $siteSettingService, protected BranchService $branchService)
     {
         $this->userService = $userService;
         $this->roleService = $roleService;
+        $this->branchService = $branchService;
         $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $users = $this->userService->getUsers($this->siteSettingId);
-        return view('admin.users.index',compact('users'));
+        $perPage = $request->get('per_page', 15);
+        $branchId = $request->get('branch_id');
+        $search = $request->get('search');
+        
+        $users = $this->userService->getUsers($this->siteSettingId, $perPage, $branchId, $search);
+        
+        $branches = $this->branchService->getBranches($this->siteSettingId);
+        
+        return view('admin.users.index', compact('users', 'branches'));
     }
 
-    public function trainers()
+    public function trainers(Request $request)
     {
-        $users = $this->userService->getTrainers($this->siteSettingId);
-        return view('admin.users.index',compact('users'));
+        $perPage = $request->get('per_page', 15);
+        $branchId = $request->get('branch_id');
+        $search = $request->get('search');
+        
+        $users = $this->userService->getTrainers($this->siteSettingId, $perPage, $branchId, $search);
+        
+        $branches = $this->branchService->getBranches($this->siteSettingId);
+        
+        return view('admin.users.index', compact('users', 'branches'));
     }
 
     public function create()

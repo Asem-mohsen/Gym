@@ -22,14 +22,17 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.c
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('/about-us', [AboutController::class, 'aboutUs'])->name('about-us');
 
-    Route::get('/class-details', [ClassesController::class, 'classDetails'])->name('classes');
-    Route::get('/classes', [ClassesController::class, 'index'])->name('classes.index');
-    Route::get('/classes/{class}', [ClassesController::class, 'show'])->name('classes.show');
-    Route::post('/classes/{class}/book', [ClassesController::class, 'book'])->name('classes.book')->middleware(['auth:web']);
+    Route::prefix('classes')->name('classes.')->controller(ClassesController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{class}', 'show')->name('show');
+        Route::post('/{class}/book', 'book')->name('book')->middleware(['auth:web']);
+    });
 
-    Route::get('/services', [ServicesController::class, 'index'])->name('services');
-    Route::get('/services/{service}', [ServicesController::class, 'show'])->name('services.show');
-    Route::post('/services/{service}/book', [ServicesController::class, 'book'])->name('services.book')->middleware(['auth:web']);
+    Route::prefix('services')->name('services.')->controller(ServicesController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{service}', 'show')->name('show');
+        Route::post('/{service}/book', 'book')->name('book')->middleware(['auth:web']);
+    });
 
     Route::get('/trainers', [TeamController::class, 'index'])->name('team');
 

@@ -13,7 +13,7 @@
                         <h2>BMI calculator</h2>
                         <div class="bt-option">
                             <a href="{{route('user.home' , ['siteSetting' => $siteSetting->slug])}}">Home</a>
-                            <a href="{{route('user.services' , ['siteSetting' => $siteSetting->slug])}}">Services</a>
+                            <a href="{{route('user.services.index' , ['siteSetting' => $siteSetting->slug])}}">Services</a>
                             <span>BMI calculator</span>
                         </div>
                     </div>

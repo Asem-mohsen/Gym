@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\SiteSettings\{AddSiteSettingRequest, UpdateSiteSettingRequest};
-use App\Models\SiteSetting;
+use App\Http\Requests\SiteSettings\UpdateSiteSettingRequest;
 use App\Services\{SiteSettingService , AdminService};
 use Exception;
 

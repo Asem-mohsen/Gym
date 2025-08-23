@@ -17,15 +17,36 @@
             <div class="card-header border-0 pt-6">
 
                 <div class="card-title">
-
-                    <div class="d-flex align-items-center position-relative my-1">
-                        <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-5">
-                            <span class="path1"></span>
-                            <span class="path2"></span>
-                        </i>
-                        <input type="text" data-kt-table-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Search" />
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center position-relative my-1">
+                            <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-5">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                            </i>
+                            <input type="text" id="search-input" class="form-control form-control-solid w-250px ps-12" placeholder="Search classes..." value="{{ request('search') }}" />
+                        </div>
+                        
+                        <!-- Type Filter -->
+                        <form method="GET" action="{{ request()->url() }}" class="d-flex align-items-center gap-2" id="filter-form">
+                            <input type="hidden" name="search" id="search-hidden" value="{{ request('search') }}">
+                            <select name="type" class="form-control form-control-solid w-200px" onchange="this.form.submit()">
+                                <option value="">All Types</option>
+                                @foreach($classTypes as $classType)
+                                    <option value="{{ $classType }}" {{ request('type') == $classType ? 'selected' : '' }}>
+                                        {{ ucfirst($classType) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            
+                            <!-- Per Page Selector -->
+                            <select name="per_page" class="form-control form-control-solid w-100px" onchange="this.form.submit()">
+                                <option value="15" {{ request('per_page', 15) == 15 ? 'selected' : '' }}>15</option>
+                                <option value="25" {{ request('per_page', 15) == 25 ? 'selected' : '' }}>25</option>
+                                <option value="50" {{ request('per_page', 15) == 50 ? 'selected' : '' }}>50</option>
+                                <option value="100" {{ request('per_page', 15) == 100 ? 'selected' : '' }}>100</option>
+                            </select>
+                        </form>
                     </div>
-
                 </div>
 
                 <div class="card-toolbar">
@@ -54,7 +75,7 @@
                     <tbody class="fw-semibold text-gray-600">
                         @foreach ($classes as $key => $class)
                             <tr>
-                                <td>{{ ++$key }}</td>
+                                <td>{{ ($classes->currentPage() - 1) * $classes->perPage() + $loop->iteration }}</td>
                                 <td>{{ $class->name }}</td>
                                 <td>{{ $class->type }}</td>
                                 <td>{{ ucfirst($class->status) }}</td>
@@ -96,7 +117,18 @@
                         @endforeach
                     </tbody>
                 </table>
+                
+                <!-- Pagination -->
+                <div class="d-flex justify-content-center align-items-center py-3 border-top">
+                    <nav aria-label="Classes pagination">
+                        {{ $classes->appends(request()->query())->links('pagination::bootstrap-4') }}
+                    </nav>
+                </div>
             </div>
         </div>
     </div>
 @endsection 
+
+@section('js')
+    @include('_partials.dataTable-script')
+@endsection

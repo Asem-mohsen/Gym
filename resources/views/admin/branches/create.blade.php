@@ -70,20 +70,51 @@
                     <label for="size" class="required form-label">Size</label>
                     <input type="text" id="size" value="{{ old('size') }}" name="size" class="form-control form-control-solid"/>
                 </div>
-                <div class="mb-10 col-md-6">
+                <div class="mb-10 col-md-4">
                     <label for="facebook_url" class="required form-label">Facebook URL</label>
                     <input type="text" id="facebook_url" value="{{ old('facebook_url') }}" name="facebook_url" class="form-control form-control-solid"/>
                 </div>
-                <div class="mb-10 col-md-6">
+                <div class="mb-10 col-md-4">
                     <label for="instagram_url" class="form-label">Instagram URL</label>
                     <input type="text" id="instagram_url" value="{{ old('instagram_url') }}" name="instagram_url" class="form-control form-control-solid"/>
                 </div>
-                <div class="mb-10 col-md-6">
+                <div class="mb-10 col-md-4">
                     <label for="x_url" class="form-label">X URL</label>
                     <input type="text" id="x_url" value="{{ old('x_url') }}" name="x_url" class="form-control form-control-solid"/>
                 </div>
+                <div class="mb-10 col-md-6">
+                    <label for="map_url" class="form-label">Map URL</label>
+                    <input type="url" id="map_url" value="{{ old('map_url') }}" name="map_url" class="form-control form-control-solid" placeholder="https://maps.google.com/..."/>
+                    <small class="form-text text-muted">Share the Google Maps or any map service URL for the branch location</small>
+                </div>
 
-                @livewire('phone-repeater')
+                <div class="mb-10 col-md-6">
+                    <label class="required form-label">Phone Numbers</label>
+                    <div id="phone-repeater" data-kt-repeater="list">
+                        <div data-repeater-list="phones">
+                            <div data-repeater-item class="form-group row mb-3">
+                                <div class="col-md-10">
+                                    <input type="text" name="phones" class="form-control form-control-solid required" placeholder="Phone Number" required/>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" data-repeater-delete class="btn btn-md btn-light-danger">
+                                        <i class="ki-duotone ki-cross fs-2">
+                                            <span class="path1"></span>
+                                            <span class="path2"></span>
+                                        </i>
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" data-repeater-create class="btn btn-light-primary">
+                                <i class="ki-duotone ki-plus fs-2"></i>
+                                Add Phone
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="card-footer">
                     <button type="submit" class="btn btn-success">Save</button>
@@ -95,5 +126,21 @@
     </form>
 </div>
 
+@endsection 
+
+@section('js')
+    <script src="{{ asset('assets/admin/plugins/custom/formrepeater/formrepeater.bundle.js') }}"></script>
+
+    <script>
+        $('#phone-repeater').repeater({
+            initEmpty: false,
+            show: function() {
+                $(this).slideDown();
+            },
+            hide: function(deleteElement) {
+                $(this).slideUp(deleteElement);
+            }
+        });
+    </script>
 @endsection
 

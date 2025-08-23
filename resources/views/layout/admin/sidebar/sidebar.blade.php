@@ -1,10 +1,11 @@
 <div id="kt_app_sidebar" class="app-sidebar flex-column" data-kt-drawer="true" data-kt-drawer-name="app-sidebar" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="225px" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle">
 
-    <div class="app-sidebar-logo px-6" id="kt_app_sidebar_logo">
+    <div class="app-sidebar-logo px-6 justify-content-center" id="kt_app_sidebar_logo">
 
         <a href="{{ route('admin.dashboard') }}">
             <img alt="Logo" src="{{ $site->getFirstMediaUrl('gym_logo') }}" class="h-25px app-sidebar-logo-default" />
             <img alt="Logo" src="{{ $site->getFirstMediaUrl('gym_logo') }}" class="h-20px app-sidebar-logo-minimize" />
+            <span class="text-white fs-2 fw-bold">{{ $site->gym_name }}</span>
         </a>
 
         <div id="kt_app_sidebar_toggle"
@@ -43,12 +44,13 @@
                     </div>
 
                     @php
-                        $menuItems = [
+                        $menuItems = 
+                        [
                             [
                                 'title' => 'Management',
                                 'icon' => 'fa-solid fa-bars-progress',
                                 'active' => function() {
-                                    return request()->routeIs('users.*') || request()->routeIs('admins.*') || request()->routeIs('trainers')  || request()->routeIs('services.*') || request()->routeIs('branches.*') || request()->routeIs('subscriptions.*');
+                                    return request()->routeIs('users.*') || request()->routeIs('admins.*') || request()->routeIs('trainers')  || request()->routeIs('services.*') ||  request()->routeIs('subscriptions.*');
                                 },
                                 'subItems' => 
                                 [
@@ -81,13 +83,6 @@
                                         }
                                     ],
                                     [
-                                        'title' => 'Branches Management',
-                                        'route' => 'branches.index',
-                                        'active' => function() {
-                                            return request()->routeIs('branches.*');
-                                        }
-                                    ],
-                                    [
                                         'title' => 'Subscriptions Management',
                                         'route' => 'subscriptions.index',
                                         'active' => function() {
@@ -97,10 +92,65 @@
                                 ]
                             ],
                             [
-                                'title' => 'Financials',
-                                'icon' => 'fa-solid fa-cubes',
+                                'title' => 'Score Management',
+                                'icon' => 'fa-solid fa-star',
                                 'active' => function() {
-                                    return request()->routeIs('payments.index') || request()->routeIs('membership.*') || request()->routeIs('offers.*') || request()->routeIs('classes.*');
+                                    return request()->routeIs('admin.score-dashboard') || request()->routeIs('admin.resources') || request()->routeIs('review-requests.*');
+                                },
+                                'subItems' => [
+                                    [
+                                        'title' => 'Score Dashboard',
+                                        'route' => 'admin.score-dashboard',
+                                        'active' => function() {
+                                            return request()->routeIs('admin.score-dashboard');
+                                        }
+                                    ],
+                                    [
+                                        'title' => 'Resources & Documents',
+                                        'route' => 'admin.resources',
+                                        'active' => function() {
+                                            return request()->routeIs('admin.resources');
+                                        },
+                                        'count' => $documentCount ?? 0
+                                    ],
+                                                                         [
+                                         'title' => 'Review Requests',
+                                         'route' => 'review-requests.index',
+                                         'active' => function() {
+                                             return request()->routeIs('review-requests.*');
+                                         }
+                                     ],
+                                ]
+                            ],
+                            [
+                                'title' => 'Memberships',
+                                'icon' => 'fa-solid fa-user-group',
+                                'active' => function() {
+                                    return request()->routeIs('membership.*');
+                                },
+                                'route' => 'membership.index'
+                            ],
+                            [
+                                'title' => 'Features',
+                                'icon' => 'fa-solid fa-star-of-life',
+                                'active' => function() {
+                                    return request()->routeIs('features.*');
+                                },
+                                'route' => 'features.index'
+                            ],
+                            [
+                                'title' => 'Classes',
+                                'icon' => 'fa-solid fa-calendar-days',
+                                'active' => function() {
+                                    return request()->routeIs('classes.*');
+                                },
+                                'route' => 'classes.index'
+                            ],
+                            [
+                                'title' => 'Financials',
+                                'icon' => 'fa-solid fa-money-bill',
+                                'active' => function() {
+                                    return request()->routeIs('payments.index') || request()->routeIs('offers.*');
                                 },
                                 'subItems' =>
                                 [
@@ -112,35 +162,13 @@
                                         }
                                     ],
                                     [
-                                        'title' => 'Memberships',
-                                        'route' => 'membership.index',
-                                        'active' => function() {
-                                            return request()->routeIs('membership.*');
-                                        },
-                                    ],
-                                    [
                                         'title' => 'Offers',
                                         'route' => 'offers.index',
                                         'active' => function() {
                                             return request()->routeIs('offers.*');
                                         },
-                                    ],
-                                    [
-                                        'title' => 'Classes',
-                                        'route' => 'classes.index',
-                                        'active' => function() {
-                                            return request()->routeIs('classes.*');
-                                        },
-                                    ],
+                                    ]
                                 ]
-                            ],
-                            [
-                                'title' => 'Blog',
-                                'icon' => 'fa-solid fa-newspaper',
-                                'active' => function() {
-                                    return request()->routeIs('blog-posts.*');
-                                },
-                                'route' => 'blog-posts.index'
                             ],
                             [
                                 'title' => 'Gallery',
@@ -154,7 +182,7 @@
                                 'title' => 'Site',
                                 'icon' => 'fa-solid fa-chart-simple',
                                 'active' => function() {
-                                    return request()->routeIs('site-settings.edit') || request()->routeIs('features.*');
+                                    return request()->routeIs('site-settings.edit') || request()->routeIs('branches.*') || request()->routeIs('admin.deactivation.*');
                                 },
                                 'subItems' => [
                                     [
@@ -165,14 +193,25 @@
                                         }
                                     ],
                                     [
-                                        'title' => 'Features',
-                                        'route' => 'features.index',
+                                        'title' => 'Branches Management',
+                                        'route' => 'branches.index',
                                         'active' => function() {
-                                            return request()->routeIs('features.*');
+                                            return request()->routeIs('branches.*');
+                                        }
+                                    ],
+                                    [
+                                        'title' => 'Gym Deactivation',
+                                        'route' => 'admin.deactivation.index',
+                                        'active' => function() {
+                                            return request()->routeIs('admin.deactivation.*');
+                                        },
+                                        'show' => function() {
+                                            return auth()->user() && auth()->user()->isAdmin();
                                         }
                                     ],
                                 ]
                             ],
+                            
                         ];
                     @endphp
 
@@ -189,7 +228,7 @@
 
                                 <div class="menu-sub menu-sub-accordion">
                                     @foreach ($item['subItems'] as $subItem)
-
+                                        @if (!isset($subItem['show']) || $subItem['show']())
                                             <div class="menu-item">
                                                 <a class="menu-link {{ $subItem['active']() ? 'active' : '' }}" href="{{ isset($subItem['type']) ? '#' : (is_array($subItem['route']) ? route($subItem['route'][0], $subItem['route'][1]) : route($subItem['route'])) }}">
                                                     @if (isset($subItem['type']) && $subItem['type'] == 'button')
@@ -221,9 +260,13 @@
                                                                 id="{{ $subItem['id'] }}"
                                                             @endisset
                                                         >{{ $subItem['title'] }}</span>
+                                                        @if(isset($subItem['count']) && $subItem['count'] > 0)
+                                                            <span class="badge badge-light-primary ms-2">{{ $subItem['count'] }}</span>
+                                                        @endif
                                                     @endif
                                                 </a>
                                             </div>
+                                        @endif
                                     @endforeach
                                 </div>
                             </div>

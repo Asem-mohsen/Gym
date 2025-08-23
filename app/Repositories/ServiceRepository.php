@@ -18,12 +18,28 @@ class ServiceRepository
                      ->get();
     }
 
-    public function getServicesWithBranches(int $siteSettingId)
+    public function getServicesWithBranches(int $siteSettingId, $perPage = 15, $search = null, $branchId = null)
     {
-        return Service::where('site_setting_id', $siteSettingId)
+        $query = Service::where('site_setting_id', $siteSettingId)
                      ->with('branches')
-                     ->ordered()
-                     ->get();
+                     ->ordered();
+        
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name->en', 'like', "%{$search}%")
+                  ->orWhere('name->ar', 'like', "%{$search}%")
+                  ->orWhere('description->en', 'like', "%{$search}%")
+                  ->orWhere('description->ar', 'like', "%{$search}%");
+            });
+        }
+        
+        if ($branchId) {
+            $query->whereHas('branches', function($q) use ($branchId) {
+                $q->where('branch_id', $branchId);
+            });
+        }
+        
+        return $query->paginate($perPage);
     }
 
     public function createService(array $data)

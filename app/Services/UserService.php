@@ -17,14 +17,14 @@ class UserService
         $this->roleRepository = $roleRepository;
     }
 
-    public function getUsers(int $siteSettingId)
+    public function getUsers(int $siteSettingId, $perPage = 15, $branchId = null, $search = null)
     {
-        return $this->userRepository->getAllUsers($siteSettingId);
+        return $this->userRepository->getAllUsers($siteSettingId, $perPage, $branchId, $search);
     }
 
-    public function getTrainers(int $siteSettingId)
+    public function getTrainers(int $siteSettingId, $perPage = 15, $branchId = null, $search = null)
     {
-        return $this->userRepository->getAllTrainers($siteSettingId);
+        return $this->userRepository->getAllTrainers($siteSettingId, $perPage, $branchId, $search);
     }
 
     public function showUser($user, array $with = [])

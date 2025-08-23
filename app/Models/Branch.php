@@ -7,14 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Translatable\HasTranslations;
 
 class Branch extends Model implements HasMedia
 {
-    use HasFactory , InteractsWithMedia , HasTranslations;
+    use HasFactory , InteractsWithMedia , HasTranslations, SoftDeletes;
 
     protected $guarded = ['id'];
 
@@ -58,5 +60,25 @@ class Branch extends Model implements HasMedia
     public function services(): BelongsToMany
     {
         return $this->belongsToMany(Service::class, 'service_branch')->withPivot('is_available')->withTimestamps();
+    }
+
+    public function score(): HasOne
+    {
+        return $this->hasOne(BranchScore::class);
+    }
+
+    public function getScoreAttribute(): int
+    {
+        return $this->score()->first()?->score ?? 0;
+    }
+
+    public function getScoreLevelAttribute(): string
+    {
+        $score = $this->score;
+        if ($score >= 90) return 'excellent';
+        if ($score >= 80) return 'very_good';
+        if ($score >= 70) return 'good';
+        if ($score >= 60) return 'average';
+        return 'poor';
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Requests\Classes\{ StoreClassRequest, UpdateClassRequest };
 use App\Models\ClassModel;
 use App\Repositories\{ ClassRepository, UserRepository };
 use App\Services\{ ClassService, SiteSettingService };
+use Illuminate\Http\Request;
 
 class ClassController extends Controller
 {
@@ -22,10 +23,18 @@ class ClassController extends Controller
         $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $classes = $this->classRepository->getAll(['trainers', 'schedules', 'pricings']);
-        return view('admin.classes.index', compact('classes'));
+        $perPage = $request->get('per_page', 15);
+        $search = $request->get('search');
+        $type = $request->get('type');
+        
+        $classes = $this->classService->getClassesWithPagination($this->siteSettingId, $perPage, $search, $type);
+        
+        // Get class types for filter dropdown
+        $classTypes = $this->classRepository->getClassTypes($this->siteSettingId);
+        
+        return view('admin.classes.index', compact('classes', 'classTypes'));
     }
 
     public function create()

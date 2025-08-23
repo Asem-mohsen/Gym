@@ -12,10 +12,11 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Spatie\Translatable\HasTranslations;
 use App\Enums\MembershipPeriod;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Membership extends Model
 {
-    use HasFactory, HasTranslations;
+    use HasFactory, HasTranslations, SoftDeletes;
 
     protected $table = 'memberships';
 

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\SiteSettingResource\Pages;
 
 use App\Filament\Resources\SiteSettingResource;
+use App\Services\ContractDocumentService;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
@@ -16,5 +17,13 @@ class EditSiteSetting extends EditRecord
             Actions\ViewAction::make(),
             Actions\DeleteAction::make(),
         ];
+    }
+
+    protected function afterSave(): void
+    {
+        $siteSetting = $this->record;
+        
+        $service = new ContractDocumentService();
+        $service->handleContractDocument($siteSetting);
     }
 }

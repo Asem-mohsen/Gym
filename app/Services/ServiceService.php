@@ -158,4 +158,9 @@ class ServiceService
     {
         return $service->galleries()->with('media')->first();
     }
+
+    public function getServicesWithPagination(int $siteSettingId, $perPage = 15, $search = null, $branchId = null)
+    {
+        return $this->serviceRepository->getServicesWithBranches($siteSettingId, $perPage, $search, $branchId);
+    }
 }

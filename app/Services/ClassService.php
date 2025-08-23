@@ -144,4 +144,9 @@ class ClassService
     {
         return $this->classRepository->delete($class);
     }
+
+    public function getClassesWithPagination(int $siteSettingId, $perPage = 15, $search = null, $type = null)
+    {
+        return $this->classRepository->getAll(['trainers', 'schedules', 'pricings'], $perPage, $search, $type);
+    }
 } 

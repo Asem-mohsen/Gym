@@ -32,3 +32,16 @@
         KTList.init();
     });
 </script>
+
+
+<script>
+    document.getElementById('search-input').addEventListener('input', function() {
+        document.getElementById('search-hidden').value = this.value;
+    });
+    
+    document.getElementById('search-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('filter-form').submit();
+        }
+    });
+</script>

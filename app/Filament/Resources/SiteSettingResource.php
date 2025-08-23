@@ -78,6 +78,29 @@ class SiteSettingResource extends Resource
                         TextInput::make('x_url')->label('X URL')->url(),
                         TextInput::make('instagram_url')->label('Instagram URL')->url(),
                     ])->columns(2),
+
+                Fieldset::make('Contract Document')
+                    ->schema([
+                        SpatieMediaLibraryFileUpload::make("contract_document")->label('Contract Document')->collection("contract_document")
+                            ->acceptedFileTypes([
+                                // PDF
+                                'application/pdf',
+                        
+                                // Word (old + new)
+                                'application/msword',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        
+                                // Excel (old + new)
+                                'application/vnd.ms-excel',
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        
+                                // CSV + Text
+                                'text/csv',
+                                'text/plain',
+                            ])
+                            ->maxSize(10240) // 10MB
+                            ->helperText('Upload the contract document for this gym. This will be automatically linked to a document record.'),
+                    ]),
             ]);
     }
 

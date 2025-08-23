@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\Auth\LoginController;
 use App\Http\Controllers\Web\Auth\ForgetPasswordController;
 use App\Http\Controllers\Web\Auth\RegisterController;
 use App\Http\Controllers\Web\Auth\LogoutController;
+use App\Http\Controllers\Web\Auth\AdminSetupPasswordController;
 
 // Authentication Routes
 Route::prefix('auth')->middleware(['guest', 'require.gym.context'])->group(function () {
@@ -18,6 +19,11 @@ Route::prefix('auth')->middleware(['guest', 'require.gym.context'])->group(funct
         Route::get('/', 'index')->name('auth.forget-password.index');
         Route::post('/send-code', 'sendCode')->name('auth.forget-password.send-code');
         Route::post('/reset', 'resetPassword')->name('auth.forget-password.reset');
+    });
+
+    Route::prefix('admin-setup-password')->controller(AdminSetupPasswordController::class)->group(function () {
+        Route::get('/', 'showSetupForm')->name('auth.admin-setup-password');
+        Route::post('/', 'setupPassword')->name('auth.admin-setup-password');
     });
 });
 

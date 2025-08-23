@@ -27,11 +27,17 @@ class SubscriptionController extends Controller
         $this->siteSettingService = $siteSettingService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        [$subscriptions, $counts] = $this->subscriptionService->getSubscriptions($siteSettingId );
-        return view('admin.subscriptions.index', compact('subscriptions', 'counts'));
+        $perPage = $request->get('per_page', 15);
+        $branchId = $request->get('branch_id');
+        $search = $request->get('search');
+        [$subscriptions, $counts] = $this->subscriptionService->getSubscriptions($siteSettingId, $perPage, $branchId, $search);
+        
+        $branches = $this->branchService->getBranches($siteSettingId);
+        
+        return view('admin.subscriptions.index', compact('subscriptions', 'counts', 'branches'));
     }
 
     public function create()

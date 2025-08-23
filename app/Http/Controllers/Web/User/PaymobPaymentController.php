@@ -341,7 +341,7 @@ class PaymobPaymentController extends Controller
                     ->with('success', 'Class booking payment completed successfully!');
                     
             case Service::class:
-                return redirect()->route('user.services', ['siteSetting' => $siteSettingSlug])
+                return redirect()->route('user.services.index', ['siteSetting' => $siteSettingSlug])
                     ->with('success', 'Service booking payment completed successfully!');
                     
             default:

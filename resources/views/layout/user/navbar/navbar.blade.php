@@ -12,7 +12,7 @@
             <li class="{{ request()->routeIs('user.home') ? 'active' : '' }}"><a href="{{ route('user.home', ['siteSetting' => $siteSetting->slug]) }}">Home</a></li>
             <li class="{{ request()->routeIs('user.about-us') ? 'active' : '' }}"><a href="{{ route('user.about-us', ['siteSetting' => $siteSetting->slug]) }}">About Us</a></li>
             <li class="{{ request()->routeIs('user.classes.index') ? 'active' : '' }}"><a href="{{ route('user.classes.index', ['siteSetting' => $siteSetting->slug]) }}">Classes</a></li>
-            <li class="{{ request()->routeIs('user.services') ? 'active' : '' }}"><a href="{{ route('user.services', ['siteSetting' => $siteSetting->slug]) }}">Services</a></li>
+            <li class="{{ request()->routeIs('user.services.index') ? 'active' : '' }}"><a href="{{ route('user.services.index', ['siteSetting' => $siteSetting->slug]) }}">Services</a></li>
             <li class="{{ request()->routeIs('user.team') ? 'active' : '' }}"><a href="{{ route('user.team', ['siteSetting' => $siteSetting->slug]) }}">Our Team</a></li>
             <li><a href="#">Pages</a>
                 <ul class="dropdown">
@@ -55,11 +55,10 @@
                     <ul>
                         <li class="{{ request()->routeIs('user.home') ? 'active' : '' }}"><a href="{{ route('user.home', ['siteSetting' => $siteSetting->slug]) }}">Home</a></li>
                         <li class="{{ request()->routeIs('user.classes.index') ? 'active' : '' }}"><a href="{{ route('user.classes.index', ['siteSetting' => $siteSetting->slug]) }}">Classes</a></li>
-                        <li class="{{ request()->routeIs('user.services') ? 'active' : '' }}"><a href="{{ route('user.services', ['siteSetting' => $siteSetting->slug]) }}">Services</a></li>
-                        <li class="{{ request()->routeIs('user.about-us') || request()->routeIs('user.classes') || request()->routeIs('user.team') || request()->routeIs('user.gallery') || request()->routeIs('user.blog') || request()->routeIs('user.team') ? 'active' : '' }}"><a href="#">About Us</a>
+                        <li class="{{ request()->routeIs('user.services.index') ? 'active' : '' }}"><a href="{{ route('user.services.index', ['siteSetting' => $siteSetting->slug]) }}">Services</a></li>
+                        <li class="{{ request()->routeIs('user.about-us') || request()->routeIs('user.team') || request()->routeIs('user.gallery') || request()->routeIs('user.blog') || request()->routeIs('user.team') ? 'active' : '' }}"><a href="#">About Us</a>
                             <ul class="dropdown">
                                 <li class="{{ request()->routeIs('user.about-us') ? 'active' : '' }}"><a href="{{ route('user.about-us', ['siteSetting' => $siteSetting->slug]) }}">About us</a></li>
-                                <li class="{{ request()->routeIs('user.classes') ? 'active' : '' }}"><a href="{{ route('user.classes', ['siteSetting' => $siteSetting->slug]) }}">Classes timetable</a></li>
                                 {{-- <li><a href="{{ route('user.bmi-calculator') }}">Bmi calculate</a></li> --}}
                                 <li class="{{ request()->routeIs('user.team') ? 'active' : '' }}"><a href="{{ route('user.team', ['siteSetting' => $siteSetting->slug]) }}">Our team</a></li>
                                 <li class="{{ request()->routeIs('user.gallery') ? 'active' : '' }}"><a href="{{ route('user.gallery', ['siteSetting' => $siteSetting->slug]) }}">Gallery</a></li>

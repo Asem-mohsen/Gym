@@ -28,6 +28,11 @@
                         <input type="text" value="{{ $site->size }}" id="size" name="size" class="form-control form-control-solid required" required/>
                     </div>
                     <div class="mb-10 col-md-6">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="text" value="{{ $site->phone }}" id="phone" name="phone" class="form-control form-control-solid"/>
+                    </div>
+                    
+                    <div class="mb-10 col-md-6">
                         <label for="address_en" class="required form-label">Main address (English)</label>
                         <textarea class="form-control form-control-solid" name="address[en]" id="address_en" required>{{ $site->getTranslation('address', 'en') }}</textarea>
                     </div>
@@ -68,15 +73,15 @@
                     </div>
 
                     <p class="text-uppercase text-sm fw-bold">Social Media</p>
-                    <div class="mb-10 col-md-6">
+                    <div class="mb-10 col-md-4">
                         <label for="facebook_url" class="required form-label">Facebook URL</label>
                         <input type="text" value="{{ $site->facebook_url }}" id="facebook_url" name="facebook_url" class="form-control form-control-solid required" required/>
                     </div>
-                    <div class="mb-10 col-md-6">
+                    <div class="mb-10 col-md-4">
                         <label for="x_url" class="required form-label">X URL</label>
                         <input type="text" value="{{ $site->x_url }}" id="x_url" name="x_url" class="form-control form-control-solid required" required/>
                     </div>
-                    <div class="mb-10 col-md-6">
+                    <div class="mb-10 col-md-4">
                         <label for="instagram_url" class="required form-label">Instagram URL</label>
                         <input type="text" value="{{ $site->instagram_url }}" id="instagram_url" name="instagram_url" class="form-control form-control-solid required" required/>
                     </div>

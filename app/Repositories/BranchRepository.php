@@ -9,9 +9,13 @@ class BranchRepository
     /**
      * Get all branches with their phones.
      */
-    public function getBranches(int $siteSettingId ,$withSubscriptionCount = false)
+    public function getBranches(int $siteSettingId ,$withSubscriptionCount = false, $with = ['phones'])
     {
-        $query = Branch::where('site_setting_id', $siteSettingId)->with('phones');
+        $query = Branch::where('site_setting_id', $siteSettingId);
+        
+        if($with){
+            $query->with($with);
+        }
 
         if ($withSubscriptionCount) {
             $query->withCount('subscriptions');
@@ -31,11 +35,20 @@ class BranchRepository
             $branch = Branch::create($branchData);
     
             if (!empty($phonesData)) {
-                $formattedPhones = collect($phonesData)->map(fn($phone) => [
-                    'phone_number' => $phone['phones'],
-                ])->toArray();
-    
-                $branch->phones()->createMany($formattedPhones);
+
+                $formattedPhones = [];
+                
+                foreach ($phonesData as $phoneItem) {
+                    if (is_array($phoneItem) && isset($phoneItem['phones']) && !empty(trim($phoneItem['phones']))) {
+                        $formattedPhones[] = [
+                            'phone_number' => trim($phoneItem['phones']),
+                        ];
+                    }
+                }
+                
+                if (!empty($formattedPhones)) {
+                    $branch->phones()->createMany($formattedPhones);
+                }
             }
     
             return $branch->load('phones');
@@ -52,16 +65,20 @@ class BranchRepository
             $branch->update($branchData);
     
             if (!empty($phonesData)) {
-                $existingPhoneIds = $branch->phones->pluck('id')->toArray();
-                $newPhoneNumbers = collect($phonesData)->pluck('phone_number')->toArray();
-    
-                $branch->phones()->whereNotIn('phone_number', $newPhoneNumbers)->delete();
-    
-                foreach ($phonesData as $phone) {
-                    $branch->phones()->updateOrCreate(
-                        ['phone_number' => $phone['phone_number']], 
-                        ['phone_number' => $phone['phone_number']]
-                    );
+                $branch->phones()->delete();
+                
+                $formattedPhones = [];
+                
+                foreach ($phonesData as $phoneItem) {
+                    if (is_array($phoneItem) && isset($phoneItem['phones']) && !empty(trim($phoneItem['phones']))) {
+                        $formattedPhones[] = [
+                            'phone_number' => trim($phoneItem['phones']),
+                        ];
+                    }
+                }
+                
+                if (!empty($formattedPhones)) {
+                    $branch->phones()->createMany($formattedPhones);
                 }
             }
     

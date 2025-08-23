@@ -5,22 +5,52 @@ use App\Models\User;
 
 class UserRepository
 {
-    public function getAllUsers(int $siteSettingId)
+    public function getAllUsers(int $siteSettingId, $perPage = 15, $branchId = null, $search = null)
     {
-        return User::where('is_admin' , '0')->where('role_id', '2')
+        $query = User::where('is_admin' , '0')->where('role_id', '2')
             ->whereHas('gyms', function ($query) use ($siteSettingId) {
                 $query->where('site_setting_id', $siteSettingId);
-            })
-            ->get();
+            });
+
+        if ($branchId) {
+            $query->whereHas('subscriptions', function ($query) use ($branchId) {
+                $query->where('branch_id', $branchId);
+            });
+        }
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->paginate($perPage);
     }
 
-    public function getAllTrainers(int $siteSettingId)
+    public function getAllTrainers(int $siteSettingId, $perPage = 15, $branchId = null, $search = null)
     {
-        return User::where('is_admin' , '0')->where('role_id', '3')
+        $query = User::where('is_admin' , '0')->where('role_id', '3')
             ->whereHas('gyms', function ($query) use ($siteSettingId) {
                 $query->where('site_setting_id', $siteSettingId);
-            })
-            ->get();
+            });
+
+        if ($branchId) {
+            $query->whereHas('subscriptions', function ($query) use ($branchId) {
+                $query->where('branch_id', $branchId);
+            });
+        }
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->paginate($perPage);
     }
 
     public function createUser(array $data)

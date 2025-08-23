@@ -393,6 +393,22 @@
                                                 <i class="fas fa-map-marker-alt feature-icon"></i>
                                                 {{ $gym->branches->count() }} {{ Str::plural('branch', $gym->branches->count()) }}
                                             </div>
+                                            @php
+                                                $averageScore = $gym->branches->avg('score');
+                                                $excellentBranches = $gym->branches->where('score', '>=', 90)->count();
+                                            @endphp
+                                            @if($averageScore > 0)
+                                                <div class="feature-item">
+                                                    <i class="fas fa-star feature-icon"></i>
+                                                    Average Score: {{ number_format($averageScore, 1) }}
+                                                </div>
+                                            @endif
+                                            @if($excellentBranches > 0)
+                                                <div class="feature-item">
+                                                    <i class="fas fa-trophy feature-icon"></i>
+                                                    {{ $excellentBranches }} Excellent {{ Str::plural('branch', $excellentBranches) }}
+                                                </div>
+                                            @endif
                                         @endif
                                         
                                         @if($gym->services->count() > 0)
