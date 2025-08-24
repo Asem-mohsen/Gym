@@ -82,7 +82,11 @@
                                 </div>
                             </td>
                             <td>{{$admin->email}}</td>
-                            <td>{{$admin->role->name}}</td>
+                            <td>
+                                @foreach($admin->roles as $role)
+                                    <span class="badge bg-primary text-white">{{ $role->name }}</span>
+                                @endforeach
+                            </td>
                             <td>{{$admin->phone}}</td>
                             <td>
                                 @if($admin->status)
@@ -111,6 +115,17 @@
                                         title="View"
                                         iconClasses="fa-solid fa-eye"
                                     />
+                                    @if(!$admin->has_set_password)
+                                        <form action="{{ route('admins.resend-onboarding-email', $admin->id) }}" method="post" style="display: inline;">
+                                            @csrf
+                                            <x-icon-button
+                                                colorClass="warning"
+                                                title="Resend Onboarding Email"
+                                                iconClasses="fa-solid fa-envelope"
+                                                onclick="return confirm('Are you sure you want to resend the onboarding email to {{ $admin->name }}?')"
+                                            />
+                                        </form>
+                                    @endif
                                     <form action="{{ route('admins.destroy' ,$admin->id )}}" method="post">
                                         @csrf
                                         @method('DELETE')

@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Repositories\RoleRepository;
+use Spatie\Permission\Models\Role as SpatieRole;
 
 class RoleService
 {
@@ -12,36 +13,55 @@ class RoleService
         $this->roleRepository = $roleRepository;
     }
 
-    public function getRoles(int $siteSettingId ,array $where = [] ,array $withCount = [])
+    public function getRoles(array $where = [] ,array $withCount = [])
     {
-        return $this->roleRepository->getAllRoles(siteSettingId: $siteSettingId , where: $where , withCount: $withCount);
+        return $this->roleRepository->getAllRoles(where: $where , withCount: $withCount);
+    }
+
+
+    /**
+     * Get roles for regular user creation (only regular_user role)
+     */
+    public function getRolesForUserCreation(): array
+    {
+        $regularUserRole = SpatieRole::whereIn('name', ['regular_user', 'trainer'])->get();
+        $formattedRoles = [];
+        
+        foreach ($regularUserRole as $role) {
+            $formattedRoles[$role->id] = $role;
+        }
+
+        return $formattedRoles;
     }
 
     /**
-     * Get roles formatted for select components with ID as key
+     * Get roles for admin creation (all roles except regular_user)
      */
-    public function getRolesForSelect(int $siteSettingId): array
+    public function getRolesForAdminCreation(): array
     {
-        return $this->roleRepository->getRolesForSelect($siteSettingId);
+        $roles = SpatieRole::where('name', '!=', 'regular_user')->get();
+        $formattedRoles = [];
+        
+        foreach ($roles as $role) {
+            $formattedRoles[$role->id] = $role;
+        }
+        
+        return $formattedRoles;
     }
 
-    public function createRole(array $data)
+    /**
+     * Get all roles for admin management
+     */
+    public function getAllRolesForAdmin(): array
     {
-        return $this->roleRepository->createRole($data);
+        $roles = SpatieRole::all();
+        $formattedRoles = [];
+        
+        foreach ($roles as $role) {
+            $formattedRoles[$role->id] = $role;
+        }
+        
+        return $formattedRoles;
     }
 
-    public function updateRole($role, array $data)
-    {
-        return $this->roleRepository->updateRole($role, $data);
-    }
-
-    public function showRole($role)
-    {
-        return $this->roleRepository->findWith(where:['id' => $role->id] ,with:['users'] , withCount:['users']);
-    }
-
-    public function deleteRole($role)
-    {
-        return $this->roleRepository->deleteRole($role);
-    }
 }

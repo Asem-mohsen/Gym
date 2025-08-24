@@ -26,7 +26,7 @@ class InvitationController extends Controller
         $user = Auth::user();
         
         if (!$user) {
-            return redirect()->route('user.login.index')->with('error', 'Please login to send invitations.');
+            return redirect()->route('user.login.index', ['siteSetting' => $siteSetting->slug])->with('error', 'Please login to send invitations.');
         }
 
         // Check if user has active subscription with invitation feature
@@ -81,7 +81,7 @@ class InvitationController extends Controller
         $user = Auth::user();
         
         if (!$user) {
-            return redirect()->route('user.login.index')->with('error', 'Please login to view your invitations.');
+            return redirect()->route('user.login.index', ['siteSetting' => $siteSetting->slug])->with('error', 'Please login to view your invitations.');
         }
 
         $invitationData = $this->invitationService->getUserInvitations($user, $siteSetting);

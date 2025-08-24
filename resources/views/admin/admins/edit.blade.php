@@ -27,11 +27,11 @@
                     <input type="email" name="email" value="{{$admin->email}}" class="form-control form-control-solid required" required/>
                 </div>
                 <div class="mb-10 col-md-6">
-                    <label for="password" class="required form-label">Password</label>
-                    <input type="password" value="{{ old('password') }}" name="password" class="form-control form-control-solid required" required/>
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" value="{{ old('password') }}" name="password" class="form-control form-control-solid"/>
                 </div>
                 <div class="mb-10 col-md-6">
-                    <label for="role_id" class="required form-label">Role</label>
+                    <label for="role_ids" class="required form-label">Roles</label>
                     @php
                         $options = [];
                         foreach($roles as $id => $role){
@@ -40,12 +40,12 @@
                                 'label' => $role->name
                             ];
                         }
+                        $selectedRoles = $admin->roles->pluck('id')->toArray();
                     @endphp
-                    @include('_partials.select',[
+                    @include('_partials.select-multiple',[
                         'options' => $options,
-                        'name' => 'role_id',
-                        'id' => 'role_id',
-                        'selectedValue' => $admin->role_id
+                        'name' => 'role_ids',
+                        'selectedValue' => old('role_ids', $selectedRoles),
                     ])
                 </div>
                 <div class="mb-10 col-md-6">

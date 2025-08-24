@@ -3,17 +3,17 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\{User, Subscription, Membership, Branch, ClassModel, Service, Role, Booking};
+use App\Models\{User, Membership, Branch, ClassModel, Service, Booking};
+use App\Repositories\RoleRepository;
 use App\Services\SiteSettingService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    public function __construct(protected SiteSettingService $siteSettingService)
+    public function __construct(protected SiteSettingService $siteSettingService, protected RoleRepository $roleRepository)
     {
         $this->siteSettingService = $siteSettingService;
+        $this->roleRepository = $roleRepository;
     }
 
     public function index()
@@ -26,12 +26,10 @@ class DashboardController extends Controller
         })->count();
 
         // 2. Total number of trainers
-        $trainerRole = Role::where('name', 'Trainer')->first();
-        $totalTrainers = User::where('role_id', $trainerRole?->id ?? 0)->count();
+        $totalTrainers = $this->roleRepository->getRoleByName('trainer')->count();
 
         // 3. Total number of admins
-        $adminRole = Role::where('name', 'Admin')->first();
-        $totalAdmins = User::where('role_id', $adminRole?->id ?? 0)->count();
+        $totalAdmins = $this->roleRepository->getRoleByName('admin')->count();
 
         // 4. Chart of number of users to subscribers (using bookings for memberships)
         $totalSubscribers = Booking::where('bookable_type', Membership::class)

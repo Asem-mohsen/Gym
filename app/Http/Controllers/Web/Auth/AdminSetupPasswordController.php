@@ -4,13 +4,17 @@ namespace App\Http\Controllers\Web\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Services\OnBoarding\AdminOnboardingService;
+use App\Services\GymContextService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
 class AdminSetupPasswordController extends Controller
 {
-    public function __construct(protected AdminOnboardingService $adminOnboardingService) {}
+    public function __construct(
+        protected AdminOnboardingService $adminOnboardingService,
+        protected GymContextService $gymContextService
+    ) {}
 
     public function showSetupForm(Request $request)
     {
@@ -18,12 +22,14 @@ class AdminSetupPasswordController extends Controller
         $email = $request->query('email');
 
         if (!$token || !$email) {
-            return redirect()->route('auth.login.index')->withErrors(['email' => 'Invalid setup link.']);
+            $gymContext = $this->gymContextService->getCurrentGymContext();
+            return redirect()->route('auth.login.index', ['siteSetting' => $gymContext['slug']])->withErrors(['email' => 'Invalid setup link.']);
         }
 
         // Verify the token
         if (!$this->adminOnboardingService->verifyOnboardingToken($token, $email)) {
-            return redirect()->route('auth.login.index')->withErrors(['email' => 'Invalid or expired setup link.']);
+            $gymContext = $this->gymContextService->getCurrentGymContext();
+            return redirect()->route('auth.login.index', ['siteSetting' => $gymContext['slug']])->withErrors(['email' => 'Invalid or expired setup link.']);
         }
 
         return view('auth.admin-setup-password', [
@@ -49,10 +55,12 @@ class AdminSetupPasswordController extends Controller
             $request->password
         );
 
+        $gymContext = $this->gymContextService->getCurrentGymContext();
+
         return match ($status) {
             'invalid' => back()->withErrors(['token' => 'Invalid or expired setup link.']),
             'user_not_found' => back()->withErrors(['email' => 'User not found.']),
-            'success' => redirect()->route('auth.login.index')->with('success', 'Password set successfully. You can now log in.'),
+            'success' => redirect()->route('auth.login.index', ['siteSetting' => $gymContext['slug']])->with('success', 'Password set successfully. You can now log in.'),
         };
     }
 }

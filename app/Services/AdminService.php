@@ -2,14 +2,24 @@
 namespace App\Services;
 
 use App\Repositories\AdminRepository;
+use App\Mail\AdminOnboardingMail;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Services\Auth\PasswordGenerationService;
+use Spatie\Permission\Models\Role as SpatieRole;
+use Illuminate\Support\Facades\DB;
+use App\Models\User;
 
 class AdminService
 {
 
-    public function __construct(protected AdminRepository $adminRepository)
-    {
+    public function __construct(
+        protected AdminRepository $adminRepository,
+        protected PasswordGenerationService $passwordGenerationService
+    ) {
         $this->adminRepository = $adminRepository;
+        $this->passwordGenerationService = $passwordGenerationService;
     }
 
     public function getAdmins(int $siteSettingId, $perPage = 15, $search = null)
@@ -19,17 +29,39 @@ class AdminService
 
     public function createAdmin(array $data, int $siteSettingId)
     {
-        $data['password'] = Hash::make($data['password']);
+        $roleIds = $data['role_ids'] ?? [];
+        unset($data['role_ids'], $data['password']);
+        
+        // Generate a random password
+        $temporaryPassword = $this->passwordGenerationService->generateTemporaryPassword();
+        $data['password'] = Hash::make($temporaryPassword);
         $data['is_admin'] = 1;
 
         $user = $this->adminRepository->createAdmin($data);
         $user->gyms()->attach($siteSettingId);
+
+        // Assign roles
+        if (!empty($roleIds)) {
+            $roles = SpatieRole::whereIn('id', $roleIds)->get();
+            $user->assignRole($roles);
+        } else {
+            // Default to admin role
+            $adminRole = SpatieRole::where('name', 'admin')->first();
+            if ($adminRole) {
+                $user->assignRole($adminRole);
+            }
+        }
+
+        $this->sendOnboardingEmail($user, $siteSettingId);
 
         return $user;
     }
 
     public function updateAdmin($user, array $data , int $siteSettingId)
     {
+        $roleIds = $data['role_ids'] ?? [];
+        unset($data['role_ids']);
+        
         if (empty($data['password'])) {
             unset($data['password']);
         } else {
@@ -40,11 +72,43 @@ class AdminService
 
         $updatedUser->gyms()->syncWithoutDetaching([$siteSettingId]);
 
+        // Update roles
+        if (!empty($roleIds)) {
+            $roles = SpatieRole::whereIn('id', $roleIds)->get();
+            $updatedUser->syncRoles($roles);
+        }
+
         return $updatedUser;
     }
 
     public function deleteAdmin($user)
     {
         return $this->adminRepository->deleteAdmin($user);
+    }
+
+    /**
+     * Check if admin has set their password
+     */
+    public function hasAdminSetPassword(User $user): bool
+    {
+        $tokenRecord = DB::table('password_reset_tokens')->where('email', $user->email)->first();
+        return !$tokenRecord;
+    }
+
+    /**
+     * Send onboarding email to new admin
+     */
+    public function sendOnboardingEmail($user, int $siteSettingId): void
+    {
+        try {
+            $gymName = $user->gyms()->where('site_setting_id', $siteSettingId)->first()->gym_name ?? 'Our Gym';
+            
+            Mail::to($user->email)->send(new AdminOnboardingMail($user, $gymName));
+        } catch (\Exception $e) {
+            Log::error('Failed to send onboarding email to admin: ' . $user->email, [
+                'error' => $e->getMessage(),
+                'user_id' => $user->id
+            ]);
+        }
     }
 }

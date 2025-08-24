@@ -19,7 +19,6 @@ class CreateUser extends CreateRecord
         // Set a temporary password that will be changed via onboarding
         $data['password'] = bcrypt(Str::random(32));
         $data['is_admin'] = true;
-        $data['role_id'] = 1; // Admin role
         
         return $data;
     }

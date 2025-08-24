@@ -28,7 +28,7 @@
                 </form>
 
 
-                <a href="{{ route('auth.login.index') }}" id="kt_sign_in_submit" class="btn btn-secondary mt-3">
+                <a href="{{ route('auth.login.index', ['siteSetting' => $gymContext['slug']]) }}" id="kt_sign_in_submit" class="btn btn-secondary mt-3">
                     <span class="indicator-label">{{ __('Back to Login') }}</span>
                     <span class="indicator-progress">Please wait... 
                     <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>

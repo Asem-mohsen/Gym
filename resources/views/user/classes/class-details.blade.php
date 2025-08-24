@@ -205,7 +205,7 @@
                                 @else
                                     <div class="row">
                                         <div class="col-12">
-                                            <a href="{{ route('auth.login.index') }}" class="btn btn-primary btn-lg btn-block">
+                                            <a href="{{ route('auth.login.index', ['siteSetting' => $siteSetting->slug]) }}" class="btn btn-primary btn-lg btn-block">
                                                 <i class="fa fa-user-plus"></i> Login to Book Class
                                             </a>
                                         </div>

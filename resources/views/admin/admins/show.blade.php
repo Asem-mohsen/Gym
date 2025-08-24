@@ -75,7 +75,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="example-text-input" class="form-control-label">Role</label>
-                                        <input class="form-control" type="text" name="role" disabled value="{{$admin->role->name}}">
+                                        <input class="form-control" type="text" name="role" disabled value="{{$admin->roles->name}}">
                                     </div>
                                 </div>
                             </div>

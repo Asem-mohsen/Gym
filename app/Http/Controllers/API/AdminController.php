@@ -31,7 +31,7 @@ class AdminController extends Controller
 
     public function create()
     {
-        $roles = $this->roleService->getRoles(where: ['name' => 'admin'] ,siteSettingId: $this->siteSettingId);
+        $roles = $this->roleService->getRoles(where: ['name' => 'admin']);
         return successResponse(compact('roles'), 'Roles for adding admins retrieved successfully');
     }
 
@@ -57,7 +57,7 @@ class AdminController extends Controller
 
     public function edit(User $user)
     {
-        $roles = $this->roleService->getRoles(siteSettingId: $this->siteSettingId);
+        $roles = $this->roleService->getRoles();
         return successResponse(compact('user', 'roles'), 'Admin retrieved successfully');
     }
 

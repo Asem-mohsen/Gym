@@ -5,7 +5,7 @@ use App\Models\Role;
 
 class RoleRepository
 {
-    public function getAllRoles(int $siteSettingId , array $select = ['*'], array $with = [], array $where = [], array $orderBy = [], array $withCount = [])
+    public function getAllRoles(array $select = ['*'], array $with = [], array $where = [], array $orderBy = [], array $withCount = [])
     {
         return Role::select($select)
             ->when(!empty($with), fn($query) => $query->with($with))
@@ -16,7 +16,6 @@ class RoleRepository
                 }
             })
             ->when(!empty($withCount), fn($query) => $query->withCount($withCount))
-            ->where('site_setting_id', $siteSettingId)
             ->get();
     }
 
@@ -57,19 +56,17 @@ class RoleRepository
         
     }
 
-    public function getRoleByName(string $name, int $siteSettingId): ?Role
+    public function getRoleByName(string $name): ?Role
     {
-        return Role::where('name', $name)
-            ->where('site_setting_id', $siteSettingId)
-            ->first();
+        return Role::where('name', $name)->first();
     }
 
     /**
      * Get roles formatted for select components with ID as key
      */
-    public function getRolesForSelect(int $siteSettingId): array
+    public function getRolesForSelect(): array
     {
-        $roles = $this->getAllRoles($siteSettingId);
+        $roles = $this->getAllRoles();
         $formattedRoles = [];
         
         foreach ($roles as $role) {

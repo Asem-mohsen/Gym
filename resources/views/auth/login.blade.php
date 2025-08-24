@@ -3,7 +3,7 @@
 @section('title', 'Sign In')
 
 @section('form')
-    <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" data-kt-redirect-url="{{ route('user.home' , ['siteSetting' => $gymContext['slug'] ?? '']) }}" method="POST" action="{{ route('auth.login') }}">
+    <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" data-kt-redirect-url="{{ route('user.home' , ['siteSetting' => $gymContext['slug'] ?? '']) }}" method="POST" action="{{ route('auth.login', ['siteSetting' => $gymContext['slug']]) }}">
         @csrf
         
         <input type="hidden" name="site_setting_id" value="{{ $gymContext['id'] ?? '' }}">
@@ -36,8 +36,8 @@
         </div>
 
         <div class="d-flex flex-column flex-wrap gap-3 fs-base fw-semibold mb-8">
-            <a href="{{ route('auth.forget-password.index') }}" class="link-primary">Forgot Password ?</a>
-            <a href="{{ route('auth.register.index') }}" class="link-primary">Register</a>
+            <a href="{{ route('auth.forget-password.index', ['siteSetting' => $gymContext['slug']]) }}" class="link-primary">Forgot Password ?</a>
+            <a href="{{ route('auth.register.index', ['siteSetting' => $gymContext['slug']]) }}" class="link-primary">Register</a>
         </div>
 
         <div class="d-grid mb-10">

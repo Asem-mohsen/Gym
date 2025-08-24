@@ -30,7 +30,7 @@ class SiteSettingService
                 unset($branchData['phones']);
 
                 $branchData['site_setting_id'] = $siteSetting->id;
-                $this->branchRepository->createBranch($branchData, $phones , $siteSetting->id);
+                $this->branchRepository->createBranch($branchData, $siteSetting->id, $phones);
             }
 
             return $siteSetting->load('branches.phones');
@@ -60,7 +60,7 @@ class SiteSettingService
                 unset($branchData['phones']);
 
                 $branchData['site_setting_id'] = $siteSetting->id;
-                $this->branchRepository->createBranch($branchData, $phones , $siteSetting->id);
+                $this->branchRepository->createBranch($branchData, $siteSetting->id, $phones);
             }
 
             return $siteSetting->load('branches.phones');

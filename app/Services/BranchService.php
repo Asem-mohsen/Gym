@@ -17,7 +17,7 @@ class BranchService
 
     public function createBranch(array $branchData , array $phonesData , int $siteId)
     {
-        return $this->branchRepository->createBranch($branchData, $phonesData , $siteId);
+        return $this->branchRepository->createBranch($branchData, $siteId, $phonesData);
     }
 
     public function updateBranch($branch, array $branchData, array $phonesData)

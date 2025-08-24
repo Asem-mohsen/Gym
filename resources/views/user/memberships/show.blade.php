@@ -126,7 +126,7 @@
                                 @endif
                             @else
                                 <div class="guest-message">
-                                    <a href="{{ route('auth.register.index') }}" class="btn btn-primary btn-lg">
+                                    <a href="{{ route('auth.register.index', ['siteSetting' => $siteSetting->slug]) }}" class="btn btn-primary btn-lg">
                                         <i class="fa fa-user-plus me-2"></i>
                                         Join Us to Enroll
                                     </a>

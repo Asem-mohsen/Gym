@@ -79,7 +79,11 @@
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-4 fw-bold">Role:</div>
-                    <div class="col-md-8">{{ $subscription->user->role->name ?? 'N/A' }}</div>
+                    <div class="col-md-8">
+                        @foreach($subscription->user->roles as $role)
+                            <span class="badge bg-primary text-white">{{ $role->name }}</span>
+                        @endforeach
+                    </div>
                 </div>
                 @else
                 <div class="alert alert-warning">User information not available</div>
