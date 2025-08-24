@@ -46,7 +46,7 @@ class ServicesController extends Controller
         $user = Auth::user();
         
         if (!$user) {
-            return redirect()->route('user.login.index')->with('error', 'Please login to book this service.');
+            return redirect()->route('user.login.index', ['siteSetting' => $siteSetting->slug])->with('error', 'Please login to book this service.');
         }
 
         // Check if service is bookable

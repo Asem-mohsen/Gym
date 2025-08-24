@@ -88,7 +88,11 @@
                             </td>
                             <td>{{$user->email}}</td>
                             <td>{{$user->phone}}</td>
-                            <td>{{$user->role->name}}</td>
+                            <td> 
+                                @foreach($user->roles as $role)
+                                    <span class="badge bg-primary text-white">{{ $role->name }}</span>
+                                @endforeach
+                            </td>
                             <td>
                                 @if ($user->address)
                                     {{ \Illuminate\Support\Str::limit($user->address, 25) }}
@@ -111,6 +115,17 @@
                                         title="View"
                                         iconClasses="fa-solid fa-eye"
                                     />
+                                    @if(!$user->has_set_password)
+                                        <form action="{{ route('users.resend-onboarding-email', $user->id) }}" method="post" style="display: inline;">
+                                            @csrf
+                                            <x-icon-button
+                                                colorClass="warning"
+                                                title="Resend Onboarding Email"
+                                                iconClasses="fa-solid fa-envelope"
+                                                onclick="return confirm('Are you sure you want to resend the onboarding email to {{ $user->name }}?')"
+                                            />
+                                        </form>
+                                    @endif
                                     <form action="{{ route('users.destroy' ,$user->id )}}" method="post">
                                         @csrf
                                         @method('DELETE')

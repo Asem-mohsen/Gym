@@ -30,6 +30,7 @@ Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     Route::resource('admins',AdminController::class);
+    Route::post('admins/{admin}/resend-onboarding-email', [AdminController::class, 'resendOnboardingEmail'])->name('admins.resend-onboarding-email');
 
     Route::resource('membership',MembershipController::class);
 
@@ -43,6 +44,7 @@ Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
 
     Route::resource('users',UserController::class);
     Route::get('trainers',[UserController::class,'trainers'])->name('trainers');
+    Route::post('users/{user}/resend-onboarding-email', [UserController::class, 'resendOnboardingEmail'])->name('users.resend-onboarding-email');
 
     Route::resource('services',ServicesController::class);
 

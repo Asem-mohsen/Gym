@@ -4,6 +4,7 @@ namespace App\Http\Requests\Users;
 
 use App\Models\Role;
 use Illuminate\Foundation\Http\FormRequest;
+use Spatie\Permission\Models\Role as SpatieRole;
 
 class AddUserRequest extends FormRequest
 {
@@ -18,15 +19,16 @@ class AddUserRequest extends FormRequest
         $rules = [
             'name'    => ['required' , 'max:255'],
             'email'   => ['required' , 'email' , 'max:255' , 'unique:users,email,except,id'],
-            'password'=> ['required' , 'max:255'],
             'address' => ['required' , 'max:255'],
             'gender'  => ['required' , 'max:15'],
             'phone'   => ['required' , 'numeric'],
-            'role_id' => ['required' , 'exists:roles,id'],
+            'role_ids' => ['nullable', 'array'],
+            'role_ids.*' => ['exists:roles,id'],
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
 
-        if ($this->input('role_id') && $this->isTrainerRole()) {
+        // Add trainer information validation if user has trainer role
+        if ($this->hasTrainerRole()) {
             $rules = array_merge($rules, [
                 'weight' => 'nullable|numeric|min:0|max:999.99',
                 'height' => 'nullable|numeric|min:0|max:999.99',
@@ -43,14 +45,16 @@ class AddUserRequest extends FormRequest
     }
 
     /**
-     * Check if the selected role is trainer
+     * Check if the user has trainer role
      */
-    private function isTrainerRole(): bool
+    private function hasTrainerRole(): bool
     {
-        $roleId = $this->input('role_id');
-        if (!$roleId) return false;
+        $roleIds = $this->input('role_ids', []);
+        if (empty($roleIds)) return false;
 
-        $role = Role::find($roleId);
-        return $role && strtolower($role->name) === 'trainer';
+        $trainerRole = SpatieRole::where('name', 'trainer')->first();
+        if (!$trainerRole) return false;
+
+        return in_array($trainerRole->id, $roleIds);
     }
 }

@@ -13,8 +13,8 @@ class BlogRepository
      */
     public function getBlogPosts(int $siteSettingId, $isPublished = true, ?int $perPage = null, ?int $take = null, $orderBy = 'created_at', $orderByDirection = 'desc')
     {
-        $query = BlogPost::with(['user.role', 'categories', 'tags'])
-            ->whereHas('user.role', function ($query) use ($siteSettingId) {
+        $query = BlogPost::with(['user.gyms', 'categories', 'tags'])
+            ->whereHas('user.gyms', function ($query) use ($siteSettingId) {
                 $query->where('site_setting_id', $siteSettingId);
             })
             ->when($isPublished, function ($query) {

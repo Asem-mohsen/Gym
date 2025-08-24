@@ -20,7 +20,8 @@ class UpdateAdminRequest extends FormRequest
             'address' => ['required' , 'max:255'],
             'password'=> ['nullable' , 'max:255'],
             'phone'   => ['required' , 'numeric'],
-            'role_id' => ['required' , 'exists:roles,id'],
+            'role_ids' => ['nullable', 'array'],
+            'role_ids.*' => ['exists:roles,id'],
             'gender'  => ['nullable' , 'in:male,female'],
             'status'  => ['required' , 'in:1,0'],
         ];

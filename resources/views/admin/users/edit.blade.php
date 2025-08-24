@@ -29,7 +29,7 @@
                     <input type="password" value="{{ old('password') }}" name="password" class="form-control form-control-solid"/>
                 </div>
                 <div class="mb-10 col-md-6">
-                    <label for="role_id" class="required form-label">Role</label>
+                    <label for="role_ids" class="required form-label">Roles</label>
                     @php
                         $options = [];
                         foreach($roles as $id => $role){
@@ -38,12 +38,12 @@
                                 'label' => $role->name
                             ];
                         }
+                        $selectedRoles = $user->roles->pluck('id')->toArray();
                     @endphp
-                    @include('_partials.select',[
+                    @include('_partials.select-multiple',[
                         'options' => $options,
-                        'name' => 'role_id',
-                        'id' => 'role_id',
-                        'selectedValue' => $user->role_id,
+                        'name' => 'role_ids',
+                        'selectedValue' => old('role_ids', $selectedRoles),
                         'changeFuncion' => 'toggleTrainerSection()'
                     ])
                 </div>

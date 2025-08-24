@@ -23,11 +23,7 @@
                     <input type="email" value="{{ old('email') }}" name="email" class="form-control form-control-solid required" required/>
                 </div>
                 <div class="mb-10 col-md-6">
-                    <label for="password" class="required form-label">Password</label>
-                    <input type="password" value="{{ old('password') }}" name="password" class="form-control form-control-solid required" required/>
-                </div>
-                <div class="mb-10 col-md-6">
-                    <label for="role_id" class="required form-label">Role</label>
+                    <label for="role_ids" class="required form-label">Roles</label>
                     @php
                         $options = [];
                         foreach($roles as $id => $role){
@@ -37,10 +33,10 @@
                             ];
                         }
                     @endphp
-                    @include('_partials.select',[
+                    @include('_partials.select-multiple',[
                         'options' => $options,
-                        'name' => 'role_id',
-                        'id' => 'role_id',
+                        'name' => 'role_ids',
+                        'selectedValue' => old('role_ids'),
                     ])
                 </div>
                 <div class="mb-10 col-md-6">
@@ -73,7 +69,7 @@
                 </div>
                 <div class="mb-10 col-md-6">
                     <label for="address" class="required form-label">Address</label>
-                    <textarea name="address" class="form-control form-control-solid required" required >{{ old('name') }}</textarea>
+                    <textarea name="address" class="form-control form-control-solid required" required >{{ old('address') }}</textarea>
                 </div>
                 <div class="mb-10 col-md-6">
                     <label for="country" class="required form-label">Country</label>

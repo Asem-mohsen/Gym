@@ -21,7 +21,7 @@ class RolesController extends Controller
     public function index()
     {
         try {
-            $roles = $this->roleService->getRoles(siteSettingId: $this->siteSettingId);
+            $roles = $this->roleService->getRoles();
             return successResponse(compact('roles'), 'role data retrived successfully');
         } catch (Exception $e) {
             return failureResponse('Error retrieving roles, please try again.');

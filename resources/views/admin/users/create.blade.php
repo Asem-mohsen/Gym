@@ -23,11 +23,7 @@
                     <input type="email" value="{{ old('email') }}" name="email" class="form-control form-control-solid required" required/>
                 </div>
                 <div class="mb-10 col-md-6">
-                    <label for="password" class="required form-label">Password</label>
-                    <input type="password" value="{{ old('password') }}" name="password" class="form-control form-control-solid required" required/>
-                </div>
-                <div class="mb-10 col-md-6">
-                    <label for="role_id" class="required form-label">Role</label>
+                    <label for="role_ids" class="required form-label">Role</label>
                     @php
                         $options = [];
                         foreach($roles as $id => $role){
@@ -39,8 +35,9 @@
                     @endphp
                     @include('_partials.select',[
                         'options' => $options,
-                        'name' => 'role_id',
-                        'id' => 'role_id',
+                        'name' => 'role_ids[]',
+                        'id' => 'role_ids',
+                        'selectedValue' => old('role_ids'),
                         'changeFuncion' => 'toggleTrainerSection()'
                     ])
                 </div>

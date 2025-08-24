@@ -3,7 +3,7 @@
 @section('title', 'Sign Up')
 
 @section('form')
-    <form class="form w-100" novalidate="novalidate" id="kt_sign_up_form" method="POST" action="{{ route('auth.register') }}">
+    <form class="form w-100" novalidate="novalidate" id="kt_sign_up_form" method="POST" action="{{ route('auth.register', ['siteSetting' => $gymContext['slug']]) }}">
         @csrf
         
         @if(isset($gymContext))
@@ -60,7 +60,7 @@
         </div>
 
         <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
-            <a href="{{ route('auth.login.index') }}" class="link-primary">Already have an account? Sign In</a>
+            <a href="{{ route('auth.login.index', ['siteSetting' => $gymContext['slug']]) }}" class="link-primary">Already have an account? Sign In</a>
         </div>
 
         <div class="d-grid mb-10">

@@ -27,9 +27,9 @@ class BranchRepository
     /**
      * Create a new branch with phones.
      */
-    public function createBranch(array $branchData, array $phonesData = [], int $siteId)
+    public function createBranch(array $branchData,int $siteId, array $phonesData = [])
     {
-        return DB::transaction(function () use ($branchData, $phonesData, $siteId) {
+        return DB::transaction(function () use ($branchData, $siteId, $phonesData) {
             $branchData['site_setting_id'] = $siteId;
     
             $branch = Branch::create($branchData);

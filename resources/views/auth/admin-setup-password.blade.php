@@ -9,7 +9,7 @@
         
         <p class="text-center mb-8">Please set up your password to complete your account setup.</p>
         
-        <form method="POST" action="{{ route('auth.admin-setup-password') }}">
+        <form method="POST" action="{{ route('auth.admin-setup-password', ['siteSetting' => $gymContext['slug']]) }}">
             @csrf
             <input type="hidden" name="token" value="{{ $token }}">
             <input type="hidden" name="email" value="{{ $email }}">

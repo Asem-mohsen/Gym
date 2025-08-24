@@ -112,7 +112,7 @@
                         </div>
                     @else
                         <div class="auth-buttons">
-                            <a href="{{ route('auth.login.index') }}" class="btn-outline-primary">
+                            <a href="{{ route('auth.login.index', ['siteSetting' => $siteSetting->slug]) }}" class="btn-outline-primary">
                                 <i class="fa fa-user"></i>
                             </a>
                         </div>

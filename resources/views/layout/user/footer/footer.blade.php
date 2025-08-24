@@ -69,8 +69,8 @@
                         @if(Auth::check())
                             <li><a href="{{route('user.invitations.index' , ['siteSetting' => $siteSetting->slug])}}">Invitations</a></li>
                         @else
-                            <li><a href="{{route('auth.login.index')}}">Login</a></li>
-                            <li><a href="{{route('auth.register.index')}}">Register</a></li>
+                            <li><a href="{{route('auth.login.index', ['siteSetting' => $siteSetting->slug])}}">Login</a></li>
+                            <li><a href="{{route('auth.register.index', ['siteSetting' => $siteSetting->slug])}}">Register</a></li>
                         @endif
                         <li><a href="{{route('user.services.index' , ['siteSetting' => $siteSetting->slug])}}">Services</a></li>
                         <li><a href="{{route('user.contact' , ['siteSetting' => $siteSetting->slug])}}">Contact Us</a></li>

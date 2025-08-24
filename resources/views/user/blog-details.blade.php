@@ -188,7 +188,7 @@
                                         @if(auth()->check())
                                             <button type="submit">Submit</button>
                                         @else
-                                            <a class="btn" href="{{ route('auth.login.index') }}">Login to Comment</a>
+                                            <a class="btn" href="{{ route('auth.login.index', ['siteSetting' => $siteSetting->slug]) }}">Login to Comment</a>
                                         @endif
                                     </form>
                                 </div>

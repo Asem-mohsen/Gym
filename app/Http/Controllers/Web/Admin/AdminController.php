@@ -21,17 +21,29 @@ class AdminController extends Controller
 
     public function index(Request $request)
     {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $perPage = $request->get('per_page', 15);
-        $search = $request->get('search');
-        $admins = $this->adminService->getAdmins($siteSettingId, $perPage, $search);
-        return view('admin.admins.index',compact('admins'));
+        try {
+            $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+            $admins = $this->adminService->getAdmins(
+                $siteSettingId,
+                $request->get('per_page', 15),
+                $request->get('search')
+            );
+            
+            // Add password status to each admin
+            foreach ($admins as $admin) {
+                $admin->has_set_password = $this->adminService->hasAdminSetPassword($admin);
+            }
+            
+            return view('admin.admins.index', compact('admins'));
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Error happened while fetching admins, please try again in a few minutes.');
+        }
     }
 
     public function create()
     {
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $roles = $this->roleService->getRoles(where: ['name' => 'admin'], siteSettingId: $siteSettingId);
+        $roles = $this->roleService->getRolesForAdminCreation();
         return view('admin.admins.create',compact('roles'));
     }
 
@@ -40,10 +52,17 @@ class AdminController extends Controller
         try {
             $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
             $this->adminService->createAdmin($request->validated() , $siteSettingId);
-            return redirect()->route('admins.index')->with('success', 'Admin created successfully.');
+            return redirect()->route('admins.index')->with('success', 'Admin created successfully. An onboarding email has been sent to set their password.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while creating a new admin, please try again in a few minutes.');
         }
+    }
+
+    public function edit(User $admin)
+    {
+        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+        $roles = $this->roleService->getRolesForAdminCreation();
+        return view('admin.admins.edit',compact('admin','roles'));
     }
 
     public function update(UpdateAdminRequest $request, User $admin)
@@ -57,26 +76,30 @@ class AdminController extends Controller
         }
     }
 
-    public function edit(User $admin)
-    {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $roles = $this->roleService->getRoles(where: ['name' => 'admin'], siteSettingId: $siteSettingId);
-        return view('admin.admins.edit', get_defined_vars());
-    }
-
-    public function show(User $admin)
-    {
-        return view('admin.admins.show', get_defined_vars());
-    }
-
     public function destroy(User $admin)
     {
         try {
             $this->adminService->deleteAdmin($admin);
-            return redirect()->route('admins.index')->with('success', 'Admin deleted successfully.');
+            return redirect()->back()->with('success', 'Admin deleted successfully.');
         } catch (Exception $e) {
             Log::error($e->getMessage());
             return redirect()->back()->with('error', 'Error happened while deleting admin, please try again in a few minutes.');
+        }
+    }
+
+    public function resendOnboardingEmail(User $admin)
+    {
+        try {
+            $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+            $success = $this->adminService->sendOnboardingEmail($admin, $siteSettingId);
+            
+            if ($success) {
+                return redirect()->back()->with('success', 'Onboarding email has been resent successfully.');
+            } else {
+                return redirect()->back()->with('error', 'Failed to resend onboarding email. Please try again.');
+            }
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Error happened while resending onboarding email, please try again in a few minutes.');
         }
     }
 }

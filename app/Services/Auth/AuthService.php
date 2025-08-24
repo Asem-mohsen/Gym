@@ -1,16 +1,19 @@
 <?php 
 namespace App\Services\Auth;
 
+use App\Models\Role;
 use App\Models\User;
+use App\Repositories\RoleRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthService
 {
-    public function __construct(protected UserRepository $userRepository)
+    public function __construct(protected UserRepository $userRepository, protected RoleRepository $roleRepository)
     {
         $this->userRepository = $userRepository;
+        $this->roleRepository = $roleRepository;
     }
 
     /**
@@ -37,9 +40,14 @@ class AuthService
     public function register(array $data): array
     {
         $data['password'] = Hash::make($data['password']);
-        $data['role_id'] = $data['role_id'] ?? 2;
 
         $user = $this->userRepository->createUser($data);
+
+        $regularUserRole = $this->roleRepository->getRoleByName('regular_user');
+        
+        if ($regularUserRole) {
+            $user->assignRole($regularUserRole);
+        }
 
         $accessToken = $this->generateToken($user);
 

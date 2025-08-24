@@ -7,23 +7,23 @@ use App\Http\Controllers\Web\Auth\RegisterController;
 use App\Http\Controllers\Web\Auth\LogoutController;
 use App\Http\Controllers\Web\Auth\AdminSetupPasswordController;
 
-// Authentication Routes
-Route::prefix('auth')->middleware(['guest', 'require.gym.context'])->group(function () {
-    Route::get('/login', [LoginController::class, 'index'])->name('auth.login.index');
-    Route::post('/login', [LoginController::class, 'login'])->name('auth.login');
-    Route::get('/register', [RegisterController::class, 'index'])->name('auth.register.index');
-    Route::post('/register', [RegisterController::class, 'register'])->name('auth.register');
+// Authentication Routes with gym context
+Route::prefix('gym/{siteSetting:slug}/auth')->name('auth.')->middleware(['guest', 'store.gym.context', 'share.site.setting'])->group(function () {
+    Route::get('/login', [LoginController::class, 'index'])->name('login.index');
+    Route::post('/login', [LoginController::class, 'login'])->name('login');
+    Route::get('/register', [RegisterController::class, 'index'])->name('register.index');
+    Route::post('/register', [RegisterController::class, 'register'])->name('register');
 
     Route::prefix('forget-password')->controller(ForgetPasswordController::class)->group(function () {
-        Route::get('/reset', 'resetForm')->name('auth.forget-password.reset-form');
-        Route::get('/', 'index')->name('auth.forget-password.index');
-        Route::post('/send-code', 'sendCode')->name('auth.forget-password.send-code');
-        Route::post('/reset', 'resetPassword')->name('auth.forget-password.reset');
+        Route::get('/reset', 'resetForm')->name('forget-password.reset-form');
+        Route::get('/', 'index')->name('forget-password.index');
+        Route::post('/send-code', 'sendCode')->name('forget-password.send-code');
+        Route::post('/reset', 'resetPassword')->name('forget-password.reset');
     });
 
     Route::prefix('admin-setup-password')->controller(AdminSetupPasswordController::class)->group(function () {
-        Route::get('/', 'showSetupForm')->name('auth.admin-setup-password');
-        Route::post('/', 'setupPassword')->name('auth.admin-setup-password');
+        Route::get('/', 'showSetupForm')->name('admin-setup-password');
+        Route::post('/', 'setupPassword')->name('admin-setup-password');
     });
 });
 
