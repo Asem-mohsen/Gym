@@ -51,3 +51,11 @@
         </div>
     </form>
 @endsection
+
+@section('js')
+    @include('auth.assets.script', [
+        'formId' => 'kt_sign_in_form',
+        'submitButtonId' => 'kt_sign_in_submit',
+        'successMessage' => 'Login successful!'
+    ])
+@endsection

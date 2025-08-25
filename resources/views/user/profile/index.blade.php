@@ -128,8 +128,7 @@
                                 </a>
                             </div>
                             <div class="col-md-6">
-                                <form action="{{ route('profile.delete', ['siteSetting' => $siteSetting]) }}" method="POST" class="d-inline" 
-                                      onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.')">
+                                <form action="{{ route('profile.delete', ['siteSetting' => $siteSetting]) }}" method="POST" class="d-inline" >
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-block">

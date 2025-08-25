@@ -19,12 +19,12 @@
         </div>
         
         <div class="fv-row mb-8">
-            <input type="text" placeholder="Full Name" name="name" class="form-control bg-transparent" value="{{ old('name') }}" />
+            <input type="text" placeholder="Full Name" name="name" class="form-control bg-transparent" value="{{ old('name') }}" required />
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
         
         <div class="fv-row mb-8">
-            <input type="email" placeholder="Email" name="email" class="form-control bg-transparent" value="{{ old('email') }}" />
+            <input type="email" placeholder="Email" name="email" class="form-control bg-transparent" value="{{ old('email') }}" required />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
         
@@ -71,4 +71,15 @@
             </button>
         </div>
     </form>
+@endsection
+
+
+@section('js')
+
+    @include('auth.assets.script', [
+        'formId' => 'kt_sign_up_form',
+        'submitButtonId' => 'kt_sign_up_submit',
+        'successMessage' => 'Account created successfully!'
+    ])
+
 @endsection

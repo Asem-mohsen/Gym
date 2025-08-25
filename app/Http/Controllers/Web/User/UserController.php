@@ -49,13 +49,16 @@ class UserController extends Controller
         }
     }
 
-    public function delete()
+    public function delete(SiteSetting $siteSetting)
     {
         try {
             $user = Auth::user();
-            $this->userService->deleteUser($user);
+
+            $gym = $this->userService->deleteUser($user, $siteSetting);
+
             Auth::logout();
-            return redirect()->route('gym.selection')->with('success', 'Account deleted successfully.');
+
+            return redirect()->route('gym.selection')->with('success', 'Account deleted successfully. We\'ll miss you!');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while deleting account, please try again in a few minutes.');
         }

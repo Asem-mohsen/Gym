@@ -19,13 +19,6 @@
         <tr>
             <td align="center">
                 <table class="email-content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
-                    <tr>
-                        <td class="email-masthead">
-                            <a href="#" class="f-fallback email-masthead_name">
-                                {{ config('app.name') }}
-                            </a>
-                        </td>
-                    </tr>
                     <!-- Email Body -->
                     <tr>
                         <td class="email-body" width="570" cellpadding="0" cellspacing="0">
@@ -34,22 +27,6 @@
                                 <!-- Body content -->
                                 <tr>
                                     @yield('content')
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table class="email-footer" align="center" width="570" cellpadding="0" cellspacing="0"
-                                role="presentation">
-                                <tr>
-                                    <td class="content-cell" align="center">
-                                        <p class="f-fallback sub align-center">
-                                            {{ config('app.name') }}
-                                            <br>1234 Street Rd.
-                                            <br>Suite 1234
-                                        </p>
-                                    </td>
                                 </tr>
                             </table>
                         </td>

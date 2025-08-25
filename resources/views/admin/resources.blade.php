@@ -30,6 +30,8 @@
                                 <option value="policies" {{ request('type') == 'policies' ? 'selected' : '' }}>Policies</option>
                                 <option value="procedures" {{ request('type') == 'procedures' ? 'selected' : '' }}>Procedures</option>
                                 <option value="forms" {{ request('type') == 'forms' ? 'selected' : '' }}>Forms</option>
+                                <option value="report" {{ request('type') == 'report' ? 'selected' : '' }}>Report</option>
+                                <option value="contract" {{ request('type') == 'contract' ? 'selected' : '' }}>Contract</option>
                                 <option value="other" {{ request('type') == 'other' ? 'selected' : '' }}>Other</option>
                             </select>
                         </div>

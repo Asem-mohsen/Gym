@@ -127,6 +127,8 @@ class DocumentResource extends Resource
                         'policies' => 'warning',
                         'procedures' => 'info',
                         'forms' => 'secondary',
+                        'contract' => 'info',
+                        'report' => 'success',
                         'other' => 'danger',
                     }),
                 TextColumn::make('document_name')
@@ -170,6 +172,7 @@ class DocumentResource extends Resource
                         'procedures' => 'Procedures',
                         'forms' => 'Forms',
                         'contract' => 'Contract',
+                        'report' => 'Gym Reports',
                         'other' => 'Other',
                     ]),
             ])

@@ -1,19 +1,23 @@
 <?php 
 namespace App\Services\Auth;
 
-use App\Models\Role;
 use App\Models\User;
-use App\Repositories\RoleRepository;
-use App\Repositories\UserRepository;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use App\Repositories\{RoleRepository, UserRepository};
+use App\Services\{EmailService, SiteSettingService};
+use Illuminate\Support\Facades\{Auth, Hash};
 
 class AuthService
 {
-    public function __construct(protected UserRepository $userRepository, protected RoleRepository $roleRepository)
-    {
+    public function __construct(
+        protected UserRepository $userRepository, 
+        protected RoleRepository $roleRepository,
+        protected EmailService $emailService,
+        protected SiteSettingService $siteSettingService    
+    ) {
         $this->userRepository = $userRepository;
         $this->roleRepository = $roleRepository;
+        $this->emailService = $emailService;
+        $this->siteSettingService = $siteSettingService;
     }
 
     /**
@@ -47,6 +51,12 @@ class AuthService
         
         if ($regularUserRole) {
             $user->assignRole($regularUserRole);
+        }
+
+        $gym = $this->siteSettingService->getSiteSettingById($data['site_setting_id']);
+        
+        if ($gym) {
+            $this->emailService->sendWelcomeEmail($user, $gym);
         }
 
         $accessToken = $this->generateToken($user);

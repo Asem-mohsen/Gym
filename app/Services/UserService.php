@@ -4,10 +4,10 @@ namespace App\Services;
 use App\Models\Role;
 use App\Repositories\{UserRepository, RoleRepository};
 use App\Mail\UserOnboardingMail;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use App\Models\SiteSetting;
+use Illuminate\Support\Facades\{Hash, Log, Mail};
 use App\Services\Auth\PasswordGenerationService;
+use App\Services\{EmailService, SiteSettingService};
 use Spatie\Permission\Models\Role as SpatieRole;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
@@ -18,12 +18,16 @@ class UserService
         protected UserRepository $userRepository,
         protected TrainerInformationService $trainerInformationService,
         protected RoleRepository $roleRepository,
-        protected PasswordGenerationService $passwordGenerationService
+        protected PasswordGenerationService $passwordGenerationService,
+        protected EmailService $emailService,
+        protected SiteSettingService $siteSettingService
     ) {
         $this->userRepository = $userRepository;
         $this->trainerInformationService = $trainerInformationService;
         $this->roleRepository = $roleRepository;
         $this->passwordGenerationService = $passwordGenerationService;
+        $this->emailService = $emailService;
+        $this->siteSettingService = $siteSettingService;
     }
 
     public function getUsers(int $siteSettingId, $perPage = 15, $branchId = null, $search = null)
@@ -54,7 +58,6 @@ class UserService
         $temporaryPassword = $this->passwordGenerationService->generateTemporaryPassword();
         $data['password'] = Hash::make($temporaryPassword);
         $data['is_admin'] = 0;
-        $data['status'] = 1;
         
         $user = $this->userRepository->createUser($data);
         $user->gyms()->attach($siteSettingId);
@@ -80,7 +83,12 @@ class UserService
             $this->trainerInformationService->createOrUpdateTrainerInformation($user->id, $trainerData);
         }
 
-        $this->sendOnboardingEmail($user, $siteSettingId);
+        // Send welcome email
+        $gym = $this->siteSettingService->getSiteSettingById($siteSettingId);
+        
+        if ($gym) {
+            $this->emailService->sendWelcomeEmail($user, $gym);
+        }
     
         return $user;
     }
@@ -121,9 +129,15 @@ class UserService
         return $updatedUser;
     }
 
-    public function deleteUser($user)
+    public function deleteUser($user, SiteSetting $siteSetting)
     {
-        return $this->userRepository->deleteUser($user);
+        if ($siteSetting) {
+            $this->emailService->sendAccountDeletionEmail($user, $siteSetting);
+        }
+        
+        $this->userRepository->deleteUser($user);
+        
+        return $siteSetting;
     }
 
     /**

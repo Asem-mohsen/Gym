@@ -32,7 +32,10 @@ class UserResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->where('is_admin', 1)->where('role_id', 1);
+        return parent::getEloquentQuery()->where('is_admin', 1)
+        ->whereHas('roles', function ($query) {
+            $query->where('name', 'admin');
+        });
     }
 
     public static function form(Form $form): Form
@@ -42,7 +45,7 @@ class UserResource extends Resource
                 TextInput::make('name')->label('Name')->required(),
                 TextInput::make('email')->label('Email')->required()->unique(ignoreRecord: true),
                 TextInput::make('phone')->label('Phone')->required(),
-                Select::make('role_id')->label('Role')->relationship('role', 'name')->preload()->required(),
+                Select::make('roles')->label('Role')->relationship('roles', 'name')->preload()->required()->multiple(),
                 Select::make('gender')->label('Gender')->options(['male' => 'Male', 'female' => 'Female'])->preload()->required(),
                 Textarea::make('address')->rows(3)->required()->columnSpan(2),
                 Toggle::make('is_admin')->label('Is Admin')->onColor('success')->offColor('danger')->inline(false)->default(true),

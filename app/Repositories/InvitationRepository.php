@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Models\Invitation;
 use App\Models\User;
-use App\Models\SiteSetting;
 
 class InvitationRepository
 {
@@ -13,9 +12,52 @@ class InvitationRepository
         return Invitation::create($data);
     }
 
-    public function findById(int $id): ?Invitation
+    public function getInvitations(int $siteSettingId, array $filters = [])
     {
-        return Invitation::find($id);
+        $query = Invitation::with(['inviter', 'gym', 'membership', 'usedBy']);
+
+        if (isset($filters['branch_id'])) {
+            $query->whereHas('gym.branches', function($q) use ($filters) {
+                $q->where('id', $filters['branch_id']);
+            });
+        }
+
+        if (isset($filters['status'])) {
+            switch ($filters['status']) {
+                case 'active':
+                    $query->active();
+                    break;
+                case 'used':
+                    $query->used();
+                    break;
+                case 'expired':
+                    $query->expired();
+                    break;
+            }
+        }
+
+        if (isset($filters['membership_id'])) {
+            $query->where('membership_id', $filters['membership_id']);
+        }
+
+        // Search functionality
+        if (isset($filters['search'])) {
+            $query->where(function($q) use ($filters) {
+                $q->where('invitee_email', 'like', '%' . $filters['search'] . '%')
+                  ->orWhere('invitee_phone', 'like', '%' . $filters['search'] . '%')
+                  ->orWhere('invitee_name', 'like', "%{$filters['search']}%")
+                  ->orWhereHas('inviter', function($inviterQuery) use ($filters) {
+                      $inviterQuery->where('name', 'like', "%{$filters['search']}%");
+                  })
+                  ->orWhereHas('gym', function($gymQuery) use ($filters) {
+                      $gymQuery->where('gym_name', 'like', "%{$filters['search']}%");
+                  });
+            });
+        }
+
+        return $query->where('site_setting_id', $siteSettingId)
+                     ->orderBy('created_at', 'desc')
+                     ->paginate(15);
     }
 
     public function findByQrCode(string $qrCode): ?Invitation
@@ -71,34 +113,6 @@ class InvitationRepository
         return Invitation::where('invitee_phone', $phone)
             ->where('site_setting_id', $siteSettingId)
             ->get();
-    }
-
-    public function countUserInvitations(int $userId, int $siteSettingId): int
-    {
-        return Invitation::where('inviter_id', $userId)
-            ->where('site_setting_id', $siteSettingId)
-            ->count();
-    }
-
-    public function countUserActiveInvitations(int $userId, int $siteSettingId): int
-    {
-        return Invitation::active()
-            ->where('inviter_id', $userId)
-            ->where('site_setting_id', $siteSettingId)
-            ->count();
-    }
-
-    public function countUserUsedInvitations(int $userId, int $siteSettingId): int
-    {
-        return Invitation::used()
-            ->where('inviter_id', $userId)
-            ->where('site_setting_id', $siteSettingId)
-            ->count();
-    }
-
-    public function deleteInvitation(Invitation $invitation): bool
-    {
-        return $invitation->delete();
     }
 
     public function markInvitationAsUsed(Invitation $invitation, User $user): void

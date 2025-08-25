@@ -108,7 +108,8 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         try {
-            $this->userService->deleteUser($user);
+            $siteSetting = $this->siteSettingService->getSiteSettingById($this->siteSettingId);
+            $this->userService->deleteUser($user , $siteSetting);
             return redirect()->back()->with('success', 'User deleted successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while deleting user, please try again in a few minutes.');

@@ -84,6 +84,51 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(Invitation::class, 'used_by_id');
     }
 
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function commentLikes(): BelongsToMany
+    {
+        return $this->belongsToMany(Comment::class, 'comment_likes');
+    }
+
+    public function blogPosts(): HasMany
+    {
+        return $this->hasMany(BlogPost::class);
+    }
+
+    public function blogPostShares(): HasMany
+    {
+        return $this->hasMany(BlogPostShare::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class, 'created_by_id');
+    }
+
+    public function branchScoreHistory(): HasMany
+    {
+        return $this->hasMany(BranchScoreHistory::class, 'changed_by_id');
+    }
+
+    public function branchScoreReviewRequests(): HasMany
+    {
+        return $this->hasMany(BranchScoreReviewRequest::class, 'requested_by_id');
+    }
+
+    public function classes(): BelongsToMany
+    {
+        return $this->belongsToMany(ClassModel::class, 'class_trainer', 'trainer_id', 'class_id');
+    }
+
     public function getSiteSettingIdAttribute()
     {
         return $this->site?->id;
