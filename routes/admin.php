@@ -24,6 +24,7 @@ use App\Http\Controllers\Web\Admin\ReviewRequestController;
 use App\Http\Controllers\Web\Admin\ResourcesController;
 use App\Http\Controllers\Web\Admin\GymDeactivationController;
 use App\Http\Controllers\Web\Admin\CashPaymentController;
+use App\Http\Controllers\Web\Admin\InvitationController;
 
 // Admin Routes
 Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
@@ -92,6 +93,8 @@ Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
     Route::prefix('transactions')->group(function () {
         Route::get('/', [TransactionController::class, 'index'])->name('admin.transactions.index');
     });
+
+    Route::resource('invitations', InvitationController::class)->only(['index', 'show']);
 
     Route::prefix('score-management')->group(function () {
         Route::get('/', [ScoreDashboardController::class, 'index'])->name('admin.score-dashboard');

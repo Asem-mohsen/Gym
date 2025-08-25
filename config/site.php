@@ -14,6 +14,7 @@ return [
     'scripts' => [
         ['src' => 'assets/admin/plugins/global/plugins.bundle.js'],
         ['src' => 'assets/admin/js/scripts.bundle.js'],
+        ['src' => 'assets/admin/js/custom.js'],
     ],
 
     /*

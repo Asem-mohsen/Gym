@@ -28,12 +28,35 @@ class LoginController extends Controller
             $this->authService->webLoign($credentials);
 
             $gymContext = $this->gymContextService->getCurrentGymContext();
+            
+            if ($request->ajax() || $request->expectsJson()) {
+                if ($gymContext) {
+                    return response()->json([
+                        'message' => 'Login successful!',
+                        'redirect' => route('user.home', ['siteSetting' => $gymContext['slug']])
+                    ]);
+                }
+                
+                return response()->json([
+                    'message' => 'Login successful!',
+                    'redirect' => route('admin.dashboard')
+                ]);
+            }
+
             if ($gymContext) {
                 return redirect()->route('user.home', ['siteSetting' => $gymContext['slug']]);
             }
 
             return redirect()->route('admin.dashboard');
+            
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'error' => 'login_failed'
+                ], 401);
+            }
+            
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }

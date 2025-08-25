@@ -50,7 +50,7 @@
                                 'title' => 'Management',
                                 'icon' => 'fa-solid fa-bars-progress',
                                 'active' => function() {
-                                    return request()->routeIs('users.*') || request()->routeIs('admins.*') || request()->routeIs('trainers')  || request()->routeIs('services.*') ||  request()->routeIs('subscriptions.*');
+                                    return request()->routeIs('users.*') || request()->routeIs('admins.*') || request()->routeIs('trainers')  || request()->routeIs('services.*') ||  request()->routeIs('subscriptions.*') || request()->routeIs('invitations.*');
                                 },
                                 'subItems' => 
                                 [
@@ -87,6 +87,13 @@
                                         'route' => 'subscriptions.index',
                                         'active' => function() {
                                             return request()->routeIs('subscriptions.*');
+                                        }
+                                    ],
+                                    [
+                                        'title' => 'Invitations Management',
+                                        'route' => 'invitations.index',
+                                        'active' => function() {
+                                            return request()->routeIs('invitations.*');
                                         }
                                     ],
                                 ]

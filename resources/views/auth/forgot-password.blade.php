@@ -10,7 +10,7 @@
             </div>
 
             <div class="mt-4 flex items-center justify-between">
-                <form method="POST" action="{{ route('auth.forget-password.send-code') }}">
+                <form method="POST" action="{{ route('auth.forget-password.send-code' , ['siteSetting' => $gymContext['slug']]) }}">
                     @csrf
 
                     <div class="fv-row mb-8">

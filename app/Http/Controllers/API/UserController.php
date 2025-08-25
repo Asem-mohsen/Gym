@@ -11,6 +11,7 @@ use App\Services\SiteSettingService;
 use App\Services\UserService;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -92,8 +93,20 @@ class UserController extends Controller
     {
         try {
             if($user->id != Auth::guard('sanctum')->user()->id) return failureResponse('You are not allowed to delete this user', 403);
-            $this->userService->deleteUser($user);
-            return successResponse(message: 'user deleted successfully');
+            
+            // Get current authenticated user ID before deletion        
+            $currentUserId = Auth::guard('sanctum')->user()->id;
+            
+            // Delete user account and get gym info for email
+            $gym = $this->userService->deleteUser($user, $gym);
+            
+            // Logout the user from all sessions by deleting tokens
+            DB::table('personal_access_tokens')
+                ->where('tokenable_id', $currentUserId)
+                ->where('tokenable_type', User::class)
+                ->delete();
+            
+            return successResponse(message: 'Account deleted successfully. You have been logged out.');
         } catch (Exception $e) {
             return failureResponse('Error deleting user, please try again.');
         }

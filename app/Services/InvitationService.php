@@ -15,6 +15,11 @@ class InvitationService
         protected InvitationRepository $invitationRepository
     ) {}
 
+    public function getInvitations(int $siteSettingId, array $filters = [])
+    {
+        return $this->invitationRepository->getInvitations($siteSettingId, $filters);
+    }
+
     /**
      * Send an invitation to a new user
      */
