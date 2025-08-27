@@ -39,7 +39,7 @@
             <div class="row">
                 @foreach ($trainers as $trainer)
                     <div class="col-lg-4 col-sm-6">
-                        <div class="ts-item set-bg" data-setbg="{{ $trainer->getFirstMediaUrl('user_images') }}">
+                        <div class="ts-item set-bg" data-setbg="{{ $trainer->user_image }}">
                             <div class="ts_text">
                                 <h4>{{ $trainer->name }}</h4>
                                 <span>Gym Trainer</span>

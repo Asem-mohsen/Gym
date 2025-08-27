@@ -5,7 +5,7 @@ use App\Models\Subscription;
 
 class SubscriptionRepository
 {
-    public function getAll(int $siteSettingId, $perPage = 15, $branchId = null, $search = null)
+    public function getAll(int $siteSettingId, $branchId = null)
     {
         $query = Subscription::with(['user', 'membership', 'bookings'])
             ->whereHas('user', function ($query) use ($siteSettingId)  {
@@ -18,14 +18,7 @@ class SubscriptionRepository
             $query->where('branch_id', $branchId);
         }
 
-        if ($search) {
-            $query->whereHas('user', function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        $subscriptions = $query->paginate($perPage);
+        $subscriptions = $query->paginate(15);
 
         $counts = [
             'pending' => Subscription::where('status', 'pending')
@@ -36,12 +29,6 @@ class SubscriptionRepository
                 })
                 ->when($branchId, function ($query) use ($branchId) {
                     return $query->where('branch_id', $branchId);
-                })
-                ->when($search, function ($query) use ($search) {
-                    return $query->whereHas('user', function($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%")
-                          ->orWhere('email', 'like', "%{$search}%");
-                    });
                 })
                 ->count(),
 
@@ -54,12 +41,6 @@ class SubscriptionRepository
                 ->when($branchId, function ($query) use ($branchId) {
                     return $query->where('branch_id', $branchId);
                 })
-                ->when($search, function ($query) use ($search) {
-                    return $query->whereHas('user', function($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%")
-                          ->orWhere('email', 'like', "%{$search}%");
-                    });
-                })
                 ->count(),
 
             'expired' => Subscription::where('status', 'expired')
@@ -71,12 +52,6 @@ class SubscriptionRepository
                 ->when($branchId, function ($query) use ($branchId) {
                     return $query->where('branch_id', $branchId);
                 })
-                ->when($search, function ($query) use ($search) {
-                    return $query->whereHas('user', function($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%")
-                          ->orWhere('email', 'like', "%{$search}%");
-                    });
-                })
                 ->count(),
 
             'total'   => Subscription::whereHas('user', function ($query) use ($siteSettingId)  {
@@ -86,12 +61,6 @@ class SubscriptionRepository
                 })
                 ->when($branchId, function ($query) use ($branchId) {
                     return $query->where('branch_id', $branchId);
-                })
-                ->when($search, function ($query) use ($search) {
-                    return $query->whereHas('user', function($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%")
-                          ->orWhere('email', 'like', "%{$search}%");
-                    });
                 })
                 ->count(),
         ];

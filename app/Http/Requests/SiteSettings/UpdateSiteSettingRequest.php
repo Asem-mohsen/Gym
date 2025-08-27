@@ -9,7 +9,7 @@ class UpdateSiteSettingRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('edit_site_settings');
     }
 
     public function rules(): array

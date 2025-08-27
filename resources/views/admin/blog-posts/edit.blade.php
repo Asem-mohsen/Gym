@@ -108,7 +108,9 @@
                     </div>
 
                     <div class="card-footer">
-                        <button type="submit" class="btn btn-success">Save</button>
+                        @can('edit_blog_posts')
+                            <button type="submit" class="btn btn-success">Save</button>
+                        @endcan
                         <a href="{{ route('blog-posts.index') }}" class="btn btn-dark">Cancel</a>
                     </div>
                 </div>

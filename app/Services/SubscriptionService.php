@@ -12,9 +12,9 @@ class SubscriptionService
         $this->subscriptionRepository = $subscriptionRepository;
     }
 
-    public function getSubscriptions(int $siteSettingId, $perPage = 15, $branchId = null, $search = null)
+    public function getSubscriptions(int $siteSettingId, $branchId = null)
     {
-        $data = $this->subscriptionRepository->getAll($siteSettingId, $perPage, $branchId, $search);
+        $data = $this->subscriptionRepository->getAll($siteSettingId, $branchId);
         return [$data['subscriptions'], $data['counts']];
     }
 

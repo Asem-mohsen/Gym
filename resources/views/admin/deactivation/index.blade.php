@@ -119,9 +119,11 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                        <button type="button" class="btn btn-danger" id="confirmDeactivationBtn" disabled>
-                                            <i class="fas fa-trash"></i> Deactivate
-                                        </button>
+                                        @can('deactivate_gyms_and_branches')
+                                            <button type="button" class="btn btn-danger" id="confirmDeactivationBtn" disabled>
+                                                <i class="fas fa-trash"></i> Deactivate
+                                            </button>
+                                        @endcan
                                     </div>
                                 </div>
                             </div>

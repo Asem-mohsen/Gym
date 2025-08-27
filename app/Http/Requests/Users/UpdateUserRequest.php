@@ -11,7 +11,7 @@ class UpdateUserRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('edit_users') || $this->user()->can('edit_staff') || $this->user()->can('edit_trainers') || $this->user()->can('edit_admins');
     }
 
     public function rules(): array

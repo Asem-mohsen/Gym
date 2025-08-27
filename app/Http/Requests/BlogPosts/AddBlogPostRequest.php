@@ -9,7 +9,7 @@ class AddBlogPostRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('create_blog_posts');
     }
 
     public function rules(): array

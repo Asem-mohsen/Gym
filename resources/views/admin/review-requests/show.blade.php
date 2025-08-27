@@ -12,13 +12,17 @@
         <div id="kt_toolbar_container" class="container-fluid d-flex flex-stack">
             <div class="d-flex justify-content-between" data-kt-table-toolbar="base">
                 @if($reviewRequest->status === 'pending')
+                    @can('edit_reviews_requests')
                     <a href="{{ route('review-requests.edit', $reviewRequest->id) }}" class="btn btn-primary">
                         Edit Request
                     </a>
+                    @endcan
                 @endif
-                <a href="{{ route('review-requests.index') }}" class="btn btn-secondary mx-2">
-                    Back to List
-                </a>
+                @can('view_reviews_requests')
+                    <a href="{{ route('review-requests.index') }}" class="btn btn-secondary mx-2">
+                        Back to List
+                    </a>
+                @endcan
             </div>
         </div>
     </div>
@@ -238,18 +242,20 @@
 
             <!-- Actions -->
             @if($reviewRequest->status === 'pending')
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="card-title">Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{{ route('review-requests.edit', $reviewRequest->id) }}" class="btn btn-primary">
-                            Edit Request
-                        </a>
+                @can('edit_reviews_requests')
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="card-title">Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{{ route('review-requests.edit', $reviewRequest->id) }}" class="btn btn-primary">
+                                    Edit Request
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                @endcan
             @endif
         </div>
     </div>

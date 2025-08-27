@@ -14,10 +14,12 @@
         <div class="card-header">
             <h3 class="card-title">Branch Information</h3>
             <div class="card-toolbar">
-                <a href="{{ route('branches.edit', $branch->id) }}" class="btn btn-primary">
-                    <i class="ki-duotone ki-pencil fs-2"></i>
-                    Edit Branch
-                </a>
+                @can('edit_branches')
+                    <a href="{{ route('branches.edit', $branch->id) }}" class="btn btn-primary">
+                        <i class="ki-duotone ki-pencil fs-2"></i>
+                        Edit Branch
+                    </a>
+                @endcan
             </div>
         </div>
         <div class="card-body">

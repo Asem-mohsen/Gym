@@ -1,4 +1,4 @@
-<script src="{{ asset('assets/plugins/custom/datatables/datatables.bundle.js') }}"></script>
+<script src="{{ asset('assets/admin/plugins/custom/datatables/datatables.bundle.js') }}"></script>
 <script>
     "use strict";
     let length = $('.table-head th').length - 1;
@@ -30,18 +30,5 @@
     })();
     KTUtil.onDOMContentLoaded(function () {
         KTList.init();
-    });
-</script>
-
-
-<script>
-    document.getElementById('search-input').addEventListener('input', function() {
-        document.getElementById('search-hidden').value = this.value;
-    });
-    
-    document.getElementById('search-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            document.getElementById('filter-form').submit();
-        }
     });
 </script>

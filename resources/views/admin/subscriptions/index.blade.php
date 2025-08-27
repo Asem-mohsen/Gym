@@ -7,10 +7,6 @@
 
 @section('sub-breadcrumb', 'Index')
 
-@section('css')
-    <link href="{{ asset('assets/plugins/custom/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
-@endsection
-
 @section('content')
 
 <div class="row g-4">
@@ -75,7 +71,7 @@
                             <span class="path1"></span>
                             <span class="path2"></span>
                         </i>
-                        <input type="text" id="search-input" class="form-control form-control-solid w-250px ps-12" placeholder="Search subscriptions..." value="{{ request('search') }}" />
+                        <input type="text" data-kt-table-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Search" />
                     </div>
                     
                     <!-- Branch Filter -->
@@ -89,23 +85,17 @@
                                 </option>
                             @endforeach
                         </select>
-                        
-                        <!-- Per Page Selector -->
-                        <select name="per_page" class="form-control form-control-solid w-100px" onchange="this.form.submit()">
-                            <option value="15" {{ request('per_page', 15) == 15 ? 'selected' : '' }}>15</option>
-                            <option value="25" {{ request('per_page', 15) == 25 ? 'selected' : '' }}>25</option>
-                            <option value="50" {{ request('per_page', 15) == 50 ? 'selected' : '' }}>50</option>
-                            <option value="100" {{ request('per_page', 15) == 100 ? 'selected' : '' }}>100</option>
-                        </select>
                     </form>
                 </div>
             </div>
 
-            <div class="card-toolbar">
-                <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
-                    <a href="{{ route('subscriptions.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add Manual Subscripton</a>
+            @can('create_subscriptions')
+                <div class="card-toolbar">
+                    <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
+                        <a href="{{ route('subscriptions.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add Manual Subscripton</a>
+                    </div>
                 </div>
-            </div>
+            @endcan
 
         </div>
         <div class="card-body pt-0">
@@ -125,7 +115,7 @@
                     @foreach ($subscriptions as $key => $subscription)
                         <tr>
                             <td>
-                                {{ ($subscriptions->currentPage() - 1) * $subscriptions->perPage() + $loop->iteration }}
+                                {{ $loop->iteration }}
                             </td>
                             <td>
                                 <div class="d-flex px-2 py-1">
@@ -172,18 +162,23 @@
                             </td>
                             <td>
                                 <div class="d-flex gap-1">
+                                    @can('edit_subscriptions')
                                     <x-table-icon-link 
                                         :route="route('subscriptions.edit',$subscription->id)" 
                                         colorClass="primary"
                                         title="Edit"
                                         iconClasses="fa-solid fa-pen"
                                     />
+                                    @endcan
+                                    @can('view_subscriptions')
                                     <x-table-icon-link 
                                         :route="route('subscriptions.show',$subscription->id)" 
                                         colorClass="success"
                                         title="View"
                                         iconClasses="fa-solid fa-eye"
                                     />
+                                    @endcan
+                                    @can('delete_subscriptions')
                                     <form action="{{ route('subscriptions.destroy' ,$subscription->id )}}" method="POST">
                                         @csrf
                                         @method('DELETE')
@@ -193,19 +188,13 @@
                                             iconClasses="fa-solid fa-trash"
                                         />
                                     </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
-            
-            <!-- Pagination -->
-            <div class="d-flex justify-content-center align-items-center py-3 border-top">
-                <nav aria-label="Subscriptions pagination">
-                    {{ $subscriptions->appends(request()->query())->links('pagination::bootstrap-4') }}
-                </nav>
-            </div>
         </div>
     </div>
 </div>

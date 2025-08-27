@@ -256,13 +256,18 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
+                        @can('edit_subscriptions')
                         <a href="{{ route('subscriptions.edit', $subscription->id) }}" class="btn btn-primary">
                             <i class="fas fa-edit"></i> Edit Subscription
                         </a>
+                        @endcan
+                        @can('view_subscriptions')
                         <a href="{{ route('subscriptions.index') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Back to List
                         </a>
+                        @endcan
                     </div>
+                    @can('delete_subscriptions')
                     <div>
                         <form action="{{ route('subscriptions.destroy', $subscription->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this subscription?')">
                             @csrf
@@ -272,6 +277,7 @@
                             </button>
                         </form>
                     </div>
+                    @endcan
                 </div>
             </div>
         </div>

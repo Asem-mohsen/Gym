@@ -8,7 +8,7 @@ class AddSubscriptionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('create_subscriptions');
     }
 
     public function rules(): array

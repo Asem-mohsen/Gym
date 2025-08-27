@@ -6,10 +6,6 @@
 
 @section('sub-breadcrumb', 'Index')
 
-@section('css')
-    <link href="{{ asset('assets/plugins/custom/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
-@endsection
-
 @section('content')
     <div class="col-md-12 mb-md-5 mb-xl-10">
         <div class="card">
@@ -23,7 +19,7 @@
                                 <span class="path1"></span>
                                 <span class="path2"></span>
                             </i>
-                            <input type="text" id="search-input" class="form-control form-control-solid w-250px ps-12" placeholder="Search classes..." value="{{ request('search') }}" />
+                            <input type="text" data-kt-table-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Search" />
                         </div>
                         
                         <!-- Type Filter -->
@@ -37,23 +33,17 @@
                                     </option>
                                 @endforeach
                             </select>
-                            
-                            <!-- Per Page Selector -->
-                            <select name="per_page" class="form-control form-control-solid w-100px" onchange="this.form.submit()">
-                                <option value="15" {{ request('per_page', 15) == 15 ? 'selected' : '' }}>15</option>
-                                <option value="25" {{ request('per_page', 15) == 25 ? 'selected' : '' }}>25</option>
-                                <option value="50" {{ request('per_page', 15) == 50 ? 'selected' : '' }}>50</option>
-                                <option value="100" {{ request('per_page', 15) == 100 ? 'selected' : '' }}>100</option>
-                            </select>
                         </form>
                     </div>
                 </div>
 
-                <div class="card-toolbar">
-                    <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
-                        <a href="{{ route('classes.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add New Class</a>
+                @can('create_classes')
+                    <div class="card-toolbar">
+                        <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
+                            <a href="{{ route('classes.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add New Class</a>
+                        </div>
                     </div>
-                </div>
+                @endcan
 
             </div>
 
@@ -69,7 +59,9 @@
                             <th>Trainers</th>
                             <th>Schedules</th>
                             <th>Pricing</th>
-                            <th>Actions</th>
+                            @can('edit_classes')
+                                <th>Actions</th>
+                            @endcan
                         </tr>
                     </thead>
                     <tbody class="fw-semibold text-gray-600">
@@ -94,36 +86,35 @@
                                         <div>{{ $pricing->price }} ({{ $pricing->duration }})</div>
                                     @endforeach
                                 </td>
-                                <td>
-                                    <div class="d-flex gap-1">
-                                        <x-table-icon-link 
-                                            :route="route('classes.edit',$class->id)" 
-                                            colorClass="primary"
-                                            title="Edit"
-                                            iconClasses="fa-solid fa-pen"
-                                        />
-                                        <form action="{{ route('classes.destroy' ,$class->id )}}" method="post">
-                                            @csrf
-                                            @method('DELETE')
-                                            <x-icon-button
-                                                colorClass="danger"
-                                                title="Delete"
-                                                iconClasses="fa-solid fa-trash"
-                                            />
-                                        </form>
-                                    </div>
-                                </td>
+                                @if(auth()->user()->can('edit_classes') || auth()->user()->can('delete_classes'))
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                            @can('edit_classes')
+                                                <x-table-icon-link 
+                                                    :route="route('classes.edit',$class->id)" 
+                                                    colorClass="primary"
+                                                    title="Edit"
+                                                    iconClasses="fa-solid fa-pen"
+                                                />
+                                            @endcan
+                                            @can('delete_classes')
+                                                <form action="{{ route('classes.destroy' ,$class->id )}}" method="post">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <x-icon-button
+                                                        colorClass="danger"
+                                                        title="Delete"
+                                                        iconClasses="fa-solid fa-trash"
+                                                    />
+                                                </form>
+                                            @endcan
+                                        </div>
+                                    </td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
-                
-                <!-- Pagination -->
-                <div class="d-flex justify-content-center align-items-center py-3 border-top">
-                    <nav aria-label="Classes pagination">
-                        {{ $classes->appends(request()->query())->links('pagination::bootstrap-4') }}
-                    </nav>
-                </div>
             </div>
         </div>
     </div>

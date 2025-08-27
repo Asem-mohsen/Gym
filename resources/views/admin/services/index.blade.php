@@ -7,10 +7,6 @@
 
 @section('sub-breadcrumb', 'Index')
 
-@section('css')
-    <link href="{{ asset('assets/plugins/custom/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
-@endsection
-
 @section('content')
 
 <div class="col-md-12 mb-md-5 mb-xl-10">
@@ -25,7 +21,7 @@
                             <span class="path1"></span>
                             <span class="path2"></span>
                         </i>
-                        <input type="text" id="search-input" class="form-control form-control-solid w-250px ps-12" placeholder="Search services..." value="{{ request('search') }}" />
+                        <input type="text" data-kt-table-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Search" />
                     </div>
                     
                     <!-- Branch Filter -->
@@ -51,11 +47,13 @@
                 </div>
             </div>
 
-            <div class="card-toolbar">
-                <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
-                    <a href="{{ route('services.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add Service</a>
+            @can('create_services')
+                <div class="card-toolbar">
+                    <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
+                        <a href="{{ route('services.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add Service</a>
+                    </div>
                 </div>
-            </div>
+            @endcan
 
         </div>
 
@@ -150,27 +148,33 @@
                             </td>
                             <td>
                                 <div class="d-flex gap-1">
-                                    <x-table-icon-link 
-                                        :route="route('services.edit',$service->id)" 
-                                        colorClass="primary"
-                                        title="Edit"
-                                        iconClasses="fa-solid fa-pen"
-                                    />
-                                    <x-table-icon-link 
-                                        :route="route('services.show',$service->id)" 
-                                        colorClass="success"
-                                        title="View"
-                                        iconClasses="fa-solid fa-eye"
-                                    />
-                                    <form action="{{ route('services.destroy' ,$service->id )}}" method="post">
-                                        @csrf
-                                        @method('DELETE')
-                                        <x-icon-button
-                                            colorClass="danger"
-                                            title="Delete"
-                                            iconClasses="fa-solid fa-trash"
+                                    @can('edit_services')
+                                        <x-table-icon-link 
+                                            :route="route('services.edit',$service->id)" 
+                                            colorClass="primary"
+                                            title="Edit"
+                                            iconClasses="fa-solid fa-pen"
                                         />
-                                    </form>
+                                    @endcan
+                                    @can('view_services')
+                                        <x-table-icon-link 
+                                            :route="route('services.show',$service->id)" 
+                                            colorClass="success"
+                                            title="View"
+                                            iconClasses="fa-solid fa-eye"
+                                        />
+                                    @endcan
+                                    @can('delete_services')
+                                        <form action="{{ route('services.destroy' ,$service->id )}}" method="post">
+                                            @csrf
+                                            @method('DELETE')
+                                            <x-icon-button
+                                                colorClass="danger"
+                                                title="Delete"
+                                                iconClasses="fa-solid fa-trash"
+                                            />
+                                        </form>
+                                    @endcan
                                 </div>
                             </td>
 
@@ -178,13 +182,6 @@
                     @endforeach
                 </tbody>
             </table>
-            
-            <!-- Pagination -->
-            <div class="d-flex justify-content-center align-items-center py-3 border-top">
-                <nav aria-label="Services pagination">
-                    {{ $services->appends(request()->query())->links('pagination::bootstrap-4') }}
-                </nav>
-            </div>
         </div>
     </div>
 </div>

@@ -50,7 +50,9 @@
                         </div>
 
                         <div class="card-footer">
-                            <button type="submit" class="btn btn-success">Update Review Request</button>
+                            @can('edit_reviews_requests')
+                                <button type="submit" class="btn btn-success">Update Review Request</button>
+                            @endcan
                             <a href="{{ route('review-requests.index') }}" class="btn btn-dark">Cancel</a>
                         </div>
                     </form>

@@ -134,7 +134,9 @@
                 </div>
 
                 <div class="card-footer">
-                    <button type="submit" class="btn btn-success">Save</button>
+                    @can('edit_branches')
+                        <button type="submit" class="btn btn-success">Save</button>
+                    @endcan
                     <a href="{{ route('branches.index') }}" class="btn btn-dark">Cancel</a>
                 </div>
 

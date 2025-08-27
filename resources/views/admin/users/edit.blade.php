@@ -35,7 +35,7 @@
                         foreach($roles as $id => $role){
                             $options[] = [
                                 'value' => $id,
-                                'label' => $role->name
+                                'label' => $role['name']
                             ];
                         }
                         $selectedRoles = $user->roles->pluck('id')->toArray();

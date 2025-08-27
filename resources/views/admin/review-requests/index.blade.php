@@ -97,11 +97,13 @@
 
             </div>
 
-            <div class="card-toolbar">
-                <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
-                    <a href="{{ route('review-requests.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add Review Request</a>
+            @can('create_reviews_requests')
+                <div class="card-toolbar">
+                    <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
+                        <a href="{{ route('review-requests.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add Review Request</a>
+                    </div>
                 </div>
-            </div>
+            @endcan
 
         </div>
         <div class="card-body pt-0">
@@ -148,19 +150,24 @@
                             </td>
                             <td>
                                 <div class="d-flex gap-1">
+                                    @can('view_reviews_requests')
                                     <x-table-icon-link 
                                         :route="route('review-requests.show',$request->id)" 
                                         colorClass="success"
                                         title="View"
                                         iconClasses="fa-solid fa-eye"
                                     />
+                                    @endcan
                                     @if($request->status === 'pending')
+                                        @can('edit_reviews_requests')
                                         <x-table-icon-link 
                                             :route="route('review-requests.edit',$request->id)" 
                                             colorClass="primary"
                                             title="Edit"
                                             iconClasses="fa-solid fa-pen"
                                         />
+                                        @endcan
+                                        @can('delete_reviews_requests')
                                         <x-table-icon-link 
                                             :route="route('review-requests.destroy',$request->id)" 
                                             colorClass="danger"
@@ -168,6 +175,7 @@
                                             iconClasses="fa-solid fa-trash"
                                             :isDelete="true"
                                         />
+                                        @endcan
                                     @endif
                                 </div>
                             </td>
@@ -178,9 +186,11 @@
                                 <i class="fas fa-clipboard-list fa-3x mb-3"></i>
                                 <h5>No Review Requests Found</h5>
                                 <p>You haven't submitted any review requests yet.</p>
-                                <a href="{{ route('review-requests.create') }}" class="btn btn-primary">
-                                    <i class="fas fa-plus me-2"></i>Create First Request
-                                </a>
+                                @can('create_reviews_requests')
+                                    <a href="{{ route('review-requests.create') }}" class="btn btn-primary">
+                                        <i class="fas fa-plus me-2"></i>Create First Request
+                                    </a>
+                                @endcan
                             </td>
                         </tr>
                         @endforelse

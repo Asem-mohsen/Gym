@@ -101,7 +101,7 @@
                                     @if ($loop->iteration % 2 != 0) 
                                         <div class="col-md-6">
                                             <div class="cd-trainer-pic">
-                                                <img src="{{ $trainer->getFirstMediaUrl('user_images') }}" alt="">
+                                                <img src="{{ $trainer->user_image }}" alt="">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -113,7 +113,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="cd-trainer-pic">
-                                                <img src="{{ $trainer->getFirstMediaUrl('user_images') }}" alt="">
+                                                <img src="{{ $trainer->user_image }}" alt="">
                                             </div>
                                         </div>
                                     @endif

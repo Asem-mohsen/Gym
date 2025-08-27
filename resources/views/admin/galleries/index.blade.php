@@ -7,10 +7,6 @@
 
 @section('sub-breadcrumb', 'Index')
 
-@section('css')
-    <link href="{{ asset('assets/plugins/custom/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
-@endsection
-
 @section('content')
 
 <div class="col-md-12 mb-md-5 mb-xl-10">
@@ -30,11 +26,13 @@
 
             </div>
 
-            <div class="card-toolbar">
-                <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
-                    <a href="{{ route('galleries.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add New Gallery</a>
+            @can('create_galleries')
+                <div class="card-toolbar">
+                    <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
+                        <a href="{{ route('galleries.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add New Gallery</a>
+                    </div>
                 </div>
-            </div>
+            @endcan
 
         </div>
         <div class="card-body pt-0">
@@ -50,7 +48,9 @@
                         <th>Status</th>
                         <th>Sort Order</th>
                         <th>Created</th>
-                        <th>Actions</th>
+                        @can('edit_galleries')
+                            <th>Actions</th>
+                        @endcan
                     </tr>
                 </thead>
                 <tbody>
@@ -93,25 +93,31 @@
                             </td>
                             <td>{{ $gallery->sort_order }}</td>
                             <td>{{ $gallery->created_at->format('d M Y') }}</td>
-                            <td>
-                                <div class="d-flex gap-1">
-                                    <x-table-icon-link 
-                                        :route="route('galleries.edit',$gallery->id)" 
-                                        colorClass="primary"
-                                        title="Edit"
-                                        iconClasses="fa-solid fa-pen"
-                                    />
-                                    <form action="{{ route('galleries.destroy' ,$gallery->id )}}" method="post">
-                                        @csrf
-                                        @method('DELETE')
-                                        <x-icon-button
-                                            colorClass="danger"
-                                            title="Delete"
-                                            iconClasses="fa-solid fa-trash"
+                            @if(auth()->user()->can('edit_galleries') || auth()->user()->can('delete_galleries'))
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        @can('edit_galleries')
+                                        <x-table-icon-link 
+                                            :route="route('galleries.edit',$gallery->id)" 
+                                            colorClass="primary"
+                                            title="Edit"
+                                            iconClasses="fa-solid fa-pen"
                                         />
-                                    </form>
-                                </div>
-                            </td>
+                                        @endcan
+                                        @can('delete_galleries')
+                                        <form action="{{ route('galleries.destroy' ,$gallery->id )}}" method="post">
+                                            @csrf
+                                            @method('DELETE')
+                                            <x-icon-button
+                                                colorClass="danger"
+                                                title="Delete"
+                                                iconClasses="fa-solid fa-trash"
+                                            />
+                                        </form>
+                                        @endcan
+                                    </div>
+                                </td>
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>
@@ -119,4 +125,8 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('js')
+    @include('_partials.dataTable-script')
 @endsection

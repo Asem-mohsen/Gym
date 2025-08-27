@@ -11,7 +11,7 @@ class AddUserRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('create_users') || $this->user()->can('create_staff') || $this->user()->can('create_trainers') || $this->user()->can('create_admins');
     }
 
     public function rules(): array

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\{ AddUserRequest , UpdateUserRequest};
 use App\Models\User;
-use App\Services\{UserService , RoleService, SiteSettingService, BranchService};
+use App\Services\{UserService , RoleService, SiteSettingService, BranchService, RoleAssignmentService};
 use Exception;
 use Illuminate\Http\Request;
 
@@ -13,18 +13,20 @@ class UserController extends Controller
 {
     protected int $siteSettingId;
 
-    public function __construct(protected UserService $userService , protected RoleService $roleService, protected SiteSettingService $siteSettingService, protected BranchService $branchService)
+    public function __construct(protected UserService $userService , protected RoleService $roleService, protected SiteSettingService $siteSettingService, protected BranchService $branchService, protected RoleAssignmentService $roleAssignmentService)
     {
         $this->userService = $userService;
         $this->roleService = $roleService;
         $this->branchService = $branchService;
         $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+        $this->roleAssignmentService = $roleAssignmentService;
     }
 
     public function index(Request $request)
     {
         try {
             $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+            
             $users = $this->userService->getUsers(
                 $siteSettingId,
                 $request->get('per_page', 15),
@@ -37,7 +39,7 @@ class UserController extends Controller
             
             // Add password status to each user
             foreach ($users as $user) {
-                $user->has_set_password = $this->userService->hasUserSetPassword($user);
+                $user->has_set_password = $user->hasSetPassword();
             }
             
             return view('admin.users.index', compact('users', 'branches'));
@@ -46,28 +48,15 @@ class UserController extends Controller
         }
     }
 
-    public function trainers(Request $request)
-    {
-        $perPage = $request->get('per_page', 15);
-        $branchId = $request->get('branch_id');
-        $search = $request->get('search');
-        
-        $users = $this->userService->getTrainers($this->siteSettingId, $perPage, $branchId, $search);
-        
-        $branches = $this->branchService->getBranches($this->siteSettingId);
-        
-        return view('admin.users.index', compact('users', 'branches'));
-    }
-
     public function create()
     {
-        $roles = $this->roleService->getRolesForUserCreation();
+        $roles = $this->roleAssignmentService->getUserRoles();
         return view('admin.users.create', compact('roles'));
     }
 
     public function edit(Request $request, User $user)
     {
-        $roles = $this->roleService->getAllRolesForAdmin();
+        $roles = $this->roleAssignmentService->getUserRoles();
         return view('admin.users.edit', compact('user', 'roles'));
     }
 
@@ -83,7 +72,7 @@ class UserController extends Controller
             if ($request->hasFile('image')) {
                 $data['image'] = $request->file('image');
             }
-            $this->userService->createUser($data, $this->siteSettingId);
+            $this->userService->createAdminUser($data, $this->siteSettingId);
             return redirect()->back()->with('success', 'User created successfully. An onboarding email has been sent to set their password.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while creating new user, please try again in a few minutes.');
@@ -119,6 +108,10 @@ class UserController extends Controller
     public function resendOnboardingEmail(User $user)
     {
         try {
+            if ($user->hasSetPassword()) {
+                return redirect()->back()->with('error', 'This user has already set their password. Onboarding email is not needed.');
+            }
+
             $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
             $this->userService->sendOnboardingEmail($user, $siteSettingId);
             

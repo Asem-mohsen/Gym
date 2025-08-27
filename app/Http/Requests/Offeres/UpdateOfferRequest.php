@@ -8,7 +8,7 @@ class UpdateOfferRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('edit_offers');
     }
 
     public function rules(): array

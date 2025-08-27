@@ -8,7 +8,7 @@ class AddBranchRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('create_branches');
     }
 
     public function rules(): array

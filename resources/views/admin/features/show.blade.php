@@ -79,8 +79,12 @@
             </div>
         </div>
         <div class="card-footer">
-            <a href="{{ route('features.edit', $feature->id) }}" class="btn btn-primary">Edit</a>
-            <a href="{{ route('features.index') }}" class="btn btn-dark">Back</a>
+            @can('edit_features')
+                <a href="{{ route('features.edit', $feature->id) }}" class="btn btn-primary">Edit</a>
+            @endcan
+            @can('view_features')
+                <a href="{{ route('features.index') }}" class="btn btn-dark">Back</a>
+            @endcan
         </div>
     </div>
 </div>

@@ -30,10 +30,8 @@ class SubscriptionController extends Controller
     public function index(Request $request)
     {
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $perPage = $request->get('per_page', 15);
         $branchId = $request->get('branch_id');
-        $search = $request->get('search');
-        [$subscriptions, $counts] = $this->subscriptionService->getSubscriptions($siteSettingId, $perPage, $branchId, $search);
+        [$subscriptions, $counts] = $this->subscriptionService->getSubscriptions($siteSettingId,$branchId);
         
         $branches = $this->branchService->getBranches($siteSettingId);
         

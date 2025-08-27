@@ -13,7 +13,6 @@ use App\Http\Controllers\API\BookingController;
 use App\Http\Controllers\API\ContactController;
 use App\Http\Controllers\API\MembershipController;
 use App\Http\Controllers\API\ServicesController;
-use App\Http\Controllers\API\TransactionController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\AboutController;
 use App\Http\Controllers\API\BlogController;
@@ -22,7 +21,6 @@ use App\Http\Controllers\API\BlogPostShareController;
 use App\Http\Controllers\API\ClassesController;
 use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\SiteSettingController;
-use App\Http\Controllers\API\StripePaymentController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\GymContextController;
 

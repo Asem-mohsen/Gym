@@ -17,7 +17,12 @@ class SiteSettingService
 
     public function getCurrentSiteSettingId(): ?int
     {
-        return Auth::check() ? Auth::user()->site_setting_id : null;
+        /**
+         * @var User $user
+         */
+        $user = Auth::user();
+        
+        return Auth::check() ? $user->gyms()->first()->id : null;
     }
 
     public function createSiteSetting(array $siteSettingData, array $branchesData)

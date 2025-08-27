@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -28,6 +27,7 @@ class User extends Authenticatable implements HasMedia
         'address',
         'is_admin',
         'password',
+        'password_set_at',
         'gender',
         'status',
     ];
@@ -41,6 +41,7 @@ class User extends Authenticatable implements HasMedia
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'password_set_at' => 'datetime',
         ];
     }
 
@@ -99,6 +100,14 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(BlogPost::class);
     }
 
+    /**
+     * Check if user has set their password
+     */
+    public function hasSetPassword(): bool
+    {
+        return !is_null($this->password_set_at) && !is_null($this->password);
+    }
+
     public function blogPostShares(): HasMany
     {
         return $this->hasMany(BlogPostShare::class);
@@ -107,6 +116,36 @@ class User extends Authenticatable implements HasMedia
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Get the current site for this user (either as owner or staff member)
+     */
+    public function getCurrentSite(): ?SiteSetting
+    {
+        $site = $this->site;
+        
+        if (!$site && $this->gyms()->exists()) {
+            $site = $this->gyms()->first();
+        }
+        
+        return $site;
+    }
+
+    /**
+     * Check if user is a gym owner
+     */
+    public function isGymOwner(): bool
+    {
+        return $this->site()->exists();
+    }
+
+    /**
+     * Check if user is staff member (not owner)
+     */
+    public function isStaffMember(): bool
+    {
+        return !$this->isGymOwner() && $this->gyms()->exists();
     }
 
     public function documents(): HasMany

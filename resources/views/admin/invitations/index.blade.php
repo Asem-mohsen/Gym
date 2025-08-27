@@ -112,10 +112,12 @@
                             <td>{{ $invitation->expires_at ? $invitation->expires_at->format('M j, Y H:i') : 'N/A' }}</td>
                             <td>{{ $invitation->created_at->format('M j, Y H:i') }}</td>
                             <td>
-                                <a href="{{ route('invitations.show', $invitation) }}" 
-                                   class="btn  btn-sm" title="View">
-                                    <i class="fas fa-eye"></i>
-                                </a>
+                                @can('view_invitations')
+                                    <a href="{{ route('invitations.show', $invitation) }}" 
+                                    class="btn  btn-sm" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                @endcan
                             </td>
                         </tr>
                     @empty
@@ -126,13 +128,10 @@
                 </tbody>
             </table>
         </div>
-
-        <!-- Pagination -->
-        <div class="d-flex justify-content-center align-items-center py-3 border-top">
-            <nav aria-label="Admins pagination">
-                {{ $invitations->appends(request()->query())->links('pagination::bootstrap-4') }}
-            </nav>
-        </div>
     </div>
 </div>
+@endsection
+
+@section('js')
+    @include('_partials.dataTable-script')
 @endsection

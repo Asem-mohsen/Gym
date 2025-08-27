@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Gallery\{CreateGalleryRequest, UpdateGalleryRequest};
-use App\Models\Gallery;
+use App\Models\{Gallery, User};
 use App\Services\GalleryService;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,7 +20,11 @@ class GalleryController extends Controller
      */
     public function index()
     {
-        $siteSetting = Auth::user()->site;
+        /**
+         * @var User $user
+         */
+        $user = Auth::user();
+        $siteSetting = $user->getCurrentSite();
         
         if (!$siteSetting) {
             abort(404, 'Site settings not found for this admin');
@@ -34,25 +38,30 @@ class GalleryController extends Controller
 
     public function create()
     {
-        $siteSetting = Auth::user()->site;
+        /**
+         * @var User $user
+         */
+        $user = Auth::user();
+        $siteSetting = $user->getCurrentSite();
         
         if (!$siteSetting) {
-            abort(404, 'Site settings not found for this admin');
+            abort(404, 'Site settings not found');
         }
+
 
         return view('admin.galleries.create', compact('siteSetting'));
     }
 
     public function edit(Gallery $gallery)
     {
-        $siteSetting = Auth::user()->site;
+        /**
+         * @var User $user
+         */
+        $user = Auth::user();
+        $siteSetting = $user->getCurrentSite();
         
         if (!$siteSetting) {
-            abort(404, 'Site settings not found for this admin');
-        }
-        
-        if ($gallery->site_setting_id !== $siteSetting->id) {
-            abort(404, 'Gallery not found');
+            abort(404, 'Site settings not found');
         }
 
         return view('admin.galleries.edit', compact('gallery', 'siteSetting'));
@@ -60,10 +69,14 @@ class GalleryController extends Controller
 
     public function store(CreateGalleryRequest $request)
     {
-        $siteSetting = Auth::user()->site;
+       /**
+         * @var User $user
+         */
+        $user = Auth::user();
+        $siteSetting = $user->getCurrentSite();
         
         if (!$siteSetting) {
-            abort(404, 'Site settings not found for this admin');
+            abort(404, 'Site settings not found');
         }
 
         $data = $request->only(['title', 'description', 'is_active', 'sort_order']);
@@ -89,14 +102,14 @@ class GalleryController extends Controller
 
     public function update(UpdateGalleryRequest $request, Gallery $gallery)
     {
-        $siteSetting = Auth::user()->site;
+        /**
+         * @var User $user
+         */
+        $user = Auth::user();
+        $siteSetting = $user->getCurrentSite();
         
         if (!$siteSetting) {
-            abort(404, 'Site settings not found for this admin');
-        }
-
-        if ($gallery->site_setting_id !== $siteSetting->id) {
-            abort(404, 'Gallery not found');
+            abort(404, 'Site settings not found');
         }
 
         $data = $request->only(['title', 'description', 'is_active', 'sort_order']);
@@ -121,10 +134,14 @@ class GalleryController extends Controller
 
     public function destroy(Gallery $gallery)
     {
-        $siteSetting = Auth::user()->site;
+        /**
+         * @var User $user
+        */
+        $user = Auth::user();
+        $siteSetting = $user->getCurrentSite();
         
         if (!$siteSetting) {
-            abort(404, 'Site settings not found for this admin');
+            abort(404, 'Site settings not found');
         }
 
         $this->galleryService->deleteGallery($gallery);
@@ -134,10 +151,14 @@ class GalleryController extends Controller
 
     public function removeMedia(int $galleryId, int $mediaId)
     {
-        $siteSetting = Auth::user()->site;
+        /**
+         * @var User $user
+         */
+        $user = Auth::user();
+        $siteSetting = $user->getCurrentSite();
         
         if (!$siteSetting) {
-            abort(404, 'Site settings not found for this admin');
+            abort(404, 'Site settings not found');
         }
 
         $gallery = $this->galleryService->getGalleryById($galleryId);
