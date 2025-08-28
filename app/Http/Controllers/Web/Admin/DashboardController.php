@@ -47,26 +47,8 @@ class DashboardController extends Controller
             'non_subscribers' => $totalUsers - $totalSubscribers
         ];
 
-        // 5. Chart of subscriptions per month (last 12 months) - using bookings for memberships
-        $subscriptionsPerMonth = Booking::where('bookable_type', Membership::class)
-            ->whereHas('user.gyms', function($query) use ($siteSettingId) {
-                $query->where('site_setting_id', $siteSettingId);
-            })
-            ->whereHas('bookable', function($query) use ($siteSettingId) {
-                $query->where('site_setting_id', $siteSettingId);
-            })
-            ->selectRaw('MONTH(created_at) as month, YEAR(created_at) as year, COUNT(*) as count')
-            ->where('created_at', '>=', Carbon::now()->subMonths(12))
-            ->groupBy('month', 'year')
-            ->orderBy('year')
-            ->orderBy('month')
-            ->get()
-            ->map(function($item) {
-                return [
-                    'month' => Carbon::createFromDate($item->year, $item->month, 1)->format('M Y'),
-                    'count' => $item->count
-                ];
-            });
+        // 5. Enhanced monthly trends for the last 12 months
+        $monthlyData = $this->getMonthlyTrends($siteSettingId);
 
         // 6. Number of memberships and users subscribed to each (using bookings)
         $memberships = Membership::where('site_setting_id', $siteSettingId)
@@ -108,7 +90,94 @@ class DashboardController extends Controller
                 ];
             });
 
-        // Additional statistics - using bookings for memberships
+        // 11. Enhanced subscription statistics
+        $subscriptionStats = $this->getSubscriptionStats($siteSettingId);
+
+        // 12. Revenue analytics
+        $revenueData = $this->getRevenueAnalytics($siteSettingId);
+
+        // 13. User growth trends
+        $userGrowthData = $this->getUserGrowthTrends($siteSettingId);
+
+        // 14. Performance metrics
+        $performanceMetrics = $this->getPerformanceMetrics($siteSettingId);
+
+        return view('admin.index', compact(
+            'totalUsers',
+            'totalTrainers', 
+            'totalAdmins',
+            'usersVsSubscribers',
+            'monthlyData',
+            'memberships',
+            'totalBranches',
+            'totalClasses',
+            'totalServices',
+            'classSubscriptions',
+            'subscriptionStats',
+            'revenueData',
+            'userGrowthData',
+            'performanceMetrics'
+        ));
+    }
+
+    private function getMonthlyTrends($siteSettingId)
+    {
+        $months = [];
+        $subscriptions = [];
+        $users = [];
+        $revenue = [];
+
+        for ($i = 11; $i >= 0; $i--) {
+            $month = Carbon::now()->subMonths($i);
+            $months[] = $month->format('M Y');
+            
+            // Subscriptions
+            $subscriptions[] = Booking::where('bookable_type', Membership::class)
+                ->whereHas('user.gyms', function($query) use ($siteSettingId) {
+                    $query->where('site_setting_id', $siteSettingId);
+                })
+                ->whereHas('bookable', function($query) use ($siteSettingId) {
+                    $query->where('site_setting_id', $siteSettingId);
+                })
+                ->whereYear('bookings.created_at', $month->year)
+                ->whereMonth('bookings.created_at', $month->month)
+                ->count();
+            
+            // New users
+            $users[] = User::whereHas('gyms', function($query) use ($siteSettingId) {
+                $query->where('site_setting_id', $siteSettingId);
+            })
+            ->whereYear('users.created_at', $month->year)
+            ->whereMonth('users.created_at', $month->month)
+            ->count();
+            
+            // Revenue
+            $revenue[] = Booking::where('bookable_type', Membership::class)
+                ->whereHas('user.gyms', function($query) use ($siteSettingId) {
+                    $query->where('site_setting_id', $siteSettingId);
+                })
+                ->whereHas('bookable', function($query) use ($siteSettingId) {
+                    $query->where('site_setting_id', $siteSettingId);
+                })
+                ->whereYear('bookings.created_at', $month->year)
+                ->whereMonth('bookings.created_at', $month->month)
+                ->join('memberships', 'bookings.bookable_id', '=', 'memberships.id')
+                ->sum('memberships.price');
+        }
+
+        return [
+            'months' => $months,
+            'subscriptions' => $subscriptions,
+            'users' => $users,
+            'revenue' => $revenue
+        ];
+    }
+
+    private function getSubscriptionStats($siteSettingId)
+    {
+        $currentMonth = Carbon::now()->startOfMonth();
+        $lastMonth = Carbon::now()->subMonth()->startOfMonth();
+
         $activeSubscriptions = Booking::where('bookable_type', Membership::class)
             ->whereHas('user.gyms', function($query) use ($siteSettingId) {
                 $query->where('site_setting_id', $siteSettingId);
@@ -116,7 +185,17 @@ class DashboardController extends Controller
             ->whereHas('bookable', function($query) use ($siteSettingId) {
                 $query->where('site_setting_id', $siteSettingId);
             })
-            ->where('created_at', '>=', Carbon::now()->subDays(30))
+            ->where('bookings.created_at', '>=', $currentMonth)
+            ->count();
+
+        $lastMonthSubscriptions = Booking::where('bookable_type', Membership::class)
+            ->whereHas('user.gyms', function($query) use ($siteSettingId) {
+                $query->where('site_setting_id', $siteSettingId);
+            })
+            ->whereHas('bookable', function($query) use ($siteSettingId) {
+                $query->where('site_setting_id', $siteSettingId);
+            })
+            ->whereBetween('bookings.created_at', [$lastMonth, $currentMonth])
             ->count();
 
         $expiredSubscriptions = Booking::where('bookable_type', Membership::class)
@@ -126,22 +205,109 @@ class DashboardController extends Controller
             ->whereHas('bookable', function($query) use ($siteSettingId) {
                 $query->where('site_setting_id', $siteSettingId);
             })
-            ->where('created_at', '<', Carbon::now()->subDays(30))
+            ->where('bookings.created_at', '<', $currentMonth)
             ->count();
 
-        return view('admin.index', compact(
-            'totalUsers',
-            'totalTrainers', 
-            'totalAdmins',
-            'usersVsSubscribers',
-            'subscriptionsPerMonth',
-            'memberships',
-            'totalBranches',
-            'totalClasses',
-            'totalServices',
-            'classSubscriptions',
-            'activeSubscriptions',
-            'expiredSubscriptions'
-        ));
+        $growthRate = $lastMonthSubscriptions > 0 ? (($activeSubscriptions - $lastMonthSubscriptions) / $lastMonthSubscriptions) * 100 : 0;
+
+        return [
+            'active' => $activeSubscriptions,
+            'expired' => $expiredSubscriptions,
+            'growth_rate' => $growthRate,
+            'last_month' => $lastMonthSubscriptions
+        ];
+    }
+
+    private function getRevenueAnalytics($siteSettingId)
+    {
+        $currentMonth = Carbon::now()->startOfMonth();
+        $lastMonth = Carbon::now()->subMonth()->startOfMonth();
+
+        $currentRevenue = Booking::where('bookable_type', Membership::class)
+            ->whereHas('user.gyms', function($query) use ($siteSettingId) {
+                $query->where('site_setting_id', $siteSettingId);
+            })
+            ->whereHas('bookable', function($query) use ($siteSettingId) {
+                $query->where('site_setting_id', $siteSettingId);
+            })
+            ->where('bookings.created_at', '>=', $currentMonth)
+            ->join('memberships', 'bookings.bookable_id', '=', 'memberships.id')
+            ->sum('memberships.price');
+
+        $lastMonthRevenue = Booking::where('bookable_type', Membership::class)
+            ->whereHas('user.gyms', function($query) use ($siteSettingId) {
+                $query->where('site_setting_id', $siteSettingId);
+            })
+            ->whereHas('bookable', function($query) use ($siteSettingId) {
+                $query->where('site_setting_id', $siteSettingId);
+            })
+            ->whereBetween('bookings.created_at', [$lastMonth, $currentMonth])
+            ->join('memberships', 'bookings.bookable_id', '=', 'memberships.id')
+            ->sum('memberships.price');
+
+        $revenueGrowth = $lastMonthRevenue > 0 ? (($currentRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100 : 0;
+
+        return [
+            'current' => $currentRevenue,
+            'last_month' => $lastMonthRevenue,
+            'growth' => $revenueGrowth
+        ];
+    }
+
+    private function getUserGrowthTrends($siteSettingId)
+    {
+        $currentMonth = Carbon::now()->startOfMonth();
+        $lastMonth = Carbon::now()->subMonth()->startOfMonth();
+
+        $currentMonthUsers = User::whereHas('gyms', function($query) use ($siteSettingId) {
+            $query->where('site_setting_id', $siteSettingId);
+        })->where('users.created_at', '>=', $currentMonth)->count();
+
+        $lastMonthUsers = User::whereHas('gyms', function($query) use ($siteSettingId) {
+            $query->where('site_setting_id', $siteSettingId);
+        })->whereBetween('users.created_at', [$lastMonth, $currentMonth])->count();
+
+        $userGrowth = $lastMonthUsers > 0 ? (($currentMonthUsers - $lastMonthUsers) / $lastMonthUsers) * 100 : 0;
+
+        return [
+            'current' => $currentMonthUsers,
+            'last_month' => $lastMonthUsers,
+            'growth' => $userGrowth
+        ];
+    }
+
+    private function getPerformanceMetrics($siteSettingId)
+    {
+        // Average class attendance
+        $avgClassAttendance = Booking::where('bookable_type', ClassModel::class)
+            ->whereHas('user.gyms', function($query) use ($siteSettingId) {
+                $query->where('site_setting_id', $siteSettingId);
+            })
+            ->whereHas('bookable', function($query) use ($siteSettingId) {
+                $query->where('site_setting_id', $siteSettingId);
+            })
+            ->count() / max(ClassModel::where('site_setting_id', $siteSettingId)->count(), 1);
+
+        // Membership conversion rate
+        $totalUsers = User::whereHas('gyms', function($query) use ($siteSettingId) {
+            $query->where('site_setting_id', $siteSettingId);
+        })->count();
+
+        $membershipUsers = Booking::where('bookable_type', Membership::class)
+            ->whereHas('user.gyms', function($query) use ($siteSettingId) {
+                $query->where('site_setting_id', $siteSettingId);
+            })
+            ->whereHas('bookable', function($query) use ($siteSettingId) {
+                $query->where('site_setting_id', $siteSettingId);
+            })
+            ->distinct('user_id')
+            ->count('user_id');
+
+        $conversionRate = $totalUsers > 0 ? ($membershipUsers / $totalUsers) * 100 : 0;
+
+        return [
+            'avg_class_attendance' => round($avgClassAttendance, 1),
+            'conversion_rate' => round($conversionRate, 1)
+        ];
     }
 }

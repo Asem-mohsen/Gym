@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\SiteSetting;
+use App\Observers\{SiteSettingObserver, PermissionTableObserver};
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        SiteSetting::observe(SiteSettingObserver::class);
+
+        PermissionTableObserver::watchRolePermissions();
+        PermissionTableObserver::watchModelPermissions();
     }
 }

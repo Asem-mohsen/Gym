@@ -72,21 +72,6 @@ class RoleAssignmentService
     }
 
     /**
-     * Get available roles for user assignment
-     */
-    public function getAvailableRoles(): array
-    {
-        return Role::all()->map(function ($role) {
-            return [
-                'id' => $role->id,
-                'name' => $role->name,
-                'description' => $role->description ?? '',
-                'permissions' => $role->permissions->pluck('name')->toArray()
-            ];
-        })->toArray();
-    }
-
-    /**
      * Get roles suitable for admin assignment
      */
     public function getAdminRoles(): array
@@ -114,37 +99,5 @@ class RoleAssignmentService
                 'permissions' => $role->permissions->pluck('name')->toArray()
             ];
         })->toArray();
-    }
-
-    /**
-     * Check if user has specific permission
-     */
-    public function userHasPermission(User $user, string $permission): bool
-    {
-        return $user->hasPermissionTo($permission);
-    }
-
-    /**
-     * Check if user has any of the specified permissions
-     */
-    public function userHasAnyPermission(User $user, array $permissions): bool
-    {
-        return $user->hasAnyPermission($permissions);
-    }
-
-    /**
-     * Get user's permissions
-     */
-    public function getUserPermissions(User $user): array
-    {
-        return $user->getAllPermissions()->pluck('name')->toArray();
-    }
-
-    /**
-     * Get user's role names
-     */
-    public function getUserRoleNames(User $user): array
-    {
-        return $user->getRoleNames()->toArray();
     }
 }

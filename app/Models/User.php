@@ -12,6 +12,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements HasMedia
@@ -179,6 +180,33 @@ class User extends Authenticatable implements HasMedia
     }
 
     /**
+     * Get user initials from name
+     */
+    public function getInitialsAttribute(): string
+    {
+        $name = trim($this->name);
+        $words = explode(' ', $name);
+        
+        if (count($words) >= 2) {
+            return strtoupper(substr($words[0], 0, 1) . substr($words[count($words) - 1], 0, 1));
+        }
+        
+        return strtoupper(substr($name, 0, 2));
+    }
+
+    /**
+     * Check if user has a specific gym permission
+     */
+    public function hasGymPermission(string $permissionName, int $siteSettingId): bool
+    {
+        return $this->permissions()
+            ->where('name', $permissionName)
+            ->wherePivot('site_setting_id', $siteSettingId)
+            ->exists();
+    }
+
+
+    /**
      * Get the user's image URL based on gender and media availability
      *
      * @return string
@@ -196,45 +224,5 @@ class User extends Authenticatable implements HasMedia
         }
         
         return asset('assets/admin/img/women-avatar.webp');
-    }
-
-    /**
-     * Check if user has permission to access financial data
-     */
-    public function canAccessFinancials(): bool
-    {
-        return $this->isAdmin() || $this->hasPermissionTo('view_financials');
-    }
-
-    /**
-     * Check if user has permission to manage site settings
-     */
-    public function canManageSiteSettings(): bool
-    {
-        return $this->isAdmin() || $this->hasPermissionTo('manage_site_settings');
-    }
-
-    /**
-     * Check if user has permission to manage branches
-     */
-    public function canManageBranches(): bool
-    {
-        return $this->isAdmin() || $this->hasPermissionTo('manage_branches');
-    }
-
-    /**
-     * Check if user has permission to access deactivation page
-     */
-    public function canAccessDeactivation(): bool
-    {
-        return $this->isAdmin();
-    }
-
-    /**
-     * Check if user has permission to manage score system
-     */
-    public function canManageScores(): bool
-    {
-        return $this->isAdmin() || $this->hasPermissionTo('manage_scores');
     }
 }

@@ -29,6 +29,8 @@ use App\Http\Controllers\Web\Admin\TrainerController;
 use App\Http\Controllers\Web\Admin\StaffController;
 use App\Http\Controllers\Web\Admin\RolePermissionController;
 use App\Http\Controllers\Web\Admin\ContactController;
+use App\Http\Controllers\Web\Admin\GymPermissionController;
+use App\Http\Controllers\Web\Admin\AccountController;
 
 // Admin Routes
 Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
@@ -69,8 +71,22 @@ Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
         Route::put('users/{user}/roles', [RolePermissionController::class, 'updateUserRoles'])->name('users.update-roles');
         Route::put('users/{user}/permissions', [RolePermissionController::class, 'updateUserPermissions'])->name('users.update-permissions');
         
-        Route::get('permissions', [RolePermissionController::class, 'getPermissions'])->name('permissions.get');
         Route::get('roles/{role}/users', [RolePermissionController::class, 'getUsersByRole'])->name('roles.users');
+    });
+
+    // Gym Permission Management Routes
+    Route::middleware(['permission:view_roles'])->group(function () {
+        Route::prefix('permissions')->controller(GymPermissionController::class)->name('admin.permissions.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            
+            Route::get('/roles', 'rolePermissions')->name('role-permissions');
+            Route::get('/roles/{role}', 'showRolePermissions')->name('show-role-permissions');
+            Route::put('/roles/{role}/permissions', 'assignRolePermissions')->name('assign-role-permissions');
+            
+            Route::get('/users', 'userPermissions')->name('user-permissions');
+            Route::get('/users/{user}', 'showUserPermissions')->name('show-user-permissions');
+            Route::put('/users/{user}/permissions', 'assignUserPermissions')->name('assign-user-permissions');
+        });
     });
 
     // Membership Management Routes
@@ -203,6 +219,11 @@ Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
             Route::get('/', 'index')->name('index');
             Route::post('/{id}/mark-answered', 'markAsAnswered')->name('mark-answered');
         });
+    });
+
+    Route::prefix('account')->controller(AccountController::class)->name('admin.account.')->group(function () {
+        Route::get('/', 'show')->name('show');
+        Route::put('/update', 'update')->name('update');
     });
 
     // Gym Deactivation Routes (Admin only)

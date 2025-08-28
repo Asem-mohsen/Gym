@@ -176,22 +176,6 @@ class RolePermissionController extends Controller
     }
 
     /**
-     * Get all permissions for AJAX requests
-     */
-    public function getPermissions()
-    {
-        try {
-            $permissions = Permission::all()->groupBy(function($permission) {
-                return explode('_', $permission->name)[0];
-            });
-            
-            return response()->json($permissions);
-        } catch (Exception $e) {
-            return response()->json(['error' => 'Error loading permissions'], 500);
-        }
-    }
-
-    /**
      * Get users by role for AJAX requests
      */
     public function getUsersByRole(Role $role)

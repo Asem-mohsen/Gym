@@ -35,7 +35,7 @@ class SidebarServiceProvider extends ServiceProvider
                     $gymContext = $gymContextService->getCurrentGymContext();
                     
                     if ($gymContext && isset($gymContext['id'])) {
-                        $site = \App\Models\SiteSetting::find($gymContext['id']);
+                        $site = SiteSetting::find($gymContext['id']);
                     }
                 }
             }

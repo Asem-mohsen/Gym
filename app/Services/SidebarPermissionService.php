@@ -19,9 +19,9 @@ class SidebarPermissionService
             [
                 'title' => 'Management',
                 'icon' => 'fa-solid fa-bars-progress',
-                'permission' => 'view_users',
+                'permission' => ['view_users', 'view_admins', 'view_trainers', 'view_staff', 'view_services', 'view_subscriptions', 'view_invitations', 'view_contacts', 'view_roles'],
                 'active' => function() {
-                    return request()->routeIs('users.*') || request()->routeIs('admins.*') || request()->routeIs('trainers.*') || request()->routeIs('services.*') || request()->routeIs('subscriptions.*') || request()->routeIs('invitations.*') || request()->routeIs('staff.*') || request()->routeIs('admin.contacts.*') ;
+                    return request()->routeIs('users.*') || request()->routeIs('admins.*') || request()->routeIs('trainers.*') || request()->routeIs('services.*') || request()->routeIs('subscriptions.*') || request()->routeIs('invitations.*') || request()->routeIs('staff.*') || request()->routeIs('admin.contacts.*') || request()->routeIs('admin.permissions.*') ;
                 },
                 'subItems' => [
                     [
@@ -88,12 +88,20 @@ class SidebarPermissionService
                             return request()->routeIs('admin.contacts.*');
                         }
                     ],
+                    [
+                        'title' => 'Gym Permissions',
+                        'route' => 'admin.permissions.index',
+                        'permission' => 'view_roles',
+                        'active' => function() {
+                            return request()->routeIs('admin.permissions.*');
+                        }
+                    ],
                 ]
             ],
             [
                 'title' => 'Score Management',
                 'icon' => 'fa-solid fa-star',
-                'permission' => 'view_scores',
+                'permission' => ['view_scores', 'view_resources', 'view_reviews_requests'],
                 'active' => function() {
                     return request()->routeIs('admin.score-dashboard') || request()->routeIs('admin.resources') || request()->routeIs('review-requests.*');
                 },
@@ -154,7 +162,7 @@ class SidebarPermissionService
             [
                 'title' => 'Financials',
                 'icon' => 'fa-solid fa-money-bill',
-                'permission' => 'view_financials',
+                'permission' => ['view_payments', 'view_offers'],
                 'active' => function() {
                     return request()->routeIs('payments.index') || request()->routeIs('offers.*') || request()->routeIs('admin.cash-payments.*');
                 },
@@ -197,7 +205,7 @@ class SidebarPermissionService
             [
                 'title' => 'Site',
                 'icon' => 'fa-solid fa-chart-simple',
-                'permission' => 'view_site_settings',
+                'permission' => ['view_site_settings', 'view_branches', 'manage_site_settings'],
                 'active' => function() {
                     return request()->routeIs('site-settings.edit') || request()->routeIs('branches.*') || request()->routeIs('admin.deactivation.*');
                 },
@@ -272,9 +280,8 @@ class SidebarPermissionService
         return $filteredItems;
     }
 
-    private function hasPermission(User $user, ?string $permission): bool
+    private function hasPermission(User $user, $permission): bool
     {
-        // If no permission required, allow access
         if ($permission === null) {
             return true;
         }
@@ -284,7 +291,15 @@ class SidebarPermissionService
             return true;
         }
 
-        // Check specific permission
+        if (is_array($permission)) {
+            foreach ($permission as $perm) {
+                if ($user->hasPermissionTo($perm)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         return $user->hasPermissionTo($permission);
     }
 }
