@@ -9,7 +9,7 @@ class AddServiceRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('create_services');
     }
 
     public function rules(): array

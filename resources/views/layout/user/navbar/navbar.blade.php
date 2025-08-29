@@ -95,8 +95,8 @@
                                 <a class="dropdown-item" href="{{ route('profile.index', ['siteSetting' => $siteSetting->slug]) }}">
                                     <i class="fa fa-user-circle"></i> My Profile
                                 </a>
-                                <a class="dropdown-item" href="{{ route('profile.edit', ['siteSetting' => $siteSetting->slug]) }}">
-                                    <i class="fa fa-edit"></i> Edit Profile
+                                <a class="dropdown-item" href="{{ route('user.checkin.self', ['siteSetting' => $siteSetting->slug]) }}">
+                                    <i class="fa fa-check"></i> Gym Entrance
                                 </a>
                                 <a class="dropdown-item" href="{{ route('user.invitations.index', ['siteSetting' => $siteSetting->slug]) }}">
                                     <i class="fa fa-envelope"></i> My Invitations

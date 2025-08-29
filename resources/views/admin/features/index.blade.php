@@ -7,10 +7,6 @@
 
 @section('sub-breadcrumb', 'Index')
 
-@section('css')
-    <link href="{{ asset('assets/plugins/custom/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
-@endsection
-
 @section('content')
 
     <div class="col-md-12 mb-md-5 mb-xl-10">
@@ -30,12 +26,13 @@
 
                 </div>
 
-                <div class="card-toolbar">
-                    <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
-                        <a href="{{ route('features.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add Feature</a>
+                @can('create_features')
+                    <div class="card-toolbar">
+                        <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
+                            <a href="{{ route('features.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add Feature</a>
+                        </div>
                     </div>
-                </div>
-
+                @endcan
             </div>
 
             <div class="card-body pt-0">
@@ -81,18 +78,23 @@
                                 </td>
                                 <td>
                                     <div class="d-flex gap-1">
+                                        @can('edit_features')
                                         <x-table-icon-link 
                                             :route="route('features.edit',$feature->id)" 
                                             colorClass="primary"
                                             title="Edit"
                                             iconClasses="fa-solid fa-pen"
                                         />
+                                        @endcan
+                                        @can('view_features')
                                         <x-table-icon-link 
                                             :route="route('features.show',$feature->id)" 
                                             colorClass="success"
                                             title="View"
                                             iconClasses="fa-solid fa-eye"
                                         />
+                                        @endcan
+                                        @can('delete_features')
                                         <x-table-icon-link 
                                             :route="route('features.destroy',$feature->id)" 
                                             colorClass="danger"
@@ -100,6 +102,7 @@
                                             iconClasses="fa-solid fa-trash"
                                             :isDelete="true"
                                         />
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>

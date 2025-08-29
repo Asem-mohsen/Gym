@@ -14,6 +14,7 @@ use App\Http\Controllers\Web\User\TeamController;
 use App\Http\Controllers\Web\User\GymSelectionController;
 use App\Http\Controllers\Web\User\InvitationController;
 use App\Http\Controllers\Web\User\NotFoundController;
+use App\Http\Controllers\Web\User\CheckinController;
 
 // Public Routes
 Route::get('/', [GymSelectionController::class, 'index'])->name('gym.selection');
@@ -74,6 +75,17 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.c
         Route::get('/verify', 'verify')->name('invitations.verify');
         Route::get('/scan/{qrCode}', 'scanAndVerify')->name('invitations.scan');
         Route::post('/{invitation}/resend', 'resend')->name('invitations.resend');
+    });
+
+    // Check-in routes
+    Route::prefix('checkin')->middleware(['auth:web'])->controller(CheckinController::class)->group(function () {
+        Route::get('/self', 'showSelfCheckin')->name('checkin.self');
+        Route::post('/self', 'processSelfCheckin')->name('checkin.self.process');
+        Route::get('/personal-qr', 'showPersonalQr')->name('checkin.personal-qr');
+        Route::get('/history', 'showCheckinHistory')->name('checkin.history');
+        Route::get('/stats', 'showCheckinStats')->name('checkin.stats');
+        Route::get('/staff-scanner', 'showStaffScanner')->name('checkin.staff-scanner');
+        Route::post('/gate', 'processGateCheckin')->name('checkin.gate');
     });
 
 });

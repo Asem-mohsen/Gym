@@ -3,14 +3,16 @@ namespace App\Services\Auth;
 
 use App\Mail\PasswordResetMail;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
+use App\Services\UserService;
+use Illuminate\Support\Facades\{DB, Hash, Mail};
+use Illuminate\Support\{Carbon, Str};
 
 class ForgetPasswordService
 {
+    public function __construct(
+        protected UserService $userService
+    ) {}
+
     public function sendResetToken(string $email): bool
     {
         $user = User::where('email', $email)->first();
@@ -63,6 +65,8 @@ class ForgetPasswordService
 
         $user = User::where('email', $email)->first();
         $user->update(['password' => Hash::make($newPassword)]);
+
+        $this->userService->markPasswordAsSet($user);
 
         DB::table('password_reset_tokens')->where('email', $email)->delete();
 

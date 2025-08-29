@@ -139,12 +139,16 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="{{ route('review-requests.create') }}" class="btn btn-primary">
-                            <i class="fas fa-clipboard-list me-2"></i>Request Score Review
-                        </a>
-                        <a href="{{ route('admin.resources') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-file-alt me-2"></i>Resources & Documents
-                        </a>
+                        @can('create_reviews_requests')
+                            <a href="{{ route('review-requests.create') }}" class="btn btn-primary">
+                                <i class="fas fa-clipboard-list me-2"></i>Request Score Review
+                            </a>
+                        @endcan
+                        @can('view_resources')
+                            <a href="{{ route('admin.resources') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-file-alt me-2"></i>Resources & Documents
+                            </a>
+                        @endcan
                     </div>
                 </div>
             </div>

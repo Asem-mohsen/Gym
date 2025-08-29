@@ -29,7 +29,7 @@
                         foreach($roles as $id => $role){
                             $options[] = [
                                 'value' => $id,
-                                'label' => $role->name
+                                'label' => $role['name']
                             ];
                         }
                     @endphp

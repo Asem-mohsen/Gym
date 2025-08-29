@@ -98,6 +98,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'create_features',
             'edit_features',
             'delete_features',
+            
+            // Check-in settings permissions
+            'view_checkin_settings',
+            'create_checkin_settings',
+            'edit_checkin_settings',
+            'delete_checkin_settings',
 
             // Gallery permissions
             'view_gallery',
@@ -128,6 +134,36 @@ class RolesAndPermissionsSeeder extends Seeder
             'create_bookings',
             'edit_bookings',
             'delete_bookings',
+
+            // Trainers permissions
+            'view_trainers',
+            'create_trainers',
+            'edit_trainers',
+            'delete_trainers',
+
+            // Staff permissions
+            'view_staff',
+            'create_staff',
+            'edit_staff',
+            'delete_staff',
+
+            // Admins permissions
+            'view_admins',
+            'create_admins',
+            'edit_admins',
+            'delete_admins',
+
+            // Invitations permissions
+            'view_invitations',
+            'delete_invitations',
+
+            // Resources permissions
+            'view_resources',
+            'download_resources', 
+
+            // Deactivation permissions
+            'deactivate_gyms_and_branches',
+
         ];
 
         foreach ($permissions as $permission) {
@@ -160,6 +196,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_classes',
             'view_users',
             'view_services',
+            'view_trainers',
+            'edit_trainers',
         ]);
     }
 
@@ -174,6 +212,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_services',
             'view_classes',
             'view_offers',
+            'view_staff',
             'view_subscriptions',
             'create_subscriptions',
             'edit_subscriptions',
@@ -186,6 +225,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'create_blog_posts',
             'edit_blog_posts',
             'view_blog_posts',
+            'view_trainers',
         ]);
     }
 
@@ -224,6 +264,18 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_subscriptions',
             'create_subscriptions',
             'edit_subscriptions',
+            'view_trainers',
+            'edit_trainers',
+            'view_staff',
+            'edit_staff',
+            'delete_staff',
+            'view_invitations',
+            'delete_invitations',
+            'view_admins',
+            'edit_admins',
+            'delete_trainers',
+            'view_resources',
+            'download_resources', 
         ]);
     }
 

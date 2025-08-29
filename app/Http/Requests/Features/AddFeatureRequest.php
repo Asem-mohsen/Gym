@@ -8,7 +8,7 @@ class AddFeatureRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('create_features');
     }
 
     public function rules(): array

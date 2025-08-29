@@ -5,7 +5,7 @@ use App\Models\Subscription;
 
 class SubscriptionRepository
 {
-    public function getAll(int $siteSettingId, $perPage = 15, $branchId = null, $search = null)
+    public function getAll(int $siteSettingId, $branchId = null, $status = null, $membershipId = null, $dateFrom = null, $dateTo = null)
     {
         $query = Subscription::with(['user', 'membership', 'bookings'])
             ->whereHas('user', function ($query) use ($siteSettingId)  {
@@ -18,88 +18,41 @@ class SubscriptionRepository
             $query->where('branch_id', $branchId);
         }
 
-        if ($search) {
-            $query->whereHas('user', function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            });
+        // Filter by status
+        if ($status) {
+            if ($status === 'about_to_expire') {
+                // Subscriptions expiring within 30 days
+                $query->where('status', 'active')
+                      ->where('end_date', '>=', now()->toDateString())
+                      ->where('end_date', '<=', now()->addDays(30)->toDateString());
+            } elseif ($status === 'expired') {
+                // Expired subscriptions
+                $query->where(function($q) {
+                    $q->where('status', 'expired')
+                      ->orWhere('end_date', '<', now()->toDateString());
+                });
+            } else {
+                $query->where('status', $status);
+            }
         }
 
-        $subscriptions = $query->paginate($perPage);
+        // Filter by membership type
+        if ($membershipId) {
+            $query->where('membership_id', $membershipId);
+        }
 
-        $counts = [
-            'pending' => Subscription::where('status', 'pending')
-                ->whereHas('user', function ($query) use ($siteSettingId)  {
-                    $query->whereHas('gyms', function ($gymQuery) use ($siteSettingId) {
-                        $gymQuery->where('site_setting_id', $siteSettingId);
-                    });
-                })
-                ->when($branchId, function ($query) use ($branchId) {
-                    return $query->where('branch_id', $branchId);
-                })
-                ->when($search, function ($query) use ($search) {
-                    return $query->whereHas('user', function($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%")
-                          ->orWhere('email', 'like', "%{$search}%");
-                    });
-                })
-                ->count(),
+        // Filter by date range
+        if ($dateFrom) {
+            $query->where('start_date', '>=', $dateFrom);
+        }
+        
+        if ($dateTo) {
+            $query->where('end_date', '<=', $dateTo);
+        }
 
-            'active'  => Subscription::where('status', 'active')
-                ->whereHas('user', function ($query) use ($siteSettingId)  {
-                    $query->whereHas('gyms', function ($gymQuery) use ($siteSettingId) {
-                        $gymQuery->where('site_setting_id', $siteSettingId);
-                    });
-                })
-                ->when($branchId, function ($query) use ($branchId) {
-                    return $query->where('branch_id', $branchId);
-                })
-                ->when($search, function ($query) use ($search) {
-                    return $query->whereHas('user', function($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%")
-                          ->orWhere('email', 'like', "%{$search}%");
-                    });
-                })
-                ->count(),
+        $subscriptions = $query->paginate(15);
 
-            'expired' => Subscription::where('status', 'expired')
-                ->whereHas('user', function ($query) use ($siteSettingId)  {
-                    $query->whereHas('gyms', function ($gymQuery) use ($siteSettingId) {
-                        $gymQuery->where('site_setting_id', $siteSettingId);
-                    });
-                })
-                ->when($branchId, function ($query) use ($branchId) {
-                    return $query->where('branch_id', $branchId);
-                })
-                ->when($search, function ($query) use ($search) {
-                    return $query->whereHas('user', function($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%")
-                          ->orWhere('email', 'like', "%{$search}%");
-                    });
-                })
-                ->count(),
-
-            'total'   => Subscription::whereHas('user', function ($query) use ($siteSettingId)  {
-                    $query->whereHas('gyms', function ($gymQuery) use ($siteSettingId) {
-                        $gymQuery->where('site_setting_id', $siteSettingId);
-                    });
-                })
-                ->when($branchId, function ($query) use ($branchId) {
-                    return $query->where('branch_id', $branchId);
-                })
-                ->when($search, function ($query) use ($search) {
-                    return $query->whereHas('user', function($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%")
-                          ->orWhere('email', 'like', "%{$search}%");
-                    });
-                })
-                ->count(),
-        ];
-
-        return [
-            'subscriptions' => $subscriptions,
-            'counts' => $counts,
-        ];
+        return $subscriptions;
     }
 
     public function getActiveSubscription(int $userId, int $siteSettingId)
@@ -132,5 +85,21 @@ class SubscriptionRepository
     public function findById(int $id): ?Subscription
     {
         return Subscription::with(['user' , 'membership.payment.offer', 'bookings' , 'branch'])->findOrFail($id);
+    }
+
+    public function updateExpiredSubscriptions()
+    {
+        $expiredSubscriptions = Subscription::where('status', 'active')
+            ->where('end_date', '<', now()->toDateString())
+            ->get();
+
+        $updatedCount = 0;
+
+        foreach ($expiredSubscriptions as $subscription) {
+            $subscription->update(['status' => 'expired']);
+            $updatedCount++;
+        }
+
+        return $updatedCount;
     }
 }

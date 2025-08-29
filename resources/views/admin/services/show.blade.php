@@ -17,16 +17,20 @@
                 <div class="d-flex justify-content-between align-items-center w-100">
                     <h3 class="card-title">Service Information</h3>
                     <div class="d-flex gap-2">
-                        <a href="{{ route('services.edit', $service->id) }}" class="btn btn-primary btn-sm">
-                            <i class="fa fa-edit"></i> Edit
-                        </a>
-                        <form action="{{ route('services.destroy', $service->id) }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this service?')">
-                                <i class="fa fa-trash"></i> Delete
-                            </button>
-                        </form>
+                        @can('edit_services')
+                            <a href="{{ route('services.edit', $service->id) }}" class="btn btn-primary btn-sm">
+                                <i class="fa fa-edit"></i> Edit
+                            </a>
+                        @endcan
+                        @can('delete_services')
+                            <form action="{{ route('services.destroy', $service->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this service?')">
+                                    <i class="fa fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        @endcan
                     </div>
                 </div>
             </div>

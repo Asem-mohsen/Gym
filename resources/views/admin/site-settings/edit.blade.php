@@ -87,7 +87,9 @@
                     </div>
 
                     <div class="card-footer">
-                        <button type="submit" class="btn btn-success">Save</button>
+                        @can('edit_site_settings')
+                            <button type="submit" class="btn btn-success">Save</button>
+                        @endcan
                         <a href="{{ route('admin.dashboard') }}" class="btn btn-dark">Cancel</a>
                     </div>
                 </div>

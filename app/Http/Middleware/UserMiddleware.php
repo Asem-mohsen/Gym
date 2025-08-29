@@ -17,9 +17,7 @@ class UserMiddleware
         if (Auth::guard('sanctum')->check()) {
             return $next($request);
         }
-
-        $gymContext = $this->gymContextService->getCurrentGymContext();
         
-        return redirect()->route('auth.login.index', ['siteSetting' => $gymContext['slug']]);
+        return redirect()->route('gym.selection');
     }
 }

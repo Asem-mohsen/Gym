@@ -4,10 +4,6 @@ img.avatar.avatar-sm.me-3 {
     height: 70px;
     border-radius: 50%;
 }
-.menu-content .symbol div, .app-navbar-item .symbol div{
-    background-image: url(../img/avatar.jpg);
-    background-size: contain;
-}
 .border-rounded {
     border-radius: 50%;
 }

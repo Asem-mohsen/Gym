@@ -5,18 +5,19 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admins\{ AddAdminRequest , UpdateAdminRequest};
 use App\Models\User;
-use App\Services\{ AdminService , RoleService, SiteSettingService};
+use App\Services\{ AdminService , RoleAssignmentService, RoleService, SiteSettingService};
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    public function __construct(protected AdminService $adminService ,protected RoleService $roleService , protected SiteSettingService $siteSettingService)
+    public function __construct(protected AdminService $adminService ,protected RoleService $roleService , protected SiteSettingService $siteSettingService , protected RoleAssignmentService $roleAssignmentService)
     {
         $this->adminService = $adminService;
         $this->roleService  = $roleService;
         $this->siteSettingService = $siteSettingService;
+        $this->roleAssignmentService = $roleAssignmentService;
     }
 
     public function index(Request $request)
@@ -43,8 +44,8 @@ class AdminController extends Controller
     public function create()
     {
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $roles = $this->roleService->getRolesForAdminCreation();
-        return view('admin.admins.create',compact('roles'));
+        $roles = $this->roleAssignmentService->getAdminRoles();
+        return view('admin.admins.create', compact('roles'));
     }
 
     public function store(AddAdminRequest $request)
@@ -61,8 +62,15 @@ class AdminController extends Controller
     public function edit(User $admin)
     {
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $roles = $this->roleService->getRolesForAdminCreation();
-        return view('admin.admins.edit',compact('admin','roles'));
+        $roles = $this->roleAssignmentService->getAdminRoles();
+        return view('admin.admins.edit', compact('admin', 'roles'));
+    }
+
+    public function show(User $admin)
+    {
+        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+        $roles = $this->roleAssignmentService->getAdminRoles();
+        return view('admin.admins.show', compact('admin', 'roles'));
     }
 
     public function update(UpdateAdminRequest $request, User $admin)

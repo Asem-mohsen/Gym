@@ -8,7 +8,7 @@ class UpdateFeatureRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('edit_features');
     }
 
     public function rules(): array

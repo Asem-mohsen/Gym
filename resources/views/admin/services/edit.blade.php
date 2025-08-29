@@ -155,24 +155,24 @@
 
 @endsection
 
-@section('Js')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const bookingTypeSelect = document.getElementById('booking_type');
-    const priceInput = document.getElementById('price');
-    
-    function togglePrice() {
-        if (bookingTypeSelect.value === 'paid_booking') {
-            priceInput.required = true;
-            priceInput.parentElement.classList.add('required');
-        } else {
-            priceInput.required = false;
-            bookingFeeInput.parentElement.classList.remove('required');
-        }
-    }
-    
-    bookingTypeSelect.addEventListener('change', togglePrice);
-    togglePrice(); // Initial call
-});
-</script>
+@section('js')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const bookingTypeSelect = document.getElementById('booking_type');
+            const priceInput = document.getElementById('price');
+            
+            function togglePrice() {
+                if (bookingTypeSelect.value === 'paid_booking') {
+                    priceInput.required = true;
+                    priceInput.parentElement.classList.add('required');
+                } else {
+                    priceInput.required = false;
+                    bookingFeeInput.parentElement.classList.remove('required');
+                }
+            }
+            
+            bookingTypeSelect.addEventListener('change', togglePrice);
+            togglePrice(); // Initial call
+        });
+    </script>
 @endsection

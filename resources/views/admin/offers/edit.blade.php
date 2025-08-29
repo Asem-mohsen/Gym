@@ -105,7 +105,9 @@
                     <textarea class="form-control form-control-solid" name="description[ar]" id="description_ar">{{ $offer->getTranslation('description', 'ar') }}</textarea>
                 </div>
                 <div class="card-footer">
-                    <button type="submit" class="btn btn-success">Save</button>
+                    @can('edit_offers')
+                        <button type="submit" class="btn btn-success">Save</button>
+                    @endcan
                     <a href="{{ route('offers.index') }}" class="btn btn-dark">Cancel</a>
                 </div>
             </div>

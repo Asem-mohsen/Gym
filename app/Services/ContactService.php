@@ -19,4 +19,20 @@ class ContactService
         $data['site_setting_id'] = $siteSettingId;
         return $this->contactRepository->create($data);
     }
+
+    /**
+     * Get all contacts for a specific site setting.
+     */
+    public function getContactsBySiteSetting(int $siteSettingId)
+    {
+        return $this->contactRepository->getBySiteSetting($siteSettingId);
+    }
+
+    /**
+     * Mark a contact message as answered.
+     */
+    public function markAsAnswered(int $contactId): bool
+    {
+        return $this->contactRepository->markAsAnswered($contactId);
+    }
 } 

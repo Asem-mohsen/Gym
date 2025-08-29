@@ -7,10 +7,6 @@
 
 @section('sub-breadcrumb', 'Index')
 
-@section('css')
-    <link href="{{ asset('assets/plugins/custom/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
-@endsection
-
 @section('content')
 
     @include('admin.memberships.style.custom-style')
@@ -32,12 +28,13 @@
 
                 </div>
 
-                <div class="card-toolbar">
-                    <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
-                        <a href="{{ route('membership.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add Membership</a>
+                @can('create_memberships')
+                    <div class="card-toolbar">
+                        <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
+                            <a href="{{ route('membership.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add Membership</a>
+                        </div>
                     </div>
-                </div>
-
+                @endcan
             </div>
 
             <div class="card-body pt-0">
@@ -105,18 +102,23 @@
                                 </td>
                                 <td>
                                     <div class="d-flex gap-1">
+                                        @can('edit_memberships')
                                         <x-table-icon-link 
                                             :route="route('membership.edit',$membership->id)" 
                                             colorClass="primary"
                                             title="Edit"
                                             iconClasses="fa-solid fa-pen"
                                         />
+                                        @endcan
+                                        @can('view_memberships')
                                         <x-table-icon-link 
                                             :route="route('membership.show',$membership->id)" 
                                             colorClass="success"
                                             title="View"
                                             iconClasses="fa-solid fa-eye"
                                         />
+                                        @endcan
+                                        @can('delete_memberships')
                                         <form action="{{ route('membership.destroy' ,$membership->id )}}" method="post">
                                             @csrf
                                             @method('DELETE')
@@ -126,6 +128,7 @@
                                                 iconClasses="fa-solid fa-trash"
                                             />
                                         </form>
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>
@@ -162,4 +165,8 @@
         </div>
     </div>
 
+@endsection
+
+@section('js')
+    @include('_partials.dataTable-script')
 @endsection

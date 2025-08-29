@@ -157,7 +157,9 @@
                     </div>
 
                     <div class="card-footer">
-                        <button type="submit" class="btn btn-success">Save</button>
+                        @can('edit_classes')
+                            <button type="submit" class="btn btn-success">Save</button>
+                        @endcan
                         <a href="{{ route('classes.index') }}" class="btn btn-dark">Cancel</a>
                     </div>
                 </div>

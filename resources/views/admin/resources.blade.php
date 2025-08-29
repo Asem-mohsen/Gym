@@ -61,12 +61,16 @@
                 <div class="card-body">
                     <h5 class="card-title">Quick Actions</h5>
                     <div class="d-grid gap-2">
-                        <a href="{{ route('admin.score-dashboard') }}" class="btn btn-outline-success">
-                            <i class="fas fa-chart-line me-2"></i>Score Dashboard
-                        </a>
-                        <a href="{{ route('review-requests.index') }}" class="btn btn-outline-secondary"> 
-                            <i class="fas fa-clipboard-list me-2"></i>Review Requests
-                        </a>
+                        @can('view_scores')
+                            <a href="{{ route('admin.score-dashboard') }}" class="btn btn-outline-success">
+                                <i class="fas fa-chart-line me-2"></i>Score Dashboard
+                            </a>
+                        @endcan
+                        @can('view_reviews_requests')
+                            <a href="{{ route('review-requests.index') }}" class="btn btn-outline-secondary"> 
+                                <i class="fas fa-clipboard-list me-2"></i>Review Requests
+                            </a>
+                        @endcan
                     </div>
                 </div>
             </div>
@@ -93,17 +97,19 @@
                             <p class="card-text text-muted">{{$document->description }}</p>
                         @endif
                     </div>
-                    <div class="card-footer">
-                        <div class="d-flex justify-content-center align-items-center">
-                            <div class="btn-group" role="group">
-                                <a href="{{ route('admin.resources.download', $document) }}" 
-                                class="btn btn-sm btn-primary"
-                                title="Download Document">
-                                    <i class="fas fa-download"></i> Download
-                                </a>
+                    @can('download_resources')
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <div class="btn-group" role="group">
+                                    <a href="{{ route('admin.resources.download', $document) }}" 
+                                    class="btn btn-sm btn-primary"
+                                    title="Download Document">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @endcan
                 </div>
             </div>
         @empty

@@ -14,9 +14,11 @@
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">Invitation Information</h6>
                 <div>
-                    <a href="{{ route('invitations.index') }}" class="btn btn-secondary btn-sm">
-                        <i class="fas fa-arrow-left"></i> Back
-                    </a>
+                    @can('view_invitations')
+                        <a href="{{ route('invitations.index') }}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </a>
+                    @endcan
                 </div>
             </div>
             <div class="card-body">

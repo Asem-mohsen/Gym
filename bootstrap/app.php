@@ -38,10 +38,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
             'store.gym.context' => \App\Http\Middleware\StoreGymContext::class,
+            'permission' => \App\Http\Middleware\CheckPermission::class,
             'share.site.setting' => \App\Http\Middleware\ShareSiteSetting::class,
             'require.gym.context' => \App\Http\Middleware\RequireGymContext::class,
             'gym.resource.auth' => \App\Http\Middleware\GymResourceAuthorization::class,
-            'permission' => \App\Http\Middleware\CheckPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

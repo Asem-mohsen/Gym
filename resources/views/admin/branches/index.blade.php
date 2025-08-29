@@ -7,10 +7,6 @@
 
 @section('sub-breadcrumb', 'Index')
 
-@section('css')
-    <link href="{{ asset('assets/plugins/custom/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
-@endsection
-
 @section('content')
 
 <div class="col-md-12 mb-md-5 mb-xl-10">
@@ -30,11 +26,13 @@
 
             </div>
 
-            <div class="card-toolbar">
-                <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
-                    <a href="{{ route('branches.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add Branch</a>
+            @can('create_branches')
+                <div class="card-toolbar">
+                    <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
+                        <a href="{{ route('branches.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add Branch</a>
+                    </div>
                 </div>
-            </div>
+            @endcan
 
         </div>
 
@@ -81,27 +79,33 @@
                             <td> {{date('d-M-Y' , strtotime( $branch->created_at))}} </td>
                             <td>
                                 <div class="d-flex gap-1">
-                                    <x-table-icon-link 
-                                        :route="route('branches.edit',$branch->id)" 
-                                        colorClass="primary"
-                                        title="Edit"
-                                        iconClasses="fa-solid fa-pen"
-                                    />
-                                    <x-table-icon-link 
-                                        :route="route('branches.show',$branch->id)" 
-                                        colorClass="success"
-                                        title="View"
-                                        iconClasses="fa-solid fa-eye"
-                                    />
-                                    <form action="{{ route('branches.destroy' ,$branch->id )}}" method="post">
-                                        @csrf
-                                        @method('DELETE')
-                                        <x-icon-button
-                                            colorClass="danger"
-                                            title="Delete"
-                                            iconClasses="fa-solid fa-trash"
+                                    @can('edit_branches')
+                                        <x-table-icon-link 
+                                            :route="route('branches.edit',$branch->id)" 
+                                            colorClass="primary"
+                                            title="Edit"
+                                            iconClasses="fa-solid fa-pen"
                                         />
-                                    </form>
+                                    @endcan
+                                    @can('view_branches')
+                                        <x-table-icon-link 
+                                            :route="route('branches.show',$branch->id)" 
+                                            colorClass="success"
+                                            title="View"
+                                            iconClasses="fa-solid fa-eye"
+                                        />
+                                    @endcan
+                                    @can('delete_branches')
+                                        <form action="{{ route('branches.destroy' ,$branch->id )}}" method="post">
+                                            @csrf
+                                            @method('DELETE')
+                                            <x-icon-button
+                                                colorClass="danger"
+                                                title="Delete"
+                                                iconClasses="fa-solid fa-trash"
+                                            />
+                                        </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
@@ -112,4 +116,8 @@
     </div>
 </div>
 
+@endsection
+
+@section('js')
+    @include('_partials.dataTable-script')
 @endsection

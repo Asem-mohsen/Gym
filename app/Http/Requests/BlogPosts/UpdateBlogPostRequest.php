@@ -9,7 +9,7 @@ class UpdateBlogPostRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('edit_blog_posts');
     }
 
 

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -13,6 +12,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements HasMedia
@@ -28,6 +28,8 @@ class User extends Authenticatable implements HasMedia
         'address',
         'is_admin',
         'password',
+        'password_set_at',
+        'last_visit_at',
         'gender',
         'status',
     ];
@@ -41,6 +43,8 @@ class User extends Authenticatable implements HasMedia
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'password_set_at' => 'datetime',
+            'last_visit_at' => 'datetime',
         ];
     }
 
@@ -99,14 +103,62 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(BlogPost::class);
     }
 
+    /**
+     * Check if user has set their password
+     */
+    public function hasSetPassword(): bool
+    {
+        return !is_null($this->password_set_at) && !is_null($this->password);
+    }
+
     public function blogPostShares(): HasMany
     {
         return $this->hasMany(BlogPostShare::class);
     }
 
+    public function checkins(): HasMany
+    {
+        return $this->hasMany(Checkin::class);
+    }
+
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function coachingSessions(): HasMany
+    {
+        return $this->hasMany(CoachingSession::class, 'coach_id');
+    }
+
+    /**
+     * Get the current site for this user (either as owner or staff member)
+     */
+    public function getCurrentSite(): ?SiteSetting
+    {
+        $site = $this->site;
+        
+        if (!$site && $this->gyms()->exists()) {
+            $site = $this->gyms()->first();
+        }
+        
+        return $site;
+    }
+
+    /**
+     * Check if user is a gym owner
+     */
+    public function isGymOwner(): bool
+    {
+        return $this->site()->exists();
+    }
+
+    /**
+     * Check if user is staff member (not owner)
+     */
+    public function isStaffMember(): bool
+    {
+        return !$this->isGymOwner() && $this->gyms()->exists();
     }
 
     public function documents(): HasMany
@@ -140,6 +192,33 @@ class User extends Authenticatable implements HasMedia
     }
 
     /**
+     * Get user initials from name
+     */
+    public function getInitialsAttribute(): string
+    {
+        $name = trim($this->name);
+        $words = explode(' ', $name);
+        
+        if (count($words) >= 2) {
+            return strtoupper(substr($words[0], 0, 1) . substr($words[count($words) - 1], 0, 1));
+        }
+        
+        return strtoupper(substr($name, 0, 2));
+    }
+
+    /**
+     * Check if user has a specific gym permission
+     */
+    public function hasGymPermission(string $permissionName, int $siteSettingId): bool
+    {
+        return $this->permissions()
+            ->where('name', $permissionName)
+            ->wherePivot('site_setting_id', $siteSettingId)
+            ->exists();
+    }
+
+
+    /**
      * Get the user's image URL based on gender and media availability
      *
      * @return string
@@ -157,45 +236,5 @@ class User extends Authenticatable implements HasMedia
         }
         
         return asset('assets/admin/img/women-avatar.webp');
-    }
-
-    /**
-     * Check if user has permission to access financial data
-     */
-    public function canAccessFinancials(): bool
-    {
-        return $this->isAdmin() || $this->hasPermissionTo('view_financials');
-    }
-
-    /**
-     * Check if user has permission to manage site settings
-     */
-    public function canManageSiteSettings(): bool
-    {
-        return $this->isAdmin() || $this->hasPermissionTo('manage_site_settings');
-    }
-
-    /**
-     * Check if user has permission to manage branches
-     */
-    public function canManageBranches(): bool
-    {
-        return $this->isAdmin() || $this->hasPermissionTo('manage_branches');
-    }
-
-    /**
-     * Check if user has permission to access deactivation page
-     */
-    public function canAccessDeactivation(): bool
-    {
-        return $this->isAdmin();
-    }
-
-    /**
-     * Check if user has permission to manage score system
-     */
-    public function canManageScores(): bool
-    {
-        return $this->isAdmin() || $this->hasPermissionTo('manage_scores');
     }
 }

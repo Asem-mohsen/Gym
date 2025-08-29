@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
+use App\Jobs\UpdateExpiredSubscriptionsJob;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote')->hourly();
+
+// Schedule the expired subscriptions update job to run every 2 hours
+Schedule::job(new UpdateExpiredSubscriptionsJob())->everyTwoHours();

@@ -6,10 +6,6 @@
 
 @section('sub-breadcrumb', 'Index')
 
-@section('css')
-    <link href="{{ asset('assets/plugins/custom/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
-@endsection
-
 @section('content')
 
 <div class="col-md-12 mb-md-5 mb-xl-10">
@@ -29,12 +25,13 @@
 
             </div>
 
-            <div class="card-toolbar">
-                <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
-                    <a href="{{ route('offers.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add New Offer</a>
+            @can('create_offers')
+                <div class="card-toolbar">
+                    <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
+                        <a href="{{ route('offers.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add New Offer</a>
+                    </div>
                 </div>
-            </div>
-
+            @endcan
         </div>
 
         <div class="card-body pt-0">
@@ -78,12 +75,15 @@
                             </td>
                             <td>
                                 <div class="d-flex gap-1">
+                                    @can('edit_offers')
                                     <x-table-icon-link 
                                         :route="route('offers.edit',$offer->id)" 
                                         colorClass="primary"
                                         title="Edit"
                                         iconClasses="fa-solid fa-pen"
                                     />
+                                    @endcan
+                                    @can('delete_offers')
                                     <form action="{{ route('offers.destroy' ,$offer->id )}}" method="post">
                                         @csrf
                                         @method('DELETE')
@@ -93,6 +93,7 @@
                                             iconClasses="fa-solid fa-trash"
                                         />
                                     </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
@@ -103,4 +104,8 @@
     </div>
 </div>
 
+@endsection
+
+@section('js')
+    @include('_partials.dataTable-script')
 @endsection

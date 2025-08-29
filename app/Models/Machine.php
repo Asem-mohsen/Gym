@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Machine extends Model implements HasMedia
 {
@@ -18,6 +19,11 @@ class Machine extends Model implements HasMedia
     public function branches(): BelongsToMany
     {
         return $this->belongsToMany(Branch::class, 'branch_machine');
+    }
+
+    public function checkins(): HasMany
+    {
+        return $this->hasMany(Checkin::class, 'machine_id');
     }
 
 }

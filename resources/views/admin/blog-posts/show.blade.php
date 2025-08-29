@@ -24,23 +24,27 @@
                             </div>
 
                             <div class="card-footer">
-                                @if($blogPost->status == 'published')
-                                    <form action="{{ route('blog-posts.update', $blogPost->id) }}" method="post">
-                                        @csrf
-                                        @method('PUT')
-                                        <input type="hidden" name="status" value="draft">
-                                        <button type="submit" class="btn bg-danger text-white">Unpublish</button>
-                                    </form>
-                                @else
-                                    <form action="{{ route('blog-posts.update', $blogPost->id) }}" method="post">
-                                        @csrf
-                                        @method('PUT')
-                                        <input type="hidden" name="status" value="published">
-                                        <input type="hidden" name="published_at" value="{{ now() }}">
-                                        <button type="submit" class="btn bg-success">Publish</button>
-                                    </form>
-                                @endif
-                                <a href="{{ route('blog-posts.index') }}" class="btn btn-dark">Back</a>
+                                @can('edit_blog_posts')
+                                    @if($blogPost->status == 'published')
+                                        <form action="{{ route('blog-posts.update', $blogPost->id) }}" method="post">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="draft">
+                                            <button type="submit" class="btn bg-danger text-white">Unpublish</button>
+                                        </form>
+                                    @else
+                                        <form action="{{ route('blog-posts.update', $blogPost->id) }}" method="post">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="published">
+                                            <input type="hidden" name="published_at" value="{{ now() }}">
+                                            <button type="submit" class="btn bg-success">Publish</button>
+                                        </form>
+                                    @endif
+                                @endcan
+                                @can('view_blog_posts')
+                                    <a href="{{ route('blog-posts.index') }}" class="btn btn-dark">Back</a>
+                                @endcan
                             </div>
                         </div>
                     </div>

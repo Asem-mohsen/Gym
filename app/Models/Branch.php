@@ -52,6 +52,16 @@ class Branch extends Model implements HasMedia
         return $this->hasMany(Payment::class, 'branch_id');
     }
 
+    public function checkins(): HasMany
+    {
+        return $this->hasMany(Checkin::class, 'branch_id');
+    }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class, 'branch_id');
+    }
+
     public function galleries(): MorphMany
     {
         return $this->morphMany(Gallery::class, 'galleryable');

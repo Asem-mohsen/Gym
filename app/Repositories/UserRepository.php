@@ -8,18 +8,15 @@ use Spatie\Permission\Models\Role;
 
 class UserRepository
 {
-    public function getAllUsers(int $siteSettingId, $perPage = 15, $branchId = null, $search = null)
+    public function getAllUsers(int $siteSettingId, $perPage = 15, $search = null)
     {
         $query = User::where('is_admin', '0')
+            ->whereHas('roles', function ($query) {
+                $query->where('name', 'regular_user');
+            })
             ->whereHas('gyms', function ($query) use ($siteSettingId) {
                 $query->where('site_setting_id', $siteSettingId);
             });
-
-        if ($branchId) {
-            $query->whereHas('subscriptions', function ($query) use ($branchId) {
-                $query->where('branch_id', $branchId);
-            });
-        }
 
         if ($search) {
             $query->where(function($q) use ($search) {
@@ -62,6 +59,28 @@ class UserRepository
         }
 
         return $query->with('roles')->paginate($perPage);
+    }
+
+    public function getAllStaff(int $siteSettingId, ?int $branchId = null)
+    {
+        // Get staff roles (excluding admin and regular_user)
+        $staffRoles = Role::whereNotIn('name', ['admin', 'regular_user', 'trainer'])->pluck('id');
+        
+        $query = User::where('is_admin', '0')
+            ->whereHas('gyms', function ($query) use ($siteSettingId) {
+                $query->where('site_setting_id', $siteSettingId);
+            })
+            ->whereHas('roles', function ($query) use ($staffRoles) {
+                $query->whereIn('roles.id', $staffRoles);
+            });
+
+        if ($branchId) {
+            $query->whereHas('subscriptions', function ($query) use ($branchId) {
+                $query->where('branch_id', $branchId);
+            });
+        }
+
+        return $query->with('roles')->get();
     }
 
     public function createUser(array $data)

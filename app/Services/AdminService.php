@@ -3,12 +3,9 @@ namespace App\Services;
 
 use App\Repositories\AdminRepository;
 use App\Mail\AdminOnboardingMail;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\{Hash, Log, Mail, DB};
 use App\Services\Auth\PasswordGenerationService;
 use Spatie\Permission\Models\Role as SpatieRole;
-use Illuminate\Support\Facades\DB;
 use App\Models\User;
 
 class AdminService
@@ -16,10 +13,12 @@ class AdminService
 
     public function __construct(
         protected AdminRepository $adminRepository,
-        protected PasswordGenerationService $passwordGenerationService
+        protected PasswordGenerationService $passwordGenerationService,
+        protected RoleAssignmentService $roleAssignmentService
     ) {
         $this->adminRepository = $adminRepository;
         $this->passwordGenerationService = $passwordGenerationService;
+        $this->roleAssignmentService = $roleAssignmentService;
     }
 
     public function getAdmins(int $siteSettingId, $perPage = 15, $search = null)
@@ -40,17 +39,8 @@ class AdminService
         $user = $this->adminRepository->createAdmin($data);
         $user->gyms()->attach($siteSettingId);
 
-        // Assign roles
-        if (!empty($roleIds)) {
-            $roles = SpatieRole::whereIn('id', $roleIds)->get();
-            $user->assignRole($roles);
-        } else {
-            // Default to admin role
-            $adminRole = SpatieRole::where('name', 'admin')->first();
-            if ($adminRole) {
-                $user->assignRole($adminRole);
-            }
-        }
+        // Assign roles using the role assignment service
+        $this->roleAssignmentService->assignRolesToUser($user, $roleIds);
 
         $this->sendOnboardingEmail($user, $siteSettingId);
 
