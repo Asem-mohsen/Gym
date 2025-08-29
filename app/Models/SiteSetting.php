@@ -84,6 +84,16 @@ class SiteSetting extends Model implements HasMedia
         return $this->belongsToMany(Document::class, 'document_site_setting');
     }
 
+    public function checkinSettings(): HasMany
+    {
+        return $this->hasMany(GymCheckinSetting::class, 'site_setting_id');
+    }
+
+    public function checkins(): HasMany
+    {
+        return $this->hasMany(Checkin::class, 'site_setting_id');
+    }
+
     public function getRouteKeyName()
     {
         return 'slug';

@@ -98,6 +98,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'create_features',
             'edit_features',
             'delete_features',
+            
+            // Check-in settings permissions
+            'view_checkin_settings',
+            'create_checkin_settings',
+            'edit_checkin_settings',
+            'delete_checkin_settings',
 
             // Gallery permissions
             'view_gallery',

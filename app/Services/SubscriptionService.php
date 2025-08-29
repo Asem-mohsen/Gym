@@ -12,10 +12,9 @@ class SubscriptionService
         $this->subscriptionRepository = $subscriptionRepository;
     }
 
-    public function getSubscriptions(int $siteSettingId, $branchId = null)
+    public function getSubscriptions(int $siteSettingId, $branchId = null, $status = null, $membershipId = null, $dateFrom = null, $dateTo = null)
     {
-        $data = $this->subscriptionRepository->getAll($siteSettingId, $branchId);
-        return [$data['subscriptions'], $data['counts']];
+        return $this->subscriptionRepository->getAll($siteSettingId, $branchId, $status, $membershipId, $dateFrom, $dateTo);
     }
 
     public function showSubscription($subscriptionId)
@@ -76,5 +75,10 @@ class SubscriptionService
     public function deleteSubscription($subscription)
     {
         return $this->subscriptionRepository->deleteSubscription($subscription);
+    }
+
+    public function updateExpiredSubscriptions()
+    {
+        return $this->subscriptionRepository->updateExpiredSubscriptions();
     }
 }

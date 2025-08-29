@@ -205,9 +205,9 @@ class SidebarPermissionService
             [
                 'title' => 'Site',
                 'icon' => 'fa-solid fa-chart-simple',
-                'permission' => ['view_site_settings', 'view_branches', 'manage_site_settings'],
+                'permission' => ['view_site_settings', 'view_branches', 'manage_site_settings', 'import_gym_data'],
                 'active' => function() {
-                    return request()->routeIs('site-settings.edit') || request()->routeIs('branches.*') || request()->routeIs('admin.deactivation.*');
+                    return request()->routeIs('site-settings.edit') || request()->routeIs('branches.*') || request()->routeIs('admin.deactivation.*') || request()->routeIs('admin.checkin-settings.*') || request()->routeIs('admin.import.*');
                 },
                 'subItems' => [
                     [
@@ -219,11 +219,27 @@ class SidebarPermissionService
                         }
                     ],
                     [
+                        'title' => 'Check-in Settings',
+                        'route' => 'admin.checkin-settings.index',
+                        'permission' => 'view_checkin_settings',
+                        'active' => function() {
+                            return request()->routeIs('admin.checkin-settings.*');
+                        }
+                    ],
+                    [
                         'title' => 'Branches Management',
                         'route' => 'branches.index',
                         'permission' => 'view_branches',
                         'active' => function() {
                             return request()->routeIs('branches.*');
+                        }
+                    ],
+                    [
+                        'title' => 'Data Import',
+                        'route' => 'admin.import.index',
+                        'permission' => 'import_gym_data',
+                        'active' => function() {
+                            return request()->routeIs('admin.import.*');
                         }
                     ],
                     [

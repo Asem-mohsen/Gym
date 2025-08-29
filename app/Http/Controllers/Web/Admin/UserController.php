@@ -30,19 +30,15 @@ class UserController extends Controller
             $users = $this->userService->getUsers(
                 $siteSettingId,
                 $request->get('per_page', 15),
-                $request->get('branch_id'),
                 $request->get('search')
             );
-            
-            // Get branches for filter
-            $branches = $this->branchService->getBranches($siteSettingId);
             
             // Add password status to each user
             foreach ($users as $user) {
                 $user->has_set_password = $user->hasSetPassword();
             }
             
-            return view('admin.users.index', compact('users', 'branches'));
+            return view('admin.users.index', compact('users'));
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while fetching users, please try again in a few minutes.');
         }

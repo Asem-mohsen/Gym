@@ -29,6 +29,7 @@ class User extends Authenticatable implements HasMedia
         'is_admin',
         'password',
         'password_set_at',
+        'last_visit_at',
         'gender',
         'status',
     ];
@@ -43,6 +44,7 @@ class User extends Authenticatable implements HasMedia
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'password_set_at' => 'datetime',
+            'last_visit_at' => 'datetime',
         ];
     }
 
@@ -114,9 +116,19 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(BlogPostShare::class);
     }
 
+    public function checkins(): HasMany
+    {
+        return $this->hasMany(Checkin::class);
+    }
+
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function coachingSessions(): HasMany
+    {
+        return $this->hasMany(CoachingSession::class, 'coach_id');
     }
 
     /**

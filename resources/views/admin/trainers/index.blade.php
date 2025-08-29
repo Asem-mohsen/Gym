@@ -35,9 +35,10 @@
 
     <div class="card-body py-4">
         <div class="table-responsive">
-            <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_table_users">
+            <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_table">
                 <thead>
-                    <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+                    <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0 table-head">
+                        <th>#</th>
                         <th>Trainer</th>
                         <th>Contact</th>
                         <th>Status</th>
@@ -49,6 +50,9 @@
                 <tbody class="text-gray-600 fw-semibold">
                     @forelse($trainers as $trainer)
                     <tr>
+                        <td>
+                            {{ $loop->iteration }}
+                        </td>
                         <td class="d-flex align-items-center">
                             <div class="symbol symbol-45px me-5">
                                 @if($trainer->user_image)

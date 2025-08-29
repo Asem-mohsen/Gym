@@ -23,19 +23,6 @@
                         </i>
                         <input type="text" data-kt-table-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Search" />
                     </div>
-                    
-                    <!-- Branch Filter -->
-                    <form method="GET" action="{{ request()->url() }}" class="d-flex align-items-center gap-2" id="filter-form">
-                        <input type="hidden" name="search" id="search-hidden" value="{{ request('search') }}">
-                        <select name="branch_id" class="form-control form-control-solid w-200px" onchange="this.form.submit()">
-                            <option value="">All Branches</option>
-                            @foreach($branches as $branch)
-                                <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>
-                                    {{ $branch->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </form>
                 </div>
             </div>
 
@@ -56,10 +43,9 @@
                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0 table-head">
                         <th>#</th>
                         <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
                         <th>Role</th>
                         <th>Address</th>
+                        <th>Last Visit</th>
                         <th>Joined</th>
                         <th>Actions</th>
                     </tr>
@@ -68,7 +54,7 @@
                     @foreach ($users as $key => $user)
                         <tr>
                             <td>
-                                {{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}
+                                {{ $loop->iteration }}
                             </td>
                             <td>
                                 <div class="d-flex px-2 py-1">
@@ -77,11 +63,11 @@
                                     </div>
                                     <div class="d-flex flex-column justify-content-center">
                                         <h6 class="mb-0 text-sm">{{$user->name}}</h6>
+                                        <small class="text-muted">{{$user->email}}</small>
+                                        <small class="text-muted">{{$user->phone}}</small>
                                     </div>
                                 </div>
                             </td>
-                            <td>{{$user->email}}</td>
-                            <td>{{$user->phone}}</td>
                             <td> 
                                 @foreach($user->roles as $role)
                                     <span class="badge bg-primary text-white">{{ $role->name }}</span>
@@ -94,6 +80,7 @@
                                     No data
                                 @endif
                             </td>
+                            <td>{{ $user->last_visit_at ? $user->last_visit_at->format('d F Y') : 'No data' }}</td>
                             <td>{{ $user->created_at->format('d F Y') }}</td>
                             <td>
                                 <div class="d-flex gap-1">

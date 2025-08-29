@@ -45,9 +45,7 @@
                     <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0 table-head">
                         <th>#</th>
                         <th>Admin</th>
-                        <th>Email</th>
                         <th>Role</th>
-                        <th>Phone</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -56,7 +54,7 @@
                     @foreach ($admins as $key => $admin)
                         <tr>
                             <td>
-                                {{ ($admins->currentPage() - 1) * $admins->perPage() + $loop->iteration }}
+                                {{ $loop->iteration }}
                             </td>
                             <td>
                                 <div class="d-flex px-2 py-1">
@@ -65,16 +63,16 @@
                                     </div>
                                     <div class="d-flex flex-column justify-content-center">
                                         <h6 class="mb-0 text-sm">{{$admin->name}}</h6>
+                                        <small class="text-muted">{{$admin->email}}</small>
+                                        <small class="text-muted">{{$admin->phone}}</small>
                                     </div>
                                 </div>
                             </td>
-                            <td>{{$admin->email}}</td>
                             <td>
                                 @foreach($admin->roles as $role)
                                     <span class="badge bg-primary text-white">{{ $role->name }}</span>
                                 @endforeach
                             </td>
-                            <td>{{$admin->phone}}</td>
                             <td>
                                 @if($admin->status)
                                     <x-badge 

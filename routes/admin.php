@@ -31,6 +31,8 @@ use App\Http\Controllers\Web\Admin\RolePermissionController;
 use App\Http\Controllers\Web\Admin\ContactController;
 use App\Http\Controllers\Web\Admin\GymPermissionController;
 use App\Http\Controllers\Web\Admin\AccountController;
+use App\Http\Controllers\Web\Admin\CheckinSettingController;
+use App\Http\Controllers\Web\Admin\GymDataImportController;
 
 // Admin Routes
 Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
@@ -152,6 +154,20 @@ Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
         Route::put('site-settings/update', [SiteSettingController::class, 'update'])->name('site-settings.update');
     });
 
+    // Check-in Settings Routes
+    Route::middleware(['permission:view_checkin_settings'])->group(function () {
+        Route::prefix('checkin-settings')->controller(CheckinSettingController::class)->name('admin.checkin-settings.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/edit', 'edit')->name('edit');
+            Route::put('/', 'update')->name('update');
+            Route::post('/toggle-method', 'toggleMethod')->name('toggle-method');
+            Route::get('/stats', 'stats')->name('stats');
+            Route::get('/test-qr', 'testQr')->name('test-qr');
+        });
+    });
+
     // Branches Management Routes
     Route::middleware(['permission:view_branches'])->group(function () {
         Route::resource('branches', BranchController::class);
@@ -234,6 +250,17 @@ Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
             Route::post('/branch/{branch}/deactivate', 'deactivateBranch')->name('admin.branch.deactivate');
             Route::get('/gym/preview', 'getGymDataPreview')->name('admin.gym.preview');
             Route::get('/branch/{branch}/preview', 'getBranchDataPreview')->name('admin.branch.preview');
+        });
+    });
+
+    // Gym Data Import Routes
+    Route::middleware(['permission:import_gym_data'])->group(function () {
+        Route::prefix('import')->controller(GymDataImportController::class)->name('admin.import.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'import')->name('process');
+            Route::get('/template', 'downloadTemplate')->name('template');
+            Route::get('/status', 'getImportStatus')->name('status');
+            Route::get('/history', 'history')->name('history');
         });
     });
 });

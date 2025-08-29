@@ -35,14 +35,6 @@
                                 </option>
                             @endforeach
                         </select>
-                        
-                        <!-- Per Page Selector -->
-                        <select name="per_page" class="form-control form-control-solid w-100px" onchange="this.form.submit()">
-                            <option value="15" {{ request('per_page', 15) == 15 ? 'selected' : '' }}>15</option>
-                            <option value="25" {{ request('per_page', 15) == 25 ? 'selected' : '' }}>25</option>
-                            <option value="50" {{ request('per_page', 15) == 50 ? 'selected' : '' }}>50</option>
-                            <option value="100" {{ request('per_page', 15) == 100 ? 'selected' : '' }}>100</option>
-                        </select>
                     </form>
                 </div>
             </div>

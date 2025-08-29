@@ -8,7 +8,7 @@ use Spatie\Permission\Models\Role;
 
 class UserRepository
 {
-    public function getAllUsers(int $siteSettingId, $perPage = 15, $branchId = null, $search = null)
+    public function getAllUsers(int $siteSettingId, $perPage = 15, $search = null)
     {
         $query = User::where('is_admin', '0')
             ->whereHas('roles', function ($query) {
@@ -17,12 +17,6 @@ class UserRepository
             ->whereHas('gyms', function ($query) use ($siteSettingId) {
                 $query->where('site_setting_id', $siteSettingId);
             });
-
-        if ($branchId) {
-            $query->whereHas('subscriptions', function ($query) use ($branchId) {
-                $query->where('branch_id', $branchId);
-            });
-        }
 
         if ($search) {
             $query->where(function($q) use ($search) {

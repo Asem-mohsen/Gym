@@ -262,11 +262,13 @@ class GymPermissionService
                     'download_resources' => 'Download Resources',
                 ]
             ],
-            'contact_management' => [
-                'label' => 'Contact Management',
+            'Checkin_management' => [
+                'label' => 'Checkin Settings',
                 'permissions' => [
-                    'view_contacts' => 'View Contacts',
-                    'reply_to_contacts' => 'Reply to Contacts',
+                    'view_checkin_settings' => 'View Checkin Settings',
+                    'create_checkin_settings' => 'Create Checkin Settings',
+                    'edit_checkin_settings' => 'Edit Checkin Settings',
+                    'delete_checkin_settings' => 'Delete Checkin Settings',
                 ]
             ],
             'review_management' => [
@@ -276,6 +278,19 @@ class GymPermissionService
                     'create_reviews_requests' => 'Create Review Requests',
                     'edit_reviews_requests' => 'Edit Review Requests',
                     'delete_reviews_requests' => 'Delete Review Requests',
+                ]
+            ],
+            'contact_management' => [
+                'label' => 'Contact Management',
+                'permissions' => [
+                    'view_contacts' => 'View Contacts',
+                    'reply_to_contacts' => 'Reply to Contacts',
+                ]
+            ],
+            'import_management' => [
+                'label' => 'Import Management',
+                'permissions' => [
+                    'import_gym_data' => 'Import Gym Data',
                 ]
             ],
             'deactivation_management' => [

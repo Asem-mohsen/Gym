@@ -23,6 +23,7 @@ use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\SiteSettingController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\GymContextController;
+use App\Http\Controllers\API\CheckinController;
 
 // API Routes
 Route::prefix('v1')->group(function(){
@@ -186,6 +187,18 @@ Route::prefix('v1')->group(function(){
         Route::prefix('site-settings')->group(function(){
             Route::controller(SiteSettingController::class)->group(function(){
                 Route::get('/', 'index');
+            });
+        });
+
+        // Check-in routes
+        Route::prefix('checkin')->group(function(){
+            Route::controller(CheckinController::class)->group(function(){
+                Route::post('/self', 'selfCheckin');
+                Route::post('/gate', 'gateCheckin');
+                Route::get('/personal-qr', 'getPersonalQr');
+                Route::get('/stats', 'getCheckinStats');
+                Route::get('/history', 'getUserCheckinHistory');
+                Route::post('/validate-token', 'validateQrToken');
             });
         });
 
