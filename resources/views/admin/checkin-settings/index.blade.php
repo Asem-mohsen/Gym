@@ -142,7 +142,7 @@
                         <i class="fas fa-qrcode fa-3x text-muted mb-3"></i>
                         <h5>No Check-in Settings Configured</h5>
                         <p class="text-muted">Configure check-in settings to enable QR-based check-in for your gym.</p>
-                        @role('Admin')
+                        @role('admin')
                             <a href="{{ route('admin.checkin-settings.create') }}" class="btn btn-primary">
                                 <i class="fas fa-plus me-2"></i>Configure Now
                             </a>

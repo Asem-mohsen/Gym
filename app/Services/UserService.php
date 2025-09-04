@@ -29,9 +29,9 @@ class UserService
         $this->roleAssignmentService = $roleAssignmentService;
     }
 
-    public function getUsers(int $siteSettingId, $perPage = 15, $search = null)
+    public function getUsers(int $siteSettingId)
     {
-        return $this->userRepository->getAllUsers($siteSettingId, $perPage,$search);
+        return $this->userRepository->getAllUsers($siteSettingId);
     }
 
     public function getTrainers(int $siteSettingId, $perPage = 15, $branchId = null, $search = null)

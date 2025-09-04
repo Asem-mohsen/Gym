@@ -50,7 +50,7 @@
                     <div class="mb-5">
                         <label class="form-label fw-bold">Status</label>
                         <p class="form-control-static">
-                            @if($feature->status === 1)
+                            @if($feature->status == 1)
                                 <x-badge 
                                     :color="'success'" 
                                     content="Active"

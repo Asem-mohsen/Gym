@@ -24,6 +24,7 @@ use App\Http\Controllers\API\SiteSettingController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\GymContextController;
 use App\Http\Controllers\API\CheckinController;
+use App\Http\Controllers\API\NotificationController;
 
 // API Routes
 Route::prefix('v1')->group(function(){
@@ -66,6 +67,16 @@ Route::prefix('v1')->group(function(){
             Route::post('/current', 'logoutFromCurrentSession');
             Route::post('/all',  'logoutFromAllSessions');
             Route::post('/others', 'logoutFromOtherSessions');
+        });
+
+        // Notification routes for authenticated users
+        Route::prefix('notifications')->controller(NotificationController::class)->group(function(){
+            Route::get('/', 'index');
+            Route::get('/recent', 'recent');
+            Route::get('/unread-count', 'unreadCount');
+            Route::post('/{id}/mark-read', 'markAsRead');
+            Route::post('/mark-all-read', 'markAllAsRead');
+            Route::delete('/{id}', 'destroy');
         });
 
         // Payment routes for authenticated users

@@ -64,7 +64,7 @@
                                         <span class="path2"></span>
                                     </i>
                                     <div class="d-flex flex-column">
-                                        <h5 class="mb-1">Import Completed Successfully</h5>
+                                        <h5 class="mb-1" id="resultsTitle">Import Completed Successfully</h5>
                                         <div id="resultsContent"></div>
                                     </div>
                                 </div>
@@ -139,138 +139,222 @@
 
 @endsection
 
-@push('scripts')
+@section('js')
 <script>
-$(document).ready(function() {
-    $('#importForm').on('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const fileInput = $('#import_file')[0];
-        
-        if (!fileInput.files[0]) {
-            alert('Please select a file to import');
-            return;
-        }
-        
-        // Show progress
-        $('#importBtn').prop('disabled', true).html('<i class="ki-duotone ki-spinner fs-2"></i> Importing...');
-        $('#cancelBtn').show();
-        $('#importProgress').show();
-        $('#importResults').hide();
-        $('#importErrors').hide();
-        
-        // Simulate progress
-        let progress = 0;
-        const progressInterval = setInterval(function() {
-            progress += Math.random() * 15;
-            if (progress > 90) progress = 90;
-            $('.progress-bar').css('width', progress + '%');
-        }, 500);
-        
-        $.ajax({
-            url: '{{ route("admin.import.process") }}',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                clearInterval(progressInterval);
-                $('.progress-bar').css('width', '100%');
-                
-                setTimeout(function() {
+    $(document).ready(function() {
+        $('#importForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const fileInput = $('#import_file')[0];
+            
+            if (!fileInput.files[0]) {
+                alert('Please select a file to import');
+                return;
+            }
+            
+            // Show progress
+            $('#importBtn').prop('disabled', true).html('<i class="ki-duotone ki-spinner fs-2"></i> Importing...');
+            $('#cancelBtn').show();
+            $('#importProgress').show();
+            $('#importResults').hide();
+            $('#importErrors').hide();
+            
+            // Clear previous results
+            $('#resultsContent').empty();
+            $('#errorsContent').empty();
+            
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(function() {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                $('.progress-bar').css('width', progress + '%');
+            }, 500);
+            
+            $.ajax({
+                url: '{{ route("admin.import.process") }}',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    clearInterval(progressInterval);
+                    $('.progress-bar').css('width', '100%');
+                    
+                    setTimeout(function() {
+                        $('#importProgress').hide();
+                        $('#importBtn').prop('disabled', false).html('<i class="ki-duotone ki-upload fs-2"></i> Import Data');
+                        $('#cancelBtn').hide();
+                        
+                        console.log('Import response:', response);
+                        
+                        if (response.success) {
+                            displayResults(response.data);
+                            // If there are validation errors, also display them
+                            if (response.errors && response.errors.length > 0) {
+                                console.log('Validation errors found:', response.errors);
+                                displayValidationErrors(response.errors);
+                            }
+                        } else {
+                            displayErrors(response.message || 'Import failed');
+                            // If there are validation errors, also display them
+                            if (response.errors && response.errors.length > 0) {
+                                console.log('Validation errors found:', response.errors);
+                                displayValidationErrors(response.errors);
+                            }
+                        }
+                    }, 1000);
+                },
+                error: function(xhr) {
+                    clearInterval(progressInterval);
                     $('#importProgress').hide();
                     $('#importBtn').prop('disabled', false).html('<i class="ki-duotone ki-upload fs-2"></i> Import Data');
                     $('#cancelBtn').hide();
                     
-                    if (response.success) {
-                        displayResults(response.data);
-                    } else {
-                        displayErrors(response.message || 'Import failed');
+                    let errorMessage = 'Import failed';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
                     }
-                }, 1000);
-            },
-            error: function(xhr) {
-                clearInterval(progressInterval);
-                $('#importProgress').hide();
-                $('#importBtn').prop('disabled', false).html('<i class="ki-duotone ki-upload fs-2"></i> Import Data');
-                $('#cancelBtn').hide();
-                
-                let errorMessage = 'Import failed';
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    errorMessage = xhr.responseJSON.message;
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        errorMessage += '<br><ul>';
+                        xhr.responseJSON.errors.forEach(function(error) {
+                            errorMessage += '<li>' + error + '</li>';
+                        });
+                        errorMessage += '</ul>';
+                    }
+                    
+                    displayErrors(errorMessage);
                 }
-                if (xhr.responseJSON && xhr.responseJSON.errors) {
-                    errorMessage += '<br><ul>';
-                    xhr.responseJSON.errors.forEach(function(error) {
-                        errorMessage += '<li>' + error + '</li>';
-                    });
-                    errorMessage += '</ul>';
-                }
-                
-                displayErrors(errorMessage);
-            }
+            });
         });
-    });
-    
-    $('#cancelBtn').on('click', function() {
-        // Reset form
-        $('#importForm')[0].reset();
-        $('#importProgress').hide();
-        $('#importBtn').prop('disabled', false).html('<i class="ki-duotone ki-upload fs-2"></i> Import Data');
-        $(this).hide();
-        $('#importResults').hide();
-        $('#importErrors').hide();
-    });
-    
-    function displayResults(data) {
-        let content = '<div class="row g-4">';
         
-        // Summary
-        if (data.summary) {
-            content += '<div class="col-12">';
-            content += '<div class="d-flex flex-wrap gap-3">';
-            content += '<div class="badge badge-light-success fs-7 px-3 py-2">Total Imported: ' + data.summary.total_imported + '</div>';
-            content += '<div class="badge badge-light-danger fs-7 px-3 py-2">Total Errors: ' + data.summary.total_errors + '</div>';
-            content += '<div class="badge badge-light-primary fs-7 px-3 py-2">Success Rate: ' + data.summary.success_rate + '%</div>';
+        $('#cancelBtn').on('click', function() {
+            // Reset form
+            $('#importForm')[0].reset();
+            $('#importProgress').hide();
+            $('#importBtn').prop('disabled', false).html('<i class="ki-duotone ki-upload fs-2"></i> Import Data');
+            $(this).hide();
+            $('#importResults').hide();
+            $('#importErrors').hide();
+        });
+        
+        function displayResults(data) {
+            // Set the title based on whether there are errors
+            const hasErrors = data.summary && data.summary.total_errors > 0;
+            const title = hasErrors ? 'Import Completed with Errors' : 'Import Completed Successfully';
+            $('#resultsTitle').text(title);
+            
+            // Change alert class based on errors
+            const alertDiv = $('#importResults .alert');
+            if (hasErrors) {
+                alertDiv.removeClass('alert-success').addClass('alert-warning');
+                alertDiv.find('i').removeClass('ki-check-circle text-success').addClass('ki-exclamation-triangle text-warning');
+            } else {
+                alertDiv.removeClass('alert-warning').addClass('alert-success');
+                alertDiv.find('i').removeClass('ki-exclamation-triangle text-warning').addClass('ki-check-circle text-success');
+            }
+            
+            let content = '<div class="row g-4">';
+            
+            // Summary
+            if (data.summary) {
+                content += '<div class="col-12">';
+                content += '<div class="d-flex flex-wrap gap-3">';
+                content += '<div class="badge badge-light-success fs-7 px-3 py-2">Total Imported: ' + data.summary.total_imported + '</div>';
+                content += '<div class="badge badge-light-danger fs-7 px-3 py-2">Total Errors: ' + data.summary.total_errors + '</div>';
+                content += '<div class="badge badge-light-primary fs-7 px-3 py-2">Success Rate: ' + data.summary.success_rate + '%</div>';
+                content += '</div>';
+                content += '<div class="text-muted fs-7 mt-2">Imported At: ' + data.summary.imported_at + '</div>';
+                
+                // Show warning if there are errors
+                if (data.summary.total_errors > 0) {
+                    content += '<div class="alert alert-warning mt-3 mb-0">';
+                    content += '<i class="ki-duotone ki-exclamation-triangle fs-2 me-2"></i>';
+                    content += '<strong>Warning:</strong> Some data could not be imported due to validation errors. Please review the errors below and fix your Excel file.';
+                    content += '</div>';
+                }
+                content += '</div>';
+            }
+            
+            // Detailed results
+            const types = ['users', 'branches', 'memberships', 'classes', 'services'];
+            types.forEach(function(type) {
+                if (data[type]) {
+                    const importedCount = data[type].count || 0;
+                    const errorCount = data[type].errors ? data[type].errors.length : 0;
+                    
+                    // Show card if there are imported items or errors
+                    if (importedCount > 0 || errorCount > 0) {
+                        content += '<div class="col-md-6">';
+                        content += '<div class="card card-flush h-100">';
+                        content += '<div class="card-header">';
+                        content += '<h6 class="card-title">' + type.charAt(0).toUpperCase() + type.slice(1) + '</h6>';
+                        content += '</div>';
+                        content += '<div class="card-body">';
+                        content += '<div class="d-flex justify-content-between align-items-center mb-2">';
+                        content += '<span class="badge badge-light-success">Imported: ' + importedCount + '</span>';
+                        content += '<span class="badge badge-light-danger">Errors: ' + errorCount + '</span>';
+                        content += '</div>';
+                        
+                        // Show specific errors for this type
+                        if (errorCount > 0 && data[type].errors) {
+                            content += '<div class="mt-3">';
+                            content += '<h6 class="text-danger fs-7 mb-2">Errors:</h6>';
+                            content += '<ul class="list-unstyled fs-7 text-muted">';
+                            data[type].errors.forEach(function(error) {
+                                content += '<li class="mb-1"><i class="ki-duotone ki-cross-circle fs-2 text-danger me-1"></i>' + error + '</li>';
+                            });
+                            content += '</ul>';
+                            content += '</div>';
+                        }
+                        
+                        content += '</div>';
+                        content += '</div>';
+                        content += '</div>';
+                    }
+                }
+            });
+            
             content += '</div>';
-            content += '<div class="text-muted fs-7 mt-2">Imported At: ' + data.summary.imported_at + '</div>';
-            content += '</div>';
+            
+            $('#resultsContent').html(content);
+            $('#importResults').show();
         }
         
-        // Detailed results
-        const types = ['users', 'branches', 'memberships', 'classes', 'services'];
-        types.forEach(function(type) {
-            if (data[type] && data[type].count > 0) {
-                content += '<div class="col-md-6">';
-                content += '<div class="card card-flush h-100">';
-                content += '<div class="card-header">';
-                content += '<h6 class="card-title">' + type.charAt(0).toUpperCase() + type.slice(1) + '</h6>';
-                content += '</div>';
-                content += '<div class="card-body">';
-                content += '<div class="d-flex justify-content-between align-items-center">';
-                content += '<span class="badge badge-light-success">Imported: ' + data[type].count + '</span>';
-                content += '<span class="badge badge-light-danger">Errors: ' + (data[type].errors ? data[type].errors.length : 0) + '</span>';
-                content += '</div>';
-                content += '</div>';
-                content += '</div>';
-                content += '</div>';
-            }
-        });
+        function displayErrors(message) {
+            $('#errorsContent').html(message);
+            $('#importErrors').show();
+        }
         
-        content += '</div>';
-        
-        $('#resultsContent').html(content);
-        $('#importResults').show();
-    }
-    
-    function displayErrors(message) {
-        $('#errorsContent').html(message);
-        $('#importErrors').show();
-    }
-});
-</script>
-@endpush
+        function displayValidationErrors(errors) {
+            console.log('Displaying validation errors:', errors);
+            
+            let errorContent = '<div class="alert alert-warning mb-3">';
+            errorContent += '<h6 class="mb-2"><i class="ki-duotone ki-exclamation-triangle fs-2"></i> Validation Errors Found:</h6>';
+            errorContent += '<ul class="mb-0">';
+            errors.forEach(function(error) {
+                errorContent += '<li>' + error + '</li>';
+            });
+            errorContent += '</ul>';
+            errorContent += '</div>';
+            
+            // Add validation errors to the results section
+            $('#resultsContent').append(errorContent);
+            
+            // Also show in the errors section for visibility
+            let errorMessage = '<ul>';
+            errors.forEach(function(error) {
+                errorMessage += '<li>' + error + '</li>';
+            });
+            errorMessage += '</ul>';
+            
+            $('#errorsContent').html(errorMessage);
+            $('#importErrors').show();
+        }
+    });
+    </script>
+@endsection
 
 @push('styles')
 <style>
@@ -324,6 +408,25 @@ $(document).ready(function() {
 .badge-light-primary {
     background-color: var(--kt-primary-light);
     color: var(--kt-primary);
+}
+
+.badge-light-warning {
+    background-color: var(--kt-warning-light);
+    color: var(--kt-warning);
+}
+
+.alert-warning {
+    background-color: var(--kt-warning-light);
+    border-color: var(--kt-warning);
+    color: var(--kt-warning-dark);
+}
+
+.fs-7 {
+    font-size: 0.85rem !important;
+}
+
+.list-unstyled li {
+    padding: 0.25rem 0;
 }
 </style>
 @endpush

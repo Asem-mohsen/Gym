@@ -62,8 +62,8 @@ class LocationService
     public function sortGymsByScoreAndLocation(Collection $gyms, ?array $userLocation = null): Collection
     {
         return $gyms->sortByDesc(function ($gym) use ($userLocation) {
-            // Calculate average score for the gym
-            $averageScore = $gym->branches->avg('score') ?? 0;
+
+            $averageScore = $gym->branches->avg('score_value') ?? 0;
             
             // If we have user location, prioritize gyms in the same region
             if ($userLocation && isset($userLocation['region'])) {

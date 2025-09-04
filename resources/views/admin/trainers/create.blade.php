@@ -191,27 +191,3 @@
 </div>
 
 @endsection
-
-@section('js')
-    <script>
-        // Add any JavaScript for form validation or dynamic behavior
-        $(document).ready(function() {
-            // Form validation
-            $('form').on('submit', function() {
-                var isValid = true;
-                
-                // Check required fields
-                $('.required').each(function() {
-                    if (!$(this).val()) {
-                        $(this).addClass('is-invalid');
-                        isValid = false;
-                    } else {
-                        $(this).removeClass('is-invalid');
-                    }
-                });
-                
-                return isValid;
-            });
-        });
-    </script>
-@endsection

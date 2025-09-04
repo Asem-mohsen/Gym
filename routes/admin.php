@@ -33,6 +33,8 @@ use App\Http\Controllers\Web\Admin\GymPermissionController;
 use App\Http\Controllers\Web\Admin\AccountController;
 use App\Http\Controllers\Web\Admin\CheckinSettingController;
 use App\Http\Controllers\Web\Admin\GymDataImportController;
+use App\Http\Controllers\Web\Admin\GymBrandingController;
+use App\Http\Controllers\Web\Admin\NotificationController;
 
 // Admin Routes
 Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
@@ -42,6 +44,7 @@ Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
     Route::middleware(['permission:view_users'])->group(function () {
         Route::resource('admins', AdminController::class);
         Route::post('admins/{admin}/resend-onboarding-email', [AdminController::class, 'resendOnboardingEmail'])->name('admins.resend-onboarding-email');
+        Route::post('admins/{admin}/reassign-manager-and-delete', [AdminController::class, 'reassignManagerAndDelete'])->name('admins.reassign-manager-and-delete');
         
         Route::resource('users', UserController::class);
         Route::post('users/{user}/resend-onboarding-email', [UserController::class, 'resendOnboardingEmail'])->name('users.resend-onboarding-email');
@@ -261,6 +264,34 @@ Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
             Route::get('/template', 'downloadTemplate')->name('template');
             Route::get('/status', 'getImportStatus')->name('status');
             Route::get('/history', 'history')->name('history');
+        });
+    });
+
+    // Gym Branding Routes
+    Route::middleware(['permission:view_branding'])->group(function () {
+        Route::prefix('gym-branding')->controller(GymBrandingController::class)->name('gym-branding.')->group(function () {
+            Route::get('/{siteSettingId}', 'show')->name('show');
+            Route::post('/{siteSettingId}/update', 'update')->name('update');
+            Route::post('/{siteSettingId}/reset', 'reset')->name('reset');
+            Route::get('/{siteSettingId}/css-variables', 'getCssVariables')->name('css-variables');
+            Route::post('/preview', 'preview')->name('preview');
+        });
+    });
+
+    // Notification Management Routes
+    Route::middleware(['permission:view_notifications'])->group(function () {
+        Route::prefix('notifications')->controller(NotificationController::class)->name('admin.notifications.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/history', 'history')->name('history');
+            Route::get('/user-notifications', 'getUserNotifications')->name('user-notifications');
+            Route::get('/recent', 'recent')->name('recent');
+            Route::get('/recent-sent-by-type', 'recentSentByType')->name('recent-sent-by-type');
+            Route::get('/recent-system', 'recentSystem')->name('recent-system');
+            Route::post('/{id}/mark-read', 'markAsRead')->name('mark-read');
+            Route::post('/mark-all-read', 'markAllAsRead')->name('mark-all-read');
+            Route::delete('/{id}', 'destroy')->name('destroy');
         });
     });
 });

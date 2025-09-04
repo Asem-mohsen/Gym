@@ -2,9 +2,37 @@
 
 namespace App\Services;
 
+use App\Models\SiteSetting;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
 
+/**
+ * GymContextService - Manages gym context across the application
+ * 
+ * This service handles setting and retrieving gym context for both web and API users.
+ * It's particularly useful for email links where gym context needs to be established
+ * from URL parameters.
+ * 
+ * @example
+ * // Setting gym context from email links
+ * $gymContextService = app(GymContextService::class);
+ * 
+ * // Method 1: From URL path (recommended for controllers)
+ * $success = $gymContextService->setGymContextFromUrl($request->path());
+ * 
+ * // Method 2: From slug directly
+ * $success = $gymContextService->setGymContextFromSlug('test-gym');
+ * 
+ * // Getting current context
+ * $context = $gymContextService->getCurrentGymContext();
+ * 
+ * // Checking if context is set
+ * if ($context) {
+ *     $gymId = $context['id'];
+ *     $gymSlug = $context['slug'];
+ *     $gymName = $context['name'];
+ * }
+ */
 class GymContextService
 {
     /**
@@ -121,5 +149,68 @@ class GymContextService
             ];
         }
         return null;
+    }
+    
+    /**
+     * Set gym context from slug (useful for email links)
+     * 
+     * @param string $gymSlug The gym slug to set context for
+     * @return bool True if gym was found and context was set, false otherwise
+     * 
+     * @example
+     * // In any controller or service
+     * $gymContextService = app(GymContextService::class);
+     * $success = $gymContextService->setGymContextFromSlug('test-gym');
+     * if ($success) {
+     *     // Gym context is now set in session
+     * }
+     */
+    public function setGymContextFromSlug(string $gymSlug): bool
+    {
+        $siteSetting = SiteSetting::where('slug', $gymSlug)->first();
+        
+        if ($siteSetting) {
+            $this->storeGymContext(
+                $siteSetting->id,
+                $siteSetting->slug,
+                $siteSetting->gym_name,
+                $siteSetting->getFirstMediaUrl('gym_logo') ?? ''
+            );
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Extract gym slug from URL path and set context
+     * 
+     * @param string $urlPath The URL path to extract gym slug from
+     * @return bool True if gym slug was found and context was set, false otherwise
+     * 
+     * @example
+     * // In any controller
+     * $gymContextService = app(GymContextService::class);
+     * $success = $gymContextService->setGymContextFromUrl($request->path());
+     * // This will extract 'test' from '/gym/test/auth/admin-setup-password'
+     */
+    public function setGymContextFromUrl(string $urlPath): bool
+    {
+        $pathSegments = explode('/', trim($urlPath, '/'));
+        $gymSlug = null;
+        
+        // Look for the gym slug in the path segments (e.g., /gym/test/auth/...)
+        foreach ($pathSegments as $index => $segment) {
+            if ($segment === 'gym' && isset($pathSegments[$index + 1])) {
+                $gymSlug = $pathSegments[$index + 1];
+                break;
+            }
+        }
+        
+        if ($gymSlug) {
+            return $this->setGymContextFromSlug($gymSlug);
+        }
+        
+        return false;
     }
 }

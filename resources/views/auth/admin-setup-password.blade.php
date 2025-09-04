@@ -3,6 +3,7 @@
 @section('title','Set Up Password')
 
 @section('form')
+
 <div class="card">
     <div class="card-body">
         <h1 class="text-center mb-8">Welcome to {{ config('app.name') }}</h1>
@@ -37,8 +38,8 @@
                 </div>
             </div>
 
-            <div class="d-flex flex-wrap justify-content-center pb-lg-0">
-                <button type="submit" id="kt_sign_in_submit" class="btn btn-primary me-4">
+            <div>
+                <button type="submit" id="kt_sign_in_submit" class="btn btn-primary">
                     <span class="indicator-label">Set Password</span>
                     <span class="indicator-progress">Please wait... 
                     <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>

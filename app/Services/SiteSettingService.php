@@ -6,6 +6,7 @@ use App\Repositories\BranchRepository;
 use App\Repositories\SiteSettingRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
 
 class SiteSettingService 
 {

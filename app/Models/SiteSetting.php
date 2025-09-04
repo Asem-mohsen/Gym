@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -79,6 +80,11 @@ class SiteSetting extends Model implements HasMedia
         return $this->hasMany(ClassModel::class, 'site_setting_id');
     }
 
+    public function features(): HasMany
+    {
+        return $this->hasMany(Feature::class, 'site_setting_id');
+    }
+
     public function documents(): BelongsToMany
     {
         return $this->belongsToMany(Document::class, 'document_site_setting');
@@ -92,6 +98,11 @@ class SiteSetting extends Model implements HasMedia
     public function checkins(): HasMany
     {
         return $this->hasMany(Checkin::class, 'site_setting_id');
+    }
+
+    public function gymSetting(): HasOne
+    {
+        return $this->hasOne(GymSetting::class, 'site_setting_id');
     }
 
     public function getRouteKeyName()

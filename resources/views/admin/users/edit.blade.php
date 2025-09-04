@@ -22,27 +22,26 @@
                 </div>
                 <div class="mb-10 col-md-6">
                     <label for="email" class="required form-label">Email address</label>
-                    <input type="email" name="email" value="{{$user->email}}" class="form-control form-control-solid required" required/>
-                </div>
-                <div class="mb-10 col-md-6">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" value="{{ old('password') }}" name="password" class="form-control form-control-solid"/>
+                    <input type="email" name="email" value="{{$user->email}}" class="form-control form-control-solid required" required @if($user->email_verified_at) disabled @endif/>
+                    @if($user->email_verified_at)
+                        <span class="text-muted">Email verified at {{$user->email_verified_at->format('d/m/Y H:i')}}</span>
+                    @endif
                 </div>
                 <div class="mb-10 col-md-6">
                     <label for="role_ids" class="required form-label">Roles</label>
                     @php
                         $options = [];
-                        foreach($roles as $id => $role){
+                        foreach($roles as $role){
                             $options[] = [
-                                'value' => $id,
+                                'value' => $role['id'],
                                 'label' => $role['name']
                             ];
                         }
-                        $selectedRoles = $user->roles->pluck('id')->toArray();
                     @endphp
-                    @include('_partials.select-multiple',[
+                    @include('_partials.select',[
                         'options' => $options,
-                        'name' => 'role_ids',
+                        'name' => 'role_ids[]',
+                        'id' => 'role_ids',
                         'selectedValue' => old('role_ids', $selectedRoles),
                         'changeFuncion' => 'toggleTrainerSection()'
                     ])
@@ -81,17 +80,17 @@
                     <label for="address" class="required form-label">Address</label>
                     <textarea name="address" class="form-control form-control-solid required" required >{{$user->address}}</textarea>
                 </div>
-                <div class="mb-10 col-md-6">
+                <div class="mb-10 col-md-4">
+                    <label for="phone" class="required form-label">Phone</label>
+                    <input type="text" value="{{$user->phone}}" name="phone" class="form-control form-control-solid required" required/>
+                </div>
+                <div class="mb-10 col-md-4">
                     <label for="country" class="form-label">Country</label>
                     <input type="text" value="{{ old('country') }}" value="Egypt" placeholder="Egypt" name="country" class="form-control form-control-solid"/>
                 </div>
-                <div class="mb-10 col-md-6">
+                <div class="mb-10 col-md-4">
                     <label for="city" class="form-label">City</label>
                     <input type="text" value="{{ old('city') }}" name="city" class="form-control form-control-solid"/>
-                </div>
-                <div class="mb-10 col-md-6">
-                    <label for="phone" class="required form-label">Phone</label>
-                    <input type="text" value="{{$user->phone}}" name="phone" class="form-control form-control-solid required" required/>
                 </div>
 
                 <!-- Trainer Information Section -->
@@ -136,7 +135,19 @@
                 </div>
                         
                 <div class="card-footer">
-                    <button type="submit" class="btn btn-success">Save</button>
+                    @can('edit_users')
+                        <button type="submit" class="btn btn-success">Save</button>
+                        @if(!$user->has_set_password)
+                            <form action="{{ route('users.resend-onboarding-email', $user) }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-warning">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    Resend Onboarding Email
+                                </button>
+                            </form>
+                        @endif
+                    @endcan
                     <a href="{{ route('users.index') }}" class="btn btn-dark">Cancel</a>
                 </div>
             </div>

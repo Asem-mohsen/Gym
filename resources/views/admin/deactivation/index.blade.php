@@ -33,7 +33,7 @@
                                             <div class="form-group">
                                                 <label for="gymSelect" class="form-label">Your Gym:</label>
                                                 <input type="text" class="form-control form-control-solid mb-3" value="{{ $gym->gym_name ?? 'Gym #' . $gym->id }}" readonly>
-                                                <input type="hidden" id="gymSelect" value="{{ $gym->id }}">
+                                                <input type="hidden" id="gymSelect" value="{{ $gym->slug }}">
                                             </div>
                                             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                                                 <button type="button" class="btn btn-warning" id="previewGymBtn">

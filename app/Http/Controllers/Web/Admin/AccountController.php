@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateAccountRequest;
 use App\Services\AccountService;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class AccountController extends Controller
 {
@@ -33,13 +33,12 @@ class AccountController extends Controller
             $user = auth()->user();
             $data = $request->validated();
             
-            $updatedUser = $this->accountService->updateAccount($user, $data);
+            $this->accountService->updateAccount($user, $data);
             
-            return redirect()->route('admin.account.show')
-                ->with('success', 'Account updated successfully!');
-        } catch (\Exception $e) {
-            return redirect()->route('admin.account.show')
-                ->with('error', 'Failed to update account: ' . $e->getMessage());
+            return redirect()->route('admin.account.show')->with('success', 'Account updated successfully!');
+        } catch (Exception $e) {
+            Log::error('Failed to update account: ' . $e->getMessage());
+            return redirect()->route('admin.account.show')->with('error', 'Failed to update account: ' . $e->getMessage());
         }
     }
 }

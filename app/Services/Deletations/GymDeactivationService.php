@@ -2,11 +2,12 @@
 
 namespace App\Services\Deletations;
 
-use App\Models\{SiteSetting, User, Branch, Service, ClassModel, Invitation, BlogPost, Comment, Membership, Payment, Booking, Gallery, Feature, Category, Tag, Contact, Locker, CoachingSession, Transaction, TrainerInformation, Phone, ClassSchedule, ClassPricing, BlogPostShare, Document, ScoreCriteria, BranchScore, BranchScoreItem, BranchScoreHistory, BranchScoreReviewRequest};
+use App\Models\{SiteSetting, User, Branch, ClassModel, Invitation, BlogPost, Comment, Membership, Payment, Booking, Gallery, Feature, Category, Tag, Contact, Locker, CoachingSession, Transaction, TrainerInformation, Phone, ClassSchedule, ClassPricing, BlogPostShare, Document, ScoreCriteria, BranchScore, BranchScoreItem, BranchScoreHistory, BranchScoreReviewRequest};
 use App\Mail\GymDeactivationDataExport;
-use Illuminate\Support\Facades\{Mail, Storage, DB};
+use Illuminate\Support\Facades\{Mail, Storage, DB, Log};
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\GymDataExport;
+use App\Jobs\SendGymDeactivationEmailsJob;
 
 class GymDeactivationService
 {
@@ -56,14 +57,17 @@ class GymDeactivationService
     public function deactivateGym(SiteSetting $gym): void
     {
         DB::transaction(function () use ($gym) {
-            // Mark gym as deactivated
-            $gym->update(['status' => 'deactivated']);
+            // Send deactivation notification emails to regular users before deletion
+            $this->sendDeactivationNotifications($gym);
 
-            // Deactivate all branches
-            $gym->branches()->update(['status' => 'deactivated']);
+            // Soft delete the gym
+            $gym->delete();
 
-            // Deactivate all users
-            $gym->users()->update(['status' => 'inactive']);
+            // Soft delete all branches
+            $gym->branches()->delete();
+
+            // Soft delete all users
+            $gym->users()->delete();
 
             // Schedule data export email
             $this->scheduleDataExport($gym);
@@ -314,4 +318,24 @@ class GymDeactivationService
             ],
         ];
     }
+
+    public function sendDeactivationNotifications(SiteSetting $gym): void
+    {
+        try {
+            Log::info('Dispatching gym deactivation email job', [
+                'gym_id' => $gym->id,
+                'gym_name' => $gym->getTranslation('gym_name', 'en')
+            ]);
+
+            // Dispatch the job to send emails to all regular users
+            SendGymDeactivationEmailsJob::dispatch($gym);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to dispatch gym deactivation email job', [
+                'gym_id' => $gym->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
 }

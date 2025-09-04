@@ -3,7 +3,11 @@
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 use App\Jobs\UpdateExpiredSubscriptionsJob;
+use App\Jobs\UpdateOfferStatusJob;
 
 
 // Schedule the expired subscriptions update job to run every 2 hours
 Schedule::job(new UpdateExpiredSubscriptionsJob())->everyTwoHours();
+
+// Schedule the offer status update job to run every 5 minutes
+Schedule::job(new UpdateOfferStatusJob())->everyFiveMinutes();

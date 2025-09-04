@@ -12,7 +12,7 @@ use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 
-class ServicesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnError, WithBatchInserts, WithChunkReading
+class ServicesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatchInserts, WithChunkReading
 {
     protected $siteSettingId;
     protected $importedServices = [];
@@ -26,6 +26,14 @@ class ServicesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
     public function model(array $row)
     {
         try {
+            if (empty($row['name']) || $row['name'] === 'name') {
+                return null;
+            }
+            
+            if (empty($row['duration']) && empty($row['price'])) {
+                return null;
+            }
+            
             // Create the service
             $service = Service::create([
                 'site_setting_id' => $this->siteSettingId,
@@ -37,11 +45,11 @@ class ServicesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
                     'en' => $row['description_en'] ?? $row['description'] ?? '',
                     'ar' => $row['description_ar'] ?? $row['description'] ?? ''
                 ],
-                'duration' => $row['duration'] ?? 60, // Default 60 minutes
-                'price' => $row['price'] ?? 0,
-                'requires_payment' => $row['requires_payment'] ?? false,
-                'booking_type' => $row['booking_type'] ?? 'free_booking',
-                'is_available' => $row['is_available'] ?? true,
+                'duration' => $row['duration'] ?? 60,
+                'price' => floatval($row['price'] ?? 0),
+                'requires_payment' => filter_var($row['requires_payment'] ?? '1', FILTER_VALIDATE_BOOLEAN),
+                'booking_type' => $row['booking_type'] ?? 'paid_booking',
+                'is_available' => filter_var($row['is_available'] ?? '1', FILTER_VALIDATE_BOOLEAN),
                 'sort_order' => $row['sort_order'] ?? 0,
             ]);
 
@@ -64,6 +72,7 @@ class ServicesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
                 'branches' => $branches ?? collect()
             ];
 
+            Log::info('Successfully imported service: ' . $service->name);
             return $service;
 
         } catch (\Exception $e) {
@@ -72,10 +81,10 @@ class ServicesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
                 'site_setting_id' => $this->siteSettingId
             ]);
             
-            $this->errors[] = [
-                'row' => $row,
-                'error' => $e->getMessage()
-            ];
+            // Don't add duplicate key errors to the errors array since they're expected
+            if (!str_contains($e->getMessage(), 'Duplicate entry')) {
+                $this->errors[] = $e->getMessage();
+            }
             
             return null;
         }
@@ -116,6 +125,9 @@ class ServicesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
     public function onError(\Throwable $e)
     {
         Log::error('Service import error: ' . $e->getMessage());
+        
+        // Store the error for reporting
+        $this->errors[] = $e->getMessage();
     }
 
     public function batchSize(): int

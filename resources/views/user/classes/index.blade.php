@@ -27,10 +27,12 @@
     @if ($timetableData)
         <x-user.class-timetable :timetableData="$timetableData" :classTypes="$classTypes" :siteSetting="$siteSetting" />
     @else
-        <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <div class="alert alert-info text-center mt-5 mb-5">No classes available.</div>
+        <div class="bg-gym-primary" style="background-color: #151515;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-info text-center mt-5 mb-5">No classes available.</div>
+                    </div>
                 </div>
             </div>
         </div>

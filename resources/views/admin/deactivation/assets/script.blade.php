@@ -152,7 +152,9 @@
                 .done(function(response) {
                     if (response.success) {
                         toastr.success('Branch deactivated successfully!');
-                        location.reload();
+                        setTimeout(function() {
+                            location.reload();
+                        }, 3000);
                     } else {
                         toastr.error(response.message);
                     }

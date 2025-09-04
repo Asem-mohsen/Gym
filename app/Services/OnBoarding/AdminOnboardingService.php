@@ -26,7 +26,10 @@ class AdminOnboardingService
                 ]
             );
 
-            Mail::to($user->email)->send(new AdminOnboardingMail($user, $token));
+            $gym = $user->gyms()->first();
+            $gymName = $gym->gym_name ?? 'Our Gym';
+            $gymSlug = $gym->slug ?? 'our-gym';
+            Mail::to($user->email)->send(new AdminOnboardingMail($user, $gymName, $gymSlug, $token));
 
             return true;
         } catch (\Exception $e) {
@@ -63,7 +66,7 @@ class AdminOnboardingService
             return 'user_not_found';
         }
 
-        $user->update(['password' => Hash::make($newPassword)]);
+        $user->update(['password' => Hash::make($newPassword) , 'password_set_at' => now()]);
 
         DB::table('password_reset_tokens')->where('email', $email)->delete();
 

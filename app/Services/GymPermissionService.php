@@ -287,6 +287,24 @@ class GymPermissionService
                     'reply_to_contacts' => 'Reply to Contacts',
                 ]
             ],
+            'notification_management' => [
+                'label' => 'Notification Management',
+                'permissions' => [
+                    'view_notifications' => 'View Notifications',
+                    'create_notifications' => 'Create Notifications',
+                    'edit_notifications' => 'Edit Notifications',
+                    'delete_notifications' => 'Delete Notifications',
+                ]
+            ],
+            'branding_management' => [
+                'label' => 'Branding And Design Control',
+                'permissions' => [
+                    'view_branding' => 'View Branding',
+                    'create_branding' => 'Create Branding',
+                    'edit_branding' => 'Edit Branding',
+                    'delete_branding' => 'Delete Branding',
+                ]
+            ],
             'import_management' => [
                 'label' => 'Import Management',
                 'permissions' => [

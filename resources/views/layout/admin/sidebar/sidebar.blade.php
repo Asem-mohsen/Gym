@@ -62,7 +62,13 @@
                                     @foreach ($item['subItems'] as $subItem)
                                         @if (!isset($subItem['show']) || $subItem['show']())
                                             <div class="menu-item">
-                                                <a class="menu-link {{ $subItem['active']() ? 'active' : '' }}" href="{{ isset($subItem['type']) ? '#' : (is_array($subItem['route']) ? route($subItem['route'][0], $subItem['route'][1]) : route($subItem['route'])) }}">
+                                                <a class="menu-link {{ $subItem['active']() ? 'active' : '' }}" href="{{ 
+                                                    isset($subItem['type']) ? '#' : (
+                                                        is_array($subItem['route']) && $subItem['route'][1] === 'siteSettingId' 
+                                                            ? route($subItem['route'][0], $site->id) 
+                                                            : (is_array($subItem['route']) ? route($subItem['route'][0], $subItem['route'][1]) : route($subItem['route']))
+                                                    ) 
+                                                }}">
                                                     @if (isset($subItem['type']) && $subItem['type'] == 'button')
                                                         <span class="menu-bullet">
                                                             <span class="bullet bullet-dot"></span>
@@ -104,7 +110,11 @@
                             </div>
                         @else
                             <div class="menu-item">
-                                <a class="menu-link {{ $item['active']() ? 'active' : '' }}" href="{{ route($item['route']) }}">
+                                <a class="menu-link {{ $item['active']() ? 'active' : '' }}" href="{{ 
+                                    is_array($item['route']) && $item['route'][1] === 'siteSettingId' 
+                                        ? route($item['route'][0], $site->id) 
+                                        : (is_array($item['route']) ? route($item['route'][0], $item['route'][1]) : route($item['route'])) 
+                                }}">
                                     <span class="menu-icon">
                                         <i class="{{ $item['icon'] }}"></i>
                                     </span>

@@ -12,7 +12,7 @@ use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 
-class BranchesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnError, WithBatchInserts, WithChunkReading
+class BranchesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatchInserts, WithChunkReading
 {
     protected $siteSettingId;
     protected $importedBranches = [];
@@ -26,6 +26,23 @@ class BranchesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
     public function model(array $row)
     {
         try {
+            // Skip if this is a header row or empty row
+            if (empty($row['name']) || $row['name'] === 'name') {
+                return null;
+            }
+            
+            // Validate that this is actually branch data (should have location field)
+            if (empty($row['location']) && empty($row['location_en']) && empty($row['location_ar'])) {
+                Log::warning('Skipping non-branch data row:', $row);
+                return null;
+            }
+            
+            // Check if branch already exists to prevent duplicates
+            if (Branch::where('name', $row['name'])->where('site_setting_id', $this->siteSettingId)->exists()) {
+                Log::info('Branch already exists, skipping: ' . $row['name']);
+                return null;
+            }
+            
             // Find manager by email or name
             $manager = null;
             if (!empty($row['manager_email'])) {
@@ -43,8 +60,8 @@ class BranchesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
                     'ar' => $row['name_ar'] ?? $row['name'] ?? ''
                 ],
                 'location' => [
-                    'en' => $row['location_en'] ?? $row['location'] ?? '',
-                    'ar' => $row['location_ar'] ?? $row['location'] ?? ''
+                    'en' => $row['location_en'] ?? $row['location'] ?? 'Default Location',
+                    'ar' => $row['location_ar'] ?? $row['location'] ?? 'الموقع الافتراضي'
                 ],
                 'type' => $row['type'] ?? 'mix',
                 'size' => $row['size'] ?? null,
@@ -59,6 +76,7 @@ class BranchesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
                 'manager' => $manager
             ];
 
+            Log::info('Successfully imported branch: ' . $branch->name);
             return $branch;
 
         } catch (\Exception $e) {
@@ -67,10 +85,10 @@ class BranchesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
                 'site_setting_id' => $this->siteSettingId
             ]);
             
-            $this->errors[] = [
-                'row' => $row,
-                'error' => $e->getMessage()
-            ];
+            // Don't add duplicate key errors to the errors array since they're expected
+            if (!str_contains($e->getMessage(), 'Duplicate entry')) {
+                $this->errors[] = $e->getMessage();
+            }
             
             return null;
         }
@@ -109,6 +127,9 @@ class BranchesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
     public function onError(\Throwable $e)
     {
         Log::error('Branch import error: ' . $e->getMessage());
+        
+        // Store the error for reporting
+        $this->errors[] = $e->getMessage();
     }
 
     public function batchSize(): int

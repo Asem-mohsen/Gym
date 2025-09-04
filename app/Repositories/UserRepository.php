@@ -8,7 +8,7 @@ use Spatie\Permission\Models\Role;
 
 class UserRepository
 {
-    public function getAllUsers(int $siteSettingId, $perPage = 15, $search = null)
+    public function getAllUsers(int $siteSettingId)
     {
         $query = User::where('is_admin', '0')
             ->whereHas('roles', function ($query) {
@@ -18,15 +18,7 @@ class UserRepository
                 $query->where('site_setting_id', $siteSettingId);
             });
 
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
-            });
-        }
-
-        return $query->with('roles')->paginate($perPage);
+        return $query->with('roles')->get();
     }
 
     public function getAllTrainers(int $siteSettingId, $perPage = 15, $branchId = null, $search = null)

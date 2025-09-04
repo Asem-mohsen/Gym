@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Repositories\DocumentRepository;
-use App\Models\Document;
+use App\Models\{Document, SiteSetting};
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -12,10 +14,12 @@ class ResourcesService
 {
     public function __construct(
         protected DocumentRepository $documentRepository,
-        protected SiteSettingService $siteSettingService
+        protected SiteSettingService $siteSettingService,
+        protected NotificationService $notificationService
     ) {
         $this->documentRepository = $documentRepository;
         $this->siteSettingService = $siteSettingService;
+        $this->notificationService = $notificationService;
     }
 
     public function getDocumentsForGym(Request $request, int $siteSettingId): array
@@ -51,6 +55,23 @@ class ResourcesService
         return response()->download($media->getPath(), $media->name);
     }
 
-
-
+    /**
+     * Handle new resource assignment and send notifications
+     */
+    public function handleNewResourceAssignment(Document $document, int $siteSettingId, $assignedBy = null): void
+    {
+        try {
+            $siteSetting = SiteSetting::find($siteSettingId);
+            if ($siteSetting) {
+                $this->notificationService->sendNewResourceAssignmentNotification($document, $siteSetting, $assignedBy);
+            }
+        } catch (\Exception $e) {
+            // Log error but don't fail the main operation
+            Log::error('Failed to send resource assignment notification', [
+                'document_id' => $document->id,
+                'site_setting_id' => $siteSettingId,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
 }

@@ -11,7 +11,7 @@ class UpdateGalleryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('edit_galleries');
+        return $this->user()->can('edit_gallery');
     }
 
     /**

@@ -7,7 +7,14 @@
     <!-- Hero Section Begin -->
     <section class="hero-section">
         <div class="hs-slider owl-carousel">
-            <div class="hs-item set-bg" data-setbg="{{ asset('assets/user/img/hero/hero-1.jpg') }}">
+            
+            @php
+                $heroImages = $branding['media_urls']['hero_banner'] ?? [];
+                $heroImage1 = is_array($heroImages) && isset($heroImages[0]) ? $heroImages[0] : asset('assets/user/img/hero/hero-1.jpg');
+                $heroImage2 = is_array($heroImages) && isset($heroImages[1]) ? $heroImages[1] : asset('assets/user/img/hero/hero-2.jpg');
+            @endphp
+            
+            <div class="hs-item set-bg" data-setbg="{{ $heroImage1 }}">
                 <div class="container">
                     <div class="row">
                         <div class="col-lg-6 offset-lg-6">
@@ -20,7 +27,7 @@
                     </div>
                 </div>
             </div>
-            <div class="hs-item set-bg" data-setbg="{{ asset('assets/user/img/hero/hero-2.jpg') }}">
+            <div class="hs-item set-bg" data-setbg="{{ $heroImage2 }}">
                 <div class="container">
                     <div class="row">
                         <div class="col-lg-6 offset-lg-6">
@@ -118,7 +125,10 @@
     <!-- ChoseUs Section End -->
 
     <!-- Banner Section Begin -->
-    <section class="banner-section set-bg" data-setbg="{{ asset('assets/user/img/banner-bg.jpg') }}">
+    @php
+        $bannerImage = $branding['media_urls']['banner_section_bg'] ?? asset('assets/user/img/banner-bg.jpg');
+    @endphp
+    <section class="banner-section set-bg" data-setbg="{{ $bannerImage }}">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 text-center">

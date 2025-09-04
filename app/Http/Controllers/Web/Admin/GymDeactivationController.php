@@ -3,17 +3,12 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\SiteSetting;
-use App\Models\Branch;
-use App\Models\Document;
-use App\Models\User;
+use App\Http\Requests\Deactivation\DeactivationRequest;
+use App\Models\{SiteSetting, Branch, Document, User};
 use App\Services\Deletations\GymDeactivationService;
 use App\Services\SiteSettingService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\{DB, Auth};
 
 class GymDeactivationController extends Controller
 {
@@ -30,6 +25,9 @@ class GymDeactivationController extends Controller
      */
     public function index()
     {
+        /**
+         * @var User $user
+         */
         $user = Auth::user();
         
         if (!$user->isAdmin()) {
@@ -52,18 +50,9 @@ class GymDeactivationController extends Controller
     /**
      * Deactivate a branch
      */
-    public function deactivateBranch(Request $request, Branch $branch): JsonResponse
+    public function deactivateBranch(DeactivationRequest $request, Branch $branch): JsonResponse
     {
         try {
-            $user = Auth::user();
-            
-            if (!$user->isAdmin()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Access denied. Admin role required.'
-                ], 403);
-            }
-
             if ($this->siteSettingsId !== $branch->site_setting_id) {
                 return response()->json([
                     'success' => false,
@@ -73,7 +62,7 @@ class GymDeactivationController extends Controller
 
             DB::beginTransaction();
 
-            $this->deactivationService->deactivateBranch($branch);
+            // $this->deactivationService->deactivateBranch($branch);
 
             DB::commit();
 
@@ -95,19 +84,9 @@ class GymDeactivationController extends Controller
     /**
      * Deactivate a gym
      */
-    public function deactivateGym(Request $request, SiteSetting $siteSetting): JsonResponse
+    public function deactivateGym(DeactivationRequest $request, SiteSetting $siteSetting): JsonResponse
     {
         try {
-            $user = Auth::user();
-            
-            // Check if user is admin
-            if (!$user->isAdmin()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Access denied. Admin role required.'
-                ], 403);
-            }
-
             if ($this->siteSettingsId !== $siteSetting->id) {
                 return response()->json([
                     'success' => false,
@@ -142,6 +121,9 @@ class GymDeactivationController extends Controller
     public function getGymDataPreview(): JsonResponse
     {
         try {
+            /**
+             * @var User $user
+            */
             $user = Auth::user();
             
             $siteSetting = $this->siteSettingService->getSiteSettingById($this->siteSettingsId);
@@ -207,6 +189,9 @@ class GymDeactivationController extends Controller
     public function getBranchDataPreview(Branch $branch): JsonResponse
     {
         try {
+            /**
+             * @var User $user
+            */
             $user = Auth::user();
             
             // Check if user is admin
@@ -229,11 +214,12 @@ class GymDeactivationController extends Controller
                 'branch_location' => $branch->location,
                 'manager_name' => $branch->manager?->name,
                 'manager_email' => $branch->manager?->email,
+                'branch_score' => $branch->score()->first()?->score ?? 0,
                 'total_users' => $branch->subscriptions()->count(),
+                'total_trainers' => $branch->trainers()->count(),
+                'total_subscribers' => $branch->subscriptions()->count(),
                 'total_services' => $branch->services()->count(),
-                'total_payments' => $branch->payments()->count(),
-                'total_phones' => $branch->phones()->count(),
-                'total_galleries' => $branch->galleries()->count(),
+                // 'total_classes' => $branch->classes()->count(), // to do : change to classes
                 'total_machines' => $branch->machines()->count(),
             ];
 

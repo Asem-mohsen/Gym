@@ -48,7 +48,7 @@
                         <th>Status</th>
                         <th>Sort Order</th>
                         <th>Created</th>
-                        @can('edit_galleries')
+                        @can('edit_gallery')
                             <th>Actions</th>
                         @endcan
                     </tr>
@@ -93,10 +93,10 @@
                             </td>
                             <td>{{ $gallery->sort_order }}</td>
                             <td>{{ $gallery->created_at->format('d M Y') }}</td>
-                            @if(auth()->user()->can('edit_galleries') || auth()->user()->can('delete_galleries'))
+                            @if(auth()->user()->can('edit_gallery') || auth()->user()->can('delete_gallery'))
                                 <td>
                                     <div class="d-flex gap-1">
-                                        @can('edit_galleries')
+                                        @can('edit_gallery')
                                         <x-table-icon-link 
                                             :route="route('galleries.edit',$gallery->id)" 
                                             colorClass="primary"
@@ -104,7 +104,7 @@
                                             iconClasses="fa-solid fa-pen"
                                         />
                                         @endcan
-                                        @can('delete_galleries')
+                                        @can('delete_gallery')
                                         <form action="{{ route('galleries.destroy' ,$gallery->id )}}" method="post">
                                             @csrf
                                             @method('DELETE')

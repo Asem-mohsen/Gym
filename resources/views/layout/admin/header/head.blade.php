@@ -15,6 +15,9 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    {{-- Inject gym branding CSS variables --}}
+    <x-gym-branding-css />
+
 </head>
 
 @yield('css')

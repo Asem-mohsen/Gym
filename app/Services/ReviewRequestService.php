@@ -41,7 +41,7 @@ class ReviewRequestService
         $branchScores = $this->reviewRequestRepository->getBranchScoresForGym($siteSettingId);
 
         $branches->each(function ($branch) use ($branchScores) {
-            $branch->score = $branchScores->get($branch->id);
+            $branch->branch_score = $branchScores->get($branch->id);
         });
         
         $selectedBranchScoreId = $request->get('branch_score_id');

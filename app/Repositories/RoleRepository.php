@@ -5,11 +5,12 @@ use App\Models\Role;
 
 class RoleRepository
 {
-    public function getAllRoles(array $select = ['*'], array $with = [], array $where = [], array $orderBy = [], array $withCount = [])
+    public function getAllRoles(array $select = ['*'], array $with = [], array $where = [], array $except = [], array $orderBy = [], array $withCount = [])
     {
         return Role::select($select)
             ->when(!empty($with), fn($query) => $query->with($with))
             ->when(!empty($where), fn($query) => $query->where($where))
+            ->when(!empty($except), fn($query) => $query->whereNotIn('name', $except))
             ->when(!empty($orderBy), function ($query) use ($orderBy) {
                 foreach ($orderBy as $column => $direction) {
                     $query->orderBy($column, $direction);
@@ -19,60 +20,8 @@ class RoleRepository
             ->get();
     }
 
-    public function createRole(array $data)
-    {
-        return Role::create($data);
-    }
-
-    public function updateRole(Role $role , array $data)
-    {
-        $role->update($data);
-        return $role;
-    }
-
-    public function deleteRole(Role $role)
-    {
-        $role->delete();
-    }
-
-    public function findById(int $id): ?Role
-    {
-        return Role::find($id);
-    }
-
-    public function findWith(array $select = ['*'], array $with = [], array $where = [], array $orderBy = [] , array $withCount = []): ?Role
-    {
-        return Role::select($select)
-            ->when(! empty($withCount), fn ($query) => $query->withCount($withCount))
-            ->when(! empty($with), fn ($query) => $query->with($with))
-            ->when(! empty($where), fn ($query) => $query->where($where))
-            ->when(! empty($orderBy), function ($query) use ($orderBy) {
-                foreach ($orderBy as $column => $direction) {
-                    $query->orderBy($column, $direction);
-                }
-            })
-            ->when(! empty($withCount), fn ($query) => $query->withCount($withCount))
-            ->first();
-        
-    }
-
     public function getRoleByName(string $name): ?Role
     {
         return Role::where('name', $name)->first();
-    }
-
-    /**
-     * Get roles formatted for select components with ID as key
-     */
-    public function getRolesForSelect(): array
-    {
-        $roles = $this->getAllRoles();
-        $formattedRoles = [];
-        
-        foreach ($roles as $role) {
-            $formattedRoles[$role->id] = $role;
-        }
-        
-        return $formattedRoles;
     }
 }

@@ -120,6 +120,43 @@
                     </div>
                     @endif
 
+                    <!-- Photo Gallery Section -->
+                    @if($user->publicPhotos->count() > 0)
+                    <div class="profile-photos-section">
+                        <h4>My Photos</h4>
+                        <div class="photos-gallery">
+                            @foreach($user->publicPhotos as $photo)
+                            <div class="gallery-photo-item" data-bs-toggle="modal" data-bs-target="#photoModal{{ $photo->id }}">
+                                <img src="{{ $photo->thumbnail_url }}" alt="{{ $photo->title }}" class="gallery-thumbnail">
+                                @if($photo->title)
+                                <div class="photo-caption">
+                                    <span>{{ $photo->title }}</span>
+                                </div>
+                                @endif
+                            </div>
+                            
+                            <!-- Photo Modal -->
+                            <div class="modal fade" id="photoModal{{ $photo->id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-lg modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">{{ $photo->title ?: 'Photo' }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-center">
+                                            <img src="{{ $photo->photo_url }}" alt="{{ $photo->title }}" class="img-fluid">
+                                            @if($photo->description)
+                                            <p class="mt-3 text-muted">{{ $photo->description }}</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
                     <div class="profile-actions-section">
                         <div class="row">
                             <div class="col-md-6">
@@ -353,6 +390,127 @@
     
     .detail-item {
         padding: 15px;
+    }
+}
+
+/* Photo Gallery Styles */
+.profile-photos-section {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 40px;
+    border-radius: 15px;
+    margin-bottom: 40px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-photos-section h4 {
+    margin-bottom: 25px;
+    color: #f36001;
+    border-bottom: 2px solid #f36001;
+    padding-bottom: 15px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.photos-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.gallery-photo-item {
+    position: relative;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.gallery-photo-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    border-color: #f36001;
+}
+
+.gallery-thumbnail {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.photo-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    padding: 20px 15px 15px;
+    color: white;
+}
+
+.photo-caption span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Modal Styles */
+.modal-content {
+    background: #151515;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px 25px;
+}
+
+.modal-title {
+    color: white;
+    font-weight: 600;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    opacity: 0.7;
+}
+
+.btn-close:hover {
+    opacity: 1;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.modal-body img {
+    border-radius: 10px;
+    max-height: 70vh;
+    object-fit: contain;
+}
+
+@media (max-width: 768px) {
+    .profile-photos-section {
+        padding: 25px 20px;
+    }
+    
+    .photos-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+    }
+    
+    .gallery-thumbnail {
+        height: 150px;
+    }
+    
+    .modal-dialog {
+        margin: 10px;
     }
 }
 </style>

@@ -13,7 +13,7 @@ use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 
-class ClassesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnError, WithBatchInserts, WithChunkReading
+class ClassesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatchInserts, WithChunkReading
 {
     protected $siteSettingId;
     protected $importedClasses = [];
@@ -27,6 +27,17 @@ class ClassesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnE
     public function model(array $row)
     {
         try {
+            // Skip if this is a header row or empty row
+            if (empty($row['name']) || $row['name'] === 'name') {
+                return null;
+            }
+            
+            // Validate that this is actually class data (should have type field)
+            if (empty($row['type']) && empty($row['description'])) {
+                Log::warning('Skipping non-class data row:', $row);
+                return null;
+            }
+            
             // Generate slug from name
             $name = $row['name_en'] ?? $row['name'] ?? '';
             $slug = Str::slug($name);
@@ -45,11 +56,8 @@ class ClassesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnE
                 'name' => $name,
                 'slug' => $slug,
                 'type' => $row['type'] ?? 'general',
-                'description' => [
-                    'en' => $row['description_en'] ?? $row['description'] ?? '',
-                    'ar' => $row['description_ar'] ?? $row['description'] ?? ''
-                ],
-                'status' => $row['status'] ?? 'active',
+                'description' => $row['description'] ?? '',
+                'status' => in_array($row['status'], ['active', 'inactive']) ? $row['status'] : 'active',
             ]);
 
             // Assign trainers if specified
@@ -73,10 +81,9 @@ class ClassesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnE
                 'site_setting_id' => $this->siteSettingId
             ]);
             
-            $this->errors[] = [
-                'row' => $row,
-                'error' => $e->getMessage()
-            ];
+            if (!str_contains($e->getMessage(), 'Duplicate entry')) {
+                $this->errors[] = $e->getMessage();
+            }
             
             return null;
         }
@@ -89,8 +96,6 @@ class ClassesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnE
             'name_en' => 'nullable|string|max:255',
             'type' => 'nullable|string|max:100',
             'description' => 'nullable|string',
-            'description_en' => 'nullable|string',
-            'description_ar' => 'nullable|string',
             'status' => 'nullable|in:active,inactive',
             'trainer_emails' => 'nullable|string',
         ];
@@ -107,6 +112,9 @@ class ClassesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnE
     public function onError(\Throwable $e)
     {
         Log::error('Class import error: ' . $e->getMessage());
+        
+        // Store the error for reporting
+        $this->errors[] = $e->getMessage();
     }
 
     public function batchSize(): int

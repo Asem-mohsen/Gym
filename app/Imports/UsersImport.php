@@ -29,14 +29,39 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
     public function model(array $row)
     {
         try {
+            // Skip if this is a header row or empty row
+            if (empty($row['name']) || $row['name'] === 'name') {
+                return null;
+            }
+            
+            // Validate that this is actually user data (should have email field)
+            if (empty($row['email'])) {
+                Log::warning('Skipping non-user data row:', $row);
+                return null;
+            }
+            
+            // Check if user already exists to prevent duplicates
+            if (User::where('email', $row['email'])->exists()) {
+                Log::info('User already exists, skipping: ' . $row['email']);
+                return null;
+            }
+            
+
+            
             // Generate a random password if not provided
             $password = $row['password'] ?? $this->generateRandomPassword();
+            
+            // Convert phone to string if it's a number
+            $phone = $row['phone'] ?? null;
+            if ($phone !== null) {
+                $phone = (string) $phone;
+            }
             
             // Create the user
             $user = User::create([
                 'name' => $row['name'],
                 'email' => $row['email'],
-                'phone' => $row['phone'] ?? null,
+                'phone' => $phone,
                 'address' => $row['address'] ?? null,
                 'gender' => $row['gender'] ?? null,
                 'password' => Hash::make($password),
@@ -58,6 +83,7 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                 'role' => $row['role'] ?? 'regular_user'
             ];
 
+            Log::info('Successfully imported user: ' . $user->email);
             return $user;
 
         } catch (\Exception $e) {
@@ -66,10 +92,10 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                 'site_setting_id' => $this->siteSettingId
             ]);
             
-            $this->errors[] = [
-                'row' => $row,
-                'error' => $e->getMessage()
-            ];
+            // Don't add duplicate key errors to the errors array since they're expected
+            if (!str_contains($e->getMessage(), 'Duplicate entry')) {
+                $this->errors[] = $e->getMessage();
+            }
             
             return null;
         }
@@ -80,7 +106,7 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'nullable|max:20',
             'address' => 'nullable|string|max:500',
             'gender' => 'nullable|in:male,female',
             'role' => 'nullable|string|max:50',
@@ -103,6 +129,8 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
     public function onError(\Throwable $e)
     {
         Log::error('User import error: ' . $e->getMessage());
+        
+        $this->errors[] = $e->getMessage();
     }
 
     public function batchSize(): int

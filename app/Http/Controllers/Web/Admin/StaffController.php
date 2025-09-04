@@ -46,7 +46,7 @@ class StaffController extends Controller
 
     public function create()
     {
-        $roles = $this->roleAssignmentService->getUserRoles();
+        $roles = $this->roleAssignmentService->getRoles(['sales', 'management']);
 
         $staffRoles = collect($roles)->filter(function($role) {
             return !in_array($role['name'], ['admin', 'regular_user', 'trainer']);
@@ -61,7 +61,7 @@ class StaffController extends Controller
             return redirect()->back()->with('error', 'Selected user is not a staff member.');
         }
 
-        $roles = $this->roleAssignmentService->getUserRoles();
+        $roles = $this->roleAssignmentService->getRoles(['sales', 'management']);
 
         $staffRoles = collect($roles)->filter(function($role) {
             return !in_array($role['name'], ['admin', 'regular_user', 'trainer']);
@@ -75,6 +75,10 @@ class StaffController extends Controller
         if ($staff->hasRole(['admin', 'regular_user', 'trainer'])) {
             return redirect()->back()->with('error', 'Selected user is not a staff member.');
         }
+
+        $staff->load(['photos' => function($query) {
+            $query->orderBy('sort_order')->orderBy('created_at', 'desc');
+        }]);
 
         return view('admin.staff.show', compact('staff'));
     }

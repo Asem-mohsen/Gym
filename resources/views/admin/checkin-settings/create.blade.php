@@ -121,7 +121,7 @@
                     @endif
 
                     <div class="card-footer">
-                        @role('Admin')
+                        @role('admin')
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save me-2"></i>Save Settings
                             </button>

@@ -43,8 +43,8 @@ class UsersPerGymChart extends ChartWidget
     protected function getData(): array
     {
         $query = SiteSetting::withCount(['users' => function (Builder $query) {
-            $query->whereHas('role', function ($roleQuery) {
-                $roleQuery->where('name', 'user');
+            $query->whereHas('roles', function ($roleQuery) {
+                $roleQuery->where('name', 'regular_user');
             });
             
             if ($this->dateFrom) {
