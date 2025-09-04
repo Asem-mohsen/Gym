@@ -12,19 +12,6 @@
         <p><strong>Name:</strong> {{ $user->name }}</p>
         <p><strong>Email:</strong> {{ $user->email }}</p>
         <p><strong>Phone:</strong> {{ $user->phone }}</p>
-        <p><strong>Roles:</strong> {{ $roles }}</p>
-    </div>
-
-    <div style="padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-        <h3 style="color: #2e7d32; margin-bottom: 15px;">Admin Access</h3>
-        <p style="color: #333; margin-bottom: 15px;">
-            As an admin, you have access to manage the gym's operations. Your roles include:
-        </p>
-        <ul style="color: #333; padding-left: 20px;">
-            @foreach(explode(', ', $roles) as $role)
-                <li>{{ ucfirst($role) }}</li>
-            @endforeach
-        </ul>
     </div>
 
     <div style="padding: 20px; border-radius: 8px; margin-bottom: 30px;">

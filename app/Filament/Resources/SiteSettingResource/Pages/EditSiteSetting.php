@@ -23,7 +23,22 @@ class EditSiteSetting extends EditRecord
     {
         $siteSetting = $this->record;
         
+        $this->handleOwnerAssignment($siteSetting);
+        
         $service = new ContractDocumentService();
         $service->handleContractDocument($siteSetting);
+    }
+    
+    private function handleOwnerAssignment($siteSetting): void
+    {
+        if ($siteSetting->owner_id) {
+            $existingAssignment = $siteSetting->users()
+                ->where('user_id', $siteSetting->owner_id)
+                ->exists();
+            
+            if (!$existingAssignment) {
+                $siteSetting->users()->attach($siteSetting->owner_id);
+            }
+        }
     }
 }

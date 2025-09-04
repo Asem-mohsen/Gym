@@ -47,4 +47,12 @@ return [
         'hmac_secret' => env('PAYMOB_HMAC_SECRET'),
         'base_url' => env('PAYMOB_BASE_URL', 'https://accept.paymob.com/api'),
     ],
+
+    'pusher' => [
+        'app_id' => env('PUSHER_APP_ID'),
+        'key' => env('PUSHER_APP_KEY'),
+        'secret' => env('PUSHER_APP_SECRET'),
+        'cluster' => env('PUSHER_APP_CLUSTER', 'eu'),
+        'use_tls' => env('PUSHER_USE_TLS', true),
+    ],
 ];

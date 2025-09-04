@@ -31,7 +31,6 @@ class ClassController extends Controller
         
         $classes = $this->classService->getClassesWithPagination($this->siteSettingId, $perPage, $search, $type);
         
-        // Get class types for filter dropdown
         $classTypes = $this->classRepository->getClassTypes($this->siteSettingId);
         
         return view('admin.classes.index', compact('classes', 'classTypes'));

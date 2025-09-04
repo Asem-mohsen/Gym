@@ -11,7 +11,7 @@ use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 
-class MembershipsImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnError, WithBatchInserts, WithChunkReading
+class MembershipsImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatchInserts, WithChunkReading
 {
     protected $siteSettingId;
     protected $importedMemberships = [];
@@ -25,6 +25,17 @@ class MembershipsImport implements ToModel, WithHeadingRow, WithValidation, Skip
     public function model(array $row)
     {
         try {
+            // Skip if this is a header row or empty row
+            if (empty($row['name']) || $row['name'] === 'name') {
+                return null;
+            }
+            
+            // Validate that this is actually membership data (should have price field)
+            if (empty($row['price'])) {
+                Log::warning('Skipping non-membership data row:', $row);
+                return null;
+            }
+            
             // Create the membership
             $membership = Membership::create([
                 'site_setting_id' => $this->siteSettingId,
@@ -33,11 +44,15 @@ class MembershipsImport implements ToModel, WithHeadingRow, WithValidation, Skip
                     'ar' => $row['name_ar'] ?? $row['name'] ?? ''
                 ],
                 'period' => $row['period'] ?? '1 month',
-                'description' => [
+                'general_description' => [
                     'en' => $row['description_en'] ?? $row['description'] ?? '',
                     'ar' => $row['description_ar'] ?? $row['description'] ?? ''
                 ],
-                'price' => $row['price'] ?? 0,
+                'subtitle' => [
+                    'en' => $row['subtitle_en'] ?? $row['subtitle'] ?? '',
+                    'ar' => $row['subtitle_ar'] ?? $row['subtitle'] ?? ''
+                ],
+                'price' => floatval($row['price'] ?? 0),
                 'billing_interval' => $row['billing_interval'] ?? 'monthly',
                 'status' => $row['status'] ?? 1,
                 'order' => $row['order'] ?? 0,
@@ -48,6 +63,7 @@ class MembershipsImport implements ToModel, WithHeadingRow, WithValidation, Skip
                 'membership' => $membership
             ];
 
+            Log::info('Successfully imported membership: ' . $membership->name);
             return $membership;
 
         } catch (\Exception $e) {
@@ -56,10 +72,10 @@ class MembershipsImport implements ToModel, WithHeadingRow, WithValidation, Skip
                 'site_setting_id' => $this->siteSettingId
             ]);
             
-            $this->errors[] = [
-                'row' => $row,
-                'error' => $e->getMessage()
-            ];
+            // Don't add duplicate key errors to the errors array since they're expected
+            if (!str_contains($e->getMessage(), 'Duplicate entry')) {
+                $this->errors[] = $e->getMessage();
+            }
             
             return null;
         }
@@ -96,6 +112,9 @@ class MembershipsImport implements ToModel, WithHeadingRow, WithValidation, Skip
     public function onError(\Throwable $e)
     {
         Log::error('Membership import error: ' . $e->getMessage());
+        
+        // Store the error for reporting
+        $this->errors[] = $e->getMessage();
     }
 
     public function batchSize(): int

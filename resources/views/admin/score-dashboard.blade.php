@@ -93,10 +93,10 @@
                                         <small class="text-muted">{{ $branchScore->branch->getTranslation('location', app()->getLocale()) }}</small>
                                     </td>
                                     <td>
-                                        <span class="badge bg-{{ $branchScore->score_level_color }} fs-6">{{ $branchScore->score }}</span>
+                                        <span class="badge bg-{{ $branchScore->score_level_color }} fs-6 text-white">{{ $branchScore->score }}</span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-{{ $branchScore->score_level_color }}">
+                                        <span class="badge bg-{{ $branchScore->score_level_color }} text-white">
                                             {{ ucfirst($branchScore->score_level) }}
                                         </span>
                                     </td>

@@ -6,6 +6,7 @@ use App\Imports\UsersImport;
 use App\Imports\BranchesImport;
 use App\Imports\MembershipsImport;
 use App\Imports\ClassesImport;
+use App\Imports\GymDataImport;
 use App\Imports\ServicesImport;
 use App\Models\SiteSetting;
 use Illuminate\Support\Facades\DB;
@@ -43,21 +44,16 @@ class GymDataImportService
                 'summary' => []
             ];
 
-            // Store the uploaded file
             $filePath = $file->store('imports', 'local');
             $fullPath = Storage::disk('local')->path($filePath);
 
-            // Import each sheet
-            $this->importUsers($fullPath);
-            $this->importBranches($fullPath);
-            $this->importMemberships($fullPath);
-            $this->importClasses($fullPath);
-            $this->importServices($fullPath);
+            $import = new GymDataImport($this->siteSettingId);
+            Excel::import($import, $fullPath, null, \Maatwebsite\Excel\Excel::XLSX);
+            
+            $this->importResults = $import->getImportResults();
 
-            // Generate summary
             $this->generateSummary();
 
-            // Clean up the uploaded file
             Storage::disk('local')->delete($filePath);
 
             DB::commit();
@@ -81,130 +77,7 @@ class GymDataImportService
         }
     }
 
-    /**
-     * Import users from Excel sheet
-     */
-    protected function importUsers(string $filePath): void
-    {
-        try {
-            $import = new UsersImport($this->siteSettingId);
-            
-            Excel::import($import, $filePath, null, \Maatwebsite\Excel\Excel::XLSX);
-            
-            $this->importResults['users'] = [
-                'imported' => $import->getImportedUsers(),
-                'errors' => $import->getErrors(),
-                'count' => count($import->getImportedUsers())
-            ];
 
-        } catch (\Exception $e) {
-            Log::error('Users import failed: ' . $e->getMessage());
-            $this->importResults['errors'][] = [
-                'sheet' => 'Users',
-                'error' => $e->getMessage()
-            ];
-        }
-    }
-
-    /**
-     * Import branches from Excel sheet
-     */
-    protected function importBranches(string $filePath): void
-    {
-        try {
-            $import = new BranchesImport($this->siteSettingId);
-            
-            Excel::import($import, $filePath, null, \Maatwebsite\Excel\Excel::XLSX);
-            
-            $this->importResults['branches'] = [
-                'imported' => $import->getImportedBranches(),
-                'errors' => $import->getErrors(),
-                'count' => count($import->getImportedBranches())
-            ];
-
-        } catch (\Exception $e) {
-            Log::error('Branches import failed: ' . $e->getMessage());
-            $this->importResults['errors'][] = [
-                'sheet' => 'Branches',
-                'error' => $e->getMessage()
-            ];
-        }
-    }
-
-    /**
-     * Import memberships from Excel sheet
-     */
-    protected function importMemberships(string $filePath): void
-    {
-        try {
-            $import = new MembershipsImport($this->siteSettingId);
-            
-            Excel::import($import, $filePath, null, \Maatwebsite\Excel\Excel::XLSX);
-            
-            $this->importResults['memberships'] = [
-                'imported' => $import->getImportedMemberships(),
-                'errors' => $import->getErrors(),
-                'count' => count($import->getImportedMemberships())
-            ];
-
-        } catch (\Exception $e) {
-            Log::error('Memberships import failed: ' . $e->getMessage());
-            $this->importResults['errors'][] = [
-                'sheet' => 'Memberships',
-                'error' => $e->getMessage()
-            ];
-        }
-    }
-
-    /**
-     * Import classes from Excel sheet
-     */
-    protected function importClasses(string $filePath): void
-    {
-        try {
-            $import = new ClassesImport($this->siteSettingId);
-            
-            Excel::import($import, $filePath, null, \Maatwebsite\Excel\Excel::XLSX);
-            
-            $this->importResults['classes'] = [
-                'imported' => $import->getImportedClasses(),
-                'errors' => $import->getErrors(),
-                'count' => count($import->getImportedClasses())
-            ];
-
-        } catch (\Exception $e) {
-            Log::error('Classes import failed: ' . $e->getMessage());
-            $this->importResults['errors'][] = [
-                'sheet' => 'Classes',
-                'error' => $e->getMessage()
-            ];
-        }
-    }
-
-    /**
-     * Import services from Excel sheet
-     */
-    protected function importServices(string $filePath): void
-    {
-        try {
-            $import = new ServicesImport($this->siteSettingId);
-            
-            Excel::import($import, $filePath, null, \Maatwebsite\Excel\Excel::XLSX);
-            
-            $this->importResults['services'] = [
-                'imported' => $import->getImportedServices(),
-                'errors' => $import->getErrors(),
-                'count' => count($import->getImportedServices())
-            ];
-
-        } catch (\Exception $e) {
-            Log::error('Services import failed: ' . $e->getMessage());
-            $this->importResults['errors'][] = [
-                'sheet' => 'Services',
-                'error' => $e->getMessage()
-            ];
-        }
-    }
 
     /**
      * Generate import summary

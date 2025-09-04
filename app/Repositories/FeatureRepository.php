@@ -6,9 +6,10 @@ use App\Models\Feature;
 
 class FeatureRepository
 {
-    public function getAllFeatures(array $select = ['*'], array $with = [], array $where = [], array $orderBy = [], array $withCount = [])
+    public function getAllFeatures(int $siteSettingId, array $select = ['*'], array $with = [], array $where = [], array $orderBy = [], array $withCount = [])
     {
         return Feature::select($select)
+            ->where('site_setting_id', $siteSettingId)
             ->when(!empty($with), fn ($query) => $query->with($with))
             ->when(!empty($where), fn ($query) => $query->where($where))
             ->when(!empty($orderBy), function ($query) use ($orderBy) {
@@ -41,9 +42,10 @@ class FeatureRepository
         return Feature::find($id);
     }
 
-    public function selectFeatures()
+    public function selectFeatures(int $siteSettingId)
     {
         return Feature::where('status', 1)
+            ->where('site_setting_id', $siteSettingId)
             ->select('id', 'name')
             ->orderBy('order')
             ->get()

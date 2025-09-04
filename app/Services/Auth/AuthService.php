@@ -78,7 +78,7 @@ class AuthService
     /**
     * Handle user login for web sessions.
     */
-   public function webLoign(array $credentials): void
+   public function webLoign(array $credentials): User
    {
        if (!Auth::attempt($credentials)) {
            throw new \Exception('Invalid credentials provided.', 401);
@@ -90,6 +90,8 @@ class AuthService
            Auth::logout();
            throw new \Exception('Your account has been disabled.', 403);
        }
+
+       return $user;
    }
 
    public function handleUnauthorizedAccess(User $user): void

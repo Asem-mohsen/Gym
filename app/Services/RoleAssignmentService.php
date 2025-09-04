@@ -17,10 +17,7 @@ class RoleAssignmentService
             if (!empty($roleIds)) {
                 $roles = Role::whereIn('id', $roleIds)->get();
                 $user->syncRoles($roles);
-                
-                Log::info("Roles assigned to user {$user->id}: " . $roles->pluck('name')->implode(', '));
             } else {
-                // Assign default role based on user type
                 $this->assignDefaultRole($user);
             }
         } catch (\Exception $e) {
@@ -71,27 +68,13 @@ class RoleAssignmentService
         }
     }
 
-    /**
-     * Get roles suitable for admin assignment
-     */
-    public function getAdminRoles(): array
-    {
-        return Role::whereIn('name', ['admin', 'management', 'sales'])->get()->map(function ($role) {
-            return [
-                'id' => $role->id,
-                'name' => $role->name,
-                'description' => $role->description ?? '',
-                'permissions' => $role->permissions->pluck('name')->toArray()
-            ];
-        })->toArray();
-    }
 
     /**
      * Get roles suitable for regular user assignment
      */
-    public function getUserRoles(): array
+    public function getRoles($roleNames = ['trainer', 'sales', 'management', 'regular_user','admin']): array
     {
-        return Role::whereIn('name', ['trainer', 'sales', 'management', 'regular_user'])->get()->map(function ($role) {
+        return Role::whereIn('name', $roleNames)->get()->map(function ($role) {
             return [
                 'id' => $role->id,
                 'name' => $role->name,

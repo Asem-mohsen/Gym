@@ -25,9 +25,10 @@
                                 @php
                                     $options = [];
                                     foreach($branches as $branch){
-                                        $scoreText = $branch->score ? ' (Current Score: ' . $branch->score->score . ')' : ' (No score yet)';
+                                        $branchScore = $branch->branch_score;
+                                        $scoreText = $branchScore ? ' (Current Score: ' . $branchScore->score . ')' : ' (No score yet)';
                                         $options[] = [
-                                            'value' => $branch->score ? $branch->score->id : $branch->id,
+                                            'value' => $branchScore ? $branchScore->id : $branch->id,
                                             'label' => $branch->name . ' - ' . $branch->location . $scoreText
                                         ];
                                     }
@@ -45,9 +46,7 @@
                             </div>
                             <div class="col-md-12 mb-10">
                                 <label for="request_notes" class="required form-label">Request Notes</label>
-                                <textarea name="request_notes" id="request_notes" rows="4" 
-                                      class="form-control form-control-solid @error('request_notes') is-invalid @enderror"
-                                      placeholder="Please describe what you would like us to review and any specific areas you want us to focus on...">{{ old('request_notes') }}</textarea>
+                                <textarea name="request_notes" id="request_notes" rows="4" class="form-control form-control-solid @error('request_notes') is-invalid @enderror" placeholder="Please describe what you would like us to review and any specific areas you want us to focus on...">{{ old('request_notes') }}</textarea>
                             </div>
                             <div class="col-md-12 mb-10">
                                 <label for="supporting_documents" class="required form-label">Supporting Documents</label>
@@ -113,7 +112,8 @@
             @if(request('branch_score_id'))
                 @php
                     $selectedBranch = collect($branches ?? [])->first(function($branch) {
-                        $branchScoreId = $branch->score ? $branch->score->id : $branch->id;
+                        $branchScore = $branch->branch_score;
+                        $branchScoreId = $branchScore ? $branchScore->id : $branch->id;
                         return $branchScoreId == request('branch_score_id');
                     });
                 @endphp
@@ -126,26 +126,29 @@
                         <h6>{{ $selectedBranch->getTranslation('name', app()->getLocale()) }}</h6>
                         <p class="text-muted">{{ $selectedBranch->getTranslation('location', app()->getLocale()) }}</p>
                         
-                        @if($selectedBranch->score)
+                        @php
+                            $selectedBranchScore = $selectedBranch->branch_score;
+                        @endphp
+                        @if($selectedBranchScore)
                         <div class="row">
                             <div class="col-6">
                                 <strong>Current Score:</strong><br>
-                                <span class="badge bg-{{ $selectedBranch->score->score_level_color }} fs-6">
-                                    {{ $selectedBranch->score->score }}
+                                <span class="badge bg-{{ $selectedBranchScore->score_level_color }} fs-6">
+                                    {{ $selectedBranchScore->score }}
                                 </span>
                             </div>
                             <div class="col-6">
                                 <strong>Level:</strong><br>
-                                <span class="badge bg-{{ $selectedBranch->score->score_level_color }}">
-                                    {{ ucfirst($selectedBranch->score->score_level) }}
+                                <span class="badge bg-{{ $selectedBranchScore->score_level_color }}">
+                                    {{ ucfirst($selectedBranchScore->score_level) }}
                                 </span>
                             </div>
                         </div>
                         
-                        @if($selectedBranch->score->last_review_date)
+                        @if($selectedBranchScore->last_review_date)
                         <div class="mt-3">
                             <strong>Last Review:</strong><br>
-                            <small class="text-muted">{{ $selectedBranch->score->last_review_date->format('M d, Y') }}</small>
+                            <small class="text-muted">{{ $selectedBranchScore->last_review_date->format('M d, Y') }}</small>
                         </div>
                         @endif
                         @else

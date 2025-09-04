@@ -167,6 +167,120 @@
                         @endforeach
                     </div>
                 </div>
+                
+                <!-- Admin Photos -->
+                @if($admin->photos->count() > 0)
+                <div class="mb-8">
+                    <h4 class="fs-5 fw-bold text-gray-800 mb-3">Admin Photos</h4>
+                    <div class="row g-3">
+                        @foreach($admin->photos as $photo)
+                        <div class="col-md-3 col-sm-4 col-6">
+                            <div class="card card-flush h-100">
+                                <div class="card-body p-2">
+                                    <div class="position-relative">
+                                        <img src="{{ $photo->thumbnail_url }}" 
+                                             alt="{{ $photo->title }}" 
+                                             class="w-100 rounded" 
+                                             style="height: 120px; object-fit: cover;"
+                                             data-bs-toggle="modal" 
+                                             data-bs-target="#photoModal{{ $photo->id }}">
+                                        
+                                        @if(!$photo->is_public)
+                                        <div class="position-absolute top-0 end-0 m-1">
+                                            <span class="badge badge-light-warning fs-8">Private</span>
+                                        </div>
+                                        @endif
+                                    </div>
+                                    
+                                    @if($photo->title)
+                                    <div class="mt-2">
+                                        <h6 class="fs-7 fw-bold text-gray-800 mb-0">{{ $photo->title }}</h6>
+                                    </div>
+                                    @endif
+                                    
+                                    <div class="mt-1">
+                                        <small class="text-muted">{{ $photo->created_at->format('M d, Y') }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Photo Modal -->
+                        <div class="modal fade" id="photoModal{{ $photo->id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">{{ $photo->title ?: 'Admin Photo' }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body text-center">
+                                        <img src="{{ $photo->photo_url }}" 
+                                             alt="{{ $photo->title }}" 
+                                             class="img-fluid rounded">
+                                        
+                                        @if($photo->description)
+                                        <p class="mt-3 text-muted">{{ $photo->description }}</p>
+                                        @endif
+                                        
+                                        <div class="mt-3">
+                                            <span class="badge badge-light-{{ $photo->is_public ? 'success' : 'warning' }}">
+                                                {{ $photo->is_public ? 'Public' : 'Private' }}
+                                            </span>
+                                            <small class="text-muted ms-2">Uploaded: {{ $photo->created_at->format('M d, Y H:i') }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    
+                    @if($admin->photos->count() > 8)
+                        <div class="text-center mt-3">
+                            <button class="btn btn-sm btn-light-primary" type="button" data-bs-toggle="collapse" data-bs-target="#allPhotos" aria-expanded="false">
+                                View All Photos ({{ $admin->photos->count() }})
+                            </button>
+                        </div>
+                        
+                        <div class="collapse mt-3" id="allPhotos">
+                            <div class="row g-3">
+                                @foreach($admin->photos->skip(8) as $photo)
+                                <div class="col-md-3 col-sm-4 col-6">
+                                    <div class="card card-flush h-100">
+                                        <div class="card-body p-2">
+                                            <div class="position-relative">
+                                                <img src="{{ $photo->thumbnail_url }}" 
+                                                        alt="{{ $photo->title }}" 
+                                                        class="w-100 rounded" 
+                                                        style="height: 120px; object-fit: cover;"
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#photoModal{{ $photo->id }}">
+                                                
+                                                @if(!$photo->is_public)
+                                                <div class="position-absolute top-0 end-0 m-1">
+                                                    <span class="badge badge-light-warning fs-8">Private</span>
+                                                </div>
+                                                @endif
+                                            </div>
+                                            
+                                            @if($photo->title)
+                                            <div class="mt-2">
+                                                <h6 class="fs-7 fw-bold text-gray-800 mb-0">{{ $photo->title }}</h6>
+                                            </div>
+                                            @endif
+                                            
+                                            <div class="mt-1">
+                                                <small class="text-muted">{{ $photo->created_at->format('M d, Y') }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                </div>
+                @endif
             </div>
         </div>
     </div>

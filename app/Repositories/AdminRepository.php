@@ -23,6 +23,19 @@ class AdminRepository
         return $query->paginate($perPage);
     }
 
+    public function getAllAdminsWithoutPagination(int $siteSettingId)
+    {
+        return User::where('is_admin', '1')
+                ->with('roles')
+                ->whereHas('roles', function ($query) {
+                    $query->where('name', 'admin');
+                })
+                ->whereHas('gyms', function ($query)use ($siteSettingId) {
+                    $query->where('site_setting_id', $siteSettingId);
+                })
+                ->get();
+    }
+
     public function createAdmin(array $data)
     {
         return User::create($data);

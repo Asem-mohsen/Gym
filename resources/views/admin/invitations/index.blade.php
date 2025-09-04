@@ -9,76 +9,65 @@
 
 @section('content')
 
-<div class="card shadow mb-4">
-    <div class="card-body">
-        <!-- Filters -->
-        <form method="GET" action="{{ route('invitations.index') }}" class="mb-4">
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="search">Search</label>
-                        <input type="text" class="form-control" id="search" name="search" 
-                               value="{{ request('search') }}" placeholder="Search by email, phone, name...">
+<div class="col-md-12 mb-md-5 mb-xl-10">
+    <div class="card">
+        <div class="card-header border-0 pt-6">
+
+            <div class="card-title">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center position-relative my-1">
+                        <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-5">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                        </i>
+                        <input type="text" data-kt-table-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Search" />
                     </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <label for="status">Status</label>
-                        <select class="form-control" id="status" name="status">
+                    
+                    <!-- Branch Filter -->
+                    <form method="GET" action="{{ request()->url() }}" class="d-flex align-items-center gap-2" id="filter-form">
+                        
+                        <!-- Membership Filter -->
+                        <select name="membership_id" class="form-control form-control-solid w-300px" onchange="this.form.submit()">
+                            <option value="">All Memberships</option>
+                            @foreach($memberships as $membership)
+                                <option value="{{ $membership->id }}" {{ request('membership_id') == $membership->id ? 'selected' : '' }}>
+                                    {{ is_string($membership->name) ? $membership->name : $membership->getTranslation('name', app()->getLocale()) }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <!-- Status Filter -->
+                        <select class="form-control form-control-solid w-200px" name="status" onchange="this.form.submit()">
                             <option value="">All Status</option>
                             <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
                             <option value="used" {{ request('status') == 'used' ? 'selected' : '' }}>Used</option>
                             <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>Expired</option>
                         </select>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <label for="branch_id">Branch</label>
-                        <select class="form-control" id="branch_id" name="branch_id">
+
+                        <!-- Branch Filter -->
+                        <select name="branch_id" class="form-control form-control-solid w-200px" onchange="this.form.submit()">
                             <option value="">All Branches</option>
                             @foreach($branches as $branch)
                                 <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>
-                                    {{ $branch->getTranslation('name', 'en') }}
+                                    {{ $branch->name }}
                                 </option>
                             @endforeach
                         </select>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <label for="membership_id">Membership</label>
-                        <select class="form-control" id="membership_id" name="membership_id">
-                            <option value="">All Memberships</option>
-                            @foreach($memberships as $membership)
-                                <option value="{{ $membership->id }}" {{ request('membership_id') == $membership->id ? 'selected' : '' }}>
-                                    {{ $membership->getTranslation('name', 'en') }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label>&nbsp;</label>
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-search"></i> Filter
-                            </button>
-                            <a href="{{ route('invitations.index') }}" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Clear
-                            </a>
-                        </div>
-                    </div>
+
+                        <!-- Clear Filters Button -->
+                        <a href="{{ route('invitations.index') }}" class="btn btn-light-danger btn-sm">
+                            Clear
+                        </a>
+                    </form>
                 </div>
             </div>
-        </form>
+        </div>
 
         <!-- Invitations Table -->
-        <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+        <div class="card-body pt-0">
+            <table class="table table-striped table-row-dashed align-middle table-row-dashed fs-6 gy-5" id="kt_table">
                 <thead>
-                    <tr>
+                    <tr class="text-start text-gray-500 fw-bold fs-7 text-uppercase gs-0 table-head">
                         <th>ID</th>
                         <th>Inviter</th>
                         <th>Membership</th>
@@ -91,8 +80,8 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @forelse($invitations as $invitation)
+                <tbody class="fw-semibold text-gray-600">
+                    @foreach($invitations as $invitation)
                         <tr>
                             <td>{{ $invitation->id }}</td>
                             <td>{{ $invitation->inviter->name }}</td>
@@ -120,11 +109,7 @@
                                 @endcan
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="12" class="text-center">No invitations found.</td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>

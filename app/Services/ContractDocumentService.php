@@ -2,10 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Document;
-use App\Models\SiteSetting;
+use App\Models\{Document, SiteSetting};
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class ContractDocumentService
 {
@@ -17,14 +15,12 @@ class ContractDocumentService
             return;
         }
 
-        $document = Document::updateOrCreate(
-            [
-                'document_type' => 'contract',
-                'created_by_id' => Auth::user()?->id ?? 1,
-            ],
-            [
+        $document = Document::create(
+[
                 'title' => $siteSetting->gym_name . ' - Contract Document',
                 'description' => 'Contract document for ' . $siteSetting->gym_name,
+                'document_type' => 'contract',
+                'created_by_id' => Auth::user()?->id ?? 1,
                 'is_active' => true,
                 'published_at' => now(),
             ]

@@ -20,21 +20,23 @@ class AdminSetupPasswordController extends Controller
     {
         $token = $request->query('token');
         $email = $request->query('email');
+        
+        $this->gymContextService->setGymContextFromUrl($request->path());
+        
+        $gymContext = $this->gymContextService->getCurrentGymContext();
 
         if (!$token || !$email) {
-            $gymContext = $this->gymContextService->getCurrentGymContext();
             return redirect()->route('auth.login.index', ['siteSetting' => $gymContext['slug']])->withErrors(['email' => 'Invalid setup link.']);
         }
 
-        // Verify the token
         if (!$this->adminOnboardingService->verifyOnboardingToken($token, $email)) {
-            $gymContext = $this->gymContextService->getCurrentGymContext();
             return redirect()->route('auth.login.index', ['siteSetting' => $gymContext['slug']])->withErrors(['email' => 'Invalid or expired setup link.']);
         }
 
         return view('auth.admin-setup-password', [
             'token' => $token,
             'email' => $email,
+            'gymContext' => $gymContext,
         ]);
     }
 

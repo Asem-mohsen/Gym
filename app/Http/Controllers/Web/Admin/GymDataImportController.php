@@ -4,28 +4,21 @@ namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\GymDataImportService;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\{Request, JsonResponse};
+use Illuminate\Support\Facades\{Auth, Log};
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\GymDataExport;
+use App\Exports\TemplateExport;
+use App\Http\Requests\Import\ImportGymDataRequest;
+use App\Models\User;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class GymDataImportController extends Controller
 {
-    protected $importService;
-
-    public function __construct()
-    {
-        // Middleware is applied in routes file
-    }
-
     /**
      * Show the import form
      */
     public function index()
     {
-        $siteSettingId = session('site_setting_id');
         $template = GymDataImportService::getImportTemplate();
         
         return view('admin.import.index', compact('template'));
@@ -34,18 +27,22 @@ class GymDataImportController extends Controller
     /**
      * Handle the import process
      */
-    public function import(Request $request): JsonResponse
+    public function import(ImportGymDataRequest $request): JsonResponse
     {
         try {
-            $request->validate([
-                'import_file' => 'required|file|max:10240', // 10MB max
-            ]);
+            $data = $request->validated();
 
-            $file = $request->file('import_file');
-            $siteSettingId = session('site_setting_id');
+            /**
+             * @var User $user
+             */
+            $user = Auth::user();
+            
+            $siteSetting = $user->getCurrentSite();
 
-            // Validate file
-            $validationErrors = GymDataImportService::validateImportFile($file);
+            $siteSettingId = $siteSetting->id;
+
+            $validationErrors = GymDataImportService::validateImportFile($data['import_file']);
+
             if (!empty($validationErrors)) {
                 return response()->json([
                     'success' => false,
@@ -56,20 +53,34 @@ class GymDataImportController extends Controller
 
             // Perform import
             $importService = new GymDataImportService($siteSettingId);
-            $results = $importService->importGymData($file);
 
-            // Log the import
-            Log::info('Gym data import completed', [
-                'user_id' => Auth::id(),
-                'site_setting_id' => $siteSettingId,
-                'file_name' => $file->getClientOriginalName(),
-                'summary' => $results['summary']
-            ]);
+            $results = $importService->importGymData($data['import_file']);
 
+            $hasErrors = $results['summary']['total_errors'] > 0;
+            
+            $validationErrors = [];
+            
+            foreach (['users', 'branches', 'memberships', 'classes', 'services'] as $type) {
+                if (isset($results[$type]['errors']) && !empty($results[$type]['errors'])) {
+                    Log::info("Errors for $type:", $results[$type]['errors']);
+                    foreach ($results[$type]['errors'] as $error) {
+                        $validationErrors[] = ucfirst($type) . ': ' . $error;
+                    }
+                }
+            }
+            
+            if (isset($results['errors']) && !empty($results['errors'])) {
+                Log::info("General errors:", $results['errors']);
+                foreach ($results['errors'] as $error) {
+                    $validationErrors[] = $error['sheet'] . ': ' . $error['error'];
+                }
+            }
+            
             return response()->json([
-                'success' => true,
-                'message' => 'Import completed successfully',
-                'data' => $results
+                'success' => !$hasErrors,
+                'message' => $hasErrors ? 'Import completed with errors' : 'Import completed successfully',
+                'data' => $results,
+                'errors' => $validationErrors
             ]);
 
         } catch (\Exception $e) {
@@ -88,51 +99,45 @@ class GymDataImportController extends Controller
     /**
      * Download import template
      */
-    public function downloadTemplate(): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    public function downloadTemplate(): BinaryFileResponse
     {
-        try {
-            $siteSettingId = session('site_setting_id');
-            $siteSetting = \App\Models\SiteSetting::find($siteSettingId);
+        $templateData = [
+            'Users' => [
+                ['name', 'email', 'phone', 'address', 'gender', 'role', 'status', 'password'],
+                ['John Doe', 'john.doe@example.com', '1234567890', '123 Main Street', 'male', 'regular_user', '1', ''],
+                ['Jane Smith', 'jane.smith@example.com', '0987654321', '456 Oak Avenue', 'female', 'trainer', '1', ''],
+                ['Mike Johnson', 'mike.johnson@example.com', '5551234567', '789 Pine Road', 'male', 'admin', '1', ''],
+            ],
+            'Branches' => [
+                ['name', 'name_en', 'name_ar', 'location', 'location_en', 'location_ar', 'type', 'size', 'manager_email'],
+                ['Main Branch', 'Main Branch', 'الفرع الرئيسي', 'Downtown Area', 'Downtown Area', 'منطقة وسط المدينة', 'mix', '1000', 'john.doe@example.com'],
+                ['Women Branch', 'Women Branch', 'فرع السيدات', 'Shopping District', 'Shopping District', 'منطقة التسوق', 'women', '800', 'jane.smith@example.com'],
+            ],
+            'Memberships' => [
+                ['name', 'name_en', 'name_ar', 'period', 'description', 'subtitle', 'price', 'billing_interval', 'status', 'order'],
+                ['Basic Plan', 'Basic Plan', 'الخطة الأساسية', '1 month', 'Basic gym membership with access to all facilities', 'Perfect for beginners', '50.00', 'monthly', '1', '1'],
+                ['Premium Plan', 'Premium Plan', 'الخطة المميزة', '3 months', 'Premium membership with personal training sessions', 'Best value for money', '150.00', 'monthly', '1', '2'],
+                ['Annual Plan', 'Annual Plan', 'الخطة السنوية', '12 months', 'Annual membership with maximum benefits', 'Long-term commitment', '500.00', 'yearly', '1', '3'],
+            ],
+            'Classes' => [
+                ['name', 'name_en', 'type', 'description', 'status', 'trainer_emails'],
+                ['Yoga Class', 'Yoga Class', 'fitness', 'Relaxing yoga session for all levels', 'active', 'jane.smith@example.com'],
+                ['Cardio Training', 'Cardio Training', 'fitness', 'High-intensity cardio workout', 'active', 'john.doe@example.com'],
+                ['Strength Training', 'Strength Training', 'fitness', 'Weight training and muscle building', 'active', 'mike.johnson@example.com'],
+            ],
+            'Services' => [
+                ['name', 'name_en', 'name_ar', 'description', 'duration', 'price', 'requires_payment', 'booking_type', 'is_available'],
+                ['Personal Training', 'Personal Training', 'تدريب شخصي', 'One-on-one personal training session', '60', '100.00', '1', 'paid_booking', '1'],
+                ['Nutrition Consultation', 'Nutrition Consultation', 'استشارة تغذية', 'Professional nutrition advice and meal planning', '45', '75.00', '1', 'paid_booking', '1'],
+                ['Fitness Assessment', 'Fitness Assessment', 'تقييم اللياقة', 'Comprehensive fitness evaluation and goal setting', '30', '50.00', '1', 'paid_booking', '1'],
+            ]
+        ];
 
-            if (!$siteSetting) {
-                abort(404, 'Site setting not found');
-            }
-
-            // Create a simple template export instead of using GymDataExport
-            $templateData = [
-                'Users' => [
-                    ['name', 'email', 'phone', 'address', 'gender', 'role', 'status', 'password'],
-                    ['John Doe', 'john@example.com', '1234567890', '123 Main St', 'male', 'regular_user', '1', ''],
-                    ['Jane Smith', 'jane@example.com', '0987654321', '456 Oak Ave', 'female', 'trainer', '1', ''],
-                ],
-                'Branches' => [
-                    ['name', 'name_en', 'name_ar', 'location', 'location_en', 'location_ar', 'type', 'size', 'manager_email'],
-                    ['Main Branch', 'Main Branch', 'الفرع الرئيسي', 'Downtown', 'Downtown', 'وسط المدينة', 'mix', '1000', 'manager@example.com'],
-                ],
-                'Memberships' => [
-                    ['name', 'name_en', 'name_ar', 'period', 'description', 'price', 'billing_interval', 'status', 'order'],
-                    ['Basic Plan', 'Basic Plan', 'الخطة الأساسية', '1 month', 'Basic membership', '50.00', 'monthly', '1', '1'],
-                ],
-                'Classes' => [
-                    ['name', 'name_en', 'type', 'description', 'status', 'trainer_emails'],
-                    ['Yoga Class', 'Yoga Class', 'fitness', 'Relaxing yoga session', 'active', 'trainer@example.com'],
-                ],
-                'Services' => [
-                    ['name', 'name_en', 'name_ar', 'description', 'duration', 'price', 'requires_payment', 'booking_type', 'is_available'],
-                    ['Personal Training', 'Personal Training', 'تدريب شخصي', 'One-on-one training', '60', '100.00', 'true', 'paid_booking', 'true'],
-                ]
-            ];
-
-            $export = new \App\Exports\TemplateExport($templateData);
-            
-            $fileName = 'gym_import_template_' . date('Y-m-d_H-i-s') . '.xlsx';
-            
-            return Excel::download($export, $fileName);
-
-        } catch (\Exception $e) {
-            Log::error('Template download failed: ' . $e->getMessage());
-            abort(500, 'Failed to generate template');
-        }
+        $export = new TemplateExport($templateData);
+        
+        $fileName = 'gym_import_template_' . date('Y-m-d_H-i-s') . '.xlsx';
+        
+        return Excel::download($export, $fileName);
     }
 
     /**
@@ -140,8 +145,6 @@ class GymDataImportController extends Controller
      */
     public function getImportStatus(Request $request): JsonResponse
     {
-        // This could be used for async import status checking
-        // For now, we'll return a simple response
         return response()->json([
             'success' => true,
             'message' => 'Import status endpoint'
@@ -153,8 +156,6 @@ class GymDataImportController extends Controller
      */
     public function history()
     {
-        // This could show previous import results
-        // For now, we'll return a simple view
         return view('admin.import.history');
     }
 }

@@ -52,7 +52,7 @@ class TrainerController extends Controller
 
     public function create()
     {
-        $roles = $this->roleAssignmentService->getUserRoles();
+        $roles = $this->roleAssignmentService->getRoles(['trainer']);
 
         $trainerRoles = collect($roles)->filter(function($role) {
             return in_array($role['name'], ['trainer']);
@@ -67,7 +67,7 @@ class TrainerController extends Controller
             return redirect()->back()->with('error', 'Selected user is not a trainer.');
         }
 
-        $roles = $this->roleAssignmentService->getUserRoles();
+        $roles = $this->roleAssignmentService->getRoles(['trainer']);
 
         $trainerRoles = collect($roles)->filter(function($role) {
             return in_array($role['name'], ['trainer']);
@@ -82,6 +82,10 @@ class TrainerController extends Controller
             return redirect()->back()->with('error', 'Selected user is not a trainer.');
         }
 
+        $trainer->load(['photos' => function($query) {
+            $query->orderBy('sort_order')->orderBy('created_at', 'desc');
+        }]);
+
         return view('admin.trainers.show', compact('trainer'));
     }
 
@@ -89,7 +93,7 @@ class TrainerController extends Controller
     {
         try {
             $data = $request->validated();
-            
+
             if ($request->hasFile('image')) {
                 $data['image'] = $request->file('image');
             }
@@ -133,7 +137,7 @@ class TrainerController extends Controller
             $site = $trainer->getCurrentSite();
             
             $this->userService->deleteUser($trainer, $site);
-            return redirect()->back()->with('success', 'Trainer deleted successfully.');
+            return redirect()->route('trainers.index')->with('success', 'Trainer deleted successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while deleting trainer, please try again in a few minutes.');
         }

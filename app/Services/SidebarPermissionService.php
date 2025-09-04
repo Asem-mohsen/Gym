@@ -207,7 +207,7 @@ class SidebarPermissionService
                 'icon' => 'fa-solid fa-chart-simple',
                 'permission' => ['view_site_settings', 'view_branches', 'manage_site_settings', 'import_gym_data'],
                 'active' => function() {
-                    return request()->routeIs('site-settings.edit') || request()->routeIs('branches.*') || request()->routeIs('admin.deactivation.*') || request()->routeIs('admin.checkin-settings.*') || request()->routeIs('admin.import.*');
+                    return request()->routeIs('site-settings.edit') || request()->routeIs('branches.*') || request()->routeIs('admin.deactivation.*') || request()->routeIs('admin.checkin-settings.*') || request()->routeIs('admin.import.*') || request()->routeIs('gym-branding.show') || request()->routeIs('admin.notifications.*');
                 },
                 'subItems' => [
                     [
@@ -216,6 +216,14 @@ class SidebarPermissionService
                         'permission' => 'view_site_settings',
                         'active' => function() {
                             return request()->routeIs('site-settings.edit');
+                        }
+                    ],
+                    [
+                        'title' => 'Site Branding',
+                        'route' => ['gym-branding.show', 'siteSettingId'],
+                        'permission' => 'view_branding',
+                        'active' => function() {
+                            return request()->routeIs('gym-branding.*');
                         }
                     ],
                     [
@@ -240,6 +248,14 @@ class SidebarPermissionService
                         'permission' => 'import_gym_data',
                         'active' => function() {
                             return request()->routeIs('admin.import.*');
+                        }
+                    ],
+                    [
+                        'title' => 'Notifications',
+                        'route' => 'admin.notifications.index',
+                        'permission' => 'view_notifications',
+                        'active' => function() {
+                            return request()->routeIs('admin.notifications.*');
                         }
                     ],
                     [

@@ -212,7 +212,7 @@
                                                 <td>{{ $invitation->created_at->format('M j, Y') }}</td>
                                                 <td>{{ $invitation->expires_at->format('M j, Y') }}</td>
                                                 <td>
-                                                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="resendInvitation({{ $invitation->id }})">
+                                                    <button type="button" class="btn btn-sm btn-outline-warning" data-url="{{ route('user.invitations.resend', ['siteSetting' => $siteSetting, 'invitation' => $invitation]) }}" onclick="resendInvitation(this)">
                                                         <i class="fa fa-refresh"></i> Resend
                                                     </button>
                                                 </td>

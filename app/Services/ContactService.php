@@ -3,21 +3,32 @@
 namespace App\Services;
 
 use App\Repositories\ContactRepository;
-use App\Models\Contact;
+use App\Models\{Contact, SiteSetting};
+use App\Services\NotificationService;
 
 class ContactService
 {
     protected $contactRepository;
+    protected $notificationService;
 
-    public function __construct(ContactRepository $contactRepository)
+    public function __construct(ContactRepository $contactRepository, NotificationService $notificationService)
     {
         $this->contactRepository = $contactRepository;
+        $this->notificationService = $notificationService;
     }
 
     public function storeContact(array $data, int $siteSettingId): Contact
     {
         $data['site_setting_id'] = $siteSettingId;
-        return $this->contactRepository->create($data);
+        $contact = $this->contactRepository->create($data);
+        
+        // Send notification to sales users
+        $siteSetting = SiteSetting::find($siteSettingId);
+        if ($siteSetting) {
+            $this->notificationService->sendContactUsNotification($contact, $siteSetting);
+        }
+        
+        return $contact;
     }
 
     /**

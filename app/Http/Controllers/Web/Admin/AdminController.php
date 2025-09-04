@@ -44,7 +44,7 @@ class AdminController extends Controller
     public function create()
     {
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $roles = $this->roleAssignmentService->getAdminRoles();
+        $roles = $this->roleAssignmentService->getRoles(['admin']);
         return view('admin.admins.create', compact('roles'));
     }
 
@@ -62,14 +62,17 @@ class AdminController extends Controller
     public function edit(User $admin)
     {
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $roles = $this->roleAssignmentService->getAdminRoles();
+        $roles = $this->roleAssignmentService->getRoles(['admin']);
         return view('admin.admins.edit', compact('admin', 'roles'));
     }
 
     public function show(User $admin)
     {
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $roles = $this->roleAssignmentService->getAdminRoles();
+        $roles = $this->roleAssignmentService->getRoles(['admin']);
+        $admin->load(['photos' => function($query) {
+            $query->orderBy('sort_order')->orderBy('created_at', 'desc');
+        }]);
         return view('admin.admins.show', compact('admin', 'roles'));
     }
 
@@ -87,11 +90,66 @@ class AdminController extends Controller
     public function destroy(User $admin)
     {
         try {
+            if ($this->adminService->isAdminBranchManager($admin)) {
+                $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+                $availableAdmins = $this->adminService->getAvailableAdminsForReassignment($siteSettingId, $admin->id);
+                
+                $availableAdminsWithImage = $availableAdmins->map(function($admin) {
+                    $userImage = $admin->user_image;
+                    return [
+                        'id' => $admin->id,
+                        'name' => $admin->name,
+                        'email' => $admin->email,
+                        'user_image' => $userImage
+                    ];
+                });
+                
+                return response()->json([
+                    'success' => false,
+                    'is_manager' => true,
+                    'message' => 'This admin is a branch manager. Please select a new manager before deleting.',
+                    'available_admins' => $availableAdminsWithImage
+                ]);
+            }
+            
             $this->adminService->deleteAdmin($admin);
-            return redirect()->back()->with('success', 'Admin deleted successfully.');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Admin deleted successfully.'
+            ]);
         } catch (Exception $e) {
             Log::error($e->getMessage());
-            return redirect()->back()->with('error', 'Error happened while deleting admin, please try again in a few minutes.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Error happened while deleting admin, please try again in a few minutes.'
+            ]);
+        }
+    }
+
+    public function reassignManagerAndDelete(Request $request, User $admin)
+    {
+        try {
+            $request->validate([
+                'new_manager_id' => 'required|exists:users,id'
+            ]);
+
+            $newManager = User::findOrFail($request->new_manager_id);
+            
+            $this->adminService->reassignBranchManager($admin, $newManager);
+            
+            $this->adminService->deleteAdmin($admin);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Admin deleted successfully and branches reassigned to new manager.'
+            ]);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error happened while deleting admin, please try again in a few minutes.'
+            ]);
         }
     }
 
@@ -99,13 +157,11 @@ class AdminController extends Controller
     {
         try {
             $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-            $success = $this->adminService->sendOnboardingEmail($admin, $siteSettingId);
             
-            if ($success) {
-                return redirect()->back()->with('success', 'Onboarding email has been resent successfully.');
-            } else {
-                return redirect()->back()->with('error', 'Failed to resend onboarding email. Please try again.');
-            }
+            $this->adminService->sendOnboardingEmail($admin, $siteSettingId);
+            
+            return redirect()->back()->with('success', 'Onboarding email has been resent successfully.');
+
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while resending onboarding email, please try again in a few minutes.');
         }

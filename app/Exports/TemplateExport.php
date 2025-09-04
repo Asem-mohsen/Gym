@@ -22,30 +22,36 @@ class TemplateExport implements WithMultipleSheets
         $sheets = [];
         
         foreach ($this->templateData as $sheetName => $data) {
-            $sheets[$sheetName] = new TemplateSheet($data);
+            $sheets[$sheetName] = new TemplateSheet($data, $sheetName);
         }
         
         return $sheets;
     }
 }
 
-class TemplateSheet implements FromArray, WithHeadings, ShouldAutoSize
+class TemplateSheet implements FromArray, WithHeadings, ShouldAutoSize, WithTitle
 {
     protected $data;
+    protected $sheetName;
 
-    public function __construct(array $data)
+    public function __construct(array $data, string $sheetName = '')
     {
         $this->data = $data;
+        $this->sheetName = $sheetName;
     }
 
     public function array(): array
     {
-        // Remove the first row (headings) from data since we'll use WithHeadings
         return array_slice($this->data, 1);
     }
 
     public function headings(): array
     {
         return $this->data[0] ?? [];
+    }
+
+    public function title(): string
+    {
+        return $this->sheetName;
     }
 }

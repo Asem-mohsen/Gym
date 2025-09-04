@@ -12,7 +12,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('auth.forget-password.reset', ['siteSetting' => $gymContext['slug'] ?? '']) }}">
+        <form method="POST" action="{{ route('auth.forget-password.reset', ['siteSetting' => $gymContext['slug']]) }}">
             @csrf
             <input type="hidden" name="token" value="{{ $token }}">
 

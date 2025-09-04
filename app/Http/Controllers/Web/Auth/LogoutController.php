@@ -23,7 +23,12 @@ class LogoutController extends Controller
         $this->logoutService->logoutFromCurrentSession($request);
         
         $gymContext = $this->gymContextService->getCurrentGymContext();
-        return redirect()->route('auth.login.index', ['siteSetting' => $gymContext['slug']])->with('success', 'You\'ve been logged out from this session.');
+
+        if($gymContext) {
+            return redirect()->route('auth.login.index', ['siteSetting' => $gymContext['slug']])->with('success', 'You\'ve been logged out from this session.');
+        }
+
+        return redirect()->route('gym.selection')->with('success', 'You\'ve been logged out from this session.');
     }
 
     public function logoutFromAllSessions(Request $request)
@@ -31,7 +36,12 @@ class LogoutController extends Controller
         $this->logoutService->logoutFromAllSessions($request);
         
         $gymContext = $this->gymContextService->getCurrentGymContext();
-        return redirect()->route('auth.login.index', ['siteSetting' => $gymContext['slug']])->with('success', 'Logged out from all sessions.');
+
+        if($gymContext) {
+            return redirect()->route('auth.login.index', ['siteSetting' => $gymContext['slug']])->with('success', 'Logged out from all sessions.');
+        }
+
+        return redirect()->route('gym.selection')->with('success', 'Logged out from all sessions.');
     }
 
     public function logoutFromOtherSessions(Request $request)

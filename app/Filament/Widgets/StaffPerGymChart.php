@@ -43,8 +43,8 @@ class StaffPerGymChart extends ChartWidget
     protected function getData(): array
     {
         $query = SiteSetting::withCount(['users' => function (Builder $query) {
-            $query->whereHas('role', function ($roleQuery) {
-                $roleQuery->whereNotIn('name', ['user']);
+            $query->whereHas('roles', function ($roleQuery) {
+                $roleQuery->whereNotIn('name', ['regular_user']);
             });
             
             if ($this->dateFrom) {

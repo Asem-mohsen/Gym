@@ -14,8 +14,10 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Traits\HasRoles;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
-class User extends Authenticatable implements HasMedia
+class User extends Authenticatable implements HasMedia, FilamentUser
 {
     use HasFactory, Notifiable, HasApiTokens, InteractsWithMedia, SoftDeletes, HasRoles;
 
@@ -37,6 +39,8 @@ class User extends Authenticatable implements HasMedia
     protected $hidden = [
         'password',
     ];
+
+    protected $appends = ['has_set_password'];
 
     protected function casts(): array
     {
@@ -110,6 +114,11 @@ class User extends Authenticatable implements HasMedia
     {
         return !is_null($this->password_set_at) && !is_null($this->password);
     }
+    
+    public function getHasSetPasswordAttribute(): bool
+    {
+        return $this->hasSetPassword();
+    }
 
     public function blogPostShares(): HasMany
     {
@@ -181,6 +190,11 @@ class User extends Authenticatable implements HasMedia
         return $this->belongsToMany(ClassModel::class, 'class_trainer', 'trainer_id', 'class_id');
     }
 
+    public function branches(): HasMany
+    {
+        return $this->hasMany(Branch::class, 'manager_id');
+    }
+
     public function getSiteSettingIdAttribute()
     {
         return $this->site?->id;
@@ -236,5 +250,23 @@ class User extends Authenticatable implements HasMedia
         }
         
         return asset('assets/admin/img/women-avatar.webp');
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->hasRole('master_admin');
+    }
+
+    public function photos(): HasMany
+    {
+        return $this->hasMany(UserPhoto::class);
+    }
+
+    /**
+     * Get public user photos
+     */
+    public function publicPhotos(): HasMany
+    {
+        return $this->hasMany(UserPhoto::class)->public()->orderBy('sort_order')->orderBy('created_at', 'desc');
     }
 }

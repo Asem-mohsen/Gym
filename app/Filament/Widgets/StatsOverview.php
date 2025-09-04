@@ -17,15 +17,15 @@ class StatsOverview extends BaseWidget
                 ->descriptionIcon('heroicon-m-building-office')
                 ->color('success'),
 
-            Stat::make('Total Users', User::whereHas('role', function ($query) {
-                    $query->where('name', 'user');
+            Stat::make('Total Users', User::whereHas('roles', function ($query) {
+                    $query->where('name', 'regular_user');
                 })->count())
                 ->description('Users with role "user"')
                 ->descriptionIcon('heroicon-m-users')
                 ->color('primary'),
 
-            Stat::make('Total Staff', User::whereHas('role', function ($query) {
-                    $query->whereNotIn('name', ['user']);
+            Stat::make('Total Staff', User::whereHas('roles', function ($query) {
+                    $query->whereNotIn('name', ['regular_user']);
                 })->count())
                 ->description('All staff members (admin, coach, staff, trainer)')
                 ->descriptionIcon('heroicon-m-user-group')

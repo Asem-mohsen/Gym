@@ -8,8 +8,7 @@ use App\Models\Branch;
 use App\Services\{AdminService, BranchService, SiteSettingService};
 use Exception;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\{Auth, Log};
 
 class BranchController extends Controller
 {
@@ -32,7 +31,7 @@ class BranchController extends Controller
     {
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
 
-        $users = $this->adminService->getAdmins($siteSettingId);
+        $users = $this->adminService->getAvailableAdminsForReassignment($siteSettingId, 0); // 0 means no exclusion
         return view('admin.branches.create',compact('users'));
     }
 
@@ -72,7 +71,7 @@ class BranchController extends Controller
     public function edit(Branch $branch)
     {
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $users = $this->adminService->getAdmins($siteSettingId);
+        $users = $this->adminService->getAvailableAdminsForReassignment($siteSettingId, 0); // 0 means no exclusion
         $branch = $this->branchService->showBranch($branch);
         $existingPhones = $branch->phones->pluck('phone_number')->toArray();
 

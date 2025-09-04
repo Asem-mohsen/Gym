@@ -29,6 +29,8 @@
                                 ['value' => 'zomba',    'label' => 'Zomba'],
                                 ['value' => 'yoga', 'label' => 'Yoga'],
                                 ['value' => 'pilate', 'label' => 'Pilate'],
+                                ['value' => 'fitness', 'label' => 'Fitness'],
+                                ['value' => 'general', 'label' => 'General'],
                             ];
                         @endphp
                         @include('_partials.select',[
@@ -73,7 +75,7 @@
                     </div>
                     <div class="mb-10 col-md-6">
                         <label for="description" class="required form-label">Description</label>
-                        <textarea name="description" id="description" class="form-control form-control-solid required" required>{{ $class->description }} </textarea>
+                        <textarea name="description" id="description" class="form-control form-control-solid required" required>{{ $class->description ?? old('description') }} </textarea>
                     </div>
                     <div class="mb-10 col-md-6">
                         <label for="image" class="required form-label">Upload Image</label>

@@ -26,9 +26,9 @@
                     <label for="manager_id" class="required form-label">Manager</label>
                     @php
                         $options = [];
-                        foreach($users as $id => $user){
+                        foreach($users as $user){
                             $options[] = [
-                                'value' => $id,
+                                'value' => $user->id,
                                 'label' => $user->name
                             ];
                         }
@@ -38,6 +38,7 @@
                         'name' => 'manager_id',
                         'id' => 'manager_id',
                     ])
+                    <small class="form-text text-muted">Managers are admins who can manage the branch. You can assign a new manager by creating a new admin first. </small>
                 </div>
                 <div class="mb-10 col-md-6">
                     <label for="type" class="required form-label">Type</label>

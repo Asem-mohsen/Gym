@@ -29,9 +29,13 @@ class ClassRepository
             ->values();
     }
 
-    public function getAll($with = [], $perPage = 15, $search = null, $type = null)
+    public function getAll(array $where = [], array $with = [], int $perPage = 15, ?string $search = null, ?string $type = null)
     {
         $query = ClassModel::with($with);
+        
+        if ($where) {
+            $query->where($where);
+        }
         
         if ($search) {
             $query->where('name', 'like', "%{$search}%");

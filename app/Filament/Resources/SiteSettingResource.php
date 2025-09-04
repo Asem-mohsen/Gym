@@ -55,8 +55,11 @@ class SiteSettingResource extends Resource
                     ->schema([
                         Select::make('owner_id')->label('Owner')
                             ->relationship('owner', 'name', function ($query) {
-                                $query->whereHas('role', function ($q) { 
-                                    $q->where('name', 'Admin');
+                                $query->whereHas('roles', function ($q) { 
+                                    $q->where('name', 'admin');
+                                })
+                                ->whereDoesntHave('site', function ($q) {
+                                    $q->where('id', '!=', request()->route('record')?->id ?? 0);
                                 });
                             })->preload()->required(),
                         TextInput::make('size')->label('Gym Employee Size'),

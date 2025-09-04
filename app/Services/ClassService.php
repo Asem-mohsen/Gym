@@ -147,6 +147,6 @@ class ClassService
 
     public function getClassesWithPagination(int $siteSettingId, $perPage = 15, $search = null, $type = null)
     {
-        return $this->classRepository->getAll(['trainers', 'schedules', 'pricings'], $perPage, $search, $type);
+        return $this->classRepository->getAll(where: ['site_setting_id' => $siteSettingId], with: ['trainers', 'schedules', 'pricings'], perPage: $perPage, search: $search, type: $type);
     }
 } 

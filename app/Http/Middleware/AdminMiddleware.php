@@ -25,7 +25,7 @@ class AdminMiddleware
 
         $user = Auth::guard('web')->user();
 
-        if ($user && !$user->hasRole('regular_user')) {
+        if ($user && $user->isAdmin()) {
             return $next($request);
         }
 

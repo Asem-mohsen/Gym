@@ -13,13 +13,18 @@ class FeatureService
         $this->featureRepository = $featureRepository;
     }
 
-    public function getFeatures(array $withCount = [])
+    public function getFeatures(int $siteSettingId,array $withCount = [])
     {
-        return $this->featureRepository->getAllFeatures(withCount: $withCount, orderBy: ['order' => 'asc']);
+        return $this->featureRepository->getAllFeatures(
+            siteSettingId: $siteSettingId,
+            withCount: $withCount, 
+            orderBy: ['order' => 'asc']
+        );
     }
 
-    public function createFeature(array $data)
+    public function createFeature(array $data, int $siteSettingId)
     {
+        $data['site_setting_id'] = $siteSettingId;
         return $this->featureRepository->createFeature($data);
     }
 
@@ -38,8 +43,8 @@ class FeatureService
         return $this->featureRepository->deleteFeature($feature);
     }
 
-    public function selectFeatures()
+    public function selectFeatures(int $siteSettingId)
     {
-        return $this->featureRepository->selectFeatures();
+        return $this->featureRepository->selectFeatures($siteSettingId);
     }
 } 

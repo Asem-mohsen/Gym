@@ -73,7 +73,7 @@
                                                 {{ $gym->branches->count() }} {{ Str::plural('branch', $gym->branches->count()) }}
                                             </div>
                                             @php
-                                                $averageScore = $gym->branches->avg('score');
+                                                $averageScore = $gym->branches->avg('score_value');
                                             @endphp
                                             @if($averageScore > 0)
                                                 <div class="feature-item">

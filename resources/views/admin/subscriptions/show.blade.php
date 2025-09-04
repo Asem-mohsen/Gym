@@ -114,7 +114,7 @@
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-4 fw-bold">Original Price:</div>
-                    <div class="col-md-8">{{ $subscription->membership->price }} {{ config('app.currency', 'USD') }}</div>
+                    <div class="col-md-8">{{ $subscription->membership->price }} {{ config('app.currency', 'EGP') }}</div>
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-4 fw-bold">Duration:</div>
@@ -178,7 +178,7 @@
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-4 fw-bold">Amount:</div>
-                            <div class="col-md-8">{{ $subscription->membership->payment->amount }} {{ config('app.currency', 'USD') }}</div>
+                            <div class="col-md-8">{{ $subscription->membership->payment->amount }} {{ config('app.currency', 'EGP') }}</div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-4 fw-bold">Payment Method:</div>

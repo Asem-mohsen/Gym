@@ -10,11 +10,19 @@
         @php
             $is_selected = '';
             if (old($name, null) != null) {
-                if (old($name) == $option['value']) {
+                if (is_array(old($name))) {
+                    if (in_array($option['value'], old($name))) {
+                        $is_selected = 'selected';
+                    }
+                } elseif (old($name) == $option['value']) {
                     $is_selected = 'selected';
                 }
-            } elseif (isset($selectedValue) && $option['value'] == $selectedValue) {
-                $is_selected = 'selected';
+            } elseif (isset($selectedValue)) {
+                if (is_array($selectedValue) && in_array($option['value'], $selectedValue)) {
+                    $is_selected = 'selected';
+                } elseif (!is_array($selectedValue) && $option['value'] == $selectedValue) {
+                    $is_selected = 'selected';
+                }
             }
         @endphp
         <option value="{{ $option['value'] }}" {{ $is_selected }}>{{ $option['label'] }}</option>

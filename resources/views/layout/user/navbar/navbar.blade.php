@@ -32,9 +32,9 @@
     </nav>
     <div id="mobile-menu-wrap"></div>
     <div class="canvas-social">
-        <a href="{{$siteSetting->facebook_url}}"><i class="fa fa-facebook"></i></a>
-        <a href="{{$siteSetting->x_url}}"><i class="fa fa-twitter"></i></a>
-        <a href="{{$siteSetting->instagram_url}}"><i class="fa fa-instagram"></i></a>
+        <a href="{{$siteSetting->facebook_url}}" target="_blank"><i class="fa fa-facebook"></i></a>
+        <a href="{{$siteSetting->x_url}}" target="_blank"><i class="fa fa-twitter"></i></a>
+        <a href="{{$siteSetting->instagram_url}}" target="_blank"><i class="fa fa-instagram"></i></a>
     </div>
 </div>
 <!-- Offcanvas Menu Section End -->
@@ -44,9 +44,9 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-3">
-                <div class="logo">
+                <div class="logo" style="justify-self: center;">
                     <a href="{{ route('user.home', ['siteSetting' => $siteSetting->slug]) }}">
-                        <img src="{{ asset('assets/user/img/logo.png') }}" alt="">
+                        <img src="{{ $siteSetting->getFirstMediaUrl('gym_logo') ?? asset('assets/user/img/logo.png') }}" alt="{{ $siteSetting->gym_name }}" style="height: 70px;border-radius: 50%;">
                     </a>
                 </div>
             </div>
@@ -112,8 +112,8 @@
                         </div>
                     @else
                         <div class="auth-buttons">
-                            <a href="{{ route('auth.login.index', ['siteSetting' => $siteSetting->slug]) }}" class="btn-outline-primary">
-                                <i class="fa fa-user"></i>
+                            <a href="{{ route('auth.login.index', ['siteSetting' => $siteSetting->slug]) }}">
+                                <i class="fa fa-user text-white"></i>
                             </a>
                         </div>
                     @endauth

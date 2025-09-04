@@ -5,6 +5,7 @@ use App\Repositories\AdminRepository;
 use App\Mail\AdminOnboardingMail;
 use Illuminate\Support\Facades\{Hash, Log, Mail, DB};
 use App\Services\Auth\PasswordGenerationService;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role as SpatieRole;
 use App\Models\User;
 
@@ -77,6 +78,36 @@ class AdminService
     }
 
     /**
+     * Check if admin is a branch manager
+     */
+    public function isAdminBranchManager(User $user): bool
+    {
+        return $user->branches()->exists();
+    }
+
+    /**
+     * Get all admins except the one being deleted
+     */
+    public function getAvailableAdminsForReassignment(int $siteSettingId, int $excludeUserId)
+    {
+        $admins = $this->adminRepository->getAllAdminsWithoutPagination($siteSettingId);
+        
+        if ($excludeUserId > 0) {
+            $admins = $admins->where('id', '!=', $excludeUserId);
+        }
+        
+        return $admins;
+    }
+
+    /**
+     * Reassign branch manager
+     */
+    public function reassignBranchManager(User $oldManager, User $newManager): void
+    {
+        $oldManager->branches()->update(['manager_id' => $newManager->id]);
+    }
+
+    /**
      * Check if admin has set their password
      */
     public function hasAdminSetPassword(User $user): bool
@@ -91,9 +122,21 @@ class AdminService
     public function sendOnboardingEmail($user, int $siteSettingId): void
     {
         try {
-            $gymName = $user->gyms()->where('site_setting_id', $siteSettingId)->first()->gym_name ?? 'Our Gym';
+            $gym = $user->gyms()->where('site_setting_id', $siteSettingId)->first();
+            $gymName = $gym->gym_name;
+            $gymSlug = $gym->slug;
             
-            Mail::to($user->email)->send(new AdminOnboardingMail($user, $gymName));
+            $token = Str::random(64);
+            DB::table('password_reset_tokens')->updateOrInsert(
+                ['email' => $user->email],
+                [
+                    'email' => $user->email,
+                    'token' => Hash::make($token),
+                    'created_at' => now(),
+                ]
+            );
+            
+            Mail::to($user->email)->send(new AdminOnboardingMail($user, $gymName, $gymSlug, $token));
         } catch (\Exception $e) {
             Log::error('Failed to send onboarding email to admin: ' . $user->email, [
                 'error' => $e->getMessage(),

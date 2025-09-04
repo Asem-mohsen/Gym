@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\{UserService , RoleService, SiteSettingService, BranchService, RoleAssignmentService};
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -27,16 +28,7 @@ class UserController extends Controller
         try {
             $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
             
-            $users = $this->userService->getUsers(
-                $siteSettingId,
-                $request->get('per_page', 15),
-                $request->get('search')
-            );
-            
-            // Add password status to each user
-            foreach ($users as $user) {
-                $user->has_set_password = $user->hasSetPassword();
-            }
+            $users = $this->userService->getUsers($siteSettingId);
             
             return view('admin.users.index', compact('users'));
         } catch (Exception $e) {
@@ -46,18 +38,24 @@ class UserController extends Controller
 
     public function create()
     {
-        $roles = $this->roleAssignmentService->getUserRoles();
+        $roles = $this->roleAssignmentService->getRoles(['regular_user']);
         return view('admin.users.create', compact('roles'));
     }
 
     public function edit(Request $request, User $user)
     {
-        $roles = $this->roleAssignmentService->getUserRoles();
-        return view('admin.users.edit', compact('user', 'roles'));
+        $user = $this->userService->showUser($user , ['roles']);
+        $selectedRoles = $user->roles->pluck('id')->toArray();
+        
+        $roles = $this->roleAssignmentService->getRoles(['regular_user','trainer','sales','management']);
+        return view('admin.users.edit', compact('user', 'roles', 'selectedRoles'));
     }
 
     public function show(Request $request , User $user)
     {
+        $user->load(['photos' => function($query) {
+            $query->orderBy('sort_order')->orderBy('created_at', 'desc');
+        }]);
         return view('admin.users.show',compact('user'));
     }
 
@@ -69,7 +67,7 @@ class UserController extends Controller
                 $data['image'] = $request->file('image');
             }
             $this->userService->createAdminUser($data, $this->siteSettingId);
-            return redirect()->back()->with('success', 'User created successfully. An onboarding email has been sent to set their password.');
+            return redirect()->route('users.index')->with('success', 'User created successfully. An onboarding email has been sent to set their password.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while creating new user, please try again in a few minutes.');
         }
@@ -95,7 +93,7 @@ class UserController extends Controller
         try {
             $siteSetting = $this->siteSettingService->getSiteSettingById($this->siteSettingId);
             $this->userService->deleteUser($user , $siteSetting);
-            return redirect()->back()->with('success', 'User deleted successfully.');
+            return redirect()->route('users.index')->with('success', 'User deleted successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while deleting user, please try again in a few minutes.');
         }
@@ -114,6 +112,7 @@ class UserController extends Controller
             return redirect()->back()->with('success', 'Onboarding email has been resent successfully.');
 
         } catch (Exception $e) {
+            Log::error('Error happened while resending onboarding email: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error happened while resending onboarding email, please try again in a few minutes.');
         }
     }

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\DocumentRepository;
 use App\Models\User;
+use App\Services\GymContextService;
 
 class SidebarServiceProvider extends ServiceProvider
 {
@@ -22,6 +23,9 @@ class SidebarServiceProvider extends ServiceProvider
     public function boot()
     {
         View::composer('layout.admin.sidebar.sidebar', function ($view) {
+            /**
+             * @var User $user
+            */
             $user = Auth::user();
             $site = null;
             
@@ -31,7 +35,7 @@ class SidebarServiceProvider extends ServiceProvider
                 
                 // If still no site, try to get from gym context
                 if (!$site) {
-                    $gymContextService = app(\App\Services\GymContextService::class);
+                    $gymContextService = app(GymContextService::class);
                     $gymContext = $gymContextService->getCurrentGymContext();
                     
                     if ($gymContext && isset($gymContext['id'])) {
@@ -62,7 +66,7 @@ class SidebarServiceProvider extends ServiceProvider
                 $site = $user->getCurrentSite();
                 
                 if (!$site) {
-                    $gymContextService = app(\App\Services\GymContextService::class);
+                    $gymContextService = app(GymContextService::class);
                     $gymContext = $gymContextService->getCurrentGymContext();
                     
                     if ($gymContext && isset($gymContext['id'])) {

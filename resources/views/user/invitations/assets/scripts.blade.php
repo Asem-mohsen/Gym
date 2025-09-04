@@ -105,17 +105,29 @@
     }
 
     // Function to resend invitation
-    function resendInvitation(invitationId) {
+    function resendInvitation(button) {
+        var action = button.dataset.url;
+        if (!action) {
+            console.error('No action URL found on button');
+            return;
+        }
+
+        // Create and submit a POST form (works without AJAX)
         var form = document.createElement('form');
         form.method = 'POST';
-        form.action = '{{ route("user.invitations.resend", ["siteSetting" => $siteSetting, "invitation" => $invitation]) }}' ;
-        
-        var csrfToken = document.createElement('input');
-        csrfToken.type = 'hidden';
-        csrfToken.name = '_token';
-        csrfToken.value = '{{ csrf_token() }}';
-        
-        form.appendChild(csrfToken);
+        form.action = action;
+
+        // CSRF token (works even if this JS is in an external file)
+        var token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+        var csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = token;
+        form.appendChild(csrfInput);
+
+        // Optionally disable the button to avoid double submit
+        button.disabled = true;
+
         document.body.appendChild(form);
         form.submit();
     }

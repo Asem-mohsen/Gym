@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Services\Auth\AuthService;
 use App\Services\GymContextService;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -25,12 +26,12 @@ class LoginController extends Controller
     {
         try {
             $credentials = $request->only(['email', 'password']);
-            $this->authService->webLoign($credentials);
+            $user = $this->authService->webLoign($credentials);
 
             $gymContext = $this->gymContextService->getCurrentGymContext();
             
             if ($request->ajax() || $request->expectsJson()) {
-                if ($gymContext) {
+                if ($gymContext && $user->hasRole('regular_user')) {
                     return response()->json([
                         'message' => 'Login successful!',
                         'redirect' => route('user.home', ['siteSetting' => $gymContext['slug']])
@@ -43,7 +44,7 @@ class LoginController extends Controller
                 ]);
             }
 
-            if ($gymContext) {
+            if ($gymContext && $user->hasRole('regular_user')) {
                 return redirect()->route('user.home', ['siteSetting' => $gymContext['slug']]);
             }
 

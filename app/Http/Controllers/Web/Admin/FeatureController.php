@@ -6,18 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Features\{AddFeatureRequest, UpdateFeatureRequest};
 use App\Models\Feature;
 use App\Services\FeatureService;
+use App\Services\SiteSettingService;
 use Exception;
 
 class FeatureController extends Controller
 {
-    public function __construct(protected FeatureService $featureService)
-    {
-        $this->featureService = $featureService;
+    protected $siteSettingId;
+
+    public function __construct(
+        protected FeatureService $featureService,
+        protected SiteSettingService $siteSettingService
+    ) {
+        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
     }
 
     public function index()
     {
-        $features = $this->featureService->getFeatures();
+        $features = $this->featureService->getFeatures(siteSettingId: $this->siteSettingId);
         return view('admin.features.index', get_defined_vars());
     }
 
@@ -30,7 +35,8 @@ class FeatureController extends Controller
     {
         try {
             $data = $request->validated();
-            $this->featureService->createFeature($data);
+            
+            $this->featureService->createFeature($data, $this->siteSettingId);
             return redirect()->route('features.index')->with('success', 'Feature created successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while adding a new feature, please try again in a few minutes.');

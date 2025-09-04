@@ -10,7 +10,7 @@
 @section('content')
 
  <div class="col-md-12 mb-md-5 mb-xl-10">
-    <form action="{{ route(name: 'users.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route( 'users.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="card">
             <div class="card-body row">
@@ -26,9 +26,9 @@
                     <label for="role_ids" class="required form-label">Role</label>
                     @php
                         $options = [];
-                        foreach($roles as $id => $role){
+                        foreach($roles as $role){
                             $options[] = [
-                                'value' => $id,
+                                'value' => $role['id'],
                                 'label' => $role['name']
                             ];
                         }

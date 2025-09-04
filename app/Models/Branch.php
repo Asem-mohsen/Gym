@@ -77,14 +77,14 @@ class Branch extends Model implements HasMedia
         return $this->hasOne(BranchScore::class);
     }
 
-    public function getScoreAttribute(): int
+    public function getScoreValueAttribute(): int
     {
         return $this->score()->first()?->score ?? 0;
     }
 
     public function getScoreLevelAttribute(): string
     {
-        $score = $this->score;
+        $score = $this->score_value;
         if ($score >= 90) return 'excellent';
         if ($score >= 80) return 'very_good';
         if ($score >= 70) return 'good';

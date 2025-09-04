@@ -33,9 +33,9 @@ class UserResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->where('is_admin', 1)
-        ->whereHas('roles', function ($query) {
-            $query->where('name', 'admin');
-        });
+            ->whereHas('roles', function ($query) {
+                $query->where('name', 'admin');
+            });
     }
 
     public static function form(Form $form): Form
@@ -72,6 +72,7 @@ class UserResource extends Resource
                     ->icon('heroicon-o-envelope')
                     ->color('warning')
                     ->requiresConfirmation()
+                    ->visible(fn (User $record) => !$record->hasSetPassword())
                     ->modalHeading('Resend Onboarding Email')
                     ->modalDescription('This will send a new password setup email to the admin.')
                     ->modalSubmitActionLabel('Send Email')

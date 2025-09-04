@@ -170,11 +170,20 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::firstOrCreate(['name' => $permission]);
         }
 
+        $this->createMasterAdminRole();
         $this->createAdminRole();
         $this->createTrainerRole();
         $this->createSalesRole();
         $this->createManagementRole();
         $this->createRegularUserRole();
+    }
+
+    private function createMasterAdminRole(): void
+    {
+        $role = Role::firstOrCreate(['name' => 'master_admin']);
+        
+        // Master admin gets all permissions
+        $role->givePermissionTo(Permission::all());
     }
 
     private function createAdminRole(): void
@@ -198,6 +207,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_services',
             'view_trainers',
             'edit_trainers',
+            'view_notifications',
         ]);
     }
 
@@ -226,6 +236,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'edit_blog_posts',
             'view_blog_posts',
             'view_trainers',
+            'view_notifications',
         ]);
     }
 
@@ -276,6 +287,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'delete_trainers',
             'view_resources',
             'download_resources', 
+            'view_notifications',
+            'create_notifications',
+            'edit_notifications',
+            'delete_notifications',
         ]);
     }
 
