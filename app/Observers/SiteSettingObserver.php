@@ -4,14 +4,18 @@ namespace App\Observers;
 
 use App\Models\Feature;
 use App\Models\SiteSetting;
+use App\Services\PermissionAssignmentService;
 use App\Traits\ClearsPermissionCache;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 class SiteSettingObserver
 {
     use ClearsPermissionCache;
+    
+    public function __construct(
+        protected PermissionAssignmentService $permissionAssignmentService
+    ) {}
+
     /**
      * Handle the SiteSetting "created" event.
      */
@@ -19,7 +23,7 @@ class SiteSettingObserver
     {
         $this->createDefaultGymPermissions($siteSetting);
         $this->createDefaultFeatures($siteSetting);
-        $this->createDefaultRolesAndPermissions($siteSetting);
+        $this->initializeSitePermissions($siteSetting);
     }
 
     /**
@@ -86,12 +90,6 @@ class SiteSettingObserver
                 'status' => true,
                 'order' => 7,
             ],
-            [
-                'name' => ['en' => 'Guest Passes', 'ar' => 'تذاكر الضيوف'],
-                'description' => ['en' => 'Monthly guest passes for friends and family', 'ar' => 'تذاكر ضيوف شهرية للأصدقاء والعائلة'],
-                'status' => true,
-                'order' => 8,
-            ],
         ];
 
         foreach ($defaultFeatures as $featureData) {
@@ -101,115 +99,11 @@ class SiteSettingObserver
     }
 
     /**
-     * Create default roles and permissions for a new site setting
+     * Initialize site permissions using the centralized service
      */
-    private function createDefaultRolesAndPermissions(SiteSetting $siteSetting): void
+    private function initializeSitePermissions(SiteSetting $siteSetting): void
     {
-        // Define default permissions for each role
-        $rolePermissions = [
-            'admin' => Permission::all()->pluck('name')->toArray(),
-            'trainer' => [
-                'create_blog_posts',
-                'edit_blog_posts',
-                'view_blog_posts',
-                'view_classes',
-                'view_users',
-                'view_services',
-                'view_trainers',
-                'edit_trainers',
-            ],
-            'sales' => [
-                'view_users',
-                'view_memberships',
-                'view_services',
-                'view_classes',
-                'view_offers',
-                'view_staff',
-                'view_subscriptions',
-                'create_subscriptions',
-                'edit_subscriptions',
-                'view_features',
-                'view_gallery',
-                'create_gallery',
-                'edit_gallery',
-                'view_coaching_sessions',
-                'view_lockers',
-                'create_blog_posts',
-                'edit_blog_posts',
-                'view_blog_posts',
-                'view_trainers',
-            ],
-            'management' => [
-                'view_users',
-                'create_users',
-                'edit_users',
-                'view_features',
-                'create_features',
-                'edit_features',
-                'view_memberships',
-                'create_memberships',
-                'edit_memberships',
-                'view_services',
-                'create_services',
-                'edit_services',
-                'view_classes',
-                'create_classes',
-                'edit_classes',
-                'view_offers',
-                'create_offers',
-                'edit_offers',
-                'view_branches',
-                'create_branches',
-                'edit_branches',
-                'view_site_settings',
-                'edit_site_settings',
-                'create_reviews_requests',
-                'edit_reviews_requests',
-                'view_reviews_requests',
-                'view_subscriptions',
-                'create_subscriptions',
-                'edit_subscriptions',
-                'view_trainers',
-                'edit_trainers',
-                'view_staff',
-                'edit_staff',
-                'delete_staff',
-                'view_invitations',
-                'delete_invitations',
-                'view_admins',
-                'edit_admins',
-                'delete_trainers',
-                'view_resources',
-                'download_resources',
-            ],
-            'regular_user' => [], // No permissions by default
-        ];
-
-        // Create role-permission associations for this site setting
-        foreach ($rolePermissions as $roleName => $permissionNames) {
-            $role = Role::where('name', $roleName)->first();
-            
-            if ($role) {
-                $permissions = Permission::whereIn('name', $permissionNames)->get();
-                
-                foreach ($permissions as $permission) {
-                    // Use insertOrIgnore to avoid duplicate key errors
-                    DB::table('role_has_permissions')->insertOrIgnore([
-                        'role_id' => $role->id,
-                        'permission_id' => $permission->id,
-                        'site_setting_id' => $siteSetting->id,
-                    ]);
-                }
-            }
-        }
-    }
-
-    /**
-     * Handle the SiteSetting "updated" event.
-     */
-    public function updated(SiteSetting $siteSetting): void
-    {
-        //
+        $this->permissionAssignmentService->initializeSitePermissions($siteSetting);
     }
 
     /**
@@ -229,13 +123,6 @@ class SiteSettingObserver
         $this->clearPermissionCache();
     }
 
-    /**
-     * Handle the SiteSetting "restored" event.
-     */
-    public function restored(SiteSetting $siteSetting): void
-    {
-        //
-    }
 
     /**
      * Handle the SiteSetting "force deleted" event.
@@ -249,7 +136,6 @@ class SiteSettingObserver
             ->where('site_setting_id', $siteSetting->id)
             ->delete();
 
-        // Clear cache after gym deletion
         $this->clearPermissionCache();
     }
 }

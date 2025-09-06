@@ -94,10 +94,6 @@ class GymPermissionController extends Controller
             return redirect()->back()->with('success', 'Role permissions updated successfully.');
         } catch (Exception $e) {
             Log::error('Error assigning role permissions', [
-                'role_id' => $role->id,
-                'role_name' => $role->name,
-                'permissions' => $request->permission_ids,
-                'site_setting_id' => $this->siteSettingId,
                 'error' => $e->getMessage()
             ]);
             return redirect()->back()->with('error', 'Error updating role permissions.');
@@ -168,19 +164,15 @@ class GymPermissionController extends Controller
             $userPermissions = $this->gymPermissionService->getUserPermissions($user, $this->siteSettingId);
             $permissionGroups = $this->gymPermissionService->getPermissionGroups();
             
-            // For display purposes, get all permissions the user can access
             $allUserPermissions = collect();
             
-            // Add direct user permissions
             $allUserPermissions = $allUserPermissions->merge($userPermissions);
             
-            // Add role-based permissions
             foreach ($user->roles as $role) {
                 $rolePermissions = $this->gymPermissionService->getRolePermissions($role, $this->siteSettingId);
                 $allUserPermissions = $allUserPermissions->merge($rolePermissions);
             }
             
-            // Remove duplicates
             $allUserPermissions = $allUserPermissions->unique('name');
             
             return view('admin.permissions.show-user-permissions', compact('user', 'userPermissions', 'allUserPermissions', 'permissionGroups'));

@@ -175,30 +175,15 @@ class UserRepository
     /**
      * Get users by role name
      */
-    public function getUsersByRole(string $roleName, int $siteSettingId, $perPage = 15, $search = null)
+    public function getUsersByRole(string $roleName, int $siteSettingId, $isCount = false)
     {
-        $role = Role::where('name', $roleName)->first();
-        
-        if (!$role) {
-            return collect()->paginate($perPage);
-        }
-
-        $query = User::where('is_admin', '0')
-            ->whereHas('gyms', function ($query) use ($siteSettingId) {
+        $query = User::whereHas('gyms', function ($query) use ($siteSettingId) {
                 $query->where('site_setting_id', $siteSettingId);
             })
-            ->whereHas('roles', function ($query) use ($role) {
-                $query->where('roles.id', $role->id);
+            ->whereHas('roles', function ($query) use ($roleName) {
+                $query->where('name', $roleName);
             });
 
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
-            });
-        }
-
-        return $query->with('roles')->paginate($perPage);
+        return $isCount ? $query->count() : $query->get();
     }
 }
