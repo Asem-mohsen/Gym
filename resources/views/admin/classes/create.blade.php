@@ -71,6 +71,24 @@
                         ])
                     </div>
                     <div class="mb-10 col-md-6">
+                        <label for="branches" class="required form-label">Branches</label>
+                        @php
+                            $branchOptions = [];
+                            foreach($branches as $branch){
+                                $branchOptions[] = [
+                                    'value' => $branch->id,
+                                    'label' => $branch->name
+                                ];
+                            }
+                        @endphp
+                        @include('_partials.select-multiple',[
+                            'options' => $branchOptions,
+                            'name' => 'branch_ids',
+                            'id' => 'branches',
+                            'values' => old('branch_ids'),
+                        ])
+                    </div>
+                    <div class="mb-10 col-md-6">
                         <label for="description" class="required form-label">Description</label>
                         <textarea name="description" id="description" class="form-control form-control-solid required" required>{{ old('name') }} </textarea>
                     </div>

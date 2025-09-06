@@ -21,7 +21,7 @@ class UpdateGymBrandingRequest extends FormRequest
     {
         return [
             // Form type
-            'form_type' => 'nullable|string|in:colors_typography,page_sections,media_settings',
+            'form_type' => 'nullable|string|in:colors_typography,page_sections,media_settings,page_texts',
             
             // Colors - only validate if not empty
             'primary_color' => 'nullable|string|max:7',
@@ -43,6 +43,11 @@ class UpdateGymBrandingRequest extends FormRequest
             'media_settings' => 'nullable|array',
             'media_settings.*' => 'nullable',
             'media_settings.*.*' => 'nullable|file|image|max:5120', // 5MB max
+            
+            // Page Texts
+            'page_type' => 'nullable|string|in:login,register,auth_common,home,about,services,contact,team,gallery,classes',
+            'texts' => 'nullable|array',
+            'texts.*' => 'nullable|string|max:1000',
         ];
     }
 
@@ -77,6 +82,8 @@ class UpdateGymBrandingRequest extends FormRequest
             'home_page_sections' => 'home page sections',
             'section_styles' => 'section styles',
             'media_settings' => 'media settings',
+            'page_type' => 'page type',
+            'texts' => 'texts',
         ];
     }
 

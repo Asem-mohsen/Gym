@@ -61,17 +61,15 @@
     </div>
 @endsection
 
-@section('scripts')
-<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+@section('js')
+@vite(['resources/js/app.js'])
 <script>
-    // Real-time updates
-    var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
-        cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
-    });
-    var channel = pusher.subscribe('lockers');
-    channel.bind('App\\Events\\LockerUpdatedEvent', function(data) {
-        location.reload();
-    });
+    // Real-time updates using Laravel Echo
+    window.Echo.channel('lockers')
+        .listen('LockerUpdatedEvent', (e) => {
+            console.log('Locker updated:', e);
+            location.reload();
+        });
 
     function lockLocker(lockerId) {
         let password = prompt("Enter password to lock:");

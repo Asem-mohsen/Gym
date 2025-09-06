@@ -52,7 +52,9 @@ class StaffController extends Controller
             return !in_array($role['name'], ['admin', 'regular_user', 'trainer']);
         })->toArray();
         
-        return view('admin.staff.create', compact('staffRoles'));
+        $branches = $this->branchService->getBranches($this->siteSettingId);
+        
+        return view('admin.staff.create', compact('staffRoles', 'branches'));
     }
 
     public function edit(Request $request, User $staff)
@@ -67,7 +69,9 @@ class StaffController extends Controller
             return !in_array($role['name'], ['admin', 'regular_user', 'trainer']);
         })->toArray();
         
-        return view('admin.staff.edit', compact('staff', 'staffRoles'));
+        $branches = $this->branchService->getBranches($this->siteSettingId);
+        
+        return view('admin.staff.edit', compact('staff', 'staffRoles', 'branches'));
     }
 
     public function show(Request $request, User $staff)

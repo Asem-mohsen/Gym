@@ -4,10 +4,10 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Models\Subscription;
 use App\Models\SiteSetting;
+use App\Services\RealTimeNotificationService;
 
 class MembershipExpirationNotification extends Notification implements ShouldQueue
 {
@@ -16,6 +16,7 @@ class MembershipExpirationNotification extends Notification implements ShouldQue
     protected $subscription;
     protected $siteSetting;
     protected $daysUntilExpiry;
+    protected $realTimeService;
 
     /**
      * Create a new notification instance.
@@ -25,6 +26,7 @@ class MembershipExpirationNotification extends Notification implements ShouldQue
         $this->subscription = $subscription;
         $this->siteSetting = $siteSetting;
         $this->daysUntilExpiry = $daysUntilExpiry;
+        $this->realTimeService = app(RealTimeNotificationService::class);
     }
 
     /**
@@ -34,44 +36,33 @@ class MembershipExpirationNotification extends Notification implements ShouldQue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['database', 'broadcast'];
     }
 
     /**
-     * Get the mail representation of the notification.
+     * Get the broadcastable representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toBroadcast(object $notifiable): array
     {
         $user = $this->subscription->user;
-        $membership = $this->subscription->membership;
-        $branch = $this->subscription->branch;
-
-        $subject = $this->daysUntilExpiry === 0 
+        $priority = $this->daysUntilExpiry === 0 ? 'urgent' : 'high';
+        $title = $this->daysUntilExpiry === 0 
             ? 'URGENT: Membership Expired Today - ' . $user->name
             : 'Membership Expiring Soon - ' . $user->name;
+        $message = $this->daysUntilExpiry === 0 
+            ? 'A membership has expired today and requires immediate attention.'
+            : 'A membership will expire soon and may need attention.';
 
-        $mailMessage = (new MailMessage)
-            ->subject($subject)
-            ->greeting('Hello ' . $notifiable->name . ',');
+        $notification = $this->realTimeService->createNotification(
+            'membership_expiration',
+            $title,
+            $message,
+            url('/admin/users/' . $user->id),
+            'View Member Details',
+            $priority
+        );
 
-        if ($this->daysUntilExpiry === 0) {
-            $mailMessage->line('**URGENT:** A membership has expired today and requires immediate attention.')
-                ->line('**Member:** ' . $user->name . ' (' . $user->email . ')')
-                ->line('**Membership:** ' . $membership->getTranslation('name', app()->getLocale()))
-                ->line('**Branch:** ' . $branch->getTranslation('name', app()->getLocale()))
-                ->line('**Expired Date:** ' . now()->format('M d, Y'));
-        } else {
-            $mailMessage->line('A membership will expire soon and may need attention.')
-                ->line('**Member:** ' . $user->name . ' (' . $user->email . ')')
-                ->line('**Membership:** ' . $membership->getTranslation('name', app()->getLocale()))
-                ->line('**Branch:** ' . $branch->getTranslation('name', app()->getLocale()))
-                ->line('**Expires In:** ' . $this->daysUntilExpiry . ' day(s)')
-                ->line('**Expiry Date:** ' . now()->addDays($this->daysUntilExpiry)->format('M d, Y'));
-        }
-
-        return $mailMessage
-            ->action('View Member Details', url('/admin/users/' . $user->id))
-            ->line('Please take appropriate action to ensure member retention.');
+        return $notification;
     }
 
     /**

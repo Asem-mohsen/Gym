@@ -103,18 +103,13 @@ class GymBrandingService
         if ($branding) {
             $mediaUrls = $this->getMediaUrls($branding);
             $brandingData['media_urls'] = $mediaUrls;
+            
+            $brandingData['page_texts'] = $branding->getPageTexts();
         } else {
             $brandingData['media_urls'] = [];
+            $brandingData['page_texts'] = GymSetting::getDefaultPageTexts();
         }
-        
-        // Log the data for debugging
-        Log::info('Gym Branding For Admin', [
-            'siteSettingId' => $siteSettingId,
-            'brandingExists' => $branding ? 'yes' : 'no',
-            'brandingData' => $brandingData,
-            'rawBranding' => $branding ? $branding->toArray() : null
-        ]);
-        
+
         return [
             'site_setting' => $siteSetting,
             'branding' => $brandingData,
@@ -240,5 +235,103 @@ class GymBrandingService
         }
         
         return $mediaUrls;
+    }
+
+    /**
+     * Update page texts for a specific page
+     */
+    public function updatePageTexts(int $siteSettingId, string $pageType, array $texts): GymSetting
+    {
+        return DB::transaction(function () use ($siteSettingId, $pageType, $texts) {
+            // Get current branding settings
+            $gymSetting = $this->gymBrandingRepository->getBrandingSettings($siteSettingId);
+            
+            if (!$gymSetting) {
+                // Create new gym setting if it doesn't exist
+                $gymSetting = $this->gymBrandingRepository->createOrUpdateBrandingSettings($siteSettingId, []);
+            }
+            
+            // Get current page texts
+            $currentPageTexts = $gymSetting->page_texts ?? [];
+            
+            // Update texts for the specific page
+            $currentPageTexts[$pageType] = array_merge($currentPageTexts[$pageType] ?? [], $texts);
+            
+            // Update the gym setting
+            $gymSetting->update(['page_texts' => $currentPageTexts]);
+            
+            // Clear cache
+            $this->clearBrandingCache($siteSettingId);
+            
+            return $gymSetting;
+        });
+    }
+
+    /**
+     * Get page texts for a specific page
+     */
+    public function getPageTexts(int $siteSettingId, ?string $pageType = null): array
+    {
+        $gymSetting = $this->gymBrandingRepository->getBrandingSettings($siteSettingId);
+        
+        if (!$gymSetting) {
+            $defaultTexts = GymSetting::getDefaultPageTexts();
+            return $pageType ? ($defaultTexts[$pageType] ?? []) : $defaultTexts;
+        }
+        
+        if ($pageType) {
+            return $gymSetting->getPageText($pageType);
+        }
+        
+        return $gymSetting->getPageTexts();
+    }
+
+    /**
+     * Reset page texts to defaults
+     */
+    public function resetPageTexts(int $siteSettingId, ?string $pageType = null): bool
+    {
+        return DB::transaction(function () use ($siteSettingId, $pageType) {
+            $gymSetting = $this->gymBrandingRepository->getBrandingSettings($siteSettingId);
+            
+            if (!$gymSetting) {
+                return false;
+            }
+            
+            $currentPageTexts = $gymSetting->page_texts ?? [];
+            
+            if ($pageType) {
+                // Reset specific page
+                unset($currentPageTexts[$pageType]);
+            } else {
+                // Reset all pages
+                $currentPageTexts = [];
+            }
+            
+            $gymSetting->update(['page_texts' => $currentPageTexts]);
+            
+            // Clear cache
+            $this->clearBrandingCache($siteSettingId);
+            
+            return true;
+        });
+    }
+
+    /**
+     * Preview page texts with custom values
+     */
+    public function previewPageTexts(string $pageType, array $customTexts): array
+    {
+        $defaultTexts = GymSetting::getDefaultPageTexts();
+        $pageDefaults = $defaultTexts[$pageType] ?? [];
+        
+        // Merge custom texts with defaults
+        $previewTexts = array_merge($pageDefaults, $customTexts);
+        
+        return [
+            'page_type' => $pageType,
+            'texts' => $previewTexts,
+            'defaults' => $pageDefaults
+        ];
     }
 }

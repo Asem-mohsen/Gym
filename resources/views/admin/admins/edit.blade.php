@@ -27,17 +27,13 @@
                     <input type="email" name="email" value="{{$admin->email}}" class="form-control form-control-solid required" required/>
                 </div>
                 <div class="mb-10 col-md-6">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" value="{{ old('password') }}" name="password" class="form-control form-control-solid"/>
-                </div>
-                <div class="mb-10 col-md-6">
-                    <label for="role_ids" class="required form-label">Roles</label>
+                    <label for="role_ids" class="required form-label">Role</label>
                     @php
                         $options = [];
-                        foreach($roles as $id => $role){
+                        foreach($roles as $role){
                             $options[] = [
-                                'value' => $id,
-                                'label' => $role->name
+                                'value' => $role['id'],
+                                'label' => $role['name']
                             ];
                         }
                         $selectedRoles = $admin->roles->pluck('id')->toArray();
@@ -45,9 +41,28 @@
                     @include('_partials.select-multiple',[
                         'options' => $options,
                         'name' => 'role_ids',
-                        'selectedValue' => old('role_ids', $selectedRoles),
+                        'values' => old('role_ids', $selectedRoles),
                     ])
                 </div>
+                <div class="mb-10 col-md-6">
+                    <label for="branch_ids" class="required form-label">Assigned Branches</label>
+                    @php
+                        $branchOptions = [];
+                        foreach($branches as $branch){
+                            $branchOptions[] = [
+                                'value' => $branch['id'],
+                                'label' => $branch['name']
+                            ];
+                        }
+                        $selectedBranches = old('branch_ids', $admin->assignedBranches->pluck('id')->toArray());
+                    @endphp
+                    @include('_partials.select-multiple',[
+                        'options' => $branchOptions,
+                        'name' => 'branch_ids',
+                        'id' => 'branch_ids',
+                        'values' => $selectedBranches,
+                    ])
+                </div>   
                 <div class="mb-10 col-md-6">
                     <label for="gender" class="required form-label">Gender</label>
                     @php
@@ -79,6 +94,10 @@
                     ])
                 </div>
                 <div class="mb-10 col-md-6">
+                    <label for="phone" class="required form-label">Phone</label>
+                    <input type="text" value="{{$admin->phone}}" name="phone" class="form-control form-control-solid required" required/>
+                </div>  
+                <div class="mb-10 col-md-6">
                     <label for="address" class="required form-label">Address</label>
                     <textarea name="address" class="form-control form-control-solid required" required >{{$admin->address}}</textarea>
                 </div>
@@ -90,10 +109,6 @@
                     <label for="city" class="required form-label">City</label>
                     <input type="text" value="{{ old('city') }}" name="city" class="form-control form-control-solid"/>
                 </div>
-                <div class="mb-10 col-md-6">
-                    <label for="phone" class="required form-label">Phone</label>
-                    <input type="text" value="{{$admin->phone}}" name="phone" class="form-control form-control-solid required" required/>
-                </div>     
                         
                 <div class="card-footer">
                     <button type="submit" class="btn btn-success">Save</button>

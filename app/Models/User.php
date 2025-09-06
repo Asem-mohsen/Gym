@@ -195,6 +195,11 @@ class User extends Authenticatable implements HasMedia, FilamentUser
         return $this->hasMany(Branch::class, 'manager_id');
     }
 
+    public function assignedBranches(): BelongsToMany
+    {
+        return $this->belongsToMany(Branch::class, 'user_branch', 'user_id', 'branch_id');
+    }
+
     public function getSiteSettingIdAttribute()
     {
         return $this->site?->id;
@@ -202,7 +207,7 @@ class User extends Authenticatable implements HasMedia, FilamentUser
 
     public function isAdmin(): bool
     {
-        return $this->is_admin === 1 || $this->hasRole('admin');
+        return $this->is_admin === 1 || $this->hasAnyRole(['admin', 'management','sales','trainer']);
     }
 
     /**

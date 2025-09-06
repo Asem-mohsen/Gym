@@ -47,10 +47,11 @@ class GymPermissionService
     }
 
     /**
-     * Get all available permissions from the seeder
+     * Get all available permissions from the centralized service
      */
     public function getAllPermissions(): array
     {
+        $permissionService = app(\App\Services\PermissionAssignmentService::class);
         $permissionGroups = $this->getPermissionGroups();
         $allPermissions = [];
         

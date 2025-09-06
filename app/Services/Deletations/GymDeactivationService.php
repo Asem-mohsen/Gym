@@ -101,12 +101,10 @@ class GymDeactivationService
             return;
         }
 
-        // Generate Excel file with all gym data
         $excelFile = $this->generateGymDataExcel($gym);
 
         // Send email with attachment
-        Mail::to($gymOwner->email)
-            ->send(new GymDeactivationDataExport($gym, $excelFile));
+        Mail::to($gymOwner->email)->send(new GymDeactivationDataExport($gym, $excelFile));
 
         // Clean up temporary file
         Storage::delete($excelFile);
@@ -282,7 +280,9 @@ class GymDeactivationService
     {
         return [
             'gym_info' => $gym->toArray(),
-            'users' => $gym->users()->with('role', 'trainerInformation')->get()->toArray(),
+            'users' => $gym->users()->whereHas('roles', function ($query) {
+                $query->where('name', 'regular_user');
+            })->get()->toArray(),
             'branches' => $gym->branches()->with('phones', 'manager')->get()->toArray(),
             'services' => $gym->services()->get()->toArray(),
             'classes' => $gym->classes()->with('trainers', 'schedules', 'pricings')->get()->toArray(),
@@ -305,7 +305,6 @@ class GymDeactivationService
                     $subQuery->where('site_setting_id', $gym->id);
                 });
             })->with('user')->get()->toArray(),
-            'roles' => $gym->roles()->get()->toArray(),
             'documents' => $gym->documents()->get()->toArray(),
             'score_data' => [
                 // 'criteria' => ScoreCriteria::where('site_setting_id', $gym->id)->get()->toArray(),
@@ -322,12 +321,6 @@ class GymDeactivationService
     public function sendDeactivationNotifications(SiteSetting $gym): void
     {
         try {
-            Log::info('Dispatching gym deactivation email job', [
-                'gym_id' => $gym->id,
-                'gym_name' => $gym->getTranslation('gym_name', 'en')
-            ]);
-
-            // Dispatch the job to send emails to all regular users
             SendGymDeactivationEmailsJob::dispatch($gym);
 
         } catch (\Exception $e) {

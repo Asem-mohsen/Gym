@@ -5,14 +5,16 @@ namespace App\Http\Controllers\Web\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
 use App\Services\UserService;
-use App\Services\GymContextService;
+use App\Services\{ GymContextService, GymBrandingService };
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class RegisterController extends Controller
 {
     public function __construct(
         private UserService $userService,
-        private GymContextService $gymContextService
+        private GymContextService $gymContextService,
+        private GymBrandingService $gymBrandingService
     ) {
         $this->userService = $userService;
         $this->gymContextService = $gymContextService;
@@ -22,7 +24,20 @@ class RegisterController extends Controller
     {
         $gymContext = $this->gymContextService->getCurrentGymContext();
         
-        return view('auth.register', compact('gymContext'));
+        // Get branding data for register page
+        $brandingData = null;
+        $gymCssVariables = null;
+        
+        if ($gymContext && isset($gymContext['id'])) {
+            try {
+                $brandingData = $this->gymBrandingService->getBrandingForAdmin($gymContext['id']);
+                $gymCssVariables = $this->gymBrandingService->generateCssVariables($gymContext['id']);
+            } catch (\Exception $e) {
+                Log::warning('Failed to load branding data for register page: ' . $e->getMessage());
+            }
+        }
+        
+        return view('auth.register', compact('gymContext', 'brandingData', 'gymCssVariables'));
     }
 
     public function register(RegisterRequest $request)

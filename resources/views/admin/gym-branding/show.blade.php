@@ -40,6 +40,11 @@
                         <i class="ki-duotone ki-image fs-2 me-2"></i>Media & Banners
                     </button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="texts-tab" data-bs-toggle="tab" data-bs-target="#texts" type="button" role="tab">
+                        <i class="ki-duotone ki-document fs-2 me-2"></i>Page Texts
+                    </button>
+                </li>
             </ul>
 
             <!-- Tabs Content -->
@@ -169,7 +174,7 @@
                             
                             <!-- Live Preview -->
                             <div class="col-md-4">
-                                <h4 class="mb-4">Live Preview</h4>
+                                <h4 class="mb-4 text-center">Live Preview</h4>
                                 <div id="colorsPreviewArea" class="border rounded p-4" style="min-height: 400px;">
                                     <h5 class="mb-3">Before & After</h5>
                                     
@@ -402,10 +407,87 @@
                         </div>
                     </form>
                 </div>
+
+                <!-- Page Texts Tab -->
+                <div class="tab-pane fade" id="texts" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h4 class="mb-4">Select Page</h4>
+                            <p class="text-muted mb-4">Choose a page to customize its text content.</p>
+                            
+                            <div class="list-group" id="pageList">
+                                @foreach($pageTypes as $pageKey => $pageName)
+                                    <button type="button" class="list-group-item list-group-item-action page-selector" 
+                                            data-page="{{ $pageKey }}">
+                                        <div class="d-flex align-items-center">
+                                            <i class="ki-duotone ki-document fs-2 me-3"></i>
+                                            <div>
+                                                <h6 class="mb-1">{{ $pageName }}</h6>
+                                                <small class="text-muted">Customize text content</small>
+                                            </div>
+                                        </div>
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <div id="textCustomizationArea" class="d-none">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h4 id="selectedPageTitle">Select a page to customize</h4>
+                                    <div>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="previewTexts">
+                                            <i class="ki-duotone ki-eye fs-2"></i>Preview
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-warning" id="resetPageTexts">
+                                            <i class="ki-duotone ki-refresh fs-2"></i>Reset to Defaults
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <form id="textsForm">
+                                    @csrf
+                                    <input type="hidden" id="currentPageType" name="page_type">
+                                    <input type="hidden" name="form_type" value="page_texts">
+                                    
+                                    <div id="textFieldsContainer">
+                                        <!-- Dynamic text fields will be loaded here -->
+                                    </div>
+                                    
+                                    <div class="row mt-4">
+                                        <div class="col-12">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="ki-duotone ki-check fs-2"></i>Save Page Texts
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <div id="textPreviewArea" class="d-none">
+                                <h4 class="mb-4 text-center">Live Preview</h4>
+                                <div class="border rounded p-4" style="min-height: 400px;">
+                                    <div id="textPreviewContent">
+                                        <!-- Preview content will be shown here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+@endsection
+
+@section('css')
+<style>
+.page-selector.active h6,
+.page-selector.active small {
+    color: white !important;
+}
+</style>
 @endsection
 
 @section('js')
@@ -626,7 +708,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const displayNames = {
                     'colors_typography': 'Colors & Typography',
                     'page_sections': 'Page Sections',
-                    'media_settings': 'Media Settings'
+                    'media_settings': 'Media Settings',
+                    'page_texts': 'Page Texts'
                 };
                 const displayName = displayNames[formType] || formType;
                 toastr.success(`${displayName} updated successfully!`);
@@ -667,6 +750,355 @@ document.addEventListener('DOMContentLoaded', function() {
                 toastr.error('An error occurred while resetting the settings.');
             });
         }
+    });
+    
+    // Text customization functionality
+    const pageSelectors = document.querySelectorAll('.page-selector');
+    const textCustomizationArea = document.getElementById('textCustomizationArea');
+    const textPreviewArea = document.getElementById('textPreviewArea');
+    const selectedPageTitle = document.getElementById('selectedPageTitle');
+    const currentPageType = document.getElementById('currentPageType');
+    const textFieldsContainer = document.getElementById('textFieldsContainer');
+    const textsForm = document.getElementById('textsForm');
+    const previewTextsBtn = document.getElementById('previewTexts');
+    const resetPageTextsBtn = document.getElementById('resetPageTexts');
+    
+    let currentPageData = null;
+    
+    // Page selection
+    pageSelectors.forEach(selector => {
+        selector.addEventListener('click', function() {
+            const pageType = this.dataset.page;
+            loadPageTexts(pageType);
+            
+            // Update active state
+            pageSelectors.forEach(s => s.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+    
+    // Load page texts
+    function loadPageTexts(pageType) {
+        fetch(`{{ route('gym-branding.page-texts', [$siteSetting->id, 'PLACEHOLDER']) }}`.replace('PLACEHOLDER', pageType))
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    currentPageData = data.data;
+                    displayTextFields(data.data.texts, pageType);
+                    textCustomizationArea.classList.remove('d-none');
+                    textPreviewArea.classList.add('d-none');
+                } else {
+                    toastr.error('Error loading page texts: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                console.error('URL:', `{{ route('gym-branding.page-texts', [$siteSetting->id, 'PLACEHOLDER']) }}`.replace('PLACEHOLDER', pageType));
+                toastr.error('An error occurred while loading page texts: ' + error.message);
+            });
+    }
+    
+    // Display text fields
+    function displayTextFields(texts, pageType) {
+        const pageNames = {
+            'login': 'Login Page',
+            'register': 'Register Page',
+            'auth_common': 'Auth Pages (Common)',
+            'home': 'Home Page',
+            'about': 'About Us Page',
+            'services': 'Services Page',
+            'contact': 'Contact Us Page',
+            'blog': 'Blog Page',
+            'team': 'Our Team Page',
+            'gallery': 'Gallery Page'
+        };
+        
+        selectedPageTitle.textContent = `Customize ${pageNames[pageType]} Texts`;
+        currentPageType.value = pageType;
+        
+        textFieldsContainer.innerHTML = '';
+        
+        Object.entries(texts).forEach(([key, value]) => {
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'form-group mb-4';
+            
+            const label = document.createElement('label');
+            label.className = 'form-label fw-bold';
+            label.textContent = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            label.setAttribute('for', `text_${key}`);
+            
+            // Determine if this should be a textarea or input
+            const shouldBeTextarea = key.includes('description') || key.includes('text') || key.includes('subtitle');
+            
+            let input;
+            if (shouldBeTextarea) {
+                input = document.createElement('textarea');
+                input.rows = 4;
+            } else {
+                input = document.createElement('input');
+                input.type = 'text';
+            }
+            
+            input.className = 'form-control';
+            input.id = `text_${key}`;
+            input.name = `texts[${key}]`;
+            input.value = value || '';
+            input.placeholder = `Enter ${key.replace(/_/g, ' ')}...`;
+            
+            fieldDiv.appendChild(label);
+            fieldDiv.appendChild(input);
+            textFieldsContainer.appendChild(fieldDiv);
+        });
+    }
+    
+    // Preview texts
+    previewTextsBtn.addEventListener('click', function() {
+        if (!currentPageData) return;
+        
+        const formData = new FormData(textsForm);
+        const texts = {};
+        
+        for (let [key, value] of formData.entries()) {
+            if (key.startsWith('texts[')) {
+                const textKey = key.replace('texts[', '').replace(']', '');
+                texts[textKey] = value;
+            }
+        }
+        
+        fetch('{{ route("gym-branding.preview-page-texts") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                page_type: currentPageData.page_type,
+                texts: texts
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayTextPreview(data.data);
+                textPreviewArea.classList.remove('d-none');
+            } else {
+                toastr.error('Error previewing texts: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            toastr.error('An error occurred while previewing texts.');
+        });
+    });
+    
+    // Display text preview
+    function displayTextPreview(previewData) {
+        const previewContent = document.getElementById('textPreviewContent');
+        const pageType = previewData.page_type;
+        const texts = previewData.texts;
+        
+        let previewHTML = `<div class="text-center mb-4">
+            <h3>${pageType.charAt(0).toUpperCase() + pageType.slice(1)} Page Preview</h3>
+        </div>`;
+        
+        // Generate preview based on page type
+        switch (pageType) {
+            case 'login':
+                previewHTML += `
+                    <div class="d-flex flex-column flex-lg-row" style="min-height: 500px;">
+                        <div class="d-flex flex-column flex-lg-row-fluid w-lg-50 p-10 order-2 order-lg-1 bg-white">
+                            <div class="d-flex flex-center flex-column flex-lg-row-fluid">
+                                <div class="w-lg-400px p-10">
+                                    <div class="text-center mb-11">
+                                        <h1 class="text-gray-900 fw-bolder mb-3">${texts.title || 'Welcome Back'}</h1>
+                                        ${texts.subtitle ? `<p class="text-gray-600 mb-0">${texts.subtitle}</p>` : ''}
+                                    </div>
+                                    <div class="fv-row mb-8">
+                                        <input type="text" placeholder="Email" class="form-control bg-transparent" readonly />
+                                    </div>
+                                    <div class="fv-row mb-3">
+                                        <input type="password" placeholder="Password" class="form-control bg-transparent" readonly />
+                                    </div>
+                                    <div class="d-flex flex-column flex-wrap gap-3 fs-base fw-semibold mb-8">
+                                        <a href="#" class="link-primary">${texts.forgot_password_text || 'Forgot Password ?'}</a>
+                                        <a href="#" class="link-primary">${texts.register_link_text || 'Register'}</a>
+                                    </div>
+                                    <div class="d-grid mb-10">
+                                        <button class="btn btn-primary">${texts.button_text || 'Sign In'}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-lg-row-fluid w-lg-50 bgi-size-cover bgi-position-left order-1 order-lg-2 bg-dark text-white">
+                            <div class="d-flex justify-content-between py-7 py-lg-15 px-5 px-md-15 w-100">
+                                <div class="w-20">
+                                    <div class="mb-0 mb-lg-12">
+                                        <div class="h-30px h-lg-50px bg-light rounded d-flex align-items-center justify-content-center w-50px">
+                                            <small class="text-muted">Logo</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="w-80">
+                                    <h3 class="d-none d-lg-block text-white fs-2qx fw-bolder text-end mb-7">
+                                        ${texts.platform_title || 'Unlock your full potential'}
+                                    </h3>
+                                    <div class="d-none d-lg-block text-white fs-base text-end">
+                                        <p>${texts.platform_description || 'Stay consistent, stay strong — your fitness journey starts here.'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                break;
+            case 'register':
+                previewHTML += `
+                    <div class="d-flex flex-column flex-lg-row" style="min-height: 500px;">
+                        <div class="d-flex flex-column flex-lg-row-fluid w-lg-50 p-10 order-2 order-lg-1 bg-white">
+                            <div class="d-flex flex-center flex-column flex-lg-row-fluid">
+                                <div class="w-lg-400px p-10">
+                                    <div class="text-center mb-11">
+                                        <h1 class="text-gray-900 fw-bolder mb-3">${texts.title || 'Create Account'}</h1>
+                                        ${texts.subtitle ? `<p class="text-gray-600 mb-0">${texts.subtitle}</p>` : ''}
+                                    </div>
+                                    <div class="fv-row mb-8">
+                                        <input type="text" placeholder="Full Name" class="form-control bg-transparent" readonly />
+                                    </div>
+                                    <div class="fv-row mb-8">
+                                        <input type="email" placeholder="Email" class="form-control bg-transparent" readonly />
+                                    </div>
+                                    <div class="fv-row mb-8">
+                                        <input type="text" placeholder="Phone (Optional)" class="form-control bg-transparent" readonly />
+                                    </div>
+                                    <div class="fv-row mb-8">
+                                        <input type="password" placeholder="Password" class="form-control bg-transparent" readonly />
+                                    </div>
+                                    <div class="fv-row mb-8">
+                                        <input type="password" placeholder="Confirm Password" class="form-control bg-transparent" readonly />
+                                    </div>
+                                    <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
+                                        <a href="#" class="link-primary">${texts.login_link_text || 'Already have an account? Sign In'}</a>
+                                    </div>
+                                    <div class="d-grid mb-10">
+                                        <button class="btn btn-primary">${texts.button_text || 'Create Account'}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="d-flex flex-lg-row-fluid w-lg-50 bgi-size-cover bgi-position-left order-1 order-lg-2 bg-dark text-white">
+                            <div class="d-flex justify-content-between py-7 py-lg-15 px-5 px-md-15 w-100">
+                                <div class="w-20">
+                                    <div class="mb-0 mb-lg-12">
+                                        <div class="h-30px h-lg-50px bg-light rounded d-flex align-items-center justify-content-center w-50px">
+                                            <small class="text-muted">Logo</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="w-80">
+                                    <h3 class="d-none d-lg-block text-white fs-2qx fw-bolder text-end mb-7">
+                                        ${texts.platform_title || 'Unlock your full potential'}
+                                    </h3>
+                                    <div class="d-none d-lg-block text-white fs-base text-end">
+                                        <p>${texts.platform_description || 'Stay consistent, stay strong — your fitness journey starts here.'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                break;
+            case 'auth_common':
+                previewHTML += `
+                    <div class="d-flex flex-lg-row-fluid w-lg-50 bgi-size-cover bgi-position-left bg-dark text-white" style="min-height: 400px;">
+                        <div class="d-flex justify-content-between py-7 py-lg-15 px-5 px-md-15 w-100">
+                            <div class="w-50">
+                                <div class="mb-0 mb-lg-12">
+                                    <div class="h-60px h-lg-75px bg-light rounded d-flex align-items-center justify-content-center">
+                                        <small class="text-muted">Logo</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="w-50">
+                                <h3 class="d-none d-lg-block text-white fs-2qx fw-bolder text-end mb-7">
+                                    ${texts.platform_title || 'Unlock your full potential'}
+                                </h3>
+                                <div class="d-none d-lg-block text-white fs-base text-end">
+                                    <p>${texts.platform_description || 'Stay consistent, stay strong — your fitness journey starts here.'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                break;
+            case 'home':
+                previewHTML += `
+                    <div class="hero-section bg-light p-4 mb-4 rounded">
+                        <h1>${texts.hero_title || 'Transform Your Body'}</h1>
+                        <p class="lead">${texts.hero_subtitle || 'Achieve your fitness goals with our expert trainers'}</p>
+                        <button class="btn btn-primary">${texts.hero_button_text || 'Get Started'}</button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3>${texts.choseus_title || 'Why Choose Us'}</h3>
+                            <p>${texts.choseus_subtitle || 'We provide the best fitness experience'}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h3>${texts.classes_title || 'Our Classes'}</h3>
+                            <p>${texts.classes_subtitle || 'Join our amazing fitness classes'}</p>
+                        </div>
+                    </div>
+                `;
+                break;
+            default:
+                previewHTML += `
+                    <div class="text-center">
+                        <h2>${texts.title || 'Page Title'}</h2>
+                        <p class="lead">${texts.subtitle || 'Page subtitle'}</p>
+                    </div>
+                `;
+        }
+        
+        previewContent.innerHTML = previewHTML;
+    }
+    
+    // Reset page texts
+    resetPageTextsBtn.addEventListener('click', function() {
+        if (!currentPageData) return;
+        
+        if (confirm(`Are you sure you want to reset ${currentPageData.page_type} page texts to defaults?`)) {
+            fetch(`{{ route('gym-branding.reset-page-texts', [$siteSetting->id, 'PLACEHOLDER']) }}`.replace('PLACEHOLDER', currentPageData.page_type), {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success('Page texts reset to defaults!');
+                    loadPageTexts(currentPageData.page_type);
+                } else {
+                    toastr.error('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('An error occurred while resetting page texts.');
+            });
+        }
+    });
+    
+    // Submit texts form
+    textsForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        submitForm(this, 'page_texts');
+        return false;
     });
 });
 </script>

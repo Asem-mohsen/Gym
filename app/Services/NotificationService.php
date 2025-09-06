@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\{User, Notification, SiteSetting, Subscription, Document, Contact};
 use App\Notifications\{AdminToUsersNotification, MembershipExpirationNotification, NewResourceAssignmentNotification, ContactUsNotification};
-use App\Events\NotificationSentEvent;
+use App\Services\RealTimeNotificationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -12,6 +12,12 @@ use Exception;
 
 class NotificationService
 {
+    protected $realTimeService;
+
+    public function __construct(RealTimeNotificationService $realTimeService)
+    {
+        $this->realTimeService = $realTimeService;
+    }
     /**
      * Send notification from admin to users with specific roles
      */
@@ -22,7 +28,18 @@ class NotificationService
 
             $users = $this->getUsersByRoles($siteSettingId, $data['target_roles'] ?? ['regular_user']);
 
+            Log::info('Notification sending attempt', [
+                'site_setting_id' => $siteSettingId,
+                'target_roles' => $data['target_roles'] ?? ['regular_user'],
+                'users_found' => $users->count(),
+                'user_emails' => $users->pluck('email')->toArray()
+            ]);
+
             if ($users->isEmpty()) {
+                Log::warning('No users found for notification', [
+                    'site_setting_id' => $siteSettingId,
+                    'target_roles' => $data['target_roles'] ?? ['regular_user']
+                ]);
                 return false;
             }
 
@@ -30,11 +47,20 @@ class NotificationService
 
             // Send notification to each user
             foreach ($users as $user) {
-                $notification = $user->notify(new AdminToUsersNotification($data, $siteSetting));
-                
-                // Broadcast the notification event
-                event(new NotificationSentEvent($notification, $user));
+                $user->notify(new AdminToUsersNotification($data, $siteSetting));
             }
+
+            // Broadcast real-time notification to all users
+            $notification = $this->realTimeService->createNotification(
+                'admin_message',
+                $data['subject'],
+                $data['message'],
+                $data['action_url'] ?? null,
+                $data['action_text'] ?? null,
+                $data['priority'] ?? 'normal'
+            );
+
+            $this->realTimeService->broadcastToAll($notification);
 
             // Log the notification
             Log::info('Admin notification sent to users', [
@@ -87,10 +113,7 @@ class NotificationService
                 // Only send notifications for subscriptions expiring in the next 7 days or already expired
                 if ($daysUntilExpiry <= 7) {
                     foreach ($admins as $admin) {
-                        $notification = $admin->notify(new MembershipExpirationNotification($subscription, $siteSetting, $daysUntilExpiry));
-                        
-                        // Broadcast the notification event
-                        event(new NotificationSentEvent($notification, $admin));
+                        $admin->notify(new MembershipExpirationNotification($subscription, $siteSetting, $daysUntilExpiry));
                         $notificationCount++;
                     }
                 }
@@ -126,10 +149,7 @@ class NotificationService
             $notificationCount = 0;
 
             foreach ($admins as $admin) {
-                $notification = $admin->notify(new NewResourceAssignmentNotification($document, $siteSetting, $assignedBy));
-                
-                // Broadcast the notification event
-                event(new NotificationSentEvent($notification, $admin));
+                $admin->notify(new NewResourceAssignmentNotification($document, $siteSetting, $assignedBy));
                 $notificationCount++;
             }
 
@@ -164,9 +184,7 @@ class NotificationService
             $notificationCount = 0;
 
             foreach ($salesUsers as $salesUser) {
-                $notification = $salesUser->notify(new ContactUsNotification($contact, $siteSetting));
-                
-                event(new NotificationSentEvent($notification, $salesUser));
+                $salesUser->notify(new ContactUsNotification($contact, $siteSetting));
                 $notificationCount++;
             }
 
@@ -216,11 +234,11 @@ class NotificationService
     /**
      * Get user notifications
      */
-    public function getUserNotifications(User $user, int $limit = 20): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function getUserNotifications(User $user, int $limit = 20, int $page = 1): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         return $user->notifications()
             ->orderBy('created_at', 'desc')
-            ->paginate($limit);
+            ->paginate($limit, ['*'], 'page', $page);
     }
 
     /**
@@ -239,7 +257,8 @@ class NotificationService
         $notification = $user->notifications()->find($notificationId);
         
         if ($notification) {
-            return $notification->markAsRead();
+            $notification->markAsRead();
+            return true;
         }
 
         return false;

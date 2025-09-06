@@ -6,16 +6,23 @@
     <form class="form w-100" novalidate="novalidate" id="kt_sign_up_form" method="POST" action="{{ route('auth.register', ['siteSetting' => $gymContext['slug']]) }}">
         @csrf
         
-        @if(isset($gymContext))
+        @if(isset($gymContext) && isset($gymContext['logo']))
+            <img src="{{ $gymContext['logo'] }}" alt="{{ $gymContext['name'] }}" class="d-flex justify-content-center m-auto h-60px h-lg-75px" />
+        @elseif(isset($gymContext))
             <div class="mb-3">
-                 <h2 class="text-center">{{ $gymContext['name'] }}</h2>
+                <h2 class="text-center">{{ $gymContext['name'] }}</h2>
             </div>
         @endif
         
         <input type="hidden" name="site_setting_id" value="{{ $gymContext['id'] ?? '' }}">
         
-        <div class="text-center mb-11">
-            <h1 class="text-gray-900 fw-bolder mb-3">Create Account</h1>
+        <div class="text-center mb-11 mt-5">
+            <h1 class="text-gray-900 fw-bolder mb-3">
+                {{ $brandingData['branding']['page_texts']['register']['title'] ?? 'Create Account' }}
+            </h1>
+            @if(isset($brandingData['branding']['page_texts']['register']['subtitle']))
+                <p class="text-gray-600 mb-0">{{ $brandingData['branding']['page_texts']['register']['subtitle'] }}</p>
+            @endif
         </div>
         
         <div class="fv-row mb-8">
@@ -60,12 +67,14 @@
         </div>
 
         <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
-            <a href="{{ route('auth.login.index', ['siteSetting' => $gymContext['slug']]) }}" class="link-primary">Already have an account? Sign In</a>
+            <a href="{{ route('auth.login.index', ['siteSetting' => $gymContext['slug']]) }}" class="link-primary">
+                {{ $brandingData['branding']['page_texts']['register']['login_link_text'] ?? 'Already have an account? Sign In' }}
+            </a>
         </div>
 
         <div class="d-grid mb-10">
             <button type="submit" id="kt_sign_up_submit" class="btn btn-primary">
-                <span class="indicator-label">Create Account</span>
+                <span class="indicator-label">{{ $brandingData['branding']['page_texts']['register']['button_text'] ?? 'Create Account' }}</span>
                 <span class="indicator-progress">Please wait... 
                 <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
             </button>

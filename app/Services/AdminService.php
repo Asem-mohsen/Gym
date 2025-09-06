@@ -22,15 +22,16 @@ class AdminService
         $this->roleAssignmentService = $roleAssignmentService;
     }
 
-    public function getAdmins(int $siteSettingId, $perPage = 15, $search = null)
+    public function getAdmins(int $siteSettingId)
     {
-        return $this->adminRepository->getAllAdmins($siteSettingId, $perPage, $search);
+        return $this->adminRepository->getAllAdmins($siteSettingId);
     }
 
     public function createAdmin(array $data, int $siteSettingId)
     {
         $roleIds = $data['role_ids'] ?? [];
-        unset($data['role_ids'], $data['password']);
+        $branchIds = $data['branch_ids'] ?? [];
+        unset($data['role_ids'], $data['branch_ids'], $data['password']);
         
         // Generate a random password
         $temporaryPassword = $this->passwordGenerationService->generateTemporaryPassword();
@@ -43,6 +44,11 @@ class AdminService
         // Assign roles using the role assignment service
         $this->roleAssignmentService->assignRolesToUser($user, $roleIds);
 
+        // Assign branches
+        if (!empty($branchIds)) {
+            $user->assignedBranches()->sync($branchIds);
+        }
+
         $this->sendOnboardingEmail($user, $siteSettingId);
 
         return $user;
@@ -51,7 +57,8 @@ class AdminService
     public function updateAdmin($user, array $data , int $siteSettingId)
     {
         $roleIds = $data['role_ids'] ?? [];
-        unset($data['role_ids']);
+        $branchIds = $data['branch_ids'] ?? [];
+        unset($data['role_ids'], $data['branch_ids']);
         
         if (empty($data['password'])) {
             unset($data['password']);
@@ -67,6 +74,11 @@ class AdminService
         if (!empty($roleIds)) {
             $roles = SpatieRole::whereIn('id', $roleIds)->get();
             $updatedUser->syncRoles($roles);
+        }
+
+        // Update branch assignments
+        if (!empty($branchIds)) {
+            $updatedUser->assignedBranches()->sync($branchIds);
         }
 
         return $updatedUser;

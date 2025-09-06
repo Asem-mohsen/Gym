@@ -5,35 +5,27 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admins\{ AddAdminRequest , UpdateAdminRequest};
 use App\Models\User;
-use App\Services\{ AdminService , RoleAssignmentService, RoleService, SiteSettingService};
+use App\Services\{ AdminService , RoleAssignmentService, RoleService, SiteSettingService, BranchService};
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    public function __construct(protected AdminService $adminService ,protected RoleService $roleService , protected SiteSettingService $siteSettingService , protected RoleAssignmentService $roleAssignmentService)
+    public function __construct(protected AdminService $adminService ,protected RoleService $roleService , protected SiteSettingService $siteSettingService , protected RoleAssignmentService $roleAssignmentService, protected BranchService $branchService)
     {
         $this->adminService = $adminService;
         $this->roleService  = $roleService;
         $this->siteSettingService = $siteSettingService;
         $this->roleAssignmentService = $roleAssignmentService;
+        $this->branchService = $branchService;
     }
 
     public function index(Request $request)
     {
         try {
             $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-            $admins = $this->adminService->getAdmins(
-                $siteSettingId,
-                $request->get('per_page', 15),
-                $request->get('search')
-            );
-            
-            // Add password status to each admin
-            foreach ($admins as $admin) {
-                $admin->has_set_password = $this->adminService->hasAdminSetPassword($admin);
-            }
+            $admins = $this->adminService->getAdmins($siteSettingId);
             
             return view('admin.admins.index', compact('admins'));
         } catch (Exception $e) {
@@ -45,7 +37,8 @@ class AdminController extends Controller
     {
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
         $roles = $this->roleAssignmentService->getRoles(['admin']);
-        return view('admin.admins.create', compact('roles'));
+        $branches = $this->branchService->getBranches($siteSettingId);
+        return view('admin.admins.create', compact('roles', 'branches'));
     }
 
     public function store(AddAdminRequest $request)
@@ -63,7 +56,8 @@ class AdminController extends Controller
     {
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
         $roles = $this->roleAssignmentService->getRoles(['admin']);
-        return view('admin.admins.edit', compact('admin', 'roles'));
+        $branches = $this->branchService->getBranches($siteSettingId);
+        return view('admin.admins.edit', compact('admin', 'roles', 'branches'));
     }
 
     public function show(User $admin)

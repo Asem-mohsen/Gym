@@ -137,7 +137,7 @@
                                 @endif
                             </td>
                             <td>
-                                <span class="badge bg-{{ $request->status_color }}">
+                                <span class="badge bg-{{ $request->status_color }} text-white">
                                     {{ ucfirst($request->status) }}
                                 </span>
                             </td>

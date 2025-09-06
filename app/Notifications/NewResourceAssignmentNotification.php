@@ -4,10 +4,10 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Models\SiteSetting;
 use App\Models\Document;
+use App\Services\RealTimeNotificationService;
 
 class NewResourceAssignmentNotification extends Notification implements ShouldQueue
 {
@@ -16,6 +16,7 @@ class NewResourceAssignmentNotification extends Notification implements ShouldQu
     protected $document;
     protected $siteSetting;
     protected $assignedBy;
+    protected $realTimeService;
 
     /**
      * Create a new notification instance.
@@ -25,6 +26,7 @@ class NewResourceAssignmentNotification extends Notification implements ShouldQu
         $this->document = $document;
         $this->siteSetting = $siteSetting;
         $this->assignedBy = $assignedBy;
+        $this->realTimeService = app(RealTimeNotificationService::class);
     }
 
     /**
@@ -34,35 +36,24 @@ class NewResourceAssignmentNotification extends Notification implements ShouldQu
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['database', 'broadcast'];
     }
 
     /**
-     * Get the mail representation of the notification.
+     * Get the broadcastable representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toBroadcast(object $notifiable): array
     {
-        $mailMessage = (new MailMessage)
-            ->subject('New Resource Assigned to Gym - ' . $this->document->title)
-            ->greeting('Hello ' . $notifiable->name . ',')
-            ->line('A new resource has been assigned to your gym and requires your attention.')
-            ->line('**Resource Title:** ' . $this->document->title)
-            ->line('**Resource Type:** ' . $this->document->type)
-            ->line('**Description:** ' . ($this->document->description ?? 'No description provided'))
-            ->line('**File Size:** ' . $this->formatFileSize($this->document->size))
-            ->line('**Assigned Date:** ' . now()->format('M d, Y H:i'));
+        $notification = $this->realTimeService->createNotification(
+            'new_resource_assignment',
+            'New Resource Assigned to Gym - ' . $this->document->title,
+            'A new resource has been assigned to your gym and requires your attention.',
+            url('/admin/resources/' . $this->document->id),
+            'View Resource',
+            'high'
+        );
 
-        if ($this->assignedBy) {
-            $mailMessage->line('**Assigned By:** ' . $this->assignedBy->name);
-        }
-
-        if ($this->document->is_internal) {
-            $mailMessage->line('**Note:** This is an internal resource for staff use only.');
-        }
-
-        return $mailMessage
-            ->action('View Resource', url('/admin/resources/' . $this->document->id))
-            ->line('Please review and take any necessary actions for this new resource.');
+        return $notification;
     }
 
     /**
@@ -90,19 +81,4 @@ class NewResourceAssignmentNotification extends Notification implements ShouldQu
         ];
     }
 
-    /**
-     * Format file size for display
-     */
-    private function formatFileSize($bytes): string
-    {
-        if ($bytes >= 1073741824) {
-            return number_format($bytes / 1073741824, 2) . ' GB';
-        } elseif ($bytes >= 1048576) {
-            return number_format($bytes / 1048576, 2) . ' MB';
-        } elseif ($bytes >= 1024) {
-            return number_format($bytes / 1024, 2) . ' KB';
-        } else {
-            return $bytes . ' bytes';
-        }
-    }
 }

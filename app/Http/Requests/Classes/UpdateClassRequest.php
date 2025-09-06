@@ -15,12 +15,13 @@ class UpdateClassRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:classes,slug,' . $this->route('class')->id,
             'type' => 'required|string|max:255',
             'description' => 'nullable|string',
             'status' => 'required|string|in:active,inactive',
             'trainers' => 'required|array',
             'trainers.*' => 'exists:users,id',
+            'branches' => 'required|array',
+            'branches.*' => 'exists:branches,id',
             'schedules' => 'nullable|array',
             'schedules.*.day' => 'required|string|in:sunday,monday,tuesday,wednesday,thursday,friday,saturday',
             'schedules.*.start_time' => 'required|date_format:H:i',

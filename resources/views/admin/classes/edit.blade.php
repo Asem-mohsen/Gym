@@ -74,12 +74,30 @@
                         ])
                     </div>
                     <div class="mb-10 col-md-6">
-                        <label for="description" class="required form-label">Description</label>
-                        <textarea name="description" id="description" class="form-control form-control-solid required" required>{{ $class->description ?? old('description') }} </textarea>
+                        <label for="branches" class="required form-label">Branches</label>
+                        @php
+                            $branchOptions = [];
+                            foreach($branches as $branch){
+                                $branchOptions[] = [
+                                    'value' => $branch->id,
+                                    'label' => $branch->name
+                                ];
+                            }
+                        @endphp
+                        @include('_partials.select-multiple',[
+                            'options' => $branchOptions,
+                            'name' => 'branch_ids',
+                            'id' => 'branches',
+                            'values' => $class->branches->pluck('id')->toArray(),
+                        ])
                     </div>
                     <div class="mb-10 col-md-6">
                         <label for="image" class="required form-label">Upload Image</label>
                         <input type="file" name="image" id="image" class="form-control form-control-solid" accept="image/*"/>
+                    </div>
+                    <div class="mb-10 col-md-12">
+                        <label for="description" class="required form-label">Description</label>
+                        <textarea name="description" id="description" rows="7" class="form-control form-control-solid required" required>{{ $class->description ?? old('description') }} </textarea>
                     </div>
                     <div class="mb-10 col-md-12">
                         <label class="required form-label">Schedules</label>

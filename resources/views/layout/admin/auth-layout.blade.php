@@ -13,7 +13,7 @@
 
 					<div class="d-flex flex-center flex-column flex-lg-row-fluid">
 
-						<div class="w-lg-500px p-10">
+						<div class="w-lg-500px p-10 w-400px">
 
 							@yield('form')
 
@@ -23,11 +23,27 @@
 
 				</div>
 
-				<div class="d-flex flex-lg-row-fluid w-lg-50 bgi-size-cover bgi-position-left order-1 order-lg-2" style="background-image: url({{ asset('assets/admin/img/hero-1.jpg') }})">
+				<div class="d-flex flex-lg-row-fluid w-lg-50 bgi-size-cover bgi-position-center order-1 order-lg-2 bg-position-center" style="background-image: url({{ 
+					(isset($brandingData) && isset($brandingData['branding']['media_urls']['register_page_image']) && request()->routeIs('auth.register*')) ? $brandingData['branding']['media_urls']['register_page_image'] : 
+					((isset($brandingData) && isset($brandingData['branding']['media_urls']['login_page_image']) && request()->routeIs('auth.login*')) ? $brandingData['branding']['media_urls']['login_page_image'] : 
+					asset('assets/admin/img/hero-1.jpg'))
+				}})">
 
 					<div class="d-flex justify-content-between py-7 py-lg-15 px-5 px-md-15 w-100">
 
 						<div class="w-50">
+							<h3 class="d-none d-lg-block text-white fs-2qx fw-bolder text-start mb-7">
+								{{ $brandingData['branding']['page_texts']['auth_common']['platform_title'] ?? 'Unlock your full potential.' }}
+							</h3>
+						
+							<div class="d-none d-lg-block text-white fs-base text-start">
+								<p>
+									{{ $brandingData['branding']['page_texts']['auth_common']['platform_description'] ?? 'Stay consistent, stay strong — your fitness journey starts here' }}
+								</p>
+							</div>
+						</div>
+
+						<div class="w-50 text-end">
 							<a href="{{ route('user.home' , ['siteSetting' => $gymContext['slug']]) }}" class="mb-0 mb-lg-12">
 								@if(isset($gymContext) && isset($gymContext['logo']))
 									<img src="{{ $gymContext['logo'] }}" alt="{{ $gymContext['name'] }}" class="h-60px h-lg-75px" />
@@ -35,17 +51,6 @@
 									<img alt="Logo" src="{{ asset('assets/admin/img/logo.png') }}" class="h-60px h-lg-75px" />
 								@endif
 							</a>
-						</div>
-						<div class="w-50">
-						<h3 class="d-none d-lg-block text-white fs-2qx fw-bolder text-end mb-7">
-							All-in-One {{ $gymContext['name'] ?? 'Gym' }} Management Platform
-						</h3>
-					
-						<div class="d-none d-lg-block text-white fs-base text-end">
-							<p>
-								Streamline memberships, track attendance, manage staff and bookings — all from one powerful dashboard tailored for fitness centers and gyms.
-							</p>
-						</div>
 						</div>
 
 					</div>

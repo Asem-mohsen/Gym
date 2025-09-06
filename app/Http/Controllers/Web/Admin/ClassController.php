@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Classes\{ StoreClassRequest, UpdateClassRequest };
 use App\Models\ClassModel;
 use App\Repositories\{ ClassRepository, UserRepository };
-use App\Services\{ ClassService, SiteSettingService };
+use App\Services\{ ClassService, SiteSettingService, BranchService };
 use Illuminate\Http\Request;
 
 class ClassController extends Controller
@@ -15,7 +15,7 @@ class ClassController extends Controller
     protected $classRepository;
     protected $userRepository;
     protected int $siteSettingId;
-    public function __construct(ClassService $classService, ClassRepository $classRepository, UserRepository $userRepository, protected SiteSettingService $siteSettingService)
+    public function __construct(ClassService $classService, ClassRepository $classRepository, UserRepository $userRepository, protected SiteSettingService $siteSettingService, protected BranchService $branchService)
     {
         $this->classService = $classService;
         $this->classRepository = $classRepository;
@@ -39,7 +39,8 @@ class ClassController extends Controller
     public function create()
     {
         $trainers = $this->userRepository->getAllTrainers($this->siteSettingId);
-        return view('admin.classes.create', compact('trainers'));
+        $branches = $this->branchService->getBranches($this->siteSettingId);
+        return view('admin.classes.create', compact('trainers', 'branches'));
     }
 
     public function store(StoreClassRequest $request)
@@ -54,7 +55,8 @@ class ClassController extends Controller
     public function edit(ClassModel $class)
     {
         $trainers = $this->userRepository->getAllTrainers($this->siteSettingId);
-        return view('admin.classes.edit', compact('class', 'trainers'));
+        $branches = $this->branchService->getBranches($this->siteSettingId);
+        return view('admin.classes.edit', compact('class', 'trainers', 'branches'));
     }
 
     public function update(UpdateClassRequest $request, ClassModel $class)

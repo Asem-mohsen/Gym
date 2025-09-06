@@ -150,15 +150,17 @@ class NotificationController extends Controller
     /**
      * Get current user's notifications for sidebar
      */
-    public function getUserNotifications()
+    public function getUserNotifications(Request $request)
     {
         try {
-            $notifications = $this->notificationService->getUserNotifications(Auth::user(), 5);
+            $notifications = $this->notificationService->getUserNotifications(Auth::user(), 10, $request->get('page', 1));
             $unreadCount = $this->notificationService->getUnreadCount(Auth::user());
             
             return response()->json([
                 'notifications' => $notifications->items(),
-                'unread_count' => $unreadCount
+                'unread_count' => $unreadCount,
+                'current_page' => $notifications->currentPage(),
+                'has_more' => $notifications->hasMorePages()
             ]);
         } catch (Exception $e) {
             return response()->json(['error' => 'Error loading notifications.'], 500);
@@ -174,7 +176,6 @@ class NotificationController extends Controller
             $notifications = $this->notificationService->getRecentlySentNotifications($this->siteSettingId, 5);
             $unreadCount = $this->notificationService->getUnreadCount(Auth::user());
             
-            Log::info('Recent notifications:', ['notifications' => $notifications, 'unread_count' => $unreadCount]);
             return response()->json([
                 'success' => true,
                 'data' => [

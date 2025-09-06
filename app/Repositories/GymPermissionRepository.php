@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\{Permission, Role};
+use App\Services\PermissionAssignmentService;
 
 class GymPermissionRepository
 {
@@ -14,21 +15,8 @@ class GymPermissionRepository
      */
     public function assignPermissionsToRole(Role $role, array $permissionNames, int $siteSettingId): void
     {
-        DB::table('role_has_permissions')
-            ->where('role_id', $role->id)
-            ->where('site_setting_id', $siteSettingId)
-            ->delete();
-
-        foreach ($permissionNames as $permissionName) {
-            $permission = Permission::where('name', $permissionName)->first();
-            if ($permission) {
-                DB::table('role_has_permissions')->insert([
-                    'permission_id' => $permission->id,
-                    'role_id' => $role->id,
-                    'site_setting_id' => $siteSettingId,
-                ]);
-            }
-        }
+        $permissionService = app(PermissionAssignmentService::class);
+        $permissionService->assignPermissionsToRoleForSite($role, $permissionNames, $siteSettingId);
     }
 
     /**
@@ -43,17 +31,33 @@ class GymPermissionRepository
             ->where('site_setting_id', $siteSettingId)
             ->delete();
 
-        // Then assign new permissions
+        // Prepare batch insert data
+        $insertData = [];
         foreach ($permissionNames as $permissionName) {
             $permission = Permission::where('name', $permissionName)->first();
             if ($permission) {
-                DB::table('model_has_permissions')->insert([
-                    'permission_id' => $permission->id,
-                    'model_type' => User::class,
-                    'model_id' => $user->id,
-                    'site_setting_id' => $siteSettingId,
-                ]);
+                // Check if this combination already exists to prevent duplicates
+                $exists = DB::table('model_has_permissions')
+                    ->where('permission_id', $permission->id)
+                    ->where('model_type', User::class)
+                    ->where('model_id', $user->id)
+                    ->where('site_setting_id', $siteSettingId)
+                    ->exists();
+                
+                if (!$exists) {
+                    $insertData[] = [
+                        'permission_id' => $permission->id,
+                        'model_type' => User::class,
+                        'model_id' => $user->id,
+                        'site_setting_id' => $siteSettingId,
+                    ];
+                }
             }
+        }
+
+        // Batch insert if there's data to insert
+        if (!empty($insertData)) {
+            DB::table('model_has_permissions')->insert($insertData);
         }
     }
 

@@ -31,6 +31,8 @@ class UpdateUserRequest extends FormRequest
         // Add trainer information validation if user has trainer role
         if ($this->hasTrainerRole()) {
             $rules = array_merge($rules, [
+                'branches' => 'required|array',
+                'branches.*' => 'exists:branches,id',
                 'weight' => 'nullable|numeric|min:0|max:999.99',
                 'height' => 'nullable|numeric|min:0|max:999.99',
                 'date_of_birth' => 'nullable|date|before:today',

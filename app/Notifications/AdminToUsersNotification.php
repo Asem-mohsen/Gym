@@ -4,9 +4,9 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Models\SiteSetting;
+use App\Services\RealTimeNotificationService;
 
 class AdminToUsersNotification extends Notification implements ShouldQueue
 {
@@ -14,6 +14,7 @@ class AdminToUsersNotification extends Notification implements ShouldQueue
 
     protected $data;
     protected $siteSetting;
+    protected $realTimeService;
 
     /**
      * Create a new notification instance.
@@ -22,6 +23,7 @@ class AdminToUsersNotification extends Notification implements ShouldQueue
     {
         $this->data = $data;
         $this->siteSetting = $siteSetting;
+        $this->realTimeService = app(RealTimeNotificationService::class);
     }
 
     /**
@@ -31,33 +33,24 @@ class AdminToUsersNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['database', 'broadcast'];
     }
 
     /**
-     * Get the mail representation of the notification.
+     * Get the broadcastable representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toBroadcast(object $notifiable): array
     {
-        $mailMessage = (new MailMessage)
-            ->subject($this->data['subject'])
-            ->greeting('Hello ' . $notifiable->name . ',')
-            ->line($this->data['message']);
+        $notification = $this->realTimeService->createNotification(
+            'admin_message',
+            $this->data['subject'],
+            $this->data['message'],
+            $this->data['action_url'] ?? null,
+            $this->data['action_text'] ?? null,
+            $this->data['priority'] ?? 'normal'
+        );
 
-        // Add additional details if provided
-        if (isset($this->data['details'])) {
-            foreach ($this->data['details'] as $detail) {
-                $mailMessage->line($detail);
-            }
-        }
-
-        // Add action button if URL is provided
-        if (isset($this->data['action_url']) && isset($this->data['action_text'])) {
-            $mailMessage->action($this->data['action_text'], $this->data['action_url']);
-        }
-
-        return $mailMessage
-            ->line('Thank you for being a valued member of ' . $this->siteSetting->getTranslation('gym_name', app()->getLocale()) . '!');
+        return $notification;
     }
 
     /**

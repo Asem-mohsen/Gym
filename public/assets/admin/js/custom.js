@@ -7,26 +7,64 @@ function copyToClipboard(text) {
 }
 
 // Initialize notification system
+let currentPage = 1;
+let isLoading = false;
+let hasMoreNotifications = true;
+
 document.addEventListener('DOMContentLoaded', function() {
     loadNotifications();
     updateNotificationBadge();
     
     // Set up real-time notifications with Pusher
     initializePusher();
+    
+    // Set up infinite scroll
+    setupInfiniteScroll();
 });
 
-function loadNotifications() {
-    fetch('/admin/notifications/user-notifications')
-        .then(response => response.json())
+function loadNotifications(page = 1, append = false) {
+    if (isLoading) return;
+    
+    isLoading = true;
+    
+    fetch(`/admin/notifications/user-notifications?page=${page}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.notifications) {
-                displayNotifications(data.notifications);
+                if (append) {
+                    appendNotifications(data.notifications);
+                } else {
+                    displayNotifications(data.notifications);
+                }
+                
+                // Check if there are more notifications
+                hasMoreNotifications = data.notifications.length >= 10;
+                currentPage = page;
+            } else {
+                if (!append) {
+                    document.getElementById('notifications-list').innerHTML = 
+                        '<div class="text-center text-muted py-4">No notifications</div>';
+                }
+                hasMoreNotifications = false;
             }
         })
         .catch(error => {
             console.error('Error loading notifications:', error);
-            document.getElementById('notifications-list').innerHTML = 
-                '<div class="text-center text-muted py-4">Error loading notifications</div>';
+            if (!append) {
+                const container = document.getElementById('notifications-list');
+                if (container) {
+                    container.innerHTML = 
+                        '<div class="text-center text-muted py-4">Error loading notifications</div>';
+                }
+            }
+        })
+        .finally(() => {
+            isLoading = false;
         });
 }
 
@@ -39,42 +77,79 @@ function displayNotifications(notifications) {
     }
     
     let html = '';
-    notifications.slice(0, 5).forEach(notification => {
-        const isRead = notification.read_at ? 'opacity-50' : '';
-        const priorityClass = getPriorityClass(notification.data.priority || 'normal');
-        
-        html += `
-            <div class="notification-item mb-2 p-2 border-start border-3 ${priorityClass} ${isRead}" onclick="markNotificationAsRead('${notification.id}')">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="flex-grow-1">
-                        <h6 class="mb-1 fw-bold fs-7">${notification.data.subject || 'Notification'}</h6>
-                        <p class="mb-1 small text-muted">${notification.data.message ? notification.data.message.substring(0, 50) + '...' : ''}</p>
-                        <small class="text-muted">
-                            <i class="fas fa-clock me-1"></i>
-                            ${formatDate(notification.created_at)}
-                        </small>
-                    </div>
-                    ${!notification.read_at ? '<div class="ms-2"><span class="badge badge-circle badge-danger"></span></div>' : ''}
-                </div>
-            </div>
-        `;
+    notifications.forEach(notification => {
+        html += createNotificationHTML(notification);
     });
+    
+    // Add loading indicator if there are more notifications
+    if (hasMoreNotifications) {
+        html += '<div id="loading-indicator" class="text-center py-2" style="display: none;"><div class="spinner-border spinner-border-sm text-primary" role="status"></div></div>';
+    }
     
     container.innerHTML = html;
 }
 
+function appendNotifications(notifications) {
+    const container = document.getElementById('notifications-list');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'none';
+    }
+    
+    let html = '';
+    notifications.forEach(notification => {
+        html += createNotificationHTML(notification);
+    });
+    
+    // Add loading indicator if there are more notifications
+    if (hasMoreNotifications) {
+        html += '<div id="loading-indicator" class="text-center py-2" style="display: none;"><div class="spinner-border spinner-border-sm text-primary" role="status"></div></div>';
+    }
+    
+    container.insertAdjacentHTML('beforeend', html);
+}
+
+function createNotificationHTML(notification) {
+    const isRead = notification.read_at ? 'opacity-50' : '';
+    const priorityClass = getPriorityClass(notification.data.priority || 'normal');
+    
+    return `
+        <div class="notification-item mb-2 p-2 border-start border-3 ${priorityClass} ${isRead}" onclick="markNotificationAsRead('${notification.id}')">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <h6 class="mb-1 fw-bold fs-7">${notification.data.subject || 'Notification'}</h6>
+                    <p class="mb-1 small text-muted">${notification.data.message ? notification.data.message.substring(0, 50) + '...' : ''}</p>
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        ${formatDate(notification.created_at)}
+                    </small>
+                </div>
+                ${!notification.read_at ? '<div class="ms-2"><span class="badge badge-circle badge-danger"></span></div>' : ''}
+            </div>
+        </div>
+    `;
+}
+
 function updateNotificationBadge() {
     fetch('/admin/notifications/user-notifications')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             const badge = document.getElementById('notification-badge');
-            const unreadCount = data.notifications ? data.notifications.filter(n => !n.read_at).length : 0;
-            
-            if (unreadCount > 0) {
-                badge.textContent = unreadCount;
-                badge.style.display = 'block';
-            } else {
-                badge.style.display = 'none';
+            if (badge) {
+                const unreadCount = data.notifications ? data.notifications.filter(n => !n.read_at).length : 0;
+                
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount;
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
             }
         })
         .catch(error => {
@@ -110,7 +185,12 @@ function markAllNotificationsAsRead() {
             'Content-Type': 'application/json',
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             loadNotifications();
@@ -161,19 +241,48 @@ function initializePusher() {
         return;
     }
 
-    const pusher = new Pusher('{{ config("services.pusher.key") }}', {
-        cluster: '{{ config("services.pusher.cluster") }}',
-        encrypted: true
-    });
+    // Check if Echo is available (from our Vite build)
+    if (typeof window.Echo === 'undefined') {
+        console.warn('Laravel Echo not loaded. Real-time notifications disabled.');
+        return;
+    }
 
-    const channel = pusher.subscribe('private-user.{{ auth()->id() }}');
+    // Use Laravel Echo for real-time notifications
+    window.Echo.channel('notifications')
+        .listen('notification.sent', function(data) {
+            // Show toast notification
+            if (typeof toastr !== 'undefined') {
+                toastr.info(data.notification.message || 'New notification received', data.notification.title || 'Notification');
+            }
+            
+            // Reload notifications
+            loadNotifications();
+            updateNotificationBadge();
+        });
+}
+
+function setupInfiniteScroll() {
+    const notificationsDropdown = document.getElementById('notifications-dropdown');
     
-    channel.bind('notification.sent', function(data) {
-        // Show toast notification
-        toastr.info(data.notification.data.message || 'New notification received', data.notification.data.subject || 'Notification');
+    if (!notificationsDropdown) return;
+    
+    notificationsDropdown.addEventListener('scroll', function() {
+        const { scrollTop, scrollHeight, clientHeight } = this;
         
-        // Reload notifications
-        loadNotifications();
-        updateNotificationBadge();
+        // Check if user has scrolled to bottom (with 50px threshold)
+        if (scrollTop + clientHeight >= scrollHeight - 50) {
+            loadMoreNotifications();
+        }
     });
+}
+
+function loadMoreNotifications() {
+    if (isLoading || !hasMoreNotifications) return;
+    
+    const loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'block';
+    }
+    
+    loadNotifications(currentPage + 1, true);
 }

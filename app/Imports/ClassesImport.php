@@ -40,6 +40,15 @@ class ClassesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatchI
             
             // Generate slug from name
             $name = $row['name_en'] ?? $row['name'] ?? '';
+            
+            // Check if class already exists to prevent duplicates
+            if (ClassModel::where('site_setting_id', $this->siteSettingId)
+                ->where('name', $name)
+                ->exists()) {
+                Log::info('Class already exists, skipping: ' . $name);
+                return null;
+            }
+            
             $slug = Str::slug($name);
             
             // Ensure slug is unique

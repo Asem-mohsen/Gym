@@ -5,22 +5,17 @@ use App\Models\User;
 
 class AdminRepository
 {
-    public function getAllAdmins(int $siteSettingId, $perPage = 15, $search = null)
+    public function getAllAdmins(int $siteSettingId)
     {
-        $query = User::where('is_admin', '1')->with('roles')
+        $query = User::where('is_admin', '1')
+                ->whereHas('roles', function ($query) {
+                    $query->where('name', 'admin');
+                })
                 ->whereHas('gyms', function ($query)use ($siteSettingId) {
                     $query->where('site_setting_id', $siteSettingId);
                 });
-        
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
-            });
-        }
-        
-        return $query->paginate($perPage);
+                
+        return $query->get();
     }
 
     public function getAllAdminsWithoutPagination(int $siteSettingId)
@@ -51,10 +46,5 @@ class AdminRepository
     public function deleteAdmin(User $user)
     {
         return $user->delete();
-    }
-
-    public function findById(int $id): ?User
-    {
-        return User::find($id);
     }
 }

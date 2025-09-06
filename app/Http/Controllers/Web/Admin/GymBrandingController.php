@@ -26,10 +26,11 @@ class GymBrandingController extends Controller
         
         $defaultSections = GymSetting::getDefaultHomePageSections();
         $mediaTypes = GymSetting::getAvailableMediaTypes();
+        $pageTypes = GymSetting::getAvailablePageTypes();
 
         $brandingData = $branding['branding'] ?? [];
         
-        return view('admin.gym-branding.show', compact('siteSetting', 'brandingData', 'defaultSections', 'mediaTypes'));
+        return view('admin.gym-branding.show', compact('siteSetting', 'brandingData', 'defaultSections', 'mediaTypes', 'pageTypes'));
     }
 
     /**
@@ -89,6 +90,23 @@ class GymBrandingController extends Controller
                     
                     $dataToUpdate = ['media_settings' => $mediaSettings];
                     break;
+                    
+                case 'page_texts':
+                    // Handle page text updates
+                    $pageType = $request->input('page_type');
+                    $texts = $brandingData['texts'] ?? [];
+                    
+                    if (!$pageType) {
+                        throw new \InvalidArgumentException('Page type is required for text updates');
+                    }
+                    
+                    $updatedGymSetting = $this->gymBrandingService->updatePageTexts($siteSettingId, $pageType, $texts);
+                    
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Page texts updated successfully',
+                        'data' => $updatedGymSetting
+                    ]);
                     
                 default:
                     $dataToUpdate = $brandingData;
@@ -190,6 +208,82 @@ class GymBrandingController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate preview: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get page texts for a specific page
+     */
+    public function getPageTexts(int $siteSettingId, string $pageType): JsonResponse
+    {
+        try {
+            $texts = $this->gymBrandingService->getPageTexts($siteSettingId, $pageType);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'page_type' => $pageType,
+                    'texts' => $texts
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get page texts: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Preview page texts
+     */
+    public function previewPageTexts(Request $request): JsonResponse
+    {
+        try {
+            $pageType = $request->input('page_type');
+            $customTexts = $request->input('texts', []);
+
+            if (!$pageType) {
+                throw new \InvalidArgumentException('Page type is required');
+            }
+
+            $preview = $this->gymBrandingService->previewPageTexts($pageType, $customTexts);
+
+            return response()->json([
+                'success' => true,
+                'data' => $preview
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to preview page texts: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Reset page texts to defaults
+     */
+    public function resetPageTexts(int $siteSettingId, ?string $pageType = null): JsonResponse
+    {
+        try {
+            $reset = $this->gymBrandingService->resetPageTexts($siteSettingId, $pageType);
+
+            return response()->json([
+                'success' => true,
+                'message' => $pageType 
+                    ? "Page texts for {$pageType} reset to defaults successfully"
+                    : 'All page texts reset to defaults successfully',
+                'reset' => $reset
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to reset page texts: ' . $e->getMessage()
             ], 500);
         }
     }
