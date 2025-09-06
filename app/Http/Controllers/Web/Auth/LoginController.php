@@ -5,21 +5,35 @@ namespace App\Http\Controllers\Web\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Services\Auth\AuthService;
-use App\Services\GymContextService;
+use App\Services\{ GymContextService, GymBrandingService };
 use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
     public function __construct(
         private AuthService $authService,
-        private GymContextService $gymContextService
+        private GymContextService $gymContextService,
+        private GymBrandingService $gymBrandingService
     ) {
     }
 
     public function index()
     {
         $gymContext = $this->gymContextService->getCurrentGymContext();
-        return view('auth.login', compact('gymContext'));
+        
+        $brandingData = null;
+        $gymCssVariables = null;
+        
+        if ($gymContext && isset($gymContext['id'])) {
+            try {
+                $brandingData = $this->gymBrandingService->getBrandingForAdmin($gymContext['id']);
+                $gymCssVariables = $this->gymBrandingService->generateCssVariables($gymContext['id']);
+            } catch (\Exception $e) {
+                Log::warning('Failed to load branding data for login page: ' . $e->getMessage());
+            }
+        }
+        
+        return view('auth.login', compact('gymContext', 'brandingData', 'gymCssVariables'));
     }
 
     public function login(LoginRequest $request)

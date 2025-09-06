@@ -45,7 +45,7 @@
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Request Status</label>
                                 <div>
-                                    <span class="badge bg-{{ $reviewRequest->status_color }} fs-6">
+                                    <span class="badge bg-{{ $reviewRequest->status_color }} fs-6 text-white">
                                         {{ ucfirst($reviewRequest->status) }}
                                     </span>
                                 </div>
@@ -150,13 +150,13 @@
                     <div class="row">
                         <div class="col-6">
                             <strong>Current Score:</strong>
-                            <span class="badge bg-{{ $reviewRequest->branchScore->score_level_color }} fs-6">
+                            <span class="badge bg-{{ $reviewRequest->branchScore->score_level_color }} fs-6 text-white">
                                 {{ $reviewRequest->branchScore->score }}
                             </span>
                         </div>
                         <div class="col-6">
                             <strong>Level:</strong>
-                            <span class="badge bg-{{ $reviewRequest->branchScore->score_level_color }}">
+                            <span class="badge bg-{{ $reviewRequest->branchScore->score_level_color }} text-white">
                                 {{ ucfirst($reviewRequest->branchScore->score_level) }}
                             </span>
                         </div>
@@ -193,7 +193,7 @@
                     <div class="row">
                         <div class="col-12">
                             <strong>Review Decision:</strong><br>
-                            <span class="badge bg-{{ $reviewRequest->is_approved ? 'success' : 'danger' }}">
+                            <span class="badge bg-{{ $reviewRequest->is_approved ? 'success' : 'danger' }} text-white">
                                 {{ $reviewRequest->is_approved ? 'Approved' : 'Rejected' }}
                             </span>
                         </div>

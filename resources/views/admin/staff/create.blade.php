@@ -123,6 +123,35 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Branch Assignment -->
+            <div class="row mt-5">
+                <div class="col-12">
+                    <h4 class="fs-5 fw-bold text-gray-800 mb-3">Branch Assignment</h4>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Select Branches <span class="text-danger">*</span></label>
+                        <div class="row">
+                            @foreach($branches as $branch)
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input @error('branch_ids') is-invalid @enderror" type="checkbox" 
+                                           name="branch_ids[]" value="{{ $branch['id'] }}" id="branch_{{ $branch['id'] }}"
+                                           {{ in_array($branch['id'], old('branch_ids', [])) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="branch_{{ $branch['id'] }}">
+                                        {{ $branch['name'] }}
+                                    </label>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                        @error('branch_ids')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                        <div class="form-text">Select one or more branches for this staff member</div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <div class="card-footer">

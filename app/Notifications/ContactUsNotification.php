@@ -4,10 +4,10 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\Models\Contact;
 use App\Models\SiteSetting;
+use App\Services\RealTimeNotificationService;
 
 class ContactUsNotification extends Notification implements ShouldQueue
 {
@@ -15,6 +15,7 @@ class ContactUsNotification extends Notification implements ShouldQueue
 
     protected $contact;
     protected $siteSetting;
+    protected $realTimeService;
 
     /**
      * Create a new notification instance.
@@ -23,6 +24,7 @@ class ContactUsNotification extends Notification implements ShouldQueue
     {
         $this->contact = $contact;
         $this->siteSetting = $siteSetting;
+        $this->realTimeService = app(RealTimeNotificationService::class);
     }
 
     /**
@@ -32,34 +34,24 @@ class ContactUsNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['database', 'broadcast'];
     }
 
     /**
-     * Get the mail representation of the notification.
+     * Get the broadcastable representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toBroadcast(object $notifiable): array
     {
-        $mailMessage = (new MailMessage)
-            ->subject('New Contact Us Message - ' . $this->contact->name)
-            ->greeting('Hello ' . $notifiable->name . ',')
-            ->line('A new contact us message has been submitted and requires your attention.')
-            ->line('**From:** ' . $this->contact->name)
-            ->line('**Email:** ' . $this->contact->email)
-            ->line('**Phone:** ' . ($this->contact->phone ?? 'Not provided'))
-            ->line('**Subject:** ' . ($this->contact->subject ?? 'No subject'))
-            ->line('**Message:** ' . $this->contact->message)
-            ->line('**Submitted:** ' . $this->contact->created_at->format('M d, Y H:i'));
+        $notification = $this->realTimeService->createNotification(
+            'contact_us',
+            'New Contact Us Message - ' . $this->contact->name,
+            'A new contact us message has been submitted and requires your attention.',
+            url('/admin/contacts/' . $this->contact->id),
+            'View Contact Message',
+            'normal'
+        );
 
-        if ($this->contact->is_answered) {
-            $mailMessage->line('**Status:** Already answered');
-        } else {
-            $mailMessage->line('**Status:** Pending response');
-        }
-
-        return $mailMessage
-            ->action('View Contact Message', url('/admin/contacts/' . $this->contact->id))
-            ->line('Please respond to this inquiry promptly to maintain good customer service.');
+        return $notification;
     }
 
     /**

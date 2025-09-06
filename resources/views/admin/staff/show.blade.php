@@ -141,6 +141,15 @@
                         </div>
                         <div class="col-md-6">
                             <div class="d-flex align-items-center">
+                                <span class="fs-6 fw-semibold text-muted me-2">Branch:</span>
+                                <span class="fs-6 fw-bold text-gray-800">{{ $staff->branches->pluck('name')->implode(', ') }}</span>
+                                @if($staff->branches->count() == 0)
+                                    <span class="badge badge-light-danger fs-7 fw-bold">No Branch</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
                                 <span class="fs-6 fw-semibold text-muted me-2">Status:</span>
                                 @if($staff->status)
                                     <span class="badge badge-light-success fs-7 fw-bold">Active</span>

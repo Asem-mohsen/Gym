@@ -21,6 +21,8 @@ class StoreClassRequest extends FormRequest
             'image' => 'required|max:2048',
             'trainers' => 'required|array',
             'trainers.*' => 'exists:users,id',
+            'branches' => 'required|array',
+            'branches.*' => 'exists:branches,id',
             'schedules' => 'required|array',
             'schedules.*.day' => 'required|string|in:sunday,monday,tuesday,wednesday,thursday,friday,saturday',
             'schedules.*.start_time' => 'required|date_format:H:i',

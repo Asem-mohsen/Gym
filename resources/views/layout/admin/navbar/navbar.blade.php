@@ -32,15 +32,6 @@
                 </div>
             </div>
 
-            <div class="separator my-2"></div>
-
-            <div class="menu-item px-3">
-                <div class="menu-content d-flex align-items-center px-3">
-                    <a href="{{ route('admin.notifications.index') }}" class="btn btn-sm btn-light-primary w-100">
-                        View All Notifications
-                    </a>
-                </div>
-            </div>
         </div>
     </div>
 

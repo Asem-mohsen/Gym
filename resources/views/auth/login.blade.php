@@ -8,14 +8,21 @@
         
         <input type="hidden" name="site_setting_id" value="{{ $gymContext['id'] ?? '' }}">
         
-        @if(isset($gymContext))
+        @if(isset($gymContext) && isset($gymContext['logo']))
+            <img src="{{ $gymContext['logo'] }}" alt="{{ $gymContext['name'] }}" class="d-flex justify-content-center m-auto h-60px h-lg-75px" />
+        @elseif(isset($gymContext))
             <div class="mb-3">
-                 <h2 class="text-center">{{ $gymContext['name'] }}</h2>
+                <h2 class="text-center">{{ $gymContext['name'] }}</h2>
             </div>
         @endif
         
-        <div class="text-center mb-11">
-            <h1 class="text-gray-900 fw-bolder mb-3">Sign In</h1>
+        <div class="text-center mb-11 mt-5">
+            <h1 class="text-gray-900 fw-bolder mb-3">
+                {{ $brandingData['branding']['page_texts']['login']['title'] ?? 'Sign In' }}
+            </h1>
+            @if(isset($brandingData['branding']['page_texts']['login']['subtitle']))
+                <p class="text-gray-600 mb-0">{{ $brandingData['branding']['page_texts']['login']['subtitle'] }}</p>
+            @endif
         </div>
         <div class="fv-row mb-8">
             <input type="text" placeholder="Email" name="email" class="form-control bg-transparent" />
@@ -36,13 +43,17 @@
         </div>
 
         <div class="d-flex flex-column flex-wrap gap-3 fs-base fw-semibold mb-8">
-            <a href="{{ route('auth.forget-password.index', ['siteSetting' => $gymContext['slug']]) }}" class="link-primary">Forgot Password ?</a>
-            <a href="{{ route('auth.register.index', ['siteSetting' => $gymContext['slug']]) }}" class="link-primary">Register</a>
+            <a href="{{ route('auth.forget-password.index', ['siteSetting' => $gymContext['slug']]) }}" class="link-primary">
+                {{ $brandingData['branding']['page_texts']['login']['forgot_password_text'] ?? 'Forgot Password ?' }}
+            </a>
+            <a href="{{ route('auth.register.index', ['siteSetting' => $gymContext['slug']]) }}" class="link-primary">
+                {{ $brandingData['branding']['page_texts']['login']['register_link_text'] ?? 'Register' }}
+            </a>
         </div>
 
         <div class="d-grid mb-10">
             <button type="submit" id="kt_sign_in_submit" class="btn btn-primary">
-                <span class="indicator-label">Sign In</span>
+                <span class="indicator-label">{{ $brandingData['branding']['page_texts']['login']['button_text'] ?? 'Sign In' }}</span>
 
                 <span class="indicator-progress">Please wait... 
                 <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>

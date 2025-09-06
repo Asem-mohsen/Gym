@@ -58,7 +58,9 @@ class TrainerController extends Controller
             return in_array($role['name'], ['trainer']);
         })->toArray();
         
-        return view('admin.trainers.create', compact('trainerRoles'));
+        $branches = $this->branchService->getBranches($this->siteSettingId);
+        
+        return view('admin.trainers.create', compact('trainerRoles', 'branches'));
     }
 
     public function edit(Request $request, User $trainer)
@@ -73,7 +75,9 @@ class TrainerController extends Controller
             return in_array($role['name'], ['trainer']);
         })->toArray();
         
-        return view('admin.trainers.edit', compact('trainer', 'trainerRoles'));
+        $branches = $this->branchService->getBranches($this->siteSettingId);
+        
+        return view('admin.trainers.edit', compact('trainer', 'trainerRoles', 'branches'));
     }
 
     public function show(Request $request, User $trainer)

@@ -61,7 +61,11 @@ class SiteSettingResource extends Resource
                                 ->whereDoesntHave('site', function ($q) {
                                     $q->where('id', '!=', request()->route('record')?->id ?? 0);
                                 });
-                            })->preload()->required(),
+                            })
+                            ->hiddenOn('edit')
+                            ->preload()
+                            ->required()
+                            ->searchable(),
                         TextInput::make('size')->label('Gym Employee Size'),
                         TextInput::make('contact_email')->label('Contact Email')->required()->email(),
                         TextInput::make('site_url')->label('Site Url')->url(),

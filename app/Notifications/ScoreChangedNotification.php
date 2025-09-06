@@ -5,20 +5,23 @@ namespace App\Notifications;
 use App\Models\BranchScoreHistory;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use App\Services\RealTimeNotificationService;
 
 class ScoreChangedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     protected $scoreHistory;
+    protected $realTimeService;
+    
     /**
      * Create a new notification instance.
      */
     public function __construct(BranchScoreHistory $scoreHistory)
     {
         $this->scoreHistory = $scoreHistory;
+        $this->realTimeService = app(RealTimeNotificationService::class);
     }
 
     /**
@@ -28,31 +31,32 @@ class ScoreChangedNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['database', 'broadcast'];
     }
 
     /**
-     * Get the mail representation of the notification.
+     * Get the broadcastable representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toBroadcast(object $notifiable): array
     {
         $branchScore = $this->scoreHistory->branchScore;
         $branch = $branchScore->branch;
         $changeAmount = $this->scoreHistory->change_amount;
         $isIncrease = $changeAmount > 0;
+        
+        $title = 'Branch Score Updated - ' . $branch->getTranslation('name', app()->getLocale());
+        $message = 'The score for branch "' . $branch->getTranslation('name', app()->getLocale()) . '" has been updated by ' . ($changeAmount > 0 ? '+' : '') . $changeAmount . ' points.';
 
-        return (new MailMessage)
-            ->subject('Branch Score Updated - ' . $branch->getTranslation('name', app()->getLocale()))
-            ->greeting('Hello ' . $notifiable->name . ',')
-            ->line('The score for branch "' . $branch->getTranslation('name', app()->getLocale()) . '" has been updated.')
-            ->line('**Previous Score:** ' . $this->scoreHistory->old_score)
-            ->line('**New Score:** ' . $this->scoreHistory->new_score)
-            ->line('**Change:** ' . ($isIncrease ? '+' : '') . $changeAmount . ' points')
-            ->line('**Reason:** ' . ($this->scoreHistory->change_reason ?? 'No reason provided'))
-            ->line('**Updated By:** ' . ($this->scoreHistory->changedBy?->name ?? 'System'))
-            ->line('**Updated At:** ' . $this->scoreHistory->changed_at->format('M d, Y H:i'))
-            ->action('View Branch Details', url('/admin/score-management/branch-scores/' . $branchScore->id))
-            ->line('Thank you for using our platform!');
+        $notification = $this->realTimeService->createNotification(
+            'score_changed',
+            $title,
+            $message,
+            url('/admin/score-management/branch-scores/' . $branchScore->id),
+            'View Branch Details',
+            'normal'
+        );
+
+        return $notification;
     }
 
     /**

@@ -34,11 +34,20 @@ class ServicesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatch
                 return null;
             }
             
+            // Check if service already exists to prevent duplicates
+            $serviceName = $row['name_en'] ?? $row['name'] ?? '';
+            if (Service::where('site_setting_id', $this->siteSettingId)
+                ->whereJsonContains('name->en', $serviceName)
+                ->exists()) {
+                Log::info('Service already exists, skipping: ' . $serviceName);
+                return null;
+            }
+
             // Create the service
             $service = Service::create([
                 'site_setting_id' => $this->siteSettingId,
                 'name' => [
-                    'en' => $row['name_en'] ?? $row['name'] ?? '',
+                    'en' => $serviceName,
                     'ar' => $row['name_ar'] ?? $row['name'] ?? ''
                 ],
                 'description' => [

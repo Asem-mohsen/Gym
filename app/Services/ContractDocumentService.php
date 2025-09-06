@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\{Document, SiteSetting};
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ContractDocumentService
 {
@@ -12,6 +13,7 @@ class ContractDocumentService
         $contractMedia = $siteSetting->getFirstMedia('contract_document');
         
         if (!$contractMedia) {
+            Log::info('No contract media found');
             return;
         }
 

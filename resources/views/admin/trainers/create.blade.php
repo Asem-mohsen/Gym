@@ -98,6 +98,29 @@
                 </div>
                 
                 <div class="mb-10 col-md-6">
+                    <label for="branch_ids" class="required form-label">Assigned Branches</label>
+                    @php
+                        $branchOptions = [];
+                        foreach($branches as $branch){
+                            $branchOptions[] = [
+                                'value' => $branch['id'],
+                                'label' => $branch['name']
+                            ];
+                        }
+                    @endphp
+                    @include('_partials.select',[
+                        'options' => $branchOptions,
+                        'name' => 'branch_ids[]',
+                        'id' => 'branch_ids',
+                        'selectedValue' => old('branch_ids'),
+                        'multiple' => true
+                    ])
+                    @error('branch_ids')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                
+                <div class="mb-10 col-md-6">
                     <label for="image" class="form-label">Profile Image</label>
                     <input type="file" name="image" class="form-control form-control-solid" accept="image/*"/>
                     @error('image')

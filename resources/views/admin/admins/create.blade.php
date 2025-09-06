@@ -26,10 +26,10 @@
                     <label for="role_ids" class="required form-label">Roles</label>
                     @php
                         $options = [];
-                        foreach($roles as $id => $role){
+                        foreach($roles as $role){
                             $options[] = [
-                                'value' => $id,
-                                'label' => $role->name
+                                'value' => $role['id'],
+                                'label' => $role['name']
                             ];
                         }
                     @endphp
@@ -68,6 +68,28 @@
                     ])
                 </div>
                 <div class="mb-10 col-md-6">
+                    <label for="branch_ids" class="required form-label">Assigned Branches</label>
+                    @php
+                        $branchOptions = [];
+                        foreach($branches as $branch){
+                            $branchOptions[] = [
+                                'value' => $branch['id'],
+                                'label' => $branch['name']
+                            ];
+                        }
+                    @endphp
+                    @include('_partials.select-multiple',[
+                        'options' => $branchOptions,
+                        'name' => 'branch_ids',
+                        'id' => 'branch_ids',
+                        'selectedValue' => old('branch_ids'),
+                    ])
+                </div>
+                <div class="mb-10 col-md-6">
+                    <label for="phone" class="required form-label">Phone</label>
+                    <input type="text" value="{{ old('phone') }}" name="phone" class="form-control form-control-solid required" required/>
+                </div>
+                <div class="mb-10 col-md-6">
                     <label for="address" class="required form-label">Address</label>
                     <textarea name="address" class="form-control form-control-solid required" required >{{ old('address') }}</textarea>
                 </div>
@@ -78,10 +100,6 @@
                 <div class="mb-10 col-md-6">
                     <label for="city" class="required form-label">City</label>
                     <input type="text" value="{{ old('city') }}" name="city" class="form-control form-control-solid"/>
-                </div>
-                <div class="mb-10 col-md-6">
-                    <label for="phone" class="required form-label">Phone</label>
-                    <input type="text" value="{{ old('phone') }}" name="phone" class="form-control form-control-solid required" required/>
                 </div>
 
                 <div class="card-footer">

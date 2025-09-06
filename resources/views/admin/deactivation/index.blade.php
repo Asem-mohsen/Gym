@@ -85,15 +85,13 @@
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title">Data Preview</h5>
-                                        <button type="button" class="btn btn-outline-dark close" data-dismiss="modal">
-                                            <span>&times;</span>
-                                        </button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body" id="previewContent">
                                         <!-- Content will be loaded here -->
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                     </div>
                                 </div>
                             </div>
@@ -105,9 +103,7 @@
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title">Confirm Deactivation</h5>
-                                        <button type="button" class="btn btn-outline-dark close" data-dismiss="modal">
-                                            <span>&times;</span>
-                                        </button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="alert alert-danger">
@@ -118,7 +114,7 @@
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                         @can('deactivate_gyms_and_branches')
                                             <button type="button" class="btn btn-danger" id="confirmDeactivationBtn" disabled>
                                                 <i class="fas fa-trash"></i> Deactivate

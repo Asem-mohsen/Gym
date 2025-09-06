@@ -100,6 +100,30 @@
                 </div>
                 
                 <div class="mb-10 col-md-6">
+                    <label for="branch_ids" class="required form-label">Assigned Branches</label>
+                    @php
+                        $branchOptions = [];
+                        foreach($branches as $branch){
+                            $branchOptions[] = [
+                                'value' => $branch['id'],
+                                'label' => $branch['name']
+                            ];
+                        }
+                        $selectedBranches = old('branch_ids', $trainer->assignedBranches->pluck('id')->toArray());
+                    @endphp
+                    @include('_partials.select',[
+                        'options' => $branchOptions,
+                        'name' => 'branch_ids[]',
+                        'id' => 'branch_ids',
+                        'selectedValue' => $selectedBranches,
+                        'multiple' => true
+                    ])
+                    @error('branch_ids')
+                        <div class="text-danger mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+                
+                <div class="mb-10 col-md-6">
                     <label for="image" class="form-label">Profile Image</label>
                     @if($trainer->user_image)
                         <div class="mb-3">

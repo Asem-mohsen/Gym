@@ -77,6 +77,16 @@ class Branch extends Model implements HasMedia
         return $this->hasOne(BranchScore::class);
     }
 
+    public function assignedUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_branch', 'branch_id', 'user_id');
+    }
+
+    public function classes(): BelongsToMany
+    {
+        return $this->belongsToMany(ClassModel::class, 'class_branch', 'branch_id', 'class_id');
+    }
+
     public function getScoreValueAttribute(): int
     {
         return $this->score()->first()?->score ?? 0;
@@ -91,4 +101,5 @@ class Branch extends Model implements HasMedia
         if ($score >= 60) return 'average';
         return 'poor';
     }
+
 }

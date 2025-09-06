@@ -53,6 +53,13 @@
                             <span class="badge badge-light-danger fs-7 fw-bold">Inactive</span>
                         @endif
                     </div>
+                    <div class="d-flex justify-content-center">
+                        <span class="fs-6 fw-semibold text-muted me-2">Branch:</span>
+                        <span class="fs-6 fw-bold text-gray-800">{{ $trainer->branches->pluck('name')->implode(', ') }}</span>
+                        @if($trainer->branches->count() == 0)
+                            <span class="badge badge-light-danger fs-7 fw-bold">No Branch</span>
+                        @endif
+                    </div>
                 </div>
                 
                 <div class="separator my-10"></div>

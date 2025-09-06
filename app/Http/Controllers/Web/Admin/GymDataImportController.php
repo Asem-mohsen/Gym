@@ -103,15 +103,20 @@ class GymDataImportController extends Controller
     {
         $templateData = [
             'Users' => [
-                ['name', 'email', 'phone', 'address', 'gender', 'role', 'status', 'password'],
-                ['John Doe', 'john.doe@example.com', '1234567890', '123 Main Street', 'male', 'regular_user', '1', ''],
-                ['Jane Smith', 'jane.smith@example.com', '0987654321', '456 Oak Avenue', 'female', 'trainer', '1', ''],
-                ['Mike Johnson', 'mike.johnson@example.com', '5551234567', '789 Pine Road', 'male', 'admin', '1', ''],
+                ['name', 'email', 'phone', 'address', 'gender', 'role', 'status'],
+                ['John Doe', 'john.doe@example.com', '1234567890', '123 Main Street', 'male', 'regular_user', '1'],
+                ['Jane Smith', 'jane.smith@example.com', '0987654321', '456 Oak Avenue', 'female', 'trainer', '1'],
+                ['Mike Johnson', 'mike.johnson@example.com', '5551234567', '789 Pine Road', 'male', 'admin', '1'],
+                ['Jake Johnson', 'jake.johnson@example.com', '5551234567', '789 Pine Road', 'male', 'admin', '1'],
+                ['John Johnson', 'John.johnson@example.com', '5551234567', '789 Pine Road', 'male', 'management', '1'],
+                ['Sophia Johnson', 'Sophia.johnson12@example.com', '15551234567', '789 Pine Road', 'female', 'sales', '1'],
+                ['Mark Johnson', 'farouk@example.com', '5551234567', '789 Pine Road', 'female', 'regular_user', '1'],
+                ['Nevin Johnson', 'Nevine@example.com', '5551234567', '789 Pine Road', 'male', 'sales', '1'],
             ],
             'Branches' => [
                 ['name', 'name_en', 'name_ar', 'location', 'location_en', 'location_ar', 'type', 'size', 'manager_email'],
-                ['Main Branch', 'Main Branch', 'الفرع الرئيسي', 'Downtown Area', 'Downtown Area', 'منطقة وسط المدينة', 'mix', '1000', 'john.doe@example.com'],
-                ['Women Branch', 'Women Branch', 'فرع السيدات', 'Shopping District', 'Shopping District', 'منطقة التسوق', 'women', '800', 'jane.smith@example.com'],
+                ['Main Branch', 'Main Branch', 'الفرع الرئيسي', 'Downtown Area', 'Downtown Area', 'منطقة وسط المدينة', 'mix', '1000', 'jake.johnson@example.com'],
+                ['Women Branch', 'Women Branch', 'فرع السيدات', 'Shopping District', 'Shopping District', 'منطقة التسوق', 'women', '800', 'mike.johnson@example.com'],
             ],
             'Memberships' => [
                 ['name', 'name_en', 'name_ar', 'period', 'description', 'subtitle', 'price', 'billing_interval', 'status', 'order'],
@@ -122,8 +127,8 @@ class GymDataImportController extends Controller
             'Classes' => [
                 ['name', 'name_en', 'type', 'description', 'status', 'trainer_emails'],
                 ['Yoga Class', 'Yoga Class', 'fitness', 'Relaxing yoga session for all levels', 'active', 'jane.smith@example.com'],
-                ['Cardio Training', 'Cardio Training', 'fitness', 'High-intensity cardio workout', 'active', 'john.doe@example.com'],
-                ['Strength Training', 'Strength Training', 'fitness', 'Weight training and muscle building', 'active', 'mike.johnson@example.com'],
+                ['Cardio Training', 'Cardio Training', 'fitness', 'High-intensity cardio workout', 'active', 'jane.smith@example.com'],
+                ['Strength Training', 'Strength Training', 'fitness', 'Weight training and muscle building', 'active', 'jane.smith@example.com'],
             ],
             'Services' => [
                 ['name', 'name_en', 'name_ar', 'description', 'duration', 'price', 'requires_payment', 'booking_type', 'is_available'],

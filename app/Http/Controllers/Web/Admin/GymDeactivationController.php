@@ -8,7 +8,7 @@ use App\Models\{SiteSetting, Branch, Document, User};
 use App\Services\Deletations\GymDeactivationService;
 use App\Services\SiteSettingService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\{DB, Auth};
+use Illuminate\Support\Facades\{DB, Auth, Log};
 
 class GymDeactivationController extends Controller
 {
@@ -30,10 +30,8 @@ class GymDeactivationController extends Controller
          */
         $user = Auth::user();
         
-        if (!$user->isAdmin()) {
-            abort(403, 'Access denied. Admin role required.');
-        }
-
+        if (!$user->hasRole('admin')) return redirect()->route('admin.dashboard')->with('error', 'Access denied. Admin role required.');
+        
         $gym = $user->site;
         
         $gyms = collect([$gym]);
@@ -62,7 +60,7 @@ class GymDeactivationController extends Controller
 
             DB::beginTransaction();
 
-            // $this->deactivationService->deactivateBranch($branch);
+            $this->deactivationService->deactivateBranch($branch);
 
             DB::commit();
 
@@ -121,27 +119,7 @@ class GymDeactivationController extends Controller
     public function getGymDataPreview(): JsonResponse
     {
         try {
-            /**
-             * @var User $user
-            */
-            $user = Auth::user();
-            
             $siteSetting = $this->siteSettingService->getSiteSettingById($this->siteSettingsId);
-
-            // Check if user is admin
-            if (!$user->isAdmin()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Access denied. Admin role required.'
-                ], 403);
-            }
-
-            if (!$this->siteSettingsId || $this->siteSettingsId !== $siteSetting->id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Access denied. You can only view data for your own gym.'
-                ], 403);
-            }
 
             $data = $this->deactivationService->getGymDataForExport($siteSetting);
 
@@ -166,7 +144,6 @@ class GymDeactivationController extends Controller
                 // 'total_coaching_sessions' => count($data['coaching_sessions']),
                 // 'total_transactions' => count($data['transactions']),
                 'total_trainer_information' => count($data['trainer_information']),
-                'total_roles' => count($data['roles']),
                 'total_documents' => count($data['documents']),
             ];
 
@@ -189,26 +166,6 @@ class GymDeactivationController extends Controller
     public function getBranchDataPreview(Branch $branch): JsonResponse
     {
         try {
-            /**
-             * @var User $user
-            */
-            $user = Auth::user();
-            
-            // Check if user is admin
-            if (!$user->isAdmin()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Access denied. Admin role required.'
-                ], 403);
-            }
-
-            if ($this->siteSettingsId !== $branch->site_setting_id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Access denied. You can only view data for branches in your own gym.'
-                ], 403);
-            }
-
             $summary = [
                 'branch_name' => $branch->name,
                 'branch_location' => $branch->location,
@@ -219,7 +176,7 @@ class GymDeactivationController extends Controller
                 'total_trainers' => $branch->trainers()->count(),
                 'total_subscribers' => $branch->subscriptions()->count(),
                 'total_services' => $branch->services()->count(),
-                // 'total_classes' => $branch->classes()->count(), // to do : change to classes
+                'total_classes' => $branch->classes()->count(), // to do : change to classes
                 'total_machines' => $branch->machines()->count(),
             ];
 

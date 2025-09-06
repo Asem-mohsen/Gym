@@ -71,7 +71,8 @@
             console.log('Deactivating gym:', gymId);
             currentAction = 'gym';
             currentId = gymId;
-            $('#confirmationModal').modal('show');
+            const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+            confirmationModal.show();
         });
     
         // Branch deactivation
@@ -83,10 +84,9 @@
             }
             currentAction = 'branch';
             currentId = branchId;
-            $('#confirmationModal').modal('show');
+            const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+            confirmationModal.show();
         });
-    
-    
     
         $('#gymSelect').change(function() {
             $('#deactivateGymBtn').prop('disabled', !$(this).val());
@@ -119,7 +119,8 @@
             
             content += '</ul>';
             $('#previewContent').html(content);
-            $('#previewModal').modal('show');
+            const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+            previewModal.show();
         }
     
         function deactivateGym(gymId) {
@@ -141,7 +142,10 @@
                     }
                 })
                 .always(function() {
-                    $('#confirmationModal').modal('hide');
+                    const confirmationModal = bootstrap.Modal.getInstance(document.getElementById('confirmationModal'));
+                    if (confirmationModal) {
+                        confirmationModal.hide();
+                    }
                     $('#confirmText').val('');
                     $('#confirmDeactivationBtn').prop('disabled', true);
                 });
@@ -167,7 +171,10 @@
                     }
                 })
                 .always(function() {
-                    $('#confirmationModal').modal('hide');
+                    const confirmationModal = bootstrap.Modal.getInstance(document.getElementById('confirmationModal'));
+                    if (confirmationModal) {
+                        confirmationModal.hide();
+                    }
                     $('#confirmText').val('');
                     $('#confirmDeactivationBtn').prop('disabled', true);
                 });

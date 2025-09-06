@@ -14,13 +14,18 @@
                 }
             })
             .catch(error => {
-                document.getElementById('recent-notifications').innerHTML = 
-                    '<div class="text-center text-muted">Error loading notifications</div>';
+                const container = document.getElementById('recent-notifications');
+                if (container) {
+                    container.innerHTML = 
+                        '<div class="text-center text-muted">Error loading notifications</div>';
+                }
             });
     }
     
     function displayRecentNotifications(data) {
         const container = document.getElementById('recent-notifications');
+        
+        if (!container) return;
         
         if (data.notifications.length === 0) {
             container.innerHTML = '<div class="text-center text-muted">No recent notifications</div>';
@@ -29,7 +34,7 @@
         
         let html = '';
         data.notifications.forEach(notification => {
-            const priorityClass = getPriorityClass(notification.data.priority || 'normal');
+            const priorityClass = getIndexPriorityClass(notification.data.priority || 'normal');
             const priorityIcon = getPriorityIcon(notification.data.priority || 'normal');
             
             html += `
@@ -40,7 +45,7 @@
                             <p class="mb-1 small text-muted">${notification.data.message || ''}</p>
                             <small class="text-muted">
                                 <i class="fas fa-clock mr-1"></i>
-                                ${formatDate(notification.created_at)}
+                                ${formatIndexDate(notification.created_at)}
                             </small>
                         </div>
                         <div class="ml-2">
@@ -54,7 +59,7 @@
         container.innerHTML = html;
     }
     
-    function getPriorityClass(priority) {
+    function getIndexPriorityClass(priority) {
         switch(priority) {
             case 'urgent': return 'border-danger';
             case 'high': return 'border-warning';
@@ -74,7 +79,7 @@
         }
     }
     
-    function formatDate(dateString) {
+    function formatIndexDate(dateString) {
         const date = new Date(dateString);
         const now = new Date();
         const diffTime = Math.abs(now - date);
@@ -96,13 +101,18 @@
                 }
             })
             .catch(error => {
-                document.getElementById('recent-sent-notifications').innerHTML = 
-                    '<div class="text-center text-muted">Error loading sent notifications</div>';
+                const container = document.getElementById('recent-sent-notifications');
+                if (container) {
+                    container.innerHTML = 
+                        '<div class="text-center text-muted">Error loading sent notifications</div>';
+                }
             });
     }
     
     function displayRecentSentNotifications(data) {
         const container = document.getElementById('recent-sent-notifications');
+        
+        if (!container) return;
         
         if (data.notifications.length === 0) {
             container.innerHTML = '<div class="text-center text-muted">No sent notifications</div>';
@@ -111,7 +121,7 @@
         
         let html = '';
         data.notifications.forEach(notification => {
-            const priorityClass = getPriorityClass(notification.data.priority || 'normal');
+            const priorityClass = getIndexPriorityClass(notification.data.priority || 'normal');
             const priorityIcon = getPriorityIcon(notification.data.priority || 'normal');
             
             html += `
@@ -122,7 +132,7 @@
                             <p class="mb-1 small text-muted">${notification.data.message || ''}</p>
                             <small class="text-muted">
                                 <i class="fas fa-clock mr-1"></i>
-                                ${formatDate(notification.created_at)}
+                                ${formatIndexDate(notification.created_at)}
                             </small>
                         </div>
                         <div class="ml-2">
@@ -145,13 +155,18 @@
                 }
             })
             .catch(error => {
-                document.getElementById('recent-system-notifications').innerHTML = 
-                    '<div class="text-center text-muted">Error loading system notifications</div>';
+                const container = document.getElementById('recent-system-notifications');
+                if (container) {
+                    container.innerHTML = 
+                        '<div class="text-center text-muted">Error loading system notifications</div>';
+                }
             });
     }
     
     function displayRecentSystemNotifications(data) {
         const container = document.getElementById('recent-system-notifications');
+        
+        if (!container) return;
         
         if (data.notifications.length === 0) {
             container.innerHTML = '<div class="text-center text-muted">No system notifications</div>';
@@ -160,7 +175,7 @@
         
         let html = '';
         data.notifications.forEach(notification => {
-            const priorityClass = getPriorityClass(notification.data.priority || 'normal');
+            const priorityClass = getIndexPriorityClass(notification.data.priority || 'normal');
             const priorityIcon = getPriorityIcon(notification.data.priority || 'normal');
             
             html += `
@@ -171,7 +186,7 @@
                             <p class="mb-1 small text-muted">${notification.data.message || ''}</p>
                             <small class="text-muted">
                                 <i class="fas fa-clock mr-1"></i>
-                                ${formatDate(notification.created_at)}
+                                ${formatIndexDate(notification.created_at)}
                             </small>
                         </div>
                         <div class="ml-2">

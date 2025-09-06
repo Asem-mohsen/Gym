@@ -275,22 +275,31 @@ Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
             Route::post('/{siteSettingId}/reset', 'reset')->name('reset');
             Route::get('/{siteSettingId}/css-variables', 'getCssVariables')->name('css-variables');
             Route::post('/preview', 'preview')->name('preview');
+            
+            // Page text management routes
+            Route::get('/{siteSettingId}/page-texts/{pageType}', 'getPageTexts')->name('page-texts');
+            Route::post('/preview-page-texts', 'previewPageTexts')->name('preview-page-texts');
+            Route::post('/{siteSettingId}/reset-page-texts/{pageType?}', 'resetPageTexts')->name('reset-page-texts');
         });
     });
 
-    // Notification Management Routes
+    // User notification routes (accessible to all authenticated users)
+    Route::prefix('notifications')->controller(NotificationController::class)->name('admin.notifications.')->group(function () {
+        Route::get('/user-notifications', 'getUserNotifications')->name('user-notifications');
+        Route::post('/{id}/mark-read', 'markAsRead')->name('mark-read');
+        Route::post('/mark-all-read', 'markAllAsRead')->name('mark-all-read');
+    });
+
+    // Notification Management Routes (requires view_notifications permission)
     Route::middleware(['permission:view_notifications'])->group(function () {
         Route::prefix('notifications')->controller(NotificationController::class)->name('admin.notifications.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/create', 'create')->name('create');
             Route::post('/', 'store')->name('store');
             Route::get('/history', 'history')->name('history');
-            Route::get('/user-notifications', 'getUserNotifications')->name('user-notifications');
             Route::get('/recent', 'recent')->name('recent');
             Route::get('/recent-sent-by-type', 'recentSentByType')->name('recent-sent-by-type');
             Route::get('/recent-system', 'recentSystem')->name('recent-system');
-            Route::post('/{id}/mark-read', 'markAsRead')->name('mark-read');
-            Route::post('/mark-all-read', 'markAllAsRead')->name('mark-all-read');
             Route::delete('/{id}', 'destroy')->name('destroy');
         });
     });

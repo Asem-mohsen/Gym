@@ -5,14 +5,15 @@ namespace App\Notifications;
 use App\Models\BranchScoreReviewRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use App\Services\RealTimeNotificationService;
 
 class ReviewRequestStatusNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     protected $reviewRequest;
+    protected $realTimeService;
 
     /**
      * Create a new notification instance.
@@ -20,6 +21,7 @@ class ReviewRequestStatusNotification extends Notification implements ShouldQueu
     public function __construct(BranchScoreReviewRequest $reviewRequest)
     {
         $this->reviewRequest = $reviewRequest;
+        $this->realTimeService = app(RealTimeNotificationService::class);
     }
 
     /**
@@ -29,44 +31,36 @@ class ReviewRequestStatusNotification extends Notification implements ShouldQueu
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['database', 'broadcast'];
     }
 
+
     /**
-     * Get the mail representation of the notification.
+     * Get the broadcastable representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toBroadcast(object $notifiable): array
     {
         $branchScore = $this->reviewRequest->branchScore;
         $branch = $branchScore->branch;
         $status = $this->reviewRequest->status;
+        
+        $title = 'Review Request ' . ucfirst($status) . ' - ' . $branch->getTranslation('name', app()->getLocale());
+        $message = $status === 'approved' 
+            ? 'Great news! Your review request has been approved.'
+            : ($status === 'rejected' 
+                ? 'Your review request has been rejected.'
+                : 'Your review request is still pending review.');
 
-        $mailMessage = (new MailMessage)
-            ->subject('Review Request ' . ucfirst($status) . ' - ' . $branch->getTranslation('name', app()->getLocale()))
-            ->greeting('Hello ' . $notifiable->name . ',');
+        $notification = $this->realTimeService->createNotification(
+            'review_request_status',
+            $title,
+            $message,
+            url('/admin/score-management/review-requests/' . $this->reviewRequest->id),
+            'View Review Request',
+            'normal'
+        );
 
-        if ($status === 'approved') {
-            $mailMessage->line('Great news! Your review request for branch "' . $branch->getTranslation('name', app()->getLocale()) . '" has been **approved**.')
-                ->line('**Scheduled Review Date:** ' . ($this->reviewRequest->scheduled_review_date ? $this->reviewRequest->scheduled_review_date->format('M d, Y H:i') : 'To be determined'))
-                ->line('**Review Notes:** ' . ($this->reviewRequest->review_notes ?? 'No additional notes'))
-                ->line('**Reviewed By:** ' . ($this->reviewRequest->reviewedBy?->name ?? 'System'))
-                ->line('**Reviewed At:** ' . $this->reviewRequest->reviewed_at->format('M d, Y H:i'));
-        } elseif ($status === 'rejected') {
-            $mailMessage->line('Your review request for branch "' . $branch->getTranslation('name', app()->getLocale()) . '" has been **rejected**.')
-                ->line('**Rejection Reason:** ' . ($this->reviewRequest->review_notes ?? 'No reason provided'))
-                ->line('**Reviewed By:** ' . ($this->reviewRequest->reviewedBy?->name ?? 'System'))
-                ->line('**Reviewed At:** ' . $this->reviewRequest->reviewed_at->format('M d, Y H:i'))
-                ->line('You may submit a new review request with additional information or clarifications.');
-        } else {
-            $mailMessage->line('Your review request for branch "' . $branch->getTranslation('name', app()->getLocale()) . '" is still **pending** review.')
-                ->line('We will review your request and get back to you soon.')
-                ->line('**Request Notes:** ' . ($this->reviewRequest->request_notes ?? 'No notes provided'))
-                ->line('**Requested At:** ' . $this->reviewRequest->requested_at->format('M d, Y H:i'));
-        }
-
-        return $mailMessage
-            ->action('View Review Request', url('/admin/score-management/review-requests/' . $this->reviewRequest->id))
-            ->line('Thank you for using our platform!');
+        return $notification;
     }
 
     /**

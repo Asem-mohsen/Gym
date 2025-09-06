@@ -4,8 +4,6 @@ namespace App\Imports;
 
 use App\Models\User;
 use App\Models\Role;
-use App\Models\SiteSetting;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -46,29 +44,31 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
                 return null;
             }
             
-
-            
-            // Generate a random password if not provided
-            $password = $row['password'] ?? $this->generateRandomPassword();
-            
             // Convert phone to string if it's a number
             $phone = $row['phone'] ?? null;
             if ($phone !== null) {
                 $phone = (string) $phone;
             }
             
-            // Create the user
-            $user = User::create([
+            // Create the user (don't include ID to let auto-increment handle it)
+            $userData = [
                 'name' => $row['name'],
                 'email' => $row['email'],
                 'phone' => $phone,
                 'address' => $row['address'] ?? null,
                 'gender' => $row['gender'] ?? null,
-                'password' => Hash::make($password),
+                'password' => null,
                 'status' => $row['status'] ?? 1,
                 'is_admin' => 0, // Default to regular user
                 'email_verified_at' => now(),
-            ]);
+            ];
+            
+            // Only include ID if it's not already in the database and not in the Excel file
+            if (isset($row['id']) && !empty($row['id']) && !User::where('id', $row['id'])->exists()) {
+                $userData['id'] = $row['id'];
+            }
+            
+            $user = User::create($userData);
 
             // Assign role based on the role column
             $this->assignRole($user, $row['role'] ?? 'regular_user');
@@ -79,7 +79,6 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
             // Store imported user data for reporting
             $this->importedUsers[] = [
                 'user' => $user,
-                'password' => $password,
                 'role' => $row['role'] ?? 'regular_user'
             ];
 
@@ -155,32 +154,26 @@ class UsersImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnErr
             'trainer' => 'trainer',
             'staff' => 'staff',
             'employee' => 'staff',
+            'management' => 'management',
+            'sales' => 'sales',
         ];
 
         $mappedRoleName = $roleMapping[strtolower($roleName)] ?? 'regular_user';
         
-        // Find the role
         $role = Role::where('name', $mappedRoleName)->first();
         
         if ($role) {
             $user->assignRole($role);
             
-            // If it's an admin role, update the is_admin flag
-            if (in_array($mappedRoleName, ['admin', 'administrator'])) {
+            if (!in_array($mappedRoleName, ['regular_user','user','member'])) {
                 $user->update(['is_admin' => 1]);
             }
         } else {
-            // Assign default role if specified role doesn't exist
             $defaultRole = Role::where('name', 'regular_user')->first();
             if ($defaultRole) {
                 $user->assignRole($defaultRole);
             }
         }
-    }
-
-    protected function generateRandomPassword(): string
-    {
-        return \Illuminate\Support\Str::random(8);
     }
 
     public function getImportedUsers(): array

@@ -21,6 +21,8 @@ class AddAdminRequest extends FormRequest
             'phone'   => ['required' , 'numeric'],
             'role_ids' => ['nullable', 'array'],
             'role_ids.*' => ['exists:roles,id'],
+            'branch_ids' => ['nullable', 'array'],
+            'branch_ids.*' => ['exists:branches,id'],
             'gender'  => ['required' , 'in:male,female'],
             'status'  => ['required' , 'in:active,inactive'],
         ];

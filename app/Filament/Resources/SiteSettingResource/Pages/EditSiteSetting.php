@@ -6,6 +6,7 @@ use App\Filament\Resources\SiteSettingResource;
 use App\Services\ContractDocumentService;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Log;
 
 class EditSiteSetting extends EditRecord
 {
@@ -22,7 +23,7 @@ class EditSiteSetting extends EditRecord
     protected function afterSave(): void
     {
         $siteSetting = $this->record;
-        
+        Log::info('Site setting after save', ['siteSetting' => $siteSetting]);
         $this->handleOwnerAssignment($siteSetting);
         
         $service = new ContractDocumentService();

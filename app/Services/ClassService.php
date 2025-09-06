@@ -84,11 +84,17 @@ class ClassService
         $data['slug'] = Str::slug($data['name']);
         $data['site_setting_id'] = $siteSettingId;
         $image = $data['image'] ?? null;
-        unset($data['image']);
+        $branchIds = $data['branch_ids'] ?? [];
+        unset($data['image'], $data['branch_ids']);
 
         $class = $this->classRepository->create($data);
 
         $class->trainers()->sync($data['trainers'] ?? []);
+
+        // Assign branches
+        if (!empty($branchIds)) {
+            $class->branches()->sync($branchIds);
+        }
 
         foreach ($data['schedules'] ?? [] as $schedule) {
             $this->scheduleRepository->create(array_merge($schedule, ['class_id' => $class->id]));
@@ -102,18 +108,24 @@ class ClassService
             $class->addMedia($image)->toMediaCollection('class_images');
         }
 
-        return $class->load(['trainers', 'schedules', 'pricings']);
+        return $class->load(['trainers', 'schedules', 'pricings', 'branches']);
     }
 
     public function updateClass($class, array $data)
     {
         $data['slug'] = Str::slug($data['name']);
         $image = $data['image'] ?? null;
-        unset($data['image']);
+        $branchIds = $data['branch_ids'] ?? [];
+        unset($data['image'], $data['branch_ids']);
 
         $this->classRepository->update($class, $data);
 
         $class->trainers()->sync($data['trainers'] ?? []);
+
+        // Update branch assignments
+        if (!empty($branchIds)) {
+                $class->branches()->sync($branchIds);
+        }
         
         $class->schedules()->delete();
         
@@ -132,7 +144,7 @@ class ClassService
             $class->addMedia($image)->toMediaCollection('class_images');
         }
 
-        return $class->load(['trainers', 'schedules', 'pricings']);
+        return $class->load(['trainers', 'schedules', 'pricings', 'branches']);
     }
 
     public function showClass($class)

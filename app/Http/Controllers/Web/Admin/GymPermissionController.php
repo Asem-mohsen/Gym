@@ -93,6 +93,13 @@ class GymPermissionController extends Controller
             
             return redirect()->back()->with('success', 'Role permissions updated successfully.');
         } catch (Exception $e) {
+            Log::error('Error assigning role permissions', [
+                'role_id' => $role->id,
+                'role_name' => $role->name,
+                'permissions' => $request->permission_ids,
+                'site_setting_id' => $this->siteSettingId,
+                'error' => $e->getMessage()
+            ]);
             return redirect()->back()->with('error', 'Error updating role permissions.');
         }
     }

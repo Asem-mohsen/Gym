@@ -86,8 +86,9 @@ class UserService
         
         $trainerData = $this->extractTrainerData($data);
         $roleIds = $data['role_ids'] ?? [];
+        $branchIds = $data['branch_ids'] ?? [];
 
-        unset($data['image'], $data['role_ids'], $data['password']);
+        unset($data['image'], $data['role_ids'], $data['branch_ids'], $data['password']);
     
         $data['password'] = null;
         $data['password_set_at'] = null;
@@ -100,6 +101,12 @@ class UserService
         if (!empty($roleIds)) {
             Log::info('Assigning roles to user', ['user_id' => $user->id, 'role_ids' => $roleIds]);
             $this->roleAssignmentService->assignRolesToUser($user, $roleIds);
+        }
+
+        // Assign branches based on the branch_ids from the request
+        if (!empty($branchIds)) {
+            Log::info('Assigning branches to user', ['user_id' => $user->id, 'branch_ids' => $branchIds]);
+            $user->assignedBranches()->sync($branchIds);
         }
 
         if ($image) {
@@ -120,8 +127,9 @@ class UserService
         $image = $data['image'] ?? null;
         $trainerData = $this->extractTrainerData($data);
         $roleIds = $data['role_ids'] ?? [];
+        $branchIds = $data['branch_ids'] ?? [];
         
-        unset($data['image'], $data['role_ids']);
+        unset($data['image'], $data['role_ids'], $data['branch_ids']);
 
         if (empty($data['password'])) {
             unset($data['password']);
@@ -133,6 +141,10 @@ class UserService
         $updatedUser->gyms()->syncWithoutDetaching([$siteSettingId]);
 
         $this->roleAssignmentService->assignRolesToUser($updatedUser, $roleIds);
+
+        if (!empty($branchIds)) {
+            $updatedUser->assignedBranches()->sync($branchIds);
+        }
 
         if ($image) {
             $updatedUser->clearMediaCollection('user_images');

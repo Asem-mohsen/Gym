@@ -40,6 +40,11 @@ class ClassModel extends Model implements HasMedia
         return $this->belongsTo(SiteSetting::class, 'site_setting_id');
     }
 
+    public function branches()
+    {
+        return $this->belongsToMany(Branch::class, 'class_branch', 'class_id', 'branch_id');
+    }
+
     public function bookings(): MorphMany
     {
         return $this->morphMany(Booking::class, 'bookable');
