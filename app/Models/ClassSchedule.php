@@ -18,6 +18,21 @@ class ClassSchedule extends Model
         'end_time',
     ];
 
+    protected $casts = [
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
+    ];
+
+    public function getStartTimeAttribute($value)
+    {
+        return $value ? date('H:i', strtotime($value)) : null;
+    }
+
+    public function getEndTimeAttribute($value)
+    {
+        return $value ? date('H:i', strtotime($value)) : null;
+    }
+
     public function classModel()
     {
         return $this->belongsTo(ClassModel::class, 'class_id');

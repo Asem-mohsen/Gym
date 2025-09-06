@@ -149,7 +149,7 @@ class ClassService
 
     public function showClass($class)
     {
-        return $this->classRepository->findById($class->id, ['schedules', 'pricings', 'trainers', 'media']);
+        return $this->classRepository->findById($class->id, ['schedules', 'pricings', 'trainers', 'media','branches']);
     }
 
     public function deleteClass($class)

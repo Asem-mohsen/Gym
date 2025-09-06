@@ -27,7 +27,7 @@ class WelcomeEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Welcome to ' . $this->gym->getTranslation('gym_name', 'en'),
+            subject: 'Welcome to ' . $this->gym->gym_name,
         );
     }
 
@@ -37,9 +37,9 @@ class WelcomeEmail extends Mailable
             view: 'emails.welcome',
             with: [
                 'userName' => $this->user->name,
-                'gymName' => $this->gym->getTranslation('gym_name', 'en'),
-                'gymAddress' => $this->gym->getTranslation('address', 'en'),
-                'gymDescription' => $this->gym->getTranslation('description', 'en'),
+                'gymName' => $this->gym->gym_name,
+                'gymAddress' => $this->gym->address,
+                'gymDescription' => $this->gym->description,
                 'gymLogo' => $this->gym->getFirstMediaUrl('email_logo') ?: $this->gym->getFirstMediaUrl('gym_logo'),
                 'contactEmail' => $this->gym->contact_email,
             ],

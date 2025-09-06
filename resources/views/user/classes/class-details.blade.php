@@ -173,7 +173,7 @@
                                             <label for="branch_id">Select Branch *</label>
                                             <select name="branch_id" id="branch_id" class="form-control" required>
                                                 <option value="">Choose a branch</option>
-                                                @foreach($branches as $branch)
+                                                @foreach($class->branches as $branch)
                                                     <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                                                 @endforeach
                                             </select>

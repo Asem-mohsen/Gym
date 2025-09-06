@@ -7,7 +7,7 @@
         <div class="f-fallback">
             @if($gymLogo)
                 <div style="text-align: center; margin-bottom: 30px;">
-                    <img src="{{ $gymLogo }}" alt="{{ $gymName }}" style="max-width: 200px; height: auto;">
+                    <img src="{{ $gymLogo }}" alt="{{ $gymName }}" style="max-width: 100px; height: auto;">
                 </div>
             @endif
 
@@ -48,7 +48,6 @@
             <h2>What's Next?</h2>
             <ul>
                 <li>Arrive at least 10 minutes before your scheduled time</li>
-                <li>Bring any required equipment or attire</li>
                 <li>Check in with our staff upon arrival</li>
                 <li>Enjoy your {{ strtolower($bookableType) }}!</li>
             </ul>

@@ -92,6 +92,8 @@ class GymSetting extends Model implements HasMedia
             // Page-specific media
             'login_page_image',
             'register_page_image',
+            'forget_password_page_image',
+            'reset_password_page_image',
             'services_hero_banner',
             'services_middle_image',
             'about_team_image',
@@ -120,6 +122,8 @@ class GymSetting extends Model implements HasMedia
             // Page-specific media (all single images)
             'login_page_image' => 1,
             'register_page_image' => 1,
+            'forget_password_page_image' => 1,
+            'reset_password_page_image' => 1,
             'services_hero_banner' => 1,
             'services_middle_image' => 1,
             'about_team_image' => 1,

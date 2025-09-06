@@ -22,10 +22,6 @@ Route::prefix('auth')->middleware(['auth:web'])->group(function () {
 
     });
 
-    Route::prefix('booking')->group(function () {
-        Route::post('/payment', [StripePaymentController::class, 'store'])->name('booking.payment');
-    });
-
     Route::prefix('lockers')->controller(LockerController::class)->middleware('auth')->group(function () {
         Route::post('{locker}/lock', 'lock');
         Route::post('{locker}/unlock', 'unlock');

@@ -15,6 +15,8 @@ use App\Http\Controllers\Web\User\GymSelectionController;
 use App\Http\Controllers\Web\User\InvitationController;
 use App\Http\Controllers\Web\User\NotFoundController;
 use App\Http\Controllers\Web\User\CheckinController;
+use App\Http\Controllers\Web\User\PaymentController;
+use App\Http\Controllers\Web\User\PaymobPaymentController;
 
 // Public Routes
 Route::get('/', [GymSelectionController::class, 'index'])->name('gym.selection');
@@ -37,62 +39,72 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.c
 
     Route::get('/trainers', [TeamController::class, 'index'])->name('team');
 
-    Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery');
-    Route::get('/gallery/{id}', [GalleryController::class, 'show'])->name('gallery.show');
-
-    Route::get('/branches/{branchId}/gallery', [GalleryController::class, 'branchGalleries'])->name('branch.gallery');
-    Route::get('/branches/{branchId}/gallery/{galleryId}', [GalleryController::class, 'branchGallery'])->name('branch.gallery.show');
-
-    Route::get('/blog', [BlogController::class, 'index'])->name('blog');
-    Route::get('/blog/{blogPost}', [BlogController::class, 'show'])->name('blog.show');
-
-    Route::prefix('blog/{blogPost}')->group(function () {
-        Route::post('/comments', [BlogController::class, 'storeComment'])->name('blog.comments.store');
-        Route::post('/comments/{comment}/reply', [BlogController::class, 'storeReply'])->name('blog.comments.reply');
-        Route::post('/comments/{comment}/like', [BlogController::class, 'toggleLike'])->name('blog.comments.like');
-        Route::post('/shares', [BlogController::class, 'share'])->name('blog.shares.store');
+    Route::controller(GalleryController::class)->group(function () {
+        Route::get('/gallery', 'index')->name('gallery');
+        Route::get('/gallery/{id}', 'show')->name('gallery.show');
+        Route::get('/branches/{branchId}/gallery', 'branchGalleries')->name('branch.gallery');
+        Route::get('/branches/{branchId}/gallery/{galleryId}', 'branchGallery')->name('branch.gallery.show');
     });
 
-    Route::get('/contact', [ContactController::class, 'index'])->name('contact');
-    Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
-
-    Route::prefix('memberships')->group(function () {
-        Route::get('/', [MembershipController::class, 'index'])->name('memberships.index');
-        Route::get('/{membership}/membership', [MembershipController::class, 'show'])->name('memberships.show');
+    Route::controller(BlogController::class)->group(function () {
+        Route::get('/blog', 'index')->name('blog');
+        Route::get('/blog/{blogPost}', 'show')->name('blog.show');
     });
 
-    Route::prefix('payments')->middleware(['auth:web'])->group(function () {
-        Route::post('/create-intent', [App\Http\Controllers\Web\User\PaymentController::class, 'createPaymentIntent'])->name('payments.create-intent');
-        Route::post('/paymob/initialize', [App\Http\Controllers\Web\User\PaymobPaymentController::class, 'initializePayment'])->name('payments.paymob.initialize');
-        Route::post('/paymob/process-with-branch', [App\Http\Controllers\Web\User\PaymobPaymentController::class, 'processPaymentWithBranch'])->name('payments.paymob.process-with-branch');
-        Route::get('/create/{bookingId}', [App\Http\Controllers\Web\User\PaymentController::class, 'createPayment'])->name('payment.create');
+    Route::controller(ContactController::class)->group(function () {
+        Route::get('/contact', 'index')->name('contact');
+        Route::post('/contact', 'store')->name('contact.store');
     });
 
-    Route::prefix('invitations')->middleware(['auth:web'])->controller(InvitationController::class)->group(function () {
-        Route::get('/', 'index')->name('invitations.index');
-        Route::get('/create', 'create')->name('invitations.create');
-        Route::post('/', 'store')->name('invitations.store');
-        Route::get('/verify', 'verify')->name('invitations.verify');
-        Route::get('/scan/{qrCode}', 'scanAndVerify')->name('invitations.scan');
-        Route::post('/{invitation}/resend', 'resend')->name('invitations.resend');
+    Route::prefix('memberships')->controller(MembershipController::class)->group(function () {
+        Route::get('/', 'index')->name('memberships.index');
+        Route::get('/{membership}/membership', 'show')->name('memberships.show');
     });
 
-    // Check-in routes
-    Route::prefix('checkin')->middleware(['auth:web'])->controller(CheckinController::class)->group(function () {
-        Route::get('/self', 'showSelfCheckin')->name('checkin.self');
-        Route::post('/self', 'processSelfCheckin')->name('checkin.self.process');
-        Route::get('/personal-qr', 'showPersonalQr')->name('checkin.personal-qr');
-        Route::get('/history', 'showCheckinHistory')->name('checkin.history');
-        Route::get('/stats', 'showCheckinStats')->name('checkin.stats');
-        Route::get('/staff-scanner', 'showStaffScanner')->name('checkin.staff-scanner');
-        Route::post('/gate', 'processGateCheckin')->name('checkin.gate');
-    });
+    Route::middleware(['auth:web'])->group(function () {
 
+        Route::prefix('payments')->controller(PaymentController::class)->group(function () {
+            Route::post('/create-intent', 'createPaymentIntent')->name('payments.create-intent');
+            Route::post('/paymob/initialize', 'initializePayment')->name('payments.paymob.initialize');
+            Route::post('/paymob/process-with-branch', 'processPaymentWithBranch')->name('payments.paymob.process-with-branch');
+            Route::get('/create/{bookingId}', 'createPayment')->name('payment.create');
+        });
+    
+        Route::prefix('invitations')->controller(InvitationController::class)->group(function () {
+            Route::get('/', 'index')->name('invitations.index');
+            Route::get('/create', 'create')->name('invitations.create');
+            Route::post('/', 'store')->name('invitations.store');
+            Route::get('/verify', 'verify')->name('invitations.verify');
+            Route::get('/scan/{qrCode}', 'scanAndVerify')->name('invitations.scan');
+            Route::post('/{invitation}/resend', 'resend')->name('invitations.resend');
+        });
+    
+        // Check-in routes
+        Route::prefix('checkin')->controller(CheckinController::class)->group(function () {
+            Route::get('/self', 'showSelfCheckin')->name('checkin.self');
+            Route::post('/self', 'processSelfCheckin')->name('checkin.self.process');
+            Route::get('/personal-qr', 'showPersonalQr')->name('checkin.personal-qr');
+            Route::get('/history', 'showCheckinHistory')->name('checkin.history');
+            Route::get('/stats', 'showCheckinStats')->name('checkin.stats');
+            Route::get('/staff-scanner', 'showStaffScanner')->name('checkin.staff-scanner');
+            Route::post('/gate', 'processGateCheckin')->name('checkin.gate');
+        });
+
+        Route::prefix('blog/{blogPost}')->controller(BlogController::class)->group(function () {
+            Route::post('/comments', 'storeComment')->name('blog.comments.store');
+            Route::post('/comments/{comment}/reply', 'storeReply')->name('blog.comments.reply');
+            Route::post('/comments/{comment}/like', 'toggleLike')->name('blog.comments.like');
+            Route::post('/shares', 'share')->name('blog.shares.store');
+        });
+
+    });
 });
 
 // Paymob callback routes (no auth required, no site setting context)
-Route::post('/paymob/callback', [App\Http\Controllers\Web\User\PaymobPaymentController::class, 'handleCallback'])->name('payments.paymob.callback');
-Route::get('/paymob/callback', [App\Http\Controllers\Web\User\PaymobPaymentController::class, 'handleCallback'])->name('payments.paymob.callback.get');
+Route::controller(PaymobPaymentController::class)->group(function () {
+    Route::post('/paymob/callback', 'handleCallback')->name('payments.paymob.callback');
+    Route::get('/paymob/callback', 'handleCallback')->name('payments.paymob.callback.get');
+});
 
 Route::get('/404', [NotFoundController::class, 'index'])->name('404');
 

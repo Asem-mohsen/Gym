@@ -27,7 +27,7 @@ class GymDeactivationNotificationEmail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Important Notice: ' . $this->gym->getTranslation('gym_name', 'en') . ' Gym Deactivation',
+            subject: 'Important Notice: ' . $this->gym->gym_name . ' Gym Deactivation',
         );
     }
 
@@ -37,8 +37,8 @@ class GymDeactivationNotificationEmail extends Mailable implements ShouldQueue
             view: 'emails.gym-deactivation-notification',
             with: [
                 'userName' => $this->user->name,
-                'gymName' => $this->gym->getTranslation('gym_name', 'en'),
-                'gymAddress' => $this->gym->getTranslation('address', 'en'),
+                'gymName' => $this->gym->gym_name,
+                'gymAddress' => $this->gym->address,
                 'gymLogo' => $this->gym->getFirstMediaUrl('email_logo') ?: $this->gym->getFirstMediaUrl('gym_logo'),
                 'contactEmail' => $this->gym->contact_email,
             ],

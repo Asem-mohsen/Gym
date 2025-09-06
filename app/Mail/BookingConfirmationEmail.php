@@ -31,7 +31,7 @@ class BookingConfirmationEmail extends Mailable
     {
         $bookableType = $this->getBookableType();
         return new Envelope(
-            subject: 'Booking Confirmation - ' . $bookableType . ' at ' . $this->gym->getTranslation('gym_name', 'en'),
+            subject: 'Booking Confirmation - ' . $bookableType . ' at ' . $this->gym->gym_name,
         );
     }
 
@@ -41,7 +41,7 @@ class BookingConfirmationEmail extends Mailable
             view: 'emails.booking-confirmation',
             with: [
                 'userName' => $this->booking->user->name,
-                'gymName' => $this->gym->getTranslation('gym_name', 'en'),
+                'gymName' => $this->gym->gym_name,
                 'gymLogo' => $this->gym->getFirstMediaUrl('email_logo') ?: $this->gym->getFirstMediaUrl('gym_logo'),
                 'contactEmail' => $this->gym->contact_email,
                 'booking' => $this->booking,
@@ -76,9 +76,9 @@ class BookingConfirmationEmail extends Mailable
         }
 
         return match ($this->booking->bookable_type) {
-            'App\Models\Membership' => $bookable->getTranslation('name', 'en'),
-            'App\Models\Service' => $bookable->getTranslation('name', 'en'),
-            'App\Models\ClassModel' => $bookable->getTranslation('name', 'en'),
+            'App\Models\Membership' => $bookable->name,
+            'App\Models\Service' => $bookable->name,
+            'App\Models\ClassModel' => $bookable->name,
             default => 'Unknown'
         };
     }

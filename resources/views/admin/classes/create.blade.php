@@ -90,7 +90,7 @@
                     </div>
                     <div class="mb-10 col-md-6">
                         <label for="description" class="required form-label">Description</label>
-                        <textarea name="description" id="description" class="form-control form-control-solid required" required>{{ old('name') }} </textarea>
+                        <textarea name="description" id="description" class="form-control form-control-solid required" required>{{ old('description') }} </textarea>
                     </div>
                     <div class="mb-10 col-md-6">
                         <label for="image" class="required form-label">Upload Image</label>
