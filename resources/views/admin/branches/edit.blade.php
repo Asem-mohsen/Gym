@@ -128,10 +128,66 @@
                     </div>
                 </div>
 
+                <!-- Coordinates Section -->
+                <div class="mb-10 col-md-12">
+                    <h4 class="mb-4">Location Coordinates</h4>
+                    <p class="text-muted mb-4">Add precise coordinates for better location-based sorting and distance calculation.</p>
+                </div>
+                
                 <div class="mb-10 col-md-6">
                     <label for="map_url" class="form-label">Map URL</label>
                     <input type="url" id="map_url" value="{{ $branch->map_url }}" name="map_url" class="form-control form-control-solid" placeholder="https://maps.google.com/..."/>
                     <small class="form-text text-muted">Share the Google Maps or any map service URL for the branch location</small>
+                </div>
+
+                <div class="mt-8 col-md-6 d-flex flex-column w-fit">
+                    <button type="button" id="getCoordinatesBtn" class="btn btn-light-primary">
+                        <i class="fas fa-map-marker-alt me-2"></i>Get Coordinates from Map URL
+                    </button>
+                    <small class="form-text text-muted ms-2">Click this button if you've entered a Google Maps URL above</small>
+                </div>
+
+                <div class="mb-10 col-md-4">
+                    <label for="latitude" class="form-label">Latitude</label>
+                    <input type="number" id="latitude" value="{{ old('latitude', $branch->latitude) }}" name="latitude" class="form-control form-control-solid" step="any" placeholder="e.g., 30.0444"/>
+                    <small class="form-text text-muted">Enter the latitude coordinate (e.g., 30.0444 for Cairo)</small>
+                </div>
+                
+                <div class="mb-10 col-md-4">
+                    <label for="longitude" class="form-label">Longitude</label>
+                    <input type="number" id="longitude" value="{{ old('longitude', $branch->longitude) }}" name="longitude" class="form-control form-control-solid" step="any" placeholder="e.g., 31.2357"/>
+                    <small class="form-text text-muted">Enter the longitude coordinate (e.g., 31.2357 for Cairo)</small>
+                </div>
+                
+                <div class="mb-10 col-md-4">
+                    <label for="city" class="form-label">City</label>
+                    <input type="text" id="city" value="{{ old('city', $branch->city) }}" name="city" class="form-control form-control-solid" placeholder="e.g., Cairo"/>
+                    <small class="form-text text-muted">Enter the city name for better location matching</small>
+                </div>
+                
+                <div class="mb-10 col-md-6">
+                    <label for="region" class="form-label">Region/Governorate</label>
+                    <input type="text" id="region" value="{{ old('region', $branch->region) }}" name="region" class="form-control form-control-solid" placeholder="e.g., Cairo Governorate"/>
+                    <small class="form-text text-muted">Enter the region or governorate name</small>
+                </div>
+                
+                <div class="mb-10 col-md-6">
+                    <label for="country" class="form-label">Country</label>
+                    <input type="text" id="country" value="{{ old('country', $branch->country ?? 'Egypt') }}" name="country" class="form-control form-control-solid" placeholder="e.g., Egypt"/>
+                    <small class="form-text text-muted">Enter the country name</small>
+                </div>
+                
+                <div class="mb-10 col-md-12">
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>How to get coordinates:</h6>
+                        <ol class="mb-0">
+                            <li>Go to <a href="https://maps.google.com" target="_blank">Google Maps</a></li>
+                            <li>Search for your branch location</li>
+                            <li>Right-click on the exact location and select "What's here?"</li>
+                            <li>Copy the coordinates that appear in the search box</li>
+                            <li>Or use the "Get Coordinates" button below to help you</li>
+                        </ol>
+                    </div>
                 </div>
 
                 <div class="card-footer">
@@ -150,6 +206,8 @@
 
 @section('js')
     <script src="{{ asset('assets/admin/plugins/custom/formrepeater/formrepeater.bundle.js') }}"></script>
+    
+    @include('admin.branches.assets.scripts')
 
     <script>
         $('#phone-repeater').repeater({
@@ -160,6 +218,11 @@
             hide: function(deleteElement) {
                 $(this).slideUp(deleteElement);
             }
+        });
+
+        // Initialize coordinate extraction functionality
+        $(document).ready(function() {
+            initCoordinateExtraction();
         });
     </script>
 @endsection

@@ -48,7 +48,6 @@
                         <th>Type</th>
                         <th>Map</th>
                         <th>Subscribers</th>
-                        <th>Created at</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -76,7 +75,6 @@
                                 @endif
                             </td>
                             <td> {{$branch->subscriptions_count}}</td>
-                            <td> {{date('d-M-Y' , strtotime( $branch->created_at))}} </td>
                             <td>
                                 <div class="d-flex gap-1">
                                     @can('edit_branches')

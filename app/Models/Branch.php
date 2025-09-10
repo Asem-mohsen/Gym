@@ -21,6 +21,11 @@ class Branch extends Model implements HasMedia
     protected $guarded = ['id'];
 
     public $translatable = ['name','location'];
+    
+    protected $casts = [
+        'latitude' => 'float',
+        'longitude' => 'float',
+    ];
 
     public function siteSetting(): BelongsTo
     {

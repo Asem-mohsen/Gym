@@ -13,6 +13,10 @@ img.avatar.avatar-sm.me-3 {
 .h-60px {
     height: 60px;
 }
+.w-fit {
+    width: fit-content;
+}
+
 .timeline {
     position: relative;
     padding-left: 30px;

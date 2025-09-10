@@ -103,11 +103,11 @@
                 </div>
                 <div class="mb-10 col-md-6">
                     <label for="country" class="required form-label">Country</label>
-                    <input type="text" value="{{ old('country') }}" value="Egypt" placeholder="Egypt" name="country" class="form-control form-control-solid"/>
+                    <input type="text" value="{{ old('country', $admin->country) }}" value="Egypt" placeholder="Egypt" name="country" class="form-control form-control-solid"/>
                 </div>
                 <div class="mb-10 col-md-6">
                     <label for="city" class="required form-label">City</label>
-                    <input type="text" value="{{ old('city') }}" name="city" class="form-control form-control-solid"/>
+                    <input type="text" value="{{ old('city', $admin->city) }}" name="city" class="form-control form-control-solid"/>
                 </div>
                         
                 <div class="card-footer">

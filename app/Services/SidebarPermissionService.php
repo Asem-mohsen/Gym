@@ -19,9 +19,9 @@ class SidebarPermissionService
             [
                 'title' => 'Management',
                 'icon' => 'fa-solid fa-bars-progress',
-                'permission' => ['view_users', 'view_admins', 'view_trainers', 'view_staff', 'view_services', 'view_subscriptions', 'view_invitations', 'view_contacts', 'view_roles'],
+                'permission' => ['view_users', 'view_admins', 'view_trainers', 'view_staff', 'view_invitations', 'view_roles'],
                 'active' => function() {
-                    return request()->routeIs('users.*') || request()->routeIs('admins.*') || request()->routeIs('trainers.*') || request()->routeIs('services.*') || request()->routeIs('subscriptions.*') || request()->routeIs('invitations.*') || request()->routeIs('staff.*') || request()->routeIs('admin.contacts.*') || request()->routeIs('admin.permissions.*') ;
+                    return request()->routeIs('users.*') || request()->routeIs('admins.*') || request()->routeIs('trainers.*') || request()->routeIs('invitations.*') || request()->routeIs('staff.*') || request()->routeIs('admin.permissions.*') ;
                 },
                 'subItems' => [
                     [
@@ -57,22 +57,6 @@ class SidebarPermissionService
                         }
                     ],
                     [
-                        'title' => 'Service Management',
-                        'route' => 'services.index',
-                        'permission' => 'view_services',
-                        'active' => function() {
-                            return request()->routeIs('services.*');
-                        }
-                    ],
-                    [
-                        'title' => 'Subscriptions Management',
-                        'route' => 'subscriptions.index',
-                        'permission' => 'view_subscriptions',
-                        'active' => function() {
-                            return request()->routeIs('subscriptions.*');
-                        }
-                    ],
-                    [
                         'title' => 'Invitations Management',
                         'route' => 'invitations.index',
                         'permission' => 'view_invitations',
@@ -81,15 +65,7 @@ class SidebarPermissionService
                         }
                     ],
                     [
-                        'title' => 'Contact Messages',
-                        'route' => 'admin.contacts.index',
-                        'permission' => 'view_contacts',
-                        'active' => function() {
-                            return request()->routeIs('admin.contacts.*');
-                        }
-                    ],
-                    [
-                        'title' => 'Gym Permissions',
+                        'title' => 'Permissions Management',
                         'route' => 'admin.permissions.index',
                         'permission' => 'view_roles',
                         'active' => function() {
@@ -99,7 +75,67 @@ class SidebarPermissionService
                 ]
             ],
             [
-                'title' => 'Score Management',
+                'title' => 'Customer Offerings',
+                'icon' => 'fa-solid fa-user-group',
+                'permission' => ['view_memberships', 'view_features', 'view_subscriptions'],
+                'active' => function() {
+                    return request()->routeIs('membership.*') || request()->routeIs('features.*') || request()->routeIs('subscriptions.*') ;
+                },
+                'subItems' => [
+                    [
+                        'title' => 'Membership Management',
+                        'route' => 'membership.index',
+                        'permission' => 'view_memberships',
+                        'active' => function() {
+                            return request()->routeIs('membership.*');
+                        }
+                    ],
+                    [
+                        'title' => 'Feature Management',
+                        'route' => 'features.index',
+                        'permission' => 'view_features',
+                        'active' => function() {
+                            return request()->routeIs('features.*');
+                        }
+                    ],
+                    [
+                        'title' => 'Subscription Management',
+                        'route' => 'subscriptions.index',
+                        'permission' => 'view_subscriptions',
+                        'active' => function() {
+                            return request()->routeIs('subscriptions.*');
+                        }
+                    ],
+                ]
+            ],
+            [
+                'title' => 'Programs & Services',
+                'icon' => 'fa-solid fa-briefcase',
+                'permission' => ['view_services', 'view_classes'],
+                'active' => function() {
+                    return request()->routeIs('services.*') || request()->routeIs('classes.*') ;
+                },
+                'subItems' => [
+                    [
+                        'title' => 'Service',
+                        'route' => 'services.index',
+                        'permission' => 'view_services',
+                        'active' => function() {
+                            return request()->routeIs('services.*');
+                        }
+                    ],
+                    [
+                        'title' => 'Classes',
+                        'route' => 'classes.index',
+                        'permission' => 'view_classes',
+                        'active' => function() {
+                            return request()->routeIs('classes.*');
+                        },
+                    ],
+                ]
+            ],
+            [
+                'title' => 'Score & Reputation',
                 'icon' => 'fa-solid fa-star',
                 'permission' => ['view_scores', 'view_resources', 'view_reviews_requests'],
                 'active' => function() {
@@ -133,31 +169,30 @@ class SidebarPermissionService
                 ]
             ],
             [
-                'title' => 'Memberships',
-                'icon' => 'fa-solid fa-user-group',
-                'permission' => 'view_memberships',
+                'title' => 'Media & Contact',
+                'icon' => 'fa-solid fa-image',
+                'permission' => ['view_gallery', 'view_contacts'],
                 'active' => function() {
-                    return request()->routeIs('membership.*');
+                    return request()->routeIs('galleries.*') || request()->routeIs('admin.contacts.*');
                 },
-                'route' => 'membership.index'
-            ],
-            [
-                'title' => 'Features',
-                'icon' => 'fa-solid fa-star-of-life',
-                'permission' => 'view_features',
-                'active' => function() {
-                    return request()->routeIs('features.*');
-                },
-                'route' => 'features.index'
-            ],
-            [
-                'title' => 'Classes',
-                'icon' => 'fa-solid fa-calendar-days',
-                'permission' => 'view_classes',
-                'active' => function() {
-                    return request()->routeIs('classes.*');
-                },
-                'route' => 'classes.index'
+                'subItems' => [
+                    [
+                        'title' => 'Gallery',
+                        'route' => 'galleries.index',
+                        'permission' => 'view_gallery',
+                        'active' => function() {
+                            return request()->routeIs('galleries.*');
+                        },
+                    ],
+                    [
+                        'title' => 'Contact Messages',
+                        'route' => 'admin.contacts.index',
+                        'permission' => 'view_contacts',
+                        'active' => function() {
+                            return request()->routeIs('admin.contacts.*');
+                        }
+                    ]
+                ]
             ],
             [
                 'title' => 'Financials',
@@ -194,18 +229,9 @@ class SidebarPermissionService
                 ]
             ],
             [
-                'title' => 'Gallery',
-                'icon' => 'fa-solid fa-images',
-                'permission' => 'view_gallery',
-                'active' => function() {
-                    return request()->routeIs('galleries.*');
-                },
-                'route' => 'galleries.index'
-            ],
-            [
                 'title' => 'Site',
                 'icon' => 'fa-solid fa-chart-simple',
-                'permission' => ['view_site_settings', 'view_branches', 'manage_site_settings', 'import_gym_data'],
+                'permission' => ['view_site_settings', 'view_branches', 'manage_site_settings', 'import_gym_data','view_checkin_settings','view_branding','view_notifications','manage_site_settings'],
                 'active' => function() {
                     return request()->routeIs('site-settings.edit') || request()->routeIs('branches.*') || request()->routeIs('admin.deactivation.*') || request()->routeIs('admin.checkin-settings.*') || request()->routeIs('admin.import.*') || request()->routeIs('gym-branding.show') || request()->routeIs('admin.notifications.*');
                 },
@@ -219,7 +245,15 @@ class SidebarPermissionService
                         }
                     ],
                     [
-                        'title' => 'Site Branding',
+                        'title' => 'Branches',
+                        'route' => 'branches.index',
+                        'permission' => 'view_branches',
+                        'active' => function() {
+                            return request()->routeIs('branches.*');
+                        }
+                    ],
+                    [
+                        'title' => 'Branding & Layout',
                         'route' => ['gym-branding.show', 'siteSettingId'],
                         'permission' => 'view_branding',
                         'active' => function() {
@@ -232,14 +266,6 @@ class SidebarPermissionService
                         'permission' => 'view_checkin_settings',
                         'active' => function() {
                             return request()->routeIs('admin.checkin-settings.*');
-                        }
-                    ],
-                    [
-                        'title' => 'Branches Management',
-                        'route' => 'branches.index',
-                        'permission' => 'view_branches',
-                        'active' => function() {
-                            return request()->routeIs('branches.*');
                         }
                     ],
                     [
@@ -318,7 +344,6 @@ class SidebarPermissionService
             return true;
         }
 
-        // Admin has all permissions
         if ($user->hasRole('admin')) {
             return true;
         }

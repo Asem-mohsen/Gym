@@ -25,6 +25,10 @@ class GymSelectionController extends Controller
 
         $gyms = $this->locationService->sortGymsByScoreAndLocation($gyms, $userLocation);
 
+        $gyms->each(function ($gym) use ($userLocation) {
+            $gym->distance_info = $this->locationService->getGymDistanceInfo($gym, $userLocation);
+        });
+
         return view('user.gym-selection', compact('gyms', 'userLocation'));
     }
 }

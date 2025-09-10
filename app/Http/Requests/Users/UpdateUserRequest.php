@@ -25,6 +25,8 @@ class UpdateUserRequest extends FormRequest
             'role_ids' => ['nullable', 'array'],
             'role_ids.*' => ['exists:roles,id'],
             'phone'   => ['required' , 'numeric'],
+            'country'   => ['required' , 'max:255'],
+            'city'      => ['required' , 'max:255'],
             'image'   => ['nullable' , 'image' , 'mimes:jpeg,png,jpg,gif' , 'max:2048'],
         ];
 

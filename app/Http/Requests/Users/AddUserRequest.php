@@ -24,6 +24,8 @@ class AddUserRequest extends FormRequest
             'phone'   => ['required' , 'numeric'],
             'role_ids' => ['nullable', 'array'],
             'role_ids.*' => ['exists:roles,id'],
+            'country'   => ['required' , 'max:255'],
+            'city'      => ['required' , 'max:255'],
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
 

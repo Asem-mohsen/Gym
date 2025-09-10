@@ -2,7 +2,7 @@
 
 @section('content')
     <!-- Hero Section -->
-    <section class="hero-section">
+    <section class="hero-section" style="background-image: url({{ asset('assets/user/img/hero/gym-selections.png') }});">
         <div class="container">
             <div class="hero-content">
                 <h1 class="hero-title">Choose Your Perfect Gym</h1>
@@ -51,57 +51,71 @@
                     @foreach($gyms as $gym)
                         <div class="col-lg-4 col-md-6 mb-4 gym-item" data-gym-name="{{ strtolower($gym->getTranslation('gym_name', app()->getLocale())) }}">
                             <div class="gym-card">
-                                <div class="text-center">
-                                    @if($gym->getFirstMediaUrl('gym_logo'))
-                                        <img src="{{ $gym->getFirstMediaUrl('gym_logo') }}" alt="{{ $gym->getTranslation('gym_name', app()->getLocale()) }}" class="gym-logo">
-                                    @else
-                                        <div class="gym-logo-placeholder">
-                                            <i class="fas fa-dumbbell"></i>
-                                        </div>
-                                    @endif
-                                    
-                                    <h3 class="gym-name">{{ $gym->getTranslation('gym_name', app()->getLocale()) }}</h3>
-                                    
-                                    @if($gym->getTranslation('description', app()->getLocale()))
-                                        <p class="gym-description">{{ Str::limit($gym->getTranslation('description', app()->getLocale()), 120) }}</p>
-                                    @endif
-                                    
-                                    <div class="gym-features">
-                                        @if($gym->branches->count() > 0)
-                                            <div class="feature-item">
-                                                <i class="fas fa-map-marker-alt feature-icon"></i>
-                                                {{ $gym->branches->count() }} {{ Str::plural('branch', $gym->branches->count()) }}
-                                            </div>
-                                            @php
-                                                $averageScore = $gym->branches->avg('score_value');
-                                            @endphp
-                                            @if($averageScore > 0)
-                                                <div class="feature-item">
-                                                    <i class="fas fa-star feature-icon"></i>
-                                                    Score: {{ number_format($averageScore, 1) }}
-                                                </div>
-                                            @endif
-                                        @endif
-                                        
-                                        @if($gym->services->count() > 0)
-                                            <div class="feature-item">
-                                                <i class="fas fa-dumbbell feature-icon"></i>
-                                                {{ $gym->services->count() }} {{ Str::plural('service', $gym->services->count()) }}
+                                <div class="gym-card-content">
+                                    <div class="gym-card-header">
+                                        @if($gym->getFirstMediaUrl('gym_logo'))
+                                            <img src="{{ $gym->getFirstMediaUrl('gym_logo') }}" alt="{{ $gym->getTranslation('gym_name', app()->getLocale()) }}" class="gym-logo">
+                                        @else
+                                            <div class="gym-logo-placeholder">
+                                                <i class="fas fa-dumbbell"></i>
                                             </div>
                                         @endif
                                         
-                                        @if($gym->classes->count() > 0)
-                                            <div class="feature-item">
-                                                <i class="fas fa-calendar-alt feature-icon"></i>
-                                                {{ $gym->classes->count() }} {{ Str::plural('class', $gym->classes->count()) }}
-                                            </div>
+                                        <h3 class="gym-name">{{ $gym->getTranslation('gym_name', app()->getLocale()) }}</h3>
+                                        
+                                        @if($gym->getTranslation('description', app()->getLocale()))
+                                            <p class="gym-description">{{ Str::limit($gym->getTranslation('description', app()->getLocale()), 120) }}</p>
                                         @endif
                                     </div>
                                     
-                                    <a href="{{ route('user.home', $gym->slug) }}" class="gym-button">
-                                        <i class="fas fa-arrow-right me-2"></i>
-                                        Explore Gym
-                                    </a>
+                                    <div class="gym-card-body">
+                                        <div class="gym-features">
+                                            @if($gym->branches->count() > 0)
+                                                <div class="feature-item">
+                                                    <i class="fas fa-map-marker-alt feature-icon"></i>
+                                                    <span>{{ $gym->branches->count() }} {{ Str::plural('branch', $gym->branches->count()) }}</span>
+                                                </div>
+                                            @endif
+                                            
+                                            @if($gym->services->count() > 0)
+                                                <div class="feature-item">
+                                                    <i class="fas fa-dumbbell feature-icon"></i>
+                                                    <span>{{ $gym->services->count() }} {{ Str::plural('service', $gym->services->count()) }}</span>
+                                                </div>
+                                            @endif
+                                            
+                                            @if($gym->classes->count() > 0)
+                                                <div class="feature-item">
+                                                    <i class="fas fa-calendar-alt feature-icon"></i>
+                                                    <span>{{ $gym->classes->count() }} {{ Str::plural('class', $gym->classes->count()) }}</span>
+                                                </div>
+                                            @endif
+                                            
+                                            @if(isset($gym->distance_info) && $gym->distance_info)
+                                                <div class="feature-item distance-item">
+                                                    <i class="fas fa-route feature-icon"></i>
+                                                    <span class="distance-text">
+                                                        {{ $gym->distance_info['formatted_distance'] }} away
+                                                        @if($gym->distance_info['is_nearby'])
+                                                            <span class="nearby-badge">Nearby</span>
+                                                        @endif
+                                                    </span>
+                                                </div>
+                                            @elseif(isset($userLocation) && $userLocation)
+                                                <div class="feature-item distance-item">
+                                                    <i class="fas fa-route feature-icon"></i>
+                                                    <span class="distance-text">In your area</span>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="gym-card-footer">
+                                        <a href="{{ route('user.home', $gym->slug) }}" class="gym-button">
+                                            <i class="fas fa-arrow-right me-2"></i>
+                                            Explore Gym
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -116,5 +130,109 @@
             @endif
         </div>
     </section>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('gymSearch');
+            const locationButton = document.getElementById('locationButton');
+            const gymItems = document.querySelectorAll('.gym-item');
+            const searchResults = document.getElementById('searchResults');
+            const resultsCount = document.getElementById('resultsCount');
+            const loading = document.getElementById('loading');
+            
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                let visibleCount = 0;
+                
+                gymItems.forEach(item => {
+                    const gymName = item.getAttribute('data-gym-name');
+                    const isVisible = gymName.includes(searchTerm);
+                    
+                    item.style.display = isVisible ? 'block' : 'none';
+                    if (isVisible) visibleCount++;
+                });
+                
+                // Update results counter
+                if (searchTerm) {
+                    searchResults.style.display = 'block';
+                    resultsCount.textContent = visibleCount;
+                } else {
+                    searchResults.style.display = 'none';
+                }
+            });
+            
+            // Location button functionality
+            locationButton.addEventListener('click', function() {
+                if (navigator.geolocation) {
+                    loading.style.display = 'block';
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Getting Location...';
+                    
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+                            
+                            // Redirect with location parameters
+                            const url = new URL(window.location);
+                            url.searchParams.set('latitude', lat);
+                            url.searchParams.set('longitude', lng);
+                            window.location.href = url.toString();
+                        },
+                        function(error) {
+                            loading.style.display = 'none';
+                            locationButton.disabled = false;
+                            locationButton.innerHTML = '<i class="fas fa-map-marker-alt me-2"></i>Use My Location';
+                            
+                            let message = 'Unable to get your location. ';
+                            switch(error.code) {
+                                case error.PERMISSION_DENIED:
+                                    message += 'Please allow location access.';
+                                    break;
+                                case error.POSITION_UNAVAILABLE:
+                                    message += 'Location information unavailable.';
+                                    break;
+                                case error.TIMEOUT:
+                                    message += 'Location request timed out.';
+                                    break;
+                                default:
+                                    message += 'An unknown error occurred.';
+                                    break;
+                            }
+                            
+                            alert(message);
+                        },
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 300000
+                        }
+                    );
+                } else {
+                    alert('Geolocation is not supported by this browser.');
+                }
+            });
+            
+            // Add smooth scroll animation to gym cards
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            gymItems.forEach(item => {
+                observer.observe(item);
+            });
+        });
+    </script>
     
 @endsection

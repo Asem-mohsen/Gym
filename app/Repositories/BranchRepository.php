@@ -63,7 +63,7 @@ class BranchRepository
         return DB::transaction(function () use ($branch, $branchData, $phonesData) {
 
             $branch->update($branchData);
-    
+
             if (!empty($phonesData)) {
                 $branch->phones()->delete();
                 
