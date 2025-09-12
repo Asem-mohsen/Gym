@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use App\Models\SiteSetting;
 use App\Services\NotificationService;
@@ -55,7 +56,7 @@ class SendMembershipExpirationNotifications extends Command
             $this->info('Membership expiration notification process completed successfully.');
             return 0;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error('Error processing membership expiration notifications: ' . $e->getMessage());
             Log::error('Membership expiration notification command failed', [
                 'error' => $e->getMessage(),
@@ -81,7 +82,7 @@ class SendMembershipExpirationNotifications extends Command
                 $this->warn("⚠ No notifications sent for gym: {$siteSetting->getTranslation('gym_name', app()->getLocale())}");
             }
             
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error("✗ Error processing gym {$siteSetting->getTranslation('gym_name', app()->getLocale())}: " . $e->getMessage());
             Log::error('Error processing gym for membership expiration notifications', [
                 'gym_id' => $siteSetting->id,

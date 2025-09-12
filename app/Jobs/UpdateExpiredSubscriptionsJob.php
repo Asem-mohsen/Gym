@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use Exception;
 use App\Services\SubscriptionService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -29,7 +30,7 @@ class UpdateExpiredSubscriptionsJob implements ShouldQueue
     {
         try {
             $subscriptionService->updateExpiredSubscriptions();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error in UpdateExpiredSubscriptionsJob: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString()

@@ -2,6 +2,8 @@
 
 namespace App\Imports;
 
+use Exception;
+use Throwable;
 use App\Models\ClassModel;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
@@ -113,7 +115,7 @@ class ClassesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatchI
             Log::info('Class import completed successfully: ' . $name);
             return $class;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Class import error: ' . $e->getMessage(), [
                 'row' => $row,
                 'site_setting_id' => $this->siteSettingId
@@ -127,7 +129,7 @@ class ClassesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatchI
         }
     }
 
-    public function onError(\Throwable $e)
+    public function onError(Throwable $e)
     {
         Log::error('Class import error: ' . $e->getMessage());
         

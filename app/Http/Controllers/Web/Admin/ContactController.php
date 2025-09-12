@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Services\ContactService;
 use Illuminate\Http\Request;
@@ -45,7 +46,7 @@ class ContactController extends Controller
         try {
             $this->contactService->markAsAnswered($id);
             return response()->json(['success' => true, 'message' => 'Contact marked as answered successfully']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error marking contact as answered'], 500);
         }
     }

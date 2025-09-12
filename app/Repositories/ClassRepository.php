@@ -8,13 +8,22 @@ class ClassRepository
 {
     public function getClasses(int $siteSettingId)
     {
-        return ClassModel::where('site_setting_id', $siteSettingId)->where('status', 'active')->with('schedules', 'pricings','trainers')->get();
+        return ClassModel::where('site_setting_id', $siteSettingId)
+            ->where('status', 'active')
+            ->whereHas('branches', function($query) {
+                $query->where('is_visible', true);
+            })
+            ->with('schedules', 'pricings','trainers')
+            ->get();
     }
 
     public function getClassesWithSchedules(int $siteSettingId)
     {
         return ClassModel::where('site_setting_id', $siteSettingId)
             ->where('status', 'active')
+            ->whereHas('branches', function($query) {
+                $query->where('is_visible', true);
+            })
             ->with(['schedules', 'trainers'])
             ->get();
     }

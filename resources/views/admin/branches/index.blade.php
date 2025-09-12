@@ -46,6 +46,7 @@
                         <th>Manager</th>
                         <th>Location</th>
                         <th>Type</th>
+                        <th>Visibility</th>
                         <th>Map</th>
                         <th>Subscribers</th>
                         <th>Actions</th>
@@ -59,8 +60,15 @@
                             </td>
                             <td> {{$branch->name}} </td>
                             <td> {{$branch->manager->name}}</td>
-                            <td> {{$branch->location}} </td>
+                            <td>{{ \Illuminate\Support\Str::words($branch->location, 4, '...') }}</td>
                             <td> {{$branch->type}}</td>
+                            <td>
+                                @if($branch->is_visible)
+                                    <span class="badge badge-light-success">Visible</span>
+                                @else
+                                    <span class="badge badge-light-danger">Hidden</span>
+                                @endif
+                            </td>
                             <td>
                                 @if($branch->map_url)
                                     <a href="{{ $branch->map_url }}" target="_blank" class="btn btn-sm btn-light-primary">

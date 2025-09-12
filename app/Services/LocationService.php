@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -49,7 +50,7 @@ class LocationService
                     'country' => $data['country'] ?? null
                 ];
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Log error but don't fail
             Log::warning('Failed to get location from IP: ' . $e->getMessage());
         }

@@ -2,10 +2,22 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\Action;
+use Illuminate\Support\Facades\Auth;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Resources\BranchScoreResource\Pages\ListBranchScores;
+use App\Filament\Resources\BranchScoreResource\Pages\CreateBranchScore;
+use App\Filament\Resources\BranchScoreResource\Pages\EditBranchScore;
 use App\Filament\Resources\BranchScoreResource\Pages;
 use App\Models\BranchScore;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -17,23 +29,21 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 
-use Filament\Tables\Actions\Action;
-
 class BranchScoreResource extends Resource
 {
     protected static ?string $model = BranchScore::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-star';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-star';
 
-    protected static ?string $navigationGroup = 'Score Management';
+    protected static string | \UnitEnum | null $navigationGroup = 'Score Management';
 
     protected static ?string $navigationLabel = 'Branch Scores';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Branch Information')
+        return $schema
+            ->components([
+                Section::make('Branch Information')
                     ->schema([
                         Select::make('branch_id')
                             ->label('Branch')
@@ -44,7 +54,7 @@ class BranchScoreResource extends Resource
                             ->preload(),
                     ]),
 
-                Forms\Components\Section::make('Score Information')
+                Section::make('Score Information')
                     ->schema([
                         TextInput::make('score')
                             ->label('Current Score')
@@ -62,7 +72,7 @@ class BranchScoreResource extends Resource
                             ->default(true),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Review Schedule')
+                Section::make('Review Schedule')
                     ->schema([
                         DateTimePicker::make('last_review_date')
                             ->label('Last Review Date')
@@ -113,9 +123,9 @@ class BranchScoreResource extends Resource
                     ->label('Active'),
             ])
             ->filters([
-                Tables\Filters\TernaryFilter::make('is_active')
+                TernaryFilter::make('is_active')
                     ->label('Active Status'),
-                Tables\Filters\SelectFilter::make('score_level')
+                SelectFilter::make('score_level')
                     ->label('Score Level')
                     ->options([
                         'excellent' => 'Excellent (90+)',
@@ -125,14 +135,14 @@ class BranchScoreResource extends Resource
                         'poor' => 'Poor (<60)',
                     ]),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
                 Action::make('update_score')
                     ->label('Update Score')
                     ->icon('heroicon-o-pencil')
                     ->color('warning')
-                    ->form([
+                    ->schema([
                         TextInput::make('new_score')
                             ->label('New Score')
                             ->required()
@@ -159,13 +169,13 @@ class BranchScoreResource extends Resource
                             'change_amount' => $changeAmount,
                             'changed_at' => now(),
                             'change_reason' => $data['change_reason'],
-                            'changed_by_id' => \Illuminate\Support\Facades\Auth::id(),
+                            'changed_by_id' => Auth::id(),
                         ]);
                     }),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('score', 'desc');
@@ -181,10 +191,10 @@ class BranchScoreResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListBranchScores::route('/'),
-            'create' => Pages\CreateBranchScore::route('/create'),
+            'index' => ListBranchScores::route('/'),
+            'create' => CreateBranchScore::route('/create'),
 
-            'edit' => Pages\EditBranchScore::route('/{record}/edit'),
+            'edit' => EditBranchScore::route('/{record}/edit'),
         ];
     }
 }

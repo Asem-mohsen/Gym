@@ -5,7 +5,6 @@ use App\Http\Controllers\Web\Admin\DashboardController;
 use App\Http\Controllers\Web\Admin\AdminController;
 use App\Http\Controllers\Web\Admin\BlogPostController;
 use App\Http\Controllers\Web\Admin\MembershipController;
-use App\Http\Controllers\Web\Admin\RolesController;
 use App\Http\Controllers\Web\Admin\ServicesController;
 use App\Http\Controllers\Web\Admin\TransactionController;
 use App\Http\Controllers\Web\Admin\UserController;
@@ -27,7 +26,6 @@ use App\Http\Controllers\Web\Admin\CashPaymentController;
 use App\Http\Controllers\Web\Admin\InvitationController;
 use App\Http\Controllers\Web\Admin\TrainerController;
 use App\Http\Controllers\Web\Admin\StaffController;
-use App\Http\Controllers\Web\Admin\RolePermissionController;
 use App\Http\Controllers\Web\Admin\ContactController;
 use App\Http\Controllers\Web\Admin\GymPermissionController;
 use App\Http\Controllers\Web\Admin\AccountController;
@@ -64,21 +62,6 @@ Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
         Route::post('staff/{staff}/resend-onboarding-email', [StaffController::class, 'resendOnboardingEmail'])->name('staff.resend-onboarding-email');
     });
 
-    // Role and Permission Management Routes
-    Route::middleware(['permission:manage_roles'])->group(function () {
-        Route::get('roles', [RolePermissionController::class, 'index'])->name('roles.index');
-        Route::get('roles/{role}', [RolePermissionController::class, 'show'])->name('roles.show');
-        Route::put('roles/{role}/permissions', [RolePermissionController::class, 'updateRolePermissions'])->name('roles.update-permissions');
-        Route::post('roles', [RolePermissionController::class, 'createRole'])->name('roles.create');
-        Route::delete('roles/{role}', [RolePermissionController::class, 'deleteRole'])->name('roles.delete');
-        
-        Route::get('users/{user}/permissions', [RolePermissionController::class, 'userPermissions'])->name('users.permissions');
-        Route::put('users/{user}/roles', [RolePermissionController::class, 'updateUserRoles'])->name('users.update-roles');
-        Route::put('users/{user}/permissions', [RolePermissionController::class, 'updateUserPermissions'])->name('users.update-permissions');
-        
-        Route::get('roles/{role}/users', [RolePermissionController::class, 'getUsersByRole'])->name('roles.users');
-    });
-
     // Gym Permission Management Routes
     Route::middleware(['permission:view_roles'])->group(function () {
         Route::prefix('permissions')->controller(GymPermissionController::class)->name('admin.permissions.')->group(function () {
@@ -112,11 +95,6 @@ Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
     // Classes Management Routes
     Route::middleware(['permission:view_classes'])->group(function () {
         Route::resource('machines', MachineController::class);
-    });
-
-    // Roles Management Routes
-    Route::middleware(['permission:manage_roles'])->group(function () {
-        Route::resource('roles', RolesController::class);
     });
 
     // Blog Posts Management Routes

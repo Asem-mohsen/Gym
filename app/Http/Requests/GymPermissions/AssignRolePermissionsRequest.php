@@ -14,7 +14,7 @@ class AssignRolePermissionsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'permission_ids' => 'array',
+            'permission_ids' => 'nullable|array',
             'permission_ids.*' => 'string',
         ];
     }

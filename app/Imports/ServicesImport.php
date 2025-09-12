@@ -2,6 +2,8 @@
 
 namespace App\Imports;
 
+use Exception;
+use Throwable;
 use App\Models\Service;
 use App\Models\Branch;
 use Illuminate\Support\Facades\Log;
@@ -117,7 +119,7 @@ class ServicesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatch
             Log::info('Service import completed successfully: ' . $serviceName);
             return $service;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Service import error: ' . $e->getMessage(), [
                 'row' => $row,
                 'site_setting_id' => $this->siteSettingId
@@ -132,7 +134,7 @@ class ServicesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatch
         }
     }
 
-    public function onError(\Throwable $e)
+    public function onError(Throwable $e)
     {
         Log::error('Service import error: ' . $e->getMessage());
         

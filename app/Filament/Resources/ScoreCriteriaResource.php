@@ -2,12 +2,21 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\Action;
+use App\Filament\Resources\ScoreCriteriaResource\Pages\ListScoreCriterias;
+use App\Filament\Resources\ScoreCriteriaResource\Pages\CreateScoreCriteria;
+use App\Filament\Resources\ScoreCriteriaResource\Pages\EditScoreCriteria;
 use App\Exports\ScoreCriteriaExport;
 use App\Filament\Resources\ScoreCriteriaResource\Pages;
 use App\Models\ScoreCriteria;
 use Filament\Forms;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -18,22 +27,21 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Actions\Exports\ExportBulkAction;
-use Filament\Tables\Actions\Action;
 
 class ScoreCriteriaResource extends Resource
 {
     protected static ?string $model = ScoreCriteria::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-list-bullet';
 
-    protected static ?string $navigationGroup = 'Score Management';
+    protected static string | \UnitEnum | null $navigationGroup = 'Score Management';
 
     protected static ?string $navigationLabel = 'Score Criteria';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make('Basic Information')
                     ->schema([
                         TextInput::make('name.en')
@@ -109,18 +117,18 @@ class ScoreCriteriaResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\TernaryFilter::make('is_active')
+                TernaryFilter::make('is_active')
                     ->label('Active Status'),
-                Tables\Filters\TernaryFilter::make('is_negative')
+                TernaryFilter::make('is_negative')
                     ->label('Point Type'),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->headerActions([
@@ -128,7 +136,7 @@ class ScoreCriteriaResource extends Resource
                     ->label('Export Score Criteria')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
-                    ->form([
+                    ->schema([
                         Select::make('format')
                             ->label('Export Format')
                             ->options([
@@ -156,9 +164,9 @@ class ScoreCriteriaResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListScoreCriterias::route('/'),
-            'create' => Pages\CreateScoreCriteria::route('/create'),
-            'edit' => Pages\EditScoreCriteria::route('/{record}/edit'),
+            'index' => ListScoreCriterias::route('/'),
+            'create' => CreateScoreCriteria::route('/create'),
+            'edit' => EditScoreCriteria::route('/{record}/edit'),
         ];
     }
 }

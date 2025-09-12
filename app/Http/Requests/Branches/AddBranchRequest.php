@@ -30,6 +30,7 @@ class AddBranchRequest extends FormRequest
             'x_url'       => ['nullable', 'url'],
             'instagram_url'=>['nullable', 'url'],
             'map_url'     => ['nullable', 'url'],
+            'is_visible'  => ['nullable', 'boolean'],
             'phones'       =>['required', 'array' , 'min:1'],
         ];
     }

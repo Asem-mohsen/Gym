@@ -1,6 +1,7 @@
 <?php 
 namespace App\Services;
 
+use Exception;
 use App\Models\BlogPost;
 use App\Models\Category;
 use App\Models\Tag;
@@ -53,7 +54,7 @@ class BlogService
             $this->attachMediaOnCreate($blogPost, $image, $images);
 
             return $blogPost;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error in createBlogPost', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
@@ -76,7 +77,7 @@ class BlogService
             $this->updateMediaOnUpdate($updatedBlogPost, $image, $images);
 
             return $updatedBlogPost;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error in updateBlogPost', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),

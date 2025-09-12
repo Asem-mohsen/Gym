@@ -21,7 +21,7 @@ use App\Http\Controllers\Web\User\PaymobPaymentController;
 // Public Routes
 Route::get('/', [GymSelectionController::class, 'index'])->name('gym.selection');
 
-Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.context', 'share.site.setting'])->group(function () {
+Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.context', 'share.site.setting', 'check.gym.visibility'])->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('/about-us', [AboutController::class, 'aboutUs'])->name('about-us');
 

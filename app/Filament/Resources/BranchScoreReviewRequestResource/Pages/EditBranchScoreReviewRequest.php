@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\BranchScoreReviewRequestResource\Pages;
 
+use Filament\Actions\DeleteAction;
 use App\Filament\Resources\BranchScoreReviewRequestResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
@@ -14,7 +15,7 @@ class EditBranchScoreReviewRequest extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            DeleteAction::make(),
         ];
     }
 

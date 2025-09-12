@@ -24,34 +24,28 @@ class GymPermissionRepository
      */
     public function assignPermissionsToUser(User $user, array $permissionNames, int $siteSettingId): void
     {
-        // First, remove existing permissions for this user in this gym
         DB::table('model_has_permissions')
             ->where('model_type', User::class)
             ->where('model_id', $user->id)
             ->where('site_setting_id', $siteSettingId)
             ->delete();
 
-        // Prepare batch insert data
+        if (empty($permissionNames)) {
+            return;
+        }
+
+        $permissions = Permission::whereIn('name', $permissionNames)->get()->keyBy('name');
+        
         $insertData = [];
         foreach ($permissionNames as $permissionName) {
-            $permission = Permission::where('name', $permissionName)->first();
-            if ($permission) {
-                // Check if this combination already exists to prevent duplicates
-                $exists = DB::table('model_has_permissions')
-                    ->where('permission_id', $permission->id)
-                    ->where('model_type', User::class)
-                    ->where('model_id', $user->id)
-                    ->where('site_setting_id', $siteSettingId)
-                    ->exists();
-                
-                if (!$exists) {
-                    $insertData[] = [
-                        'permission_id' => $permission->id,
-                        'model_type' => User::class,
-                        'model_id' => $user->id,
-                        'site_setting_id' => $siteSettingId,
-                    ];
-                }
+            if (isset($permissions[$permissionName])) {
+                $permission = $permissions[$permissionName];
+                $insertData[] = [
+                    'permission_id' => $permission->id,
+                    'model_type' => User::class,
+                    'model_id' => $user->id,
+                    'site_setting_id' => $siteSettingId,
+                ];
             }
         }
 

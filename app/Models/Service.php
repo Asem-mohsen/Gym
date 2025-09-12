@@ -56,7 +56,7 @@ class Service extends Model implements HasMedia
 
     public function branches(): BelongsToMany
     {
-        return $this->belongsToMany(Branch::class, 'service_branch')->withPivot('is_available')->withTimestamps();
+        return $this->belongsToMany(Branch::class, 'service_branch')->withPivot('is_available')->where('is_visible', true)->withTimestamps();
     }
 
     public function galleries(): MorphMany
@@ -103,7 +103,7 @@ class Service extends Model implements HasMedia
      */
     public function getAvailableBranches()
     {
-        return $this->branches()->wherePivot('is_available', true);
+        return $this->branches()->wherePivot('is_available', true)->where('is_visible', true);
     }
 
     /**

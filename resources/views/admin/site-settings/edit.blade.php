@@ -54,6 +54,16 @@
                         <input type="text" value="{{ $site->contact_email }}" id="contact_email" name="contact_email" class="form-control form-control-solid required" required/>
                     </div>
 
+                    <div class="mb-10 col-md-6">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="is_website_visible" name="is_website_visible" value="1" {{ $site->is_website_visible ? 'checked' : '' }}>
+                            <label class="form-check-label" for="is_website_visible">
+                                <strong>Website Visibility</strong>
+                            </label>
+                            <div class="form-text text-muted">When disabled, this gym will not appear on the gym selection page for users</div>
+                        </div>
+                    </div>
+
                     <p class="text-uppercase text-sm fw-bold">Media</p>
                     <div class="mb-10 col-md-6">
                         <label for="gym_logo" class="form-label">Gym Logo</label>

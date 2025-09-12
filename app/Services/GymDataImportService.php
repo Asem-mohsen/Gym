@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use App\Imports\UsersImport;
 use App\Imports\BranchesImport;
 use App\Imports\MembershipsImport;
@@ -64,7 +65,7 @@ class GymDataImportService
 
             return $this->importResults;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             
             Log::error('Gym data import failed: ' . $e->getMessage(), [

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Models\{SiteSetting, User};
 use App\Services\{CheckinService, QrCodeService};
@@ -59,7 +60,7 @@ class CheckinController extends Controller
                 'message' => $message,
             ], $message);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return failureResponse('Check-in failed. Please try again.', 500);
         }
     }
@@ -128,7 +129,7 @@ class CheckinController extends Controller
                 'message' => $message,
             ], $message);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return failureResponse('Check-in failed. Please try again.', 500);
         }
     }
@@ -163,7 +164,7 @@ class CheckinController extends Controller
                 'gym' => $gym->only(['id', 'name', 'slug']),
             ], 'Personal QR code generated successfully.');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return failureResponse('Failed to generate QR code.', 500);
         }
     }
@@ -196,7 +197,7 @@ class CheckinController extends Controller
                 'gym' => $gym->only(['id', 'name', 'slug']),
             ], 'Check-in statistics retrieved successfully.');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return failureResponse('Failed to retrieve statistics.', 500);
         }
     }
@@ -230,7 +231,7 @@ class CheckinController extends Controller
                 'gym' => $siteSetting->only(['id', 'name', 'slug']),
             ], 'Check-in history retrieved successfully.');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return failureResponse('Failed to retrieve check-in history.', 500);
         }
     }
@@ -273,7 +274,7 @@ class CheckinController extends Controller
                 'can_checkin' => $validation['valid'] && !($validation['warning'] ?? false),
             ], 'QR token validated successfully.');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return failureResponse('Failed to validate QR token.', 500);
         }
     }

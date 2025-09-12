@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use Exception;
+use Throwable;
 use App\Models\Offer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -44,7 +46,7 @@ class UpdateOfferStatusJob implements ShouldQueue
                 }
             }
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error("Error updating offer statuses: " . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString()
@@ -57,7 +59,7 @@ class UpdateOfferStatusJob implements ShouldQueue
     /**
      * Handle a job failure.
      */
-    public function failed(\Throwable $exception): void
+    public function failed(Throwable $exception): void
     {
         Log::error("UpdateOfferStatusJob failed: " . $exception->getMessage(), [
             'exception' => $exception,

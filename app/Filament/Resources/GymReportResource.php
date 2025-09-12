@@ -2,6 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Grid;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Resources\GymReportResource\Pages\ListGymReports;
+use App\Filament\Resources\GymReportResource\Pages\CreateGymReport;
 use App\Filament\Resources\GymReportResource\Pages;
 use App\Models\GymReport;
 use App\Models\SiteSetting;
@@ -9,12 +17,8 @@ use Filament\Forms;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Pages\Page;
-use Filament\Tables\Actions\Action;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Filament\Notifications\Notification;
@@ -25,16 +29,16 @@ use Filament\Tables\Columns\TextColumn;
 class GymReportResource extends Resource
 {
     protected static ?string $model = GymReport::class;
-    protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
-    protected static ?string $navigationGroup = 'Analytics';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-chart-bar';
+    protected static string | \UnitEnum | null $navigationGroup = 'Analytics';
     protected static ?string $navigationLabel = 'Gym Reports';
     protected static ?string $modelLabel = 'Gym Report';
     protected static ?string $pluralModelLabel = 'Gym Reports';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make('Report Configuration')
                     ->description('Select the gym and data types to include in your report')
                     ->schema([
@@ -147,7 +151,7 @@ class GymReportResource extends Resource
                     ->badge()
                     ->color('success'),
             ])
-            ->actions([
+            ->recordActions([
                 Action::make('view_documents')
                     ->label('View Documents')
                     ->icon('heroicon-o-document-text')
@@ -156,9 +160,9 @@ class GymReportResource extends Resource
                     ->openUrlInNewTab()
                     ->visible(fn (GymReport $record) => $record->status === 'Document Created'),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -173,8 +177,8 @@ class GymReportResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListGymReports::route('/'),
-            'create' => Pages\CreateGymReport::route('/create'),
+            'index' => ListGymReports::route('/'),
+            'create' => CreateGymReport::route('/create'),
         ];
     }
 }

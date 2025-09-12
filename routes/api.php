@@ -98,7 +98,7 @@ Route::prefix('v1')->group(function(){
     });
 
     // User Public - Gym-specific routes
-    Route::prefix('{gym:slug}')->middleware(['store.gym.context', 'share.site.setting'])->group(function(){
+    Route::prefix('{gym:slug}')->middleware(['store.gym.context', 'share.site.setting', 'check.gym.visibility'])->group(function(){
         Route::controller(HomeController::class)->group(function(){
             Route::get('/', 'index')->name('index');
         });

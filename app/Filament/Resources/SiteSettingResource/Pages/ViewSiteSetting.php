@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SiteSettingResource\Pages;
 
+use Filament\Actions\EditAction;
 use App\Filament\Resources\SiteSettingResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
@@ -13,7 +14,7 @@ class ViewSiteSetting extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\EditAction::make(),
+            EditAction::make(),
         ];
     }
 }

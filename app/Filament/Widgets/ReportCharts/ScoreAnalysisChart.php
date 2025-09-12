@@ -7,9 +7,9 @@ use Illuminate\Support\Carbon;
 
 class ScoreAnalysisChart extends ChartWidget
 {
-    protected static ?string $heading = 'Score Analysis';
+    protected ?string $heading = 'Score Analysis';
     protected static ?int $sort = 5;
-    protected static ?string $maxHeight = '300px';
+    protected ?string $maxHeight = '300px';
 
     protected function getData(): array
     {

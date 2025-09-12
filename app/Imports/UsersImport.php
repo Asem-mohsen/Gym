@@ -2,6 +2,8 @@
 
 namespace App\Imports;
 
+use Exception;
+use Throwable;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Support\Facades\Log;
@@ -112,7 +114,7 @@ class UsersImport implements ToModel, WithHeadingRow, SkipsOnError
             Log::info('User import completed successfully: ' . $row[$emailKey]);
             return $user;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('User import error: ' . $e->getMessage(), [
                 'row' => $row,
                 'site_setting_id' => $this->siteSettingId
@@ -127,7 +129,7 @@ class UsersImport implements ToModel, WithHeadingRow, SkipsOnError
         }
     }
 
-    public function onError(\Throwable $e)
+    public function onError(Throwable $e)
     {
         Log::error('User import error: ' . $e->getMessage());
         
@@ -182,7 +184,7 @@ class UsersImport implements ToModel, WithHeadingRow, SkipsOnError
                     $newRole = Role::create(['name' => 'regular_user', 'guard_name' => 'web']);
                     $user->assignRole($newRole);
                     Log::info("Created and assigned default role 'regular_user' to user {$user->email}");
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     Log::error("Failed to create default role: " . $e->getMessage());
                 }
             }

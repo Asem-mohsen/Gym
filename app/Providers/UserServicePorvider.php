@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Exception;
+use App\Services\SiteSettingService;
 use App\Repositories\BlogRepository;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
@@ -34,7 +36,7 @@ class UserServicePorvider extends ServiceProvider
                         $view->with('blogPosts', $blogPosts);
                         return;
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     Log::warning('Failed to get blog posts by site: ' . $e->getMessage());
                 }
                 
@@ -42,11 +44,11 @@ class UserServicePorvider extends ServiceProvider
                     $blogPosts = $blogService->getBlogPosts(siteSettingId: $currentGymContext['id'], isPublished: true,take:2);
                     
                     $view->with('blogPosts', $blogPosts);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $view->with('blogPosts', collect([]));
                 }
             } else {
-                $siteSettingService = app(\App\Services\SiteSettingService::class);
+                $siteSettingService = app(SiteSettingService::class);
                 try {
                     $defaultSiteId = $siteSettingService->getCurrentSiteSettingIdOrFallback();
                     $blogService = new BlogService(new BlogRepository());
@@ -57,13 +59,13 @@ class UserServicePorvider extends ServiceProvider
                             $view->with('blogPosts', $blogPosts);
                             return;
                         }
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         Log::warning('Failed to get blog posts by site for default site: ' . $e->getMessage());
                     }
                     
                     $blogPosts = $blogService->getBlogPosts(siteSettingId: $defaultSiteId, isPublished: true, take:2);
                     $view->with('blogPosts', $blogPosts);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $view->with('blogPosts', collect([]));
                 }
             }

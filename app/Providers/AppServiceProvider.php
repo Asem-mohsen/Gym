@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
         //         $gymBrandingService = app(GymBrandingService::class);
         //         $branding = $gymBrandingService->getCurrentGymBranding(auth()->user()->getCurrentSite()->id);
         //         $cssVariables = $gymBrandingService->generateCssVariables();
-                
+
         //         $view->with([
         //             'gymBranding' => $branding,
         //             'gymCssVariables' => $cssVariables

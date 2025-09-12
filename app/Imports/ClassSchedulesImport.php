@@ -2,6 +2,8 @@
 
 namespace App\Imports;
 
+use Exception;
+use Throwable;
 use App\Models\{ClassModel, ClassSchedule};
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -28,7 +30,7 @@ class ClassSchedulesImport implements ToCollection, WithHeadingRow, SkipsOnError
         foreach ($rows as $index => $row) {
             try {
                 $this->processClassSchedule($row);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->errors[] = "Row " . ($index + 2) . ": " . $e->getMessage();
                 Log::error('Class schedule import error: ' . $e->getMessage(), [
                     'row' => $row->toArray(),
@@ -47,7 +49,7 @@ class ClassSchedulesImport implements ToCollection, WithHeadingRow, SkipsOnError
         $endTimeKey = $this->findColumnKey($row, 'end_time');
 
         if (!$classNameKey || !$dayKey || !$startTimeKey || !$endTimeKey) {
-            throw new \Exception("Required columns not found in row");
+            throw new Exception("Required columns not found in row");
         }
 
         // Find class by name
@@ -69,16 +71,16 @@ class ClassSchedulesImport implements ToCollection, WithHeadingRow, SkipsOnError
         // Validate day
         $validDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
         if (!in_array(strtolower($row[$dayKey]), $validDays)) {
-            throw new \Exception("Invalid day '{$row[$dayKey]}'. Must be one of: " . implode(', ', $validDays));
+            throw new Exception("Invalid day '{$row[$dayKey]}'. Must be one of: " . implode(', ', $validDays));
         }
 
         // Validate time format
         if (!preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $row[$startTimeKey])) {
-            throw new \Exception("Invalid start_time format '{$row[$startTimeKey]}'. Use HH:MM format");
+            throw new Exception("Invalid start_time format '{$row[$startTimeKey]}'. Use HH:MM format");
         }
 
         if (!preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $row[$endTimeKey])) {
-            throw new \Exception("Invalid end_time format '{$row[$endTimeKey]}'. Use HH:MM format");
+            throw new Exception("Invalid end_time format '{$row[$endTimeKey]}'. Use HH:MM format");
         }
 
         // Check if schedule already exists and create schedule
@@ -124,7 +126,7 @@ class ClassSchedulesImport implements ToCollection, WithHeadingRow, SkipsOnError
         return null;
     }
 
-    public function onError(\Throwable $e)
+    public function onError(Throwable $e)
     {
         $this->errors[] = $e->getMessage();
     }

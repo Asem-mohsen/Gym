@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Services\GymDataImportService;
 use Illuminate\Http\{Request, JsonResponse};
@@ -105,7 +106,7 @@ class GymDataImportController extends Controller
                 'errors' => []
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Gym data import failed: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
                 'file' => $request->file('import_file')?->getClientOriginalName()

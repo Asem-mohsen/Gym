@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use App\Repositories\TrainerInformationRepository;
 use App\Models\TrainerInformation;
 
@@ -39,7 +40,7 @@ class TrainerInformationService
         $trainerInformation = $this->trainerInformationRepository->findByUserId($userId);
         
         if (!$trainerInformation) {
-            throw new \Exception('Trainer information not found');
+            throw new Exception('Trainer information not found');
         }
 
         return $this->trainerInformationRepository->update($trainerInformation, $data);

@@ -2,18 +2,18 @@
 
 namespace App\Filament\Widgets;
 
+use Filament\Schemas\Schema;
 use App\Models\SiteSetting;
 use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Form;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 
 class StaffPerGymChart extends ChartWidget
 {
-    protected static ?string $heading = 'Staff Per Gym';
+    protected ?string $heading = 'Staff Per Gym';
     protected static ?int $sort = 6;
 
     public ?array $data = [];
@@ -21,10 +21,10 @@ class StaffPerGymChart extends ChartWidget
     public ?string $dateFrom = null;
     public ?string $dateTo = null;
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Select::make('selectedGym')
                     ->label('Filter by Gym')
                     ->options(SiteSetting::pluck('gym_name', 'id'))

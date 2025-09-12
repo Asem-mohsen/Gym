@@ -2,6 +2,7 @@
 
 namespace App\Services\OnBoarding;
 
+use Exception;
 use App\Mail\AdminOnboardingMail;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -32,7 +33,7 @@ class AdminOnboardingService
             Mail::to($user->email)->send(new AdminOnboardingMail($user, $gymName, $gymSlug, $token));
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send admin onboarding email: ' . $e->getMessage());
             return false;
         }

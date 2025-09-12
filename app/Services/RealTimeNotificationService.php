@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use App\Events\NotificationSentEvent;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
@@ -20,7 +21,7 @@ class RealTimeNotificationService
                 'notification_type' => $notification['type'] ?? 'general',
                 'subject' => $notification['subject'] ?? 'No subject'
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to broadcast real-time notification', [
                 'error' => $e->getMessage(),
                 'notification' => $notification
@@ -43,7 +44,7 @@ class RealTimeNotificationService
                 'user_count' => count($userIds),
                 'notification_type' => $notification['type'] ?? 'general'
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to broadcast real-time notification to users', [
                 'error' => $e->getMessage(),
                 'user_ids' => $userIds,
@@ -64,7 +65,7 @@ class RealTimeNotificationService
             Log::info('Real-time notification broadcasted to admins', [
                 'notification_type' => $notification['type'] ?? 'general'
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to broadcast real-time notification to admins', [
                 'error' => $e->getMessage(),
                 'notification' => $notification

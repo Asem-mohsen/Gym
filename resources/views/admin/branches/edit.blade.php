@@ -88,6 +88,15 @@
                     <input type="text" id="x_url" value="{{ $branch->x_url }}" name="x_url" class="form-control form-control-solid"/>
                 </div>
                 <div class="mb-10 col-md-6">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="is_visible" name="is_visible" value="1" {{ $branch->is_visible ? 'checked' : '' }}>
+                        <label class="form-check-label" for="is_visible">
+                            <strong>Branch Visibility</strong>
+                        </label>
+                        <div class="form-text text-muted">When disabled, this branch will not appear for users in class selection, service booking, or any user-facing features</div>
+                    </div>
+                </div>
+                <div class="mb-10 col-md-6">
                     <label class="required form-label">Phone Numbers</label>
                     <div id="phone-repeater" data-kt-repeater="list">
                         <div data-repeater-list="phones">

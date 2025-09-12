@@ -1,6 +1,7 @@
 <?php 
 namespace App\Repositories;
 
+use Exception;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -144,7 +145,7 @@ class UserRepository
             
             DB::commit();
             
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error deleting user', ['error' => $e->getMessage()]);
             throw $e;

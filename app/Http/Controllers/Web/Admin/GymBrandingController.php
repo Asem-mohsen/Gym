@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use InvalidArgumentException;
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GymBranding\UpdateGymBrandingRequest;
 use App\Models\{GymSetting, SiteSetting};
@@ -98,7 +100,7 @@ class GymBrandingController extends Controller
                     $texts = $brandingData['texts'] ?? [];
                     
                     if (!$pageType) {
-                        throw new \InvalidArgumentException('Page type is required for text updates');
+                        throw new InvalidArgumentException('Page type is required for text updates');
                     }
                     
                     $updatedGymSetting = $this->gymBrandingService->updatePageTexts($siteSettingId, $pageType, $texts);
@@ -115,7 +117,7 @@ class GymBrandingController extends Controller
                     $repeaterDataJson = $request->input('repeater_data');
                     
                     if (!$section) {
-                        throw new \InvalidArgumentException('Section is required for repeater field updates');
+                        throw new InvalidArgumentException('Section is required for repeater field updates');
                     }
                     
                     // Decode JSON data if it's a string
@@ -141,7 +143,7 @@ class GymBrandingController extends Controller
                 'data' => $updatedGymSetting
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update branding settings: ' . $e->getMessage()
@@ -163,7 +165,7 @@ class GymBrandingController extends Controller
                 'deleted' => $deleted
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to reset branding settings: ' . $e->getMessage()
@@ -186,7 +188,7 @@ class GymBrandingController extends Controller
                 ]
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate CSS variables: ' . $e->getMessage()
@@ -225,7 +227,7 @@ class GymBrandingController extends Controller
                 ]
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate preview: ' . $e->getMessage()
@@ -249,7 +251,7 @@ class GymBrandingController extends Controller
                 ]
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to get page texts: ' . $e->getMessage()
@@ -267,7 +269,7 @@ class GymBrandingController extends Controller
             $customTexts = $request->input('texts', []);
 
             if (!$pageType) {
-                throw new \InvalidArgumentException('Page type is required');
+                throw new InvalidArgumentException('Page type is required');
             }
 
             $preview = $this->gymBrandingService->previewPageTexts($pageType, $customTexts);
@@ -277,7 +279,7 @@ class GymBrandingController extends Controller
                 'data' => $preview
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to preview page texts: ' . $e->getMessage()
@@ -301,7 +303,7 @@ class GymBrandingController extends Controller
                 'reset' => $reset
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to reset page texts: ' . $e->getMessage()
@@ -325,7 +327,7 @@ class GymBrandingController extends Controller
                 ]
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to get repeater fields: ' . $e->getMessage()
@@ -343,7 +345,7 @@ class GymBrandingController extends Controller
             $customData = $request->input('data', []);
 
             if (!$section) {
-                throw new \InvalidArgumentException('Section is required');
+                throw new InvalidArgumentException('Section is required');
             }
 
             $preview = $this->gymBrandingService->previewRepeaterFields($section, $customData);
@@ -353,7 +355,7 @@ class GymBrandingController extends Controller
                 'data' => $preview
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to preview repeater fields: ' . $e->getMessage()
@@ -377,7 +379,7 @@ class GymBrandingController extends Controller
                 'reset' => $reset
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to reset repeater fields: ' . $e->getMessage()

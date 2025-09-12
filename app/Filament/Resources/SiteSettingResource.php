@@ -2,17 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use App\Filament\Resources\SiteSettingResource\Pages\ListSiteSettings;
+use App\Filament\Resources\SiteSettingResource\Pages\CreateSiteSetting;
+use App\Filament\Resources\SiteSettingResource\Pages\ViewSiteSetting;
+use App\Filament\Resources\SiteSettingResource\Pages\EditSiteSetting;
 use App\Filament\Resources\SiteSettingResource\Pages;
 use App\Filament\Resources\SiteSettingResource\RelationManagers;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use App\Models\SiteSetting;
 use Filament\Forms;
-use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -23,26 +31,26 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class SiteSettingResource extends Resource
 {
     protected static ?string $model = SiteSetting::class;
-    protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
-    protected static ?string $navigationGroup = 'Management';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static string | \UnitEnum | null $navigationGroup = 'Management';
     protected static ?string $navigationLabel = 'Sites';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Fieldset::make('Gym Main Data')
                     ->schema([
                         Tabs::make('Tabs')
                             ->tabs([
-                                Tabs\Tab::make('English')
+                                Tab::make('English')
                                     ->schema([
                                         TextInput::make('gym_name.en')->label('Gym Name')->required(),
                                         Textarea::make('address.en')->label('Main Address')->rows(3)->columnSpan(2),
                                         Textarea::make('description.en')->label('Description')->rows(3)->columnSpan(2),
 
                                     ]),
-                                Tabs\Tab::make('Arabic')
+                                Tab::make('Arabic')
                                     ->schema([
                                         TextInput::make('gym_name.ar')->label('Gym Name')->required(),
                                         Textarea::make('address.ar')->label('Main Address')->rows(3)->columnSpan(2),
@@ -126,11 +134,11 @@ class SiteSettingResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
@@ -147,10 +155,10 @@ class SiteSettingResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListSiteSettings::route('/'),
-            'create' => Pages\CreateSiteSetting::route('/create'),
-            'view' => Pages\ViewSiteSetting::route('/{record}'),
-            'edit' => Pages\EditSiteSetting::route('/{record}/edit'),
+            'index' => ListSiteSettings::route('/'),
+            'create' => CreateSiteSetting::route('/create'),
+            'view' => ViewSiteSetting::route('/{record}'),
+            'edit' => EditSiteSetting::route('/{record}/edit'),
         ];
     }
 }

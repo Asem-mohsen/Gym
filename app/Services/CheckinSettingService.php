@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Database\Eloquent\Collection;
 use App\Models\{SiteSetting, GymCheckinSetting};
 use App\Repositories\CheckinSettingRepository;
 use App\Services\QrCodeService;
@@ -103,7 +104,7 @@ class CheckinSettingService
     /**
      * Get recent check-ins for a gym
      */
-    public function getRecentCheckins(int $gymId, int $limit = 6): \Illuminate\Database\Eloquent\Collection
+    public function getRecentCheckins(int $gymId, int $limit = 6): Collection
     {
         $checkinService = app(CheckinService::class);
         return $checkinService->getRecentCheckins($gymId, $limit);

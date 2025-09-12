@@ -7,9 +7,9 @@ use Illuminate\Support\Carbon;
 
 class ServiceBookingChart extends ChartWidget
 {
-    protected static ?string $heading = 'Service & Class Bookings';
+    protected ?string $heading = 'Service & Class Bookings';
     protected static ?int $sort = 4;
-    protected static ?string $maxHeight = '300px';
+    protected ?string $maxHeight = '300px';
 
     protected function getData(): array
     {

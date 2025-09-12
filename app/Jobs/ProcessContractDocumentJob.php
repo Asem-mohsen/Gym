@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use Exception;
 use App\Models\SiteSetting;
 use App\Services\ContractDocumentService;
 use Illuminate\Bus\Queueable;
@@ -47,7 +48,7 @@ class ProcessContractDocumentJob implements ShouldQueue
                 'site_setting_id' => $this->siteSettingId
             ]);
             
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error processing contract document', [
                 'site_setting_id' => $this->siteSettingId,
                 'error' => $e->getMessage(),

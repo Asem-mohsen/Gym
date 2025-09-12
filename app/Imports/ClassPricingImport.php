@@ -2,6 +2,8 @@
 
 namespace App\Imports;
 
+use Exception;
+use Throwable;
 use App\Models\{ClassModel, ClassPricing};
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -28,7 +30,7 @@ class ClassPricingImport implements ToCollection, WithHeadingRow, SkipsOnError, 
         foreach ($rows as $index => $row) {
             try {
                 $this->processClassPricing($row);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->errors[] = "Row " . ($index + 2) . ": " . $e->getMessage();
                 Log::error('Class pricing import error: ' . $e->getMessage(), [
                     'row' => $row->toArray(),
@@ -46,7 +48,7 @@ class ClassPricingImport implements ToCollection, WithHeadingRow, SkipsOnError, 
         $durationKey = $this->findColumnKey($row, 'duration');
 
         if (!$classNameKey || !$priceKey || !$durationKey) {
-            throw new \Exception("Required columns not found in row");
+            throw new Exception("Required columns not found in row");
         }
 
         // Find class by name
@@ -67,7 +69,7 @@ class ClassPricingImport implements ToCollection, WithHeadingRow, SkipsOnError, 
 
         // Validate price
         if (!is_numeric($row[$priceKey]) || $row[$priceKey] < 0) {
-            throw new \Exception("Invalid price '{$row[$priceKey]}'. Must be a positive number");
+            throw new Exception("Invalid price '{$row[$priceKey]}'. Must be a positive number");
         }
 
         // Check if pricing already exists and create pricing
@@ -109,7 +111,7 @@ class ClassPricingImport implements ToCollection, WithHeadingRow, SkipsOnError, 
         return null;
     }
 
-    public function onError(\Throwable $e)
+    public function onError(Throwable $e)
     {
         $this->errors[] = $e->getMessage();
     }

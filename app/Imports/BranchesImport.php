@@ -2,6 +2,8 @@
 
 namespace App\Imports;
 
+use Exception;
+use Throwable;
 use App\Models\Branch;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
@@ -107,7 +109,7 @@ class BranchesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatch
             Log::info('Branch import completed successfully: ' . $row[$nameKey]);
             return $branch;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Branch import error: ' . $e->getMessage(), [
                 'row' => $row,
                 'site_setting_id' => $this->siteSettingId
@@ -122,7 +124,7 @@ class BranchesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatch
         }
     }
 
-    public function onError(\Throwable $e)
+    public function onError(Throwable $e)
     {
         Log::error('Branch import error: ' . $e->getMessage());
         

@@ -2,6 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Actions\Action;
+use App\Filament\Resources\UserResource\Pages\ListUsers;
+use App\Filament\Resources\UserResource\Pages\CreateUser;
+use App\Filament\Resources\UserResource\Pages\ViewUser;
+use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
@@ -11,13 +19,13 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Columns\IconColumn;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -25,8 +33,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
-    protected static ?string $navigationIcon = 'heroicon-o-user-group';
-    protected static ?string $navigationGroup = 'Management';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-user-group';
+    protected static string | \UnitEnum | null $navigationGroup = 'Management';
     protected static ?string $navigationLabel = 'Admins';
 
     protected ?string $heading = 'Admins';
@@ -40,10 +48,10 @@ class UserResource extends Resource
             ->with(['site.branches.manager', 'site.memberships', 'site.services', 'site.users', 'roles']);
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 TextInput::make('name')->label('Name')->required(),
                 TextInput::make('email')->label('Email')->required()->unique(ignoreRecord: true),
                 TextInput::make('phone')->label('Phone')->required(),
@@ -72,14 +80,44 @@ class UserResource extends Resource
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('gray'),
+                TextColumn::make('site.gym_name')
+                    ->label('Gym Name')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('No Gym Assigned')
+                    ->color(fn ($state) => $state ? 'primary' : 'gray'),
                 TextColumn::make('created_at')->date()->sortable(),
             ])
             ->filters([
-                //
+                Filter::make('gym_owners')
+                    ->label('Gym Owners Only')
+                    ->query(fn (Builder $query): Builder => $query->whereHas('site'))
+                    ->toggle(),
+                
+                Filter::make('regular_admins')
+                    ->label('Regular Admins Only')
+                    ->query(fn (Builder $query): Builder => $query->whereDoesntHave('site'))
+                    ->toggle(),
+                
+                SelectFilter::make('gym')
+                    ->label('Filter by Gym')
+                    ->relationship('site', 'gym_name')
+                    ->searchable()
+                    ->preload(),
+                
+                Filter::make('has_set_password')
+                    ->label('Password Set')
+                    ->query(fn (Builder $query): Builder => $query->whereNotNull('password_set_at'))
+                    ->toggle(),
+                
+                Filter::make('password_not_set')
+                    ->label('Password Not Set')
+                    ->query(fn (Builder $query): Builder => $query->whereNull('password_set_at'))
+                    ->toggle(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                ViewAction::make(),
                 Action::make('resend_onboarding')
                     ->label('Resend Onboarding Email')
                     ->icon('heroicon-o-envelope')
@@ -106,7 +144,7 @@ class UserResource extends Resource
                         }
                     }),
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ]);
     }
@@ -121,10 +159,10 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListUsers::route('/'),
-            'create' => Pages\CreateUser::route('/create'),
-            'view' => Pages\ViewUser::route('/{record}'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
+            'index' => ListUsers::route('/'),
+            'create' => CreateUser::route('/create'),
+            'view' => ViewUser::route('/{record}'),
+            'edit' => EditUser::route('/{record}/edit'),
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services\Deletations;
 
+use Exception;
 use App\Models\{SiteSetting, User, Branch, ClassModel, Invitation, BlogPost, Comment, Membership, Payment, Booking, Gallery, Feature, Category, Tag, Contact, Locker, CoachingSession, Transaction, TrainerInformation, Phone, ClassSchedule, ClassPricing, BlogPostShare, Document, ScoreCriteria, BranchScore, BranchScoreItem, BranchScoreHistory, BranchScoreReviewRequest};
 use App\Mail\GymDeactivationDataExport;
 use Illuminate\Support\Facades\{Mail, Storage, DB, Log};
@@ -323,7 +324,7 @@ class GymDeactivationService
         try {
             SendGymDeactivationEmailsJob::dispatch($gym);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to dispatch gym deactivation email job', [
                 'gym_id' => $gym->id,
                 'error' => $e->getMessage()

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Auth;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
 use App\Services\UserService;
@@ -32,7 +33,7 @@ class RegisterController extends Controller
             try {
                 $brandingData = $this->gymBrandingService->getBrandingForAdmin($gymContext['id']);
                 $gymCssVariables = $this->gymBrandingService->generateCssVariables($gymContext['id']);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::warning('Failed to load branding data for register page: ' . $e->getMessage());
             }
         }
@@ -71,7 +72,7 @@ class RegisterController extends Controller
 
             return redirect()->route('user.home', ['siteSetting' => $gymContext['slug']])->with('success', 'Account created successfully!');
             
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($request->ajax() || $request->expectsJson()) {
                 return response()->json([
                     'message' => 'An error occurred while creating your account. Please try again.',

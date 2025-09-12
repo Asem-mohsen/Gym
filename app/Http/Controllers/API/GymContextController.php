@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Services\GymContextService;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ class GymContextController extends Controller
             }
 
             return successResponse($gymContext, 'Gym context retrieved successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return failureResponse('Error retrieving gym context, please try again.', 500);
         }
     }
@@ -61,7 +62,7 @@ class GymContextController extends Controller
             }
 
             return successResponse(message: 'Gym context updated successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return failureResponse('Error updating gym context, please try again.', 500);
         }
     }
@@ -82,7 +83,7 @@ class GymContextController extends Controller
             }
 
             return successResponse(message: 'Gym context cleared successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return failureResponse('Error clearing gym context, please try again.', 500);
         }
     }
@@ -102,7 +103,7 @@ class GymContextController extends Controller
             return successResponse([
                 'is_valid' => $isValid
             ], 'Gym context validation completed');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return failureResponse('Error validating gym context, please try again.', 500);
         }
     }

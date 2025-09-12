@@ -2,6 +2,8 @@
 
 namespace App\Imports;
 
+use Exception;
+use Throwable;
 use App\Models\Membership;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -99,7 +101,7 @@ class MembershipsImport implements ToModel, WithHeadingRow, SkipsOnError, WithBa
             Log::info('Membership import completed successfully: ' . $row[$nameKey]);
             return $membership;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Membership import error: ' . $e->getMessage(), [
                 'row' => $row,
                 'site_setting_id' => $this->siteSettingId
@@ -114,7 +116,7 @@ class MembershipsImport implements ToModel, WithHeadingRow, SkipsOnError, WithBa
         }
     }
 
-    public function onError(\Throwable $e)
+    public function onError(Throwable $e)
     {
         Log::error('Membership import error: ' . $e->getMessage());
         

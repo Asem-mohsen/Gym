@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use App\Models\Branch;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\BranchScore;
 use App\Models\BranchScoreReviewRequest;
@@ -69,14 +71,14 @@ class ScoreDashboardController extends Controller
     {
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
         
-        $branches = \App\Models\Branch::where('site_setting_id', $siteSettingId)
+        $branches = Branch::where('site_setting_id', $siteSettingId)
             ->whereDoesntHave('score')
             ->get();
 
         return view('admin.branch-scores.create', compact('branches'));
     }
 
-    public function store(\Illuminate\Http\Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'branch_id' => 'required|exists:branches,id',
@@ -87,7 +89,7 @@ class ScoreDashboardController extends Controller
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
         
         // Verify the branch belongs to this gym
-        $branch = \App\Models\Branch::where('id', $request->branch_id)
+        $branch = Branch::where('id', $request->branch_id)
             ->where('site_setting_id', $siteSettingId)
             ->firstOrFail();
 
@@ -124,7 +126,7 @@ class ScoreDashboardController extends Controller
         return view('admin.branch-scores.edit', compact('branchScore'));
     }
 
-    public function update(\Illuminate\Http\Request $request, BranchScore $branchScore)
+    public function update(Request $request, BranchScore $branchScore)
     {
         // Check if the user has access to this branch score
         $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();

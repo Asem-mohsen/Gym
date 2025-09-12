@@ -2,6 +2,8 @@
 
 namespace App\Imports;
 
+use Exception;
+use Throwable;
 use App\Models\{Membership, Feature};
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -28,7 +30,7 @@ class MembershipFeaturesImport implements ToCollection, WithHeadingRow, SkipsOnE
         foreach ($rows as $index => $row) {
             try {
                 $this->processMembershipFeature($row);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->errors[] = "Row " . ($index + 2) . ": " . $e->getMessage();
                 Log::error('Membership feature import error: ' . $e->getMessage(), [
                     'row' => $row->toArray(),
@@ -49,7 +51,7 @@ class MembershipFeaturesImport implements ToCollection, WithHeadingRow, SkipsOnE
         $featureDescArKey = $this->findColumnKey($row, 'feature_description_ar');
 
         if (!$membershipNameKey || !$featureNameKey) {
-            throw new \Exception("Required columns not found in row");
+            throw new Exception("Required columns not found in row");
         }
 
         // Find membership by name
@@ -120,7 +122,7 @@ class MembershipFeaturesImport implements ToCollection, WithHeadingRow, SkipsOnE
         return null;
     }
 
-    public function onError(\Throwable $e)
+    public function onError(Throwable $e)
     {
         $this->errors[] = $e->getMessage();
     }

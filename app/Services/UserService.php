@@ -1,6 +1,7 @@
 <?php 
 namespace App\Services;
 
+use Exception;
 use App\Repositories\{UserRepository, RoleRepository};
 use App\Mail\UserOnboardingMail;
 use App\Models\SiteSetting;
@@ -183,7 +184,7 @@ class UserService
                 
                 Mail::to($user->email)->send(new UserOnboardingMail($user, $gymName));
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send onboarding email to user: ' . $user->email, [
                 'error' => $e->getMessage(),
                 'user_id' => $user->id

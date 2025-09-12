@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Deactivation\DeactivationRequest;
 use App\Models\{SiteSetting, Branch, Document, User};
@@ -69,7 +70,7 @@ class GymDeactivationController extends Controller
                 'message' => 'Branch has been successfully deactivated. All associated data has been soft deleted.'
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             
             return response()->json([
@@ -103,7 +104,7 @@ class GymDeactivationController extends Controller
                 'message' => 'Gym has been successfully deactivated. Data export has been sent to the gym owner. All accounts will be deactivated in 2 days and data will be permanently deleted in 30 days.'
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             
             return response()->json([
@@ -152,7 +153,7 @@ class GymDeactivationController extends Controller
                 'data' => $summary
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while retrieving gym data: ' . $e->getMessage()
@@ -185,7 +186,7 @@ class GymDeactivationController extends Controller
                 'data' => $summary
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while retrieving branch data: ' . $e->getMessage()

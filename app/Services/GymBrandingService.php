@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Exception;
+use InvalidArgumentException;
 use App\Models\GymSetting;
 use App\Repositories\{GymBrandingRepository, SiteSettingRepository};
 use Illuminate\Support\Facades\{Cache, DB, Log};
@@ -89,7 +91,7 @@ class GymBrandingService
         $siteSetting = $this->siteSettingRepository->findById($siteSettingId);
         
         if (!$siteSetting) {
-            throw new \Exception("Site setting not found.", 404);
+            throw new Exception("Site setting not found.", 404);
         }
 
         // Force clear cache to get fresh data
@@ -155,7 +157,7 @@ class GymBrandingService
         foreach ($colorFields as $field) {
             if (isset($brandingData[$field]) && !empty($brandingData[$field])) {
                 if (!preg_match('/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/', $brandingData[$field])) {
-                    throw new \InvalidArgumentException("Invalid color format for {$field}. Use hex format (e.g., #ff0000)");
+                    throw new InvalidArgumentException("Invalid color format for {$field}. Use hex format (e.g., #ff0000)");
                 }
             }
         }

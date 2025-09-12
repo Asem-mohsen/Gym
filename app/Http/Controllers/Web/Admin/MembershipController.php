@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use App\Enums\MembershipPeriod;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Membership\{ AddMembershipRequest , UpdateMembershipRequest};
 use App\Models\Membership;
@@ -37,6 +38,8 @@ class MembershipController extends Controller
         try {
             $data = $request->validated();
             $data['site_setting_id'] = $this->siteSettingId;
+            
+            $data['billing_interval'] = MembershipPeriod::getBillingIntervalFromPeriod($data['period']);
 
             $membership = $this->membershipService->createMembership($data);
             
@@ -84,6 +87,8 @@ class MembershipController extends Controller
 
             $data = $request->validated();
             $data['site_setting_id'] = $this->siteSettingId;
+            
+            $data['billing_interval'] =MembershipPeriod::getBillingIntervalFromPeriod($data['period']);
 
             $this->membershipService->updateMembership($membership, $data);
             

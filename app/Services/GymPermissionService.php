@@ -47,24 +47,6 @@ class GymPermissionService
     }
 
     /**
-     * Get all available permissions from the centralized service
-     */
-    public function getAllPermissions(): array
-    {
-        $permissionService = app(\App\Services\PermissionAssignmentService::class);
-        $permissionGroups = $this->getPermissionGroups();
-        $allPermissions = [];
-        
-        foreach ($permissionGroups as $group) {
-            foreach ($group['permissions'] as $permissionKey => $permissionLabel) {
-                $allPermissions[$permissionKey] = $permissionLabel;
-            }
-        }
-        
-        return $allPermissions;
-    }
-
-    /**
      * Get all available permission groups for organization
      */
     public function getPermissionGroups(): array

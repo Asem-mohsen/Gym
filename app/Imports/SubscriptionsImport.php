@@ -2,6 +2,9 @@
 
 namespace App\Imports;
 
+use Exception;
+use Carbon\Carbon;
+use Throwable;
 use App\Models\{User, Membership, Branch, Subscription};
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -28,7 +31,7 @@ class SubscriptionsImport implements ToCollection, WithHeadingRow, SkipsOnError,
         foreach ($rows as $index => $row) {
             try {
                 $this->processSubscription($row);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->errors[] = "Row " . ($index + 2) . ": " . $e->getMessage();
                 Log::error('Subscription import error: ' . $e->getMessage(), [
                     'row' => $row->toArray(),
@@ -50,7 +53,7 @@ class SubscriptionsImport implements ToCollection, WithHeadingRow, SkipsOnError,
         $invitationsUsedKey = $this->findColumnKey($row, 'invitations_used');
 
         if (!$userEmailKey || !$membershipNameKey || !$branchNameKey || !$startDateKey || !$endDateKey || !$statusKey || !$invitationsUsedKey) {
-            throw new \Exception("Required columns not found in row");
+            throw new Exception("Required columns not found in row");
         }
 
         // Find user by email
@@ -100,22 +103,22 @@ class SubscriptionsImport implements ToCollection, WithHeadingRow, SkipsOnError,
         }
 
         // Validate dates
-        $startDate = \Carbon\Carbon::createFromFormat('Y-m-d', $row[$startDateKey]);
-        $endDate = \Carbon\Carbon::createFromFormat('Y-m-d', $row[$endDateKey]);
+        $startDate = Carbon::createFromFormat('Y-m-d', $row[$startDateKey]);
+        $endDate = Carbon::createFromFormat('Y-m-d', $row[$endDateKey]);
 
         if ($startDate >= $endDate) {
-            throw new \Exception("Start date must be before end date");
+            throw new Exception("Start date must be before end date");
         }
 
         // Validate status
         $validStatuses = ['active', 'expired', 'cancelled', 'pending'];
         if (!in_array($row[$statusKey], $validStatuses)) {
-            throw new \Exception("Invalid status '{$row[$statusKey]}'. Must be one of: " . implode(', ', $validStatuses));
+            throw new Exception("Invalid status '{$row[$statusKey]}'. Must be one of: " . implode(', ', $validStatuses));
         }
 
         // Validate invitations_used
         if (!is_numeric($row[$invitationsUsedKey]) || $row[$invitationsUsedKey] < 0) {
-            throw new \Exception("Invalid invitations_used '{$row[$invitationsUsedKey]}'. Must be a non-negative number");
+            throw new Exception("Invalid invitations_used '{$row[$invitationsUsedKey]}'. Must be a non-negative number");
         }
 
         // Check if subscription already exists and create subscription
@@ -166,7 +169,7 @@ class SubscriptionsImport implements ToCollection, WithHeadingRow, SkipsOnError,
         return null;
     }
 
-    public function onError(\Throwable $e)
+    public function onError(Throwable $e)
     {
         $this->errors[] = $e->getMessage();
     }

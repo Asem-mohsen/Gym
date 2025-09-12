@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use Illuminate\Database\Eloquent\Collection;
 use App\Models\Contact;
 
 class ContactRepository
@@ -21,7 +22,7 @@ class ContactRepository
      * Get all contacts for a specific site setting.
      *
      * @param int $siteSettingId
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
     public function getBySiteSetting(int $siteSettingId)
     {

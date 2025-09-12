@@ -1,6 +1,7 @@
 <?php 
 namespace App\Services;
 
+use Exception;
 use App\Models\Booking;
 use App\Repositories\PaymentRepository;
 use App\Services\{SiteSettingService, EmailService};
@@ -62,7 +63,7 @@ class PaymentService
             if ($booking) {
                 $this->emailService->sendBookingConfirmationEmail($booking, $payment);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send confirmation email', [
                 'payment_id' => $payment->id,
                 'error' => $e->getMessage()

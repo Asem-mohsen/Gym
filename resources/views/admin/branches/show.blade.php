@@ -70,6 +70,18 @@
                 </div>
                 <div class="col-md-6">
                     <div class="mb-5">
+                        <label class="form-label fw-bold">Visibility Status</label>
+                        <p class="form-control-static">
+                            @if($branch->is_visible)
+                                <span class="badge badge-light-success">Visible to Users</span>
+                            @else
+                                <span class="badge badge-light-danger">Hidden from Users</span>
+                            @endif
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-5">
                         <label class="form-label fw-bold">Created At</label>
                         <p class="form-control-static">{{ $branch->created_at->format('d M Y, h:i A') }}</p>
                     </div>

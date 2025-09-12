@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\GymBranding;
 
+use App\Models\GymSetting;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateGymBrandingRequest extends FormRequest
@@ -98,7 +99,7 @@ class UpdateGymBrandingRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $mediaSettings = $this->input('media_settings', []);
-            $multipleFileTypes = \App\Models\GymSetting::getMultipleFileMediaTypes();
+            $multipleFileTypes = GymSetting::getMultipleFileMediaTypes();
             
             foreach ($mediaSettings as $mediaType => $files) {
                 if (empty($files)) continue;

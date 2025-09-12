@@ -84,6 +84,15 @@
                     <input type="text" id="x_url" value="{{ old('x_url') }}" name="x_url" class="form-control form-control-solid"/>
                 </div>
                 <div class="mb-10 col-md-6">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="is_visible" name="is_visible" value="1" {{ old('is_visible', true) ? 'checked' : '' }}>
+                        <label class="form-check-label" for="is_visible">
+                            <strong>Branch Visibility</strong>
+                        </label>
+                        <div class="form-text text-muted">When disabled, this branch will not appear for users in class selection, service booking, or any user-facing features</div>
+                    </div>
+                </div>
+                <div class="mb-10 col-md-6">
                     <label for="map_url" class="form-label">Map URL</label>
                     <input type="url" id="map_url" value="{{ old('map_url') }}" name="map_url" class="form-control form-control-solid" placeholder="https://maps.google.com/..."/>
                     <small class="form-text text-muted">Share the Google Maps or any map service URL for the branch location</small>

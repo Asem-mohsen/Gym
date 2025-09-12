@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use Exception;
 use App\Traits\ClearsPermissionCache;
 use Illuminate\Support\Facades\{DB, Artisan, Log};
 use Spatie\Permission\PermissionRegistrar;
@@ -58,7 +59,7 @@ class PermissionTableObserver
             Artisan::call('view:clear');
 
             Artisan::call('optimize:clear');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Log error but don't fail the operation
             Log::warning('Failed to clear permission cache in PermissionTableObserver: ' . $e->getMessage());
         }

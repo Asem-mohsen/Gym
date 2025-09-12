@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateAccountRequest;
 use App\Services\AccountService;
@@ -17,7 +18,7 @@ class AccountController extends Controller
     /**
      * Show the account details page
      */
-    public function show(): \Illuminate\View\View
+    public function show(): View
     {
         $user = auth()->user()->load('trainerInformation');
         
