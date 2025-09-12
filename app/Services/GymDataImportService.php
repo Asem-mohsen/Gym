@@ -38,8 +38,12 @@ class GymDataImportService
                 'users' => [],
                 'branches' => [],
                 'memberships' => [],
+                'membership_features' => [],
                 'classes' => [],
+                'class_schedules' => [],
+                'class_pricing' => [],
                 'services' => [],
+                'subscriptions' => [],
                 'errors' => [],
                 'summary' => []
             ];
@@ -87,7 +91,10 @@ class GymDataImportService
         $totalImported = 0;
         $totalErrors = 0;
 
-        foreach (['users', 'branches', 'memberships', 'classes', 'services'] as $type) {
+        // Include all sheet types
+        $sheetTypes = ['users', 'branches', 'memberships', 'membership_features', 'classes', 'class_schedules', 'class_pricing', 'services', 'subscriptions'];
+        
+        foreach ($sheetTypes as $type) {
             $totalImported += $this->importResults[$type]['count'] ?? 0;
             $totalErrors += count($this->importResults[$type]['errors'] ?? []);
         }

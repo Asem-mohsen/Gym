@@ -7,7 +7,6 @@ use App\Models\Branch;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
@@ -23,19 +22,46 @@ class ServicesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatch
         $this->siteSettingId = $siteSettingId;
     }
 
-    public function model(array $row)
+    public function model($row)
     {
         try {
-            if (empty($row['name']) || $row['name'] === 'name') {
+            // Convert row to array if it's a collection or object
+            if (is_object($row)) {
+                if (method_exists($row, 'toArray')) {
+                    $row = $row->toArray();
+                } else {
+                    $row = (array) $row;
+                }
+            }
+            
+            // Ensure row is an array
+            if (!is_array($row)) {
+                Log::warning('Row is not an array:', ['row' => $row, 'type' => gettype($row)]);
                 return null;
             }
             
-            if (empty($row['duration']) && empty($row['price'])) {
+            // Find the actual column keys (they have descriptions in parentheses)
+            $nameKey = $this->findColumnKey($row, 'name') ?? 'name';
+            $nameEnKey = $this->findColumnKey($row, 'name_en') ?? 'name_en';
+            $nameArKey = $this->findColumnKey($row, 'name_ar') ?? 'name_ar';
+            $descriptionKey = $this->findColumnKey($row, 'description') ?? 'description';
+            $durationKey = $this->findColumnKey($row, 'duration') ?? 'duration';
+            $priceKey = $this->findColumnKey($row, 'price') ?? 'price';
+            $requiresPaymentKey = $this->findColumnKey($row, 'requires_payment') ?? 'requires_payment';
+            $bookingTypeKey = $this->findColumnKey($row, 'booking_type') ?? 'booking_type';
+            $isAvailableKey = $this->findColumnKey($row, 'is_available') ?? 'is_available';
+            $branchAssignmentKey = $this->findColumnKey($row, 'branch_assignment') ?? 'branch_assignment';
+            
+            if (empty($row[$nameKey]) || $row[$nameKey] === 'name') {
+                return null;
+            }
+            
+            if (empty($row[$durationKey]) && empty($row[$priceKey])) {
                 return null;
             }
             
             // Check if service already exists to prevent duplicates
-            $serviceName = $row['name_en'] ?? $row['name'] ?? '';
+            $serviceName = $row[$nameEnKey] ?? $row[$nameKey] ?? '';
             if (Service::where('site_setting_id', $this->siteSettingId)
                 ->whereJsonContains('name->en', $serviceName)
                 ->exists()) {
@@ -43,28 +69,35 @@ class ServicesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatch
                 return null;
             }
 
-            // Create the service
-            $service = Service::create([
+            // Service creation and insertion (explicitly exclude ID to prevent auto-increment issues)
+            $serviceData = [
                 'site_setting_id' => $this->siteSettingId,
                 'name' => [
                     'en' => $serviceName,
-                    'ar' => $row['name_ar'] ?? $row['name'] ?? ''
+                    'ar' => $row[$nameArKey] ?? $row[$nameKey] ?? ''
                 ],
                 'description' => [
-                    'en' => $row['description_en'] ?? $row['description'] ?? '',
-                    'ar' => $row['description_ar'] ?? $row['description'] ?? ''
+                    'en' => $row[$descriptionKey] ?? '',
+                    'ar' => $row[$descriptionKey] ?? ''
                 ],
-                'duration' => $row['duration'] ?? 60,
-                'price' => floatval($row['price'] ?? 0),
-                'requires_payment' => filter_var($row['requires_payment'] ?? '1', FILTER_VALIDATE_BOOLEAN),
-                'booking_type' => $row['booking_type'] ?? 'paid_booking',
-                'is_available' => filter_var($row['is_available'] ?? '1', FILTER_VALIDATE_BOOLEAN),
+                'duration' => $row[$durationKey] ?? 60,
+                'price' => floatval($row[$priceKey] ?? 0),
+                'requires_payment' => filter_var($row[$requiresPaymentKey] ?? '1', FILTER_VALIDATE_BOOLEAN),
+                'booking_type' => $row[$bookingTypeKey] ?? 'paid_booking',
+                'is_available' => filter_var($row[$isAvailableKey] ?? '1', FILTER_VALIDATE_BOOLEAN),
                 'sort_order' => $row['sort_order'] ?? 0,
-            ]);
+            ];
+            
+            // Explicitly remove any ID field that might be present
+            unset($serviceData['id']);
+            
+            $service = Service::create($serviceData);
 
             // Assign branches if specified
-            if (!empty($row['branch_names'])) {
-                $branchNames = explode(',', $row['branch_names']);
+            $branches = collect();
+            $branchNames = $row[$branchAssignmentKey] ?? '';
+            if (!empty($branchNames)) {
+                $branchNames = explode(',', $branchNames);
                 $branches = Branch::where('site_setting_id', $this->siteSettingId)
                     ->whereIn('name->en', array_map('trim', $branchNames))
                     ->orWhereIn('name->ar', array_map('trim', $branchNames))
@@ -78,10 +111,10 @@ class ServicesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatch
             // Store imported service data for reporting
             $this->importedServices[] = [
                 'service' => $service,
-                'branches' => $branches ?? collect()
+                'branches' => $branches
             ];
 
-            Log::info('Successfully imported service: ' . $service->name);
+            Log::info('Service import completed successfully: ' . $serviceName);
             return $service;
 
         } catch (\Exception $e) {
@@ -97,38 +130,6 @@ class ServicesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatch
             
             return null;
         }
-    }
-
-    public function rules(): array
-    {
-        return [
-            'name' => 'required|string|max:255',
-            'name_en' => 'nullable|string|max:255',
-            'name_ar' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'description_en' => 'nullable|string',
-            'description_ar' => 'nullable|string',
-            'duration' => 'nullable|integer|min:1',
-            'price' => 'required|numeric|min:0',
-            'requires_payment' => 'nullable|boolean',
-            'booking_type' => 'nullable|in:free_booking,paid_booking,no_booking',
-            'is_available' => 'nullable|boolean',
-            'sort_order' => 'nullable|integer|min:0',
-            'branch_names' => 'nullable|string',
-        ];
-    }
-
-    public function customValidationMessages()
-    {
-        return [
-            'name.required' => 'Service name is required.',
-            'price.required' => 'Service price is required.',
-            'price.numeric' => 'Price must be a number.',
-            'price.min' => 'Price must be at least 0.',
-            'duration.integer' => 'Duration must be a number.',
-            'duration.min' => 'Duration must be at least 1 minute.',
-            'booking_type.in' => 'Booking type must be free_booking, paid_booking, or no_booking.',
-        ];
     }
 
     public function onError(\Throwable $e)
@@ -157,5 +158,28 @@ class ServicesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatch
     public function getErrors(): array
     {
         return $this->errors;
+    }
+
+    /**
+     * Find column key by searching for a term within the key names
+     */
+    protected function findColumnKey($row, $searchTerm)
+    {
+        // Convert row to array if it's a Collection
+        if (is_object($row) && method_exists($row, 'toArray')) {
+            $row = $row->toArray();
+        } elseif (is_object($row)) {
+            $row = (array) $row;
+        }
+        
+        $keys = array_keys($row);
+        
+        foreach ($keys as $key) {
+            if (stripos($key, $searchTerm) !== false) {
+                return $key;
+            }
+        }
+        
+        return null;
     }
 }

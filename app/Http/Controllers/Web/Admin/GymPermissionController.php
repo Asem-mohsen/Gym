@@ -44,16 +44,16 @@ class GymPermissionController extends Controller
         try {
             $roles = Role::with(['permissions' => function($query) {
                 $query->wherePivot('site_setting_id', $this->siteSettingId);
-            }])->get();
-            
-            // Get user count for each role in this gym
-            foreach ($roles as $role) {
-                $role->users_count = User::whereHas('gyms', function($query) {
-                    $query->where('site_setting_id', $this->siteSettingId);
-                })->whereHas('roles', function($query) use ($role) {
-                    $query->where('roles.id', $role->id);
-                })->count();
-            }
+            }])
+            ->where('name', '!=', 'master_admin')
+            ->withCount([
+                'users as users_count' => function ($query) {
+                    $query->whereHas('gyms', function($query) {
+                        $query->where('site_setting_id', $this->siteSettingId);
+                    });
+                }
+            ])
+            ->get();
             
             $permissionGroups = $this->gymPermissionService->getPermissionGroups();
             

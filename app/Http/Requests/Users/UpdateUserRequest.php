@@ -24,6 +24,8 @@ class UpdateUserRequest extends FormRequest
             'gender'  => ['required' , 'max:15'],
             'role_ids' => ['nullable', 'array'],
             'role_ids.*' => ['exists:roles,id'],
+            'branch_ids' => ['nullable', 'array'],
+            'branch_ids.*' => ['exists:branches,id'],
             'phone'   => ['required' , 'numeric'],
             'country'   => ['required' , 'max:255'],
             'city'      => ['required' , 'max:255'],

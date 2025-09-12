@@ -28,7 +28,7 @@
                                 ['value' => 'power', 'label' => 'Power'],
                                 ['value' => 'zomba',    'label' => 'Zomba'],
                                 ['value' => 'yoga', 'label' => 'Yoga'],
-                                ['value' => 'pilate', 'label' => 'Pilate'],
+                                ['value' => 'pilates', 'label' => 'Pilates'],
                                 ['value' => 'fitness', 'label' => 'Fitness'],
                                 ['value' => 'general', 'label' => 'General'],
                             ];

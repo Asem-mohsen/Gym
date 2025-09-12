@@ -105,9 +105,11 @@ class GymBrandingService
             $brandingData['media_urls'] = $mediaUrls;
             
             $brandingData['page_texts'] = $branding->getPageTexts();
+            $brandingData['repeater_fields'] = $branding->getAllRepeaterData();
         } else {
             $brandingData['media_urls'] = [];
             $brandingData['page_texts'] = GymSetting::getDefaultPageTexts();
+            $brandingData['repeater_fields'] = [];
         }
 
         return [
@@ -332,6 +334,111 @@ class GymBrandingService
             'page_type' => $pageType,
             'texts' => $previewTexts,
             'defaults' => $pageDefaults
+        ];
+    }
+
+    /**
+     * Update repeater fields for a specific section
+     */
+    public function updateRepeaterFields(int $siteSettingId, string $section, array $data): GymSetting
+    {
+        return DB::transaction(function () use ($siteSettingId, $section, $data) {
+            // Get current branding settings
+            $gymSetting = $this->gymBrandingRepository->getBrandingSettings($siteSettingId);
+            
+            if (!$gymSetting) {
+                // Create new gym setting if it doesn't exist
+                $gymSetting = $this->gymBrandingRepository->createOrUpdateBrandingSettings($siteSettingId, []);
+            }
+            
+            // Update repeater data for the specific section
+            $gymSetting->updateRepeaterData($section, $data);
+            
+            // Clear cache
+            $this->clearBrandingCache($siteSettingId);
+            
+            return $gymSetting;
+        });
+    }
+
+    /**
+     * Get repeater fields for a specific section
+     */
+    public function getRepeaterFields(int $siteSettingId, ?string $section = null): array
+    {
+        $gymSetting = $this->gymBrandingRepository->getBrandingSettings($siteSettingId);
+        
+        if (!$gymSetting) {
+            $defaultConfigs = GymSetting::getDefaultRepeaterConfigs();
+            if ($section) {
+                return $defaultConfigs[$section]['default_items'] ?? [];
+            }
+            $result = [];
+            foreach ($defaultConfigs as $sectionKey => $config) {
+                $result[$sectionKey] = $config['default_items'] ?? [];
+            }
+            return $result;
+        }
+        
+        if ($section) {
+            return $gymSetting->getRepeaterData($section);
+        }
+        
+        return $gymSetting->getAllRepeaterData();
+    }
+
+    /**
+     * Reset repeater fields to defaults
+     */
+    public function resetRepeaterFields(int $siteSettingId, ?string $section = null): bool
+    {
+        return DB::transaction(function () use ($siteSettingId, $section) {
+            $gymSetting = $this->gymBrandingRepository->getBrandingSettings($siteSettingId);
+            
+            if (!$gymSetting) {
+                return false;
+            }
+            
+            $currentRepeaterFields = $gymSetting->repeater_fields ?? [];
+            
+            if ($section) {
+                // Reset specific section
+                unset($currentRepeaterFields[$section]);
+            } else {
+                // Reset all sections
+                $currentRepeaterFields = [];
+            }
+            
+            $gymSetting->update(['repeater_fields' => $currentRepeaterFields]);
+            
+            // Clear cache
+            $this->clearBrandingCache($siteSettingId);
+            
+            return true;
+        });
+    }
+
+    /**
+     * Preview repeater fields with custom values
+     */
+    public function previewRepeaterFields(string $section, array $customData): array
+    {
+        $defaultConfigs = GymSetting::getDefaultRepeaterConfigs();
+        $config = $defaultConfigs[$section] ?? null;
+        
+        if (!$config) {
+            return [
+                'section' => $section,
+                'data' => $customData,
+                'config' => null
+            ];
+        }
+        
+        return [
+            'section' => $section,
+            'data' => $customData,
+            'config' => $config,
+            'defaults' => $config['default_items'] ?? []
         ];
     }
 }

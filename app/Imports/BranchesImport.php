@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
@@ -23,52 +22,81 @@ class BranchesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatch
         $this->siteSettingId = $siteSettingId;
     }
 
-    public function model(array $row)
+    public function model($row)
     {
         try {
+            // Convert row to array if it's a collection or object
+            if (is_object($row)) {
+                if (method_exists($row, 'toArray')) {
+                    $row = $row->toArray();
+                } else {
+                    $row = (array) $row;
+                }
+            }
+            
+            // Ensure row is an array
+            if (!is_array($row)) {
+                Log::warning('Row is not an array:', ['row' => $row, 'type' => gettype($row)]);
+                return null;
+            }
+            
+            // Find the actual column keys (they have descriptions in parentheses)
+            $nameKey = $this->findColumnKey($row, 'name') ?? 'name';
+            $nameEnKey = $this->findColumnKey($row, 'name_en') ?? 'name_en';
+            $nameArKey = $this->findColumnKey($row, 'name_ar') ?? 'name_ar';
+            $locationKey = $this->findColumnKey($row, 'location') ?? 'location';
+            $locationEnKey = $this->findColumnKey($row, 'location_en') ?? 'location_en';
+            $locationArKey = $this->findColumnKey($row, 'location_ar') ?? 'location_ar';
+            $typeKey = $this->findColumnKey($row, 'type') ?? 'type';
+            $sizeKey = $this->findColumnKey($row, 'size') ?? 'size';
+            $managerEmailKey = $this->findColumnKey($row, 'manager_email') ?? 'manager_email';
+            
             // Skip if this is a header row or empty row
-            if (empty($row['name']) || $row['name'] === 'name') {
+            if (empty($row[$nameKey]) || $row[$nameKey] === 'name') {
                 return null;
             }
             
             // Validate that this is actually branch data (should have location field)
-            if (empty($row['location']) && empty($row['location_en']) && empty($row['location_ar'])) {
+            if (empty($row[$locationKey]) && empty($row[$locationEnKey]) && empty($row[$locationArKey])) {
                 Log::warning('Skipping non-branch data row:', $row);
                 return null;
             }
             
             // Check if branch already exists to prevent duplicates
-            if (Branch::where('name', $row['name'])->where('site_setting_id', $this->siteSettingId)->exists()) {
-                Log::info('Branch already exists, skipping: ' . $row['name']);
+            if (Branch::where('name', $row[$nameKey])->where('site_setting_id', $this->siteSettingId)->exists()) {
+                Log::info('Branch already exists, skipping: ' . $row[$nameKey]);
                 return null;
             }
             
             // Find manager by email or name
             $manager = null;
-            if (!empty($row['manager_email'])) {
-                $manager = User::where('email', $row['manager_email'])->first();
-            } elseif (!empty($row['manager_name'])) {
-                $manager = User::where('name', $row['manager_name'])->first();
+            if (!empty($row[$managerEmailKey])) {
+                $manager = User::where('email', $row[$managerEmailKey])->first();
             }
 
-            // Create the branch
-            $branch = Branch::create([
+            // Branch creation and insertion (explicitly exclude ID to prevent auto-increment issues)
+            $branchData = [
                 'manager_id' => $manager ? $manager->id : null,
                 'site_setting_id' => $this->siteSettingId,
                 'name' => [
-                    'en' => $row['name_en'] ?? $row['name'] ?? '',
-                    'ar' => $row['name_ar'] ?? $row['name'] ?? ''
+                    'en' => $row[$nameEnKey] ?? $row[$nameKey] ?? '',
+                    'ar' => $row[$nameArKey] ?? $row[$nameKey] ?? ''
                 ],
                 'location' => [
-                    'en' => $row['location_en'] ?? $row['location'] ?? 'Default Location',
-                    'ar' => $row['location_ar'] ?? $row['location'] ?? 'الموقع الافتراضي'
+                    'en' => $row[$locationEnKey] ?? $row[$locationKey] ?? 'Default Location',
+                    'ar' => $row[$locationArKey] ?? $row[$locationKey] ?? 'الموقع الافتراضي'
                 ],
-                'type' => $row['type'] ?? 'mix',
-                'size' => $row['size'] ?? null,
+                'type' => $row[$typeKey] ?? 'mix',
+                'size' => $row[$sizeKey] ?? null,
                 'facebook_url' => $row['facebook_url'] ?? null,
                 'instagram_url' => $row['instagram_url'] ?? null,
                 'x_url' => $row['x_url'] ?? null,
-            ]);
+            ];
+            
+            // Explicitly remove any ID field that might be present
+            unset($branchData['id']);
+            
+            $branch = Branch::create($branchData);
 
             // Store imported branch data for reporting
             $this->importedBranches[] = [
@@ -76,7 +104,7 @@ class BranchesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatch
                 'manager' => $manager
             ];
 
-            Log::info('Successfully imported branch: ' . $branch->name);
+            Log::info('Branch import completed successfully: ' . $row[$nameKey]);
             return $branch;
 
         } catch (\Exception $e) {
@@ -92,36 +120,6 @@ class BranchesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatch
             
             return null;
         }
-    }
-
-    public function rules(): array
-    {
-        return [
-            'name' => 'required|string|max:255',
-            'name_en' => 'nullable|string|max:255',
-            'name_ar' => 'nullable|string|max:255',
-            'location' => 'required|string|max:500',
-            'location_en' => 'nullable|string|max:500',
-            'location_ar' => 'nullable|string|max:500',
-            'type' => 'nullable|in:mix,women,men',
-            'size' => 'nullable|integer|min:1',
-            'manager_email' => 'nullable|email|exists:users,email',
-            'manager_name' => 'nullable|string|max:255',
-            'facebook_url' => 'nullable|url',
-            'instagram_url' => 'nullable|url',
-            'x_url' => 'nullable|url',
-        ];
-    }
-
-    public function customValidationMessages()
-    {
-        return [
-            'name.required' => 'Branch name is required.',
-            'location.required' => 'Branch location is required.',
-            'type.in' => 'Branch type must be mix, women, or men.',
-            'manager_email.email' => 'Manager email must be a valid email address.',
-            'manager_email.exists' => 'Manager with this email does not exist.',
-        ];
     }
 
     public function onError(\Throwable $e)
@@ -150,5 +148,28 @@ class BranchesImport implements ToModel, WithHeadingRow, SkipsOnError, WithBatch
     public function getErrors(): array
     {
         return $this->errors;
+    }
+
+    /**
+     * Find column key by searching for a term within the key names
+     */
+    protected function findColumnKey($row, $searchTerm)
+    {
+        // Convert row to array if it's a Collection
+        if (is_object($row) && method_exists($row, 'toArray')) {
+            $row = $row->toArray();
+        } elseif (is_object($row)) {
+            $row = (array) $row;
+        }
+        
+        $keys = array_keys($row);
+        
+        foreach ($keys as $key) {
+            if (stripos($key, $searchTerm) !== false) {
+                return $key;
+            }
+        }
+        
+        return null;
     }
 }

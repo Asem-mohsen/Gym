@@ -19,6 +19,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\Action;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Columns\IconColumn;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserResource extends Resource
@@ -35,7 +36,8 @@ class UserResource extends Resource
         return parent::getEloquentQuery()->where('is_admin', 1)
             ->whereHas('roles', function ($query) {
                 $query->where('name', 'admin');
-            });
+            })
+            ->with(['site.branches.manager', 'site.memberships', 'site.services', 'site.users', 'roles']);
     }
 
     public static function form(Form $form): Form
@@ -59,6 +61,17 @@ class UserResource extends Resource
                 TextColumn::make('id')->sortable(),
                 TextColumn::make('name')->searchable(),
                 TextColumn::make('email')->searchable(),
+                TextColumn::make('phone')->searchable(),
+                IconColumn::make('is_gym_owner')
+                    ->label('Gym Owner')
+                    ->boolean()
+                    ->getStateUsing(function (User $record): bool {
+                        return $record->site()->exists();
+                    })
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('gray'),
                 TextColumn::make('created_at')->date()->sortable(),
             ])
             ->filters([

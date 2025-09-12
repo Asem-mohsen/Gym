@@ -16,8 +16,8 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h6 class="card-title">Total Cash Pending</h6>
-                        <h3 class="mb-0">{{ number_format($statistics['total_cash_pending'], 2) }} EGP</h3>
+                        <h6 class="card-title text-white">Total Cash Pending</h6>
+                        <h3 class="mb-0 text-white">{{ number_format($statistics['total_cash_pending'], 2) }} EGP</h3>
                     </div>
                     <div class="align-self-center">
                         <i class="fas fa-clock fs-2x text-white"></i>
@@ -31,8 +31,8 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h6 class="card-title">Total Cash Collected</h6>
-                        <h3 class="mb-0">{{ number_format($statistics['total_cash_collected'], 2) }} EGP</h3>
+                        <h6 class="card-title text-white">Total Cash Collected</h6>
+                        <h3 class="mb-0 text-white">{{ number_format($statistics['total_cash_collected'], 2) }} EGP</h3>
                     </div>
                     <div class="align-self-center">
                         <i class="fas fa-check-circle fs-2x text-white"></i>
@@ -46,8 +46,8 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h6 class="card-title">Pending Items</h6>
-                        <h3 class="mb-0">{{ $statistics['pending_count'] }}</h3>
+                        <h6 class="card-title text-white">Pending Items</h6>
+                        <h3 class="mb-0 text-white">{{ $statistics['pending_count'] }}</h3>
                     </div>
                     <div class="align-self-center">
                         <i class="fas fa-hourglass-half fs-2x text-white"></i>
@@ -61,8 +61,8 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h6 class="card-title">Collected Items</h6>
-                        <h3 class="mb-0">{{ $statistics['collected_count'] }}</h3>
+                        <h6 class="card-title text-white">Collected Items</h6>
+                        <h3 class="mb-0 text-white">{{ $statistics['collected_count'] }}</h3>
                     </div>
                     <div class="align-self-center">
                         <i class="fas fa-list-check fs-2x text-white"></i>
@@ -167,7 +167,7 @@
                             <tr>
                                 <td>{{ $payment['id'] }}</td>
                                 <td>
-                                    <span class="badge bg-{{ $payment['type'] === 'booking' ? 'info' : 'primary' }}">
+                                    <span class="badge bg-{{ $payment['type'] === 'booking' ? 'info' : 'primary' }} text-white">
                                         {{ ucfirst($payment['type']) }}
                                     </span>
                                 </td>
@@ -190,11 +190,11 @@
                                 </td>
                                 <td>
                                     @if($payment['status'] === 'cash_pending' || $payment['status'] === 'pending')
-                                        <span class="badge bg-warning">Pending</span>
+                                        <span class="badge bg-warning text-white">Pending</span>
                                     @elseif($payment['status'] === 'cash_collected' || $payment['status'] === 'completed')
-                                        <span class="badge bg-success">Collected</span>
+                                        <span class="badge bg-success text-white">Collected</span>
                                     @else
-                                        <span class="badge bg-secondary">{{ ucfirst($payment['status']) }}</span>
+                                        <span class="badge bg-secondary text-white">{{ ucfirst($payment['status']) }}</span>
                                     @endif
                                 </td>
                                 <td>{{ $payment['created_at']->format('Y-m-d H:i') }}</td>

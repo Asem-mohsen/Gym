@@ -25,9 +25,10 @@ class AdminController extends Controller
     {
         try {
             $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-            $admins = $this->adminService->getAdmins($siteSettingId);
-            
-            return view('admin.admins.index', compact('admins'));
+            $admins = $this->adminService->getAdmins($siteSettingId,$request->get('branch_id'));
+            $branches = $this->branchService->getBranches($siteSettingId);
+
+            return view('admin.admins.index', compact('admins', 'branches'));
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while fetching admins, please try again in a few minutes.');
         }

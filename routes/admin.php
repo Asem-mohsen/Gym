@@ -280,6 +280,11 @@ Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
             Route::get('/{siteSettingId}/page-texts/{pageType}', 'getPageTexts')->name('page-texts');
             Route::post('/preview-page-texts', 'previewPageTexts')->name('preview-page-texts');
             Route::post('/{siteSettingId}/reset-page-texts/{pageType?}', 'resetPageTexts')->name('reset-page-texts');
+            
+            // Repeater field management routes
+            Route::get('/{siteSettingId}/repeater-fields/{section}', 'getRepeaterFields')->name('repeater-fields');
+            Route::post('/preview-repeater-fields', 'previewRepeaterFields')->name('preview-repeater-fields');
+            Route::post('/{siteSettingId}/reset-repeater-fields/{section?}', 'resetRepeaterFields')->name('reset-repeater-fields');
         });
     });
 

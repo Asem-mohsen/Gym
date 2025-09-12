@@ -10,36 +10,61 @@
             
             @php
                 $heroImages = $branding['media_urls']['hero_banner'] ?? [];
+                $heroData = $branding['repeater_fields']['home_hero'] ?? [];
                 $heroImage1 = is_array($heroImages) && isset($heroImages[0]) ? $heroImages[0] : asset('assets/user/img/hero/hero-1.jpg');
                 $heroImage2 = is_array($heroImages) && isset($heroImages[1]) ? $heroImages[1] : asset('assets/user/img/hero/hero-2.jpg');
             @endphp
             
-            <div class="hs-item set-bg" data-setbg="{{ $heroImage1 }}">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-6 offset-lg-6">
-                            <div class="hi-text">
-                                <span>Shape your body</span>
-                                <h1>Be <strong>strong</strong> traning hard</h1>
-                                <a href="#" class="primary-btn">Get info</a>
+            @if(count($heroData) > 0)
+                @foreach($heroData as $index => $heroItem)
+                    @php
+                        $heroImage = $index == 0 ? $heroImage1 : $heroImage2;
+                    @endphp
+                    <div class="hs-item set-bg" data-setbg="{{ $heroImage }}">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-6 offset-lg-6">
+                                    <div class="hi-text">
+                                        <span>{{ $heroItem['subtitle'] ?? 'Shape your body' }}</span>
+                                        <h1>{{ $heroItem['title'] ?? 'Be <strong>strong</strong> training hard' }}</h1>
+                                        @php
+                                            $buttonLink = \App\Models\GymSetting::convertPageNameToUrl($heroItem['button_link'] ?? '#', $siteSetting->slug);
+                                        @endphp
+                                        <a href="{{ $buttonLink }}" class="primary-btn">{{ $heroItem['button_text'] ?? 'Get info' }}</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                <div class="hs-item set-bg" data-setbg="{{ $heroImage1 }}">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-6 offset-lg-6">
+                                <div class="hi-text">
+                                    <span>Shape your body</span>
+                                    <h1>Be <strong>strong</strong> training hard</h1>
+                                    <a href="#" class="primary-btn">Get info</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="hs-item set-bg" data-setbg="{{ $heroImage2 }}">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-6 offset-lg-6">
-                            <div class="hi-text">
-                                <span>Shape your body</span>
-                                <h1>Be <strong>strong</strong> traning hard</h1>
-                                <a href="#" class="primary-btn">Get info</a>
+                <div class="hs-item set-bg" data-setbg="{{ $heroImage2 }}">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-6 offset-lg-6">
+                                <div class="hi-text">
+                                    <span>Shape your body</span>
+                                    <h1>Be <strong>strong</strong> training hard</h1>
+                                    <a href="#" class="primary-btn">Get info</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endif
         </div>
     </section>
     <!-- Hero Section End -->
@@ -56,38 +81,54 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-3 col-sm-6">
-                    <div class="cs-item">
-                        <span class="flaticon-034-stationary-bike"></span>
-                        <h4>Modern equipment</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-                            dolore facilisis.</p>
+                @php
+                    $choseusData = $branding['repeater_fields']['home_choseus'] ?? [];
+                @endphp
+                
+                @if(count($choseusData) > 0)
+                    @foreach($choseusData as $item)
+                        <div class="col-lg-3 col-sm-6">
+                            <div class="cs-item">
+                                <span class="{{ $item['icon'] ?? 'flaticon-034-stationary-bike' }}"></span>
+                                <h4>{{ $item['title'] ?? 'Modern equipment' }}</h4>
+                                <p>{{ $item['description'] ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut dolore facilisis.' }}</p>
+                            </div>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="cs-item">
+                            <span class="flaticon-034-stationary-bike"></span>
+                            <h4>Modern equipment</h4>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                                dolore facilisis.</p>
+                        </div>
                     </div>
-                </div>
-                <div class="col-lg-3 col-sm-6">
-                    <div class="cs-item">
-                        <span class="flaticon-033-juice"></span>
-                        <h4>Healthy nutrition plan</h4>
-                        <p>Quis ipsum suspendisse ultrices gravida. Risus commodo viverra maecenas accumsan lacus vel
-                            facilisis.</p>
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="cs-item">
+                            <span class="flaticon-033-juice"></span>
+                            <h4>Healthy nutrition plan</h4>
+                            <p>Quis ipsum suspendisse ultrices gravida. Risus commodo viverra maecenas accumsan lacus vel
+                                facilisis.</p>
+                        </div>
                     </div>
-                </div>
-                <div class="col-lg-3 col-sm-6">
-                    <div class="cs-item">
-                        <span class="flaticon-002-dumbell"></span>
-                        <h4>Proffesponal training plan</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-                            dolore facilisis.</p>
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="cs-item">
+                            <span class="flaticon-002-dumbell"></span>
+                            <h4>Professional training plan</h4>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                                dolore facilisis.</p>
+                        </div>
                     </div>
-                </div>
-                <div class="col-lg-3 col-sm-6">
-                    <div class="cs-item">
-                        <span class="flaticon-014-heart-beat"></span>
-                        <h4>Unique to your needs</h4>
-                        <p>Quis ipsum suspendisse ultrices gravida. Risus commodo viverra maecenas accumsan lacus vel
-                            facilisis.</p>
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="cs-item">
+                            <span class="flaticon-014-heart-beat"></span>
+                            <h4>Unique to your needs</h4>
+                            <p>Quis ipsum suspendisse ultrices gravida. Risus commodo viverra maecenas accumsan lacus vel
+                                facilisis.</p>
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
         </div>
     </section>

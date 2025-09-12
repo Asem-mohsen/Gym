@@ -34,9 +34,9 @@ class UserService
         return $this->userRepository->getAllUsers($siteSettingId);
     }
 
-    public function getTrainers(int $siteSettingId, $perPage = 15, $branchId = null, $search = null)
+    public function getTrainers(int $siteSettingId, $branchId = null)
     {
-        return $this->userRepository->getAllTrainers($siteSettingId, $perPage, $branchId, $search);
+        return $this->userRepository->getAllTrainers($siteSettingId,$branchId);
     }
 
     public function getStaff(int $siteSettingId, $branchId = null)

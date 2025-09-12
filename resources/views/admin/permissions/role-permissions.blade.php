@@ -36,42 +36,42 @@
         <div class="card-body pt-0">
             <div class="row">
                 @foreach($roles as $role)
-                <div class="col-lg-6 col-xl-4 mb-4">
-                    <div class="card border">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="ki-duotone ki-users fs-2"></i> {{ ucfirst($role->name) }} Role
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <strong>Assigned Permissions:</strong>
-                                @if($role->permissions->count() > 0)
-                                    <div class="mt-2">
-                                        @foreach($role->permissions as $permission)
-                                            <span class="badge bg-primary me-1 mb-1 text-white">{{ $permission->name }}</span>
-                                        @endforeach
-                                    </div>
-                                @else
-                                    <p class="text-muted mb-0">No custom permissions assigned</p>
-                                @endif
+                    <div class="col-lg-6 col-xl-4 mb-4">
+                        <div class="card border">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="ki-duotone ki-users fs-2"></i> {{ ucfirst($role->name) }} Role
+                                </h5>
                             </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <strong>Assigned Permissions:</strong>
+                                    @if($role->permissions->count() > 0)
+                                        <div class="mt-2">
+                                            @foreach($role->permissions as $permission)
+                                                <span class="badge bg-primary me-1 mb-1 text-white">{{ $permission->name }}</span>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <p class="text-muted mb-0">No custom permissions assigned</p>
+                                    @endif
+                                </div>
 
-                            <div class="d-flex justify-content-between">
-                                @can('manage_roles')
-                                    <a href="{{ route('admin.permissions.show-role-permissions', $role) }}" class="btn btn-sm btn-primary">
-                                        <i class="ki-duotone ki-pencil fs-2"></i> Manage Permissions
-                                    </a>
-                                @else
-                                    <a href="{{ route('admin.permissions.index') }}" class="btn btn-sm btn-primary">
-                                        <i class="ki-duotone ki-arrow-left fs-2"></i> Back to Permissions
-                                    </a>
-                                @endcan
-                                <span class="badge bg-secondary">{{ $role->users_count ?? 0 }} users</span>
+                                <div class="d-flex justify-content-between">
+                                    @can('manage_roles')
+                                        <a href="{{ route('admin.permissions.show-role-permissions', $role) }}" class="btn btn-sm btn-primary">
+                                            <i class="ki-duotone ki-pencil fs-2"></i> Manage Permissions
+                                        </a>
+                                    @else
+                                        <a href="{{ route('admin.permissions.index') }}" class="btn btn-sm btn-primary">
+                                            <i class="ki-duotone ki-arrow-left fs-2"></i> Back to Permissions
+                                        </a>
+                                    @endcan
+                                    <span class="badge bg-secondary">{{ $role->users_count ?? 0 }} users</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
                 @endforeach
             </div>
         </div>

@@ -6,7 +6,7 @@
 
 <div class="card">
     <div class="card-body">
-        <h1 class="text-center mb-8">Welcome to {{ config('app.name') }}</h1>
+        <h1 class="text-center mb-8">Welcome to {{ $gymContext['name'] }}</h1>
         
         <p class="text-center mb-8">Please set up your password to complete your account setup.</p>
         

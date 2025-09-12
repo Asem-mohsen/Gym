@@ -35,7 +35,7 @@
                         <input type="hidden" name="search" id="search-hidden" value="{{ request('search') }}">
                         
                         <!-- Status Filter -->
-                        <select name="status" class="form-control form-control-solid w-180px" onchange="this.form.submit()">
+                        <select name="status" class="form-control form-control-solid w-100px" onchange="this.form.submit()">
                             <option value="">All Status</option>
                             <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>

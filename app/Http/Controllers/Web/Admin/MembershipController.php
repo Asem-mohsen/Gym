@@ -28,7 +28,7 @@ class MembershipController extends Controller
 
     public function create()
     {
-        $features = $this->featureService->selectFeatures();
+        $features = $this->featureService->selectFeatures($this->siteSettingId);
         return view('admin.memberships.create', get_defined_vars());
     }
 
@@ -70,7 +70,7 @@ class MembershipController extends Controller
         }
 
         $membership = $this->membershipService->showMembership($membership);
-        $features = $this->featureService->selectFeatures();
+        $features = $this->featureService->selectFeatures($this->siteSettingId);
         return view('admin.memberships.edit', get_defined_vars());
     }
 

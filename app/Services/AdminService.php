@@ -22,9 +22,9 @@ class AdminService
         $this->roleAssignmentService = $roleAssignmentService;
     }
 
-    public function getAdmins(int $siteSettingId)
+    public function getAdmins(int $siteSettingId, ? int $branchId = null)
     {
-        return $this->adminRepository->getAllAdmins($siteSettingId);
+        return $this->adminRepository->getAllAdmins($siteSettingId, $branchId);
     }
 
     public function createAdmin(array $data, int $siteSettingId)
