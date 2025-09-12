@@ -2,7 +2,7 @@
 
 @section('content')
     <!-- Hero Section -->
-    <section class="hero-section">
+    <section class="hero-section" style="background-image: url({{ asset('assets/user/img/hero/gym-selections.png') }});">
         <div class="container">
             <div class="hero-content">
                 <h1 class="hero-title">Choose Your Perfect Gym</h1>
@@ -51,57 +51,71 @@
                     @foreach($gyms as $gym)
                         <div class="col-lg-4 col-md-6 mb-4 gym-item" data-gym-name="{{ strtolower($gym->getTranslation('gym_name', app()->getLocale())) }}">
                             <div class="gym-card">
-                                <div class="text-center">
-                                    @if($gym->getFirstMediaUrl('gym_logo'))
-                                        <img src="{{ $gym->getFirstMediaUrl('gym_logo') }}" alt="{{ $gym->getTranslation('gym_name', app()->getLocale()) }}" class="gym-logo">
-                                    @else
-                                        <div class="gym-logo-placeholder">
-                                            <i class="fas fa-dumbbell"></i>
-                                        </div>
-                                    @endif
-                                    
-                                    <h3 class="gym-name">{{ $gym->getTranslation('gym_name', app()->getLocale()) }}</h3>
-                                    
-                                    @if($gym->getTranslation('description', app()->getLocale()))
-                                        <p class="gym-description">{{ Str::limit($gym->getTranslation('description', app()->getLocale()), 120) }}</p>
-                                    @endif
-                                    
-                                    <div class="gym-features">
-                                        @if($gym->branches->count() > 0)
-                                            <div class="feature-item">
-                                                <i class="fas fa-map-marker-alt feature-icon"></i>
-                                                {{ $gym->branches->count() }} {{ Str::plural('branch', $gym->branches->count()) }}
-                                            </div>
-                                            @php
-                                                $averageScore = $gym->branches->avg('score_value');
-                                            @endphp
-                                            @if($averageScore > 0)
-                                                <div class="feature-item">
-                                                    <i class="fas fa-star feature-icon"></i>
-                                                    Score: {{ number_format($averageScore, 1) }}
-                                                </div>
-                                            @endif
-                                        @endif
-                                        
-                                        @if($gym->services->count() > 0)
-                                            <div class="feature-item">
-                                                <i class="fas fa-dumbbell feature-icon"></i>
-                                                {{ $gym->services->count() }} {{ Str::plural('service', $gym->services->count()) }}
+                                <div class="gym-card-content">
+                                    <div class="gym-card-header">
+                                        @if($gym->getFirstMediaUrl('gym_logo'))
+                                            <img src="{{ $gym->getFirstMediaUrl('gym_logo') }}" alt="{{ $gym->getTranslation('gym_name', app()->getLocale()) }}" class="gym-logo">
+                                        @else
+                                            <div class="gym-logo-placeholder">
+                                                <i class="fas fa-dumbbell"></i>
                                             </div>
                                         @endif
                                         
-                                        @if($gym->classes->count() > 0)
-                                            <div class="feature-item">
-                                                <i class="fas fa-calendar-alt feature-icon"></i>
-                                                {{ $gym->classes->count() }} {{ Str::plural('class', $gym->classes->count()) }}
-                                            </div>
+                                        <h3 class="gym-name">{{ $gym->getTranslation('gym_name', app()->getLocale()) }}</h3>
+                                        
+                                        @if($gym->getTranslation('description', app()->getLocale()))
+                                            <p class="gym-description">{{ Str::limit($gym->getTranslation('description', app()->getLocale()), 120) }}</p>
                                         @endif
                                     </div>
                                     
-                                    <a href="{{ route('user.home', $gym->slug) }}" class="gym-button">
-                                        <i class="fas fa-arrow-right me-2"></i>
-                                        Explore Gym
-                                    </a>
+                                    <div class="gym-card-body">
+                                        <div class="gym-features">
+                                            @if($gym->branches->count() > 0)
+                                                <div class="feature-item">
+                                                    <i class="fas fa-map-marker-alt feature-icon"></i>
+                                                    <span>{{ $gym->branches->count() }} {{ Str::plural('branch', $gym->branches->count()) }}</span>
+                                                </div>
+                                            @endif
+                                            
+                                            @if($gym->services->count() > 0)
+                                                <div class="feature-item">
+                                                    <i class="fas fa-dumbbell feature-icon"></i>
+                                                    <span>{{ $gym->services->count() }} {{ Str::plural('service', $gym->services->count()) }}</span>
+                                                </div>
+                                            @endif
+                                            
+                                            @if($gym->classes->count() > 0)
+                                                <div class="feature-item">
+                                                    <i class="fas fa-calendar-alt feature-icon"></i>
+                                                    <span>{{ $gym->classes->count() }} {{ Str::plural('class', $gym->classes->count()) }}</span>
+                                                </div>
+                                            @endif
+                                            
+                                            @if(isset($gym->distance_info) && $gym->distance_info)
+                                                <div class="feature-item distance-item">
+                                                    <i class="fas fa-route feature-icon"></i>
+                                                    <span class="distance-text">
+                                                        {{ $gym->distance_info['formatted_distance'] }} away
+                                                        @if($gym->distance_info['is_nearby'])
+                                                            <span class="nearby-badge">Nearby</span>
+                                                        @endif
+                                                    </span>
+                                                </div>
+                                            @elseif(isset($userLocation) && $userLocation)
+                                                <div class="feature-item distance-item">
+                                                    <i class="fas fa-route feature-icon"></i>
+                                                    <span class="distance-text">In your area</span>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="gym-card-footer">
+                                        <a href="{{ route('user.home', $gym->slug) }}" class="gym-button">
+                                            <i class="fas fa-arrow-right me-2"></i>
+                                            Explore Gym
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>

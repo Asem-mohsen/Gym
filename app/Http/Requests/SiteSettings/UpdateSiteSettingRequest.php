@@ -27,6 +27,7 @@ class UpdateSiteSettingRequest extends FormRequest
             'facebook_url'   => ['nullable' , 'url'],
             'x_url'          => ['nullable' , 'url'],
             'instagram_url'  => ['nullable' , 'url'],
+            'is_website_visible' => ['nullable' , 'boolean'],
         ];
     }
 }

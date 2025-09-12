@@ -21,7 +21,7 @@ class AddSubscriptionRequest extends FormRequest
             'offer_id'      => ['sometimes', 'nullable', 'exists:offers,id'],
             'amount'        => ['nullable', 'required_if:status,active', 'numeric'],
             'start_date'    => ['nullable', 'date'],
-            'end_date'      => ['nullable', 'date', 'after:start_date'],
+            'end_date'      => ['nullable', 'date', 'after_or_equal:start_date'],
         ];
     }
     

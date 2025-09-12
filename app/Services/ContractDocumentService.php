@@ -10,12 +10,24 @@ class ContractDocumentService
 {
     public function handleContractDocument(SiteSetting $siteSetting): void
     {
+        Log::info('Processing contract document for site setting: ' . $siteSetting->id);
+        
+        // Check all media for this site setting
+        $allMedia = $siteSetting->getMedia();
+        Log::info('All media for site setting ' . $siteSetting->id . ': ' . $allMedia->count() . ' items');
+        
+        foreach ($allMedia as $media) {
+            Log::info('Media item: ' . $media->collection_name . ' - ' . $media->name);
+        }
+        
         $contractMedia = $siteSetting->getFirstMedia('contract_document');
         
         if (!$contractMedia) {
-            Log::info('No contract media found');
+            Log::info('No contract media found for site setting: ' . $siteSetting->id);
             return;
         }
+        
+        Log::info('Contract media found: ' . $contractMedia->name);
 
         $document = Document::create(
 [
@@ -28,10 +40,12 @@ class ContractDocumentService
             ]
         );
 
+        Log::info('Contract media found');
         if (!$document->getFirstMedia('document')) {
             $contractMedia->copy($document, 'document');
         }
 
         $document->siteSettings()->sync([$siteSetting->id]);
+        Log::info('Contract media synced');
     }
 }

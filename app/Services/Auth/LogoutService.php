@@ -1,6 +1,7 @@
 <?php 
 namespace App\Services\Auth;
 
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -26,7 +27,7 @@ class LogoutService
                             $personalAccessToken->delete();
                         }
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     // Token deletion failed, continue with logout
                 }
             }
@@ -55,7 +56,7 @@ class LogoutService
                     PersonalAccessToken::where('tokenable_id', $userId)
                         ->where('tokenable_type', get_class($user))
                         ->delete();
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     // Token deletion failed, continue with logout
                 }
             }
@@ -95,7 +96,7 @@ class LogoutService
                                 ->delete();
                         }
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     // Token deletion failed, continue with logout
                 }
             }

@@ -7,9 +7,9 @@ use Illuminate\Support\Carbon;
 
 class MembershipChart extends ChartWidget
 {
-    protected static ?string $heading = 'Membership Overview';
+    protected ?string $heading = 'Membership Overview';
     protected static ?int $sort = 1;
-    protected static ?string $maxHeight = '300px';
+    protected ?string $maxHeight = '300px';
 
     protected function getData(): array
     {

@@ -113,7 +113,7 @@
                         @if($userPermissions->count() > 0)
                             <div class="mt-1">
                                 @foreach($userPermissions as $permission)
-                                    <span class="badge bg-success me-1 mb-1">{{ $permission->name }}</span>
+                                    <span class="badge bg-success me-1 mb-1 text-white">{{ $permission->name }}</span>
                                 @endforeach
                             </div>
                         @else
@@ -177,17 +177,5 @@
     function deselectAllPermissions() {
         $('input[name="permission_ids[]"]').prop('checked', false);
     }
-
-    $(document).ready(function() {
-        // Add confirmation before form submission
-        $('form').on('submit', function(e) {
-            const checkedPermissions = $('input[name="permission_ids[]"]:checked').length;
-            if (checkedPermissions === 0) {
-                if (!confirm('You haven\'t selected any permissions. Are you sure you want to remove all custom permissions from this user?')) {
-                    e.preventDefault();
-                }
-            }
-        });
-    });
 </script>
 @endsection

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 
 class ServicesController extends Controller
 {
+    protected $siteSettingId;
     public function __construct(
         protected ServiceService $serviceService, 
         protected SiteSettingService $siteSettingService,
@@ -20,26 +21,23 @@ class ServicesController extends Controller
         $this->serviceService = $serviceService;
         $this->siteSettingService = $siteSettingService;
         $this->branchService = $branchService;
+        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
     }
 
     public function index(Request $request)
     {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $perPage = $request->get('per_page', 15);
-        $search = $request->get('search');
         $branchId = $request->get('branch_id');
         
-        $services = $this->serviceService->getServicesWithPagination($siteSettingId, $perPage, $search, $branchId);
+        $services = $this->serviceService->getServices($this->siteSettingId,$branchId);
         
-        $branches = $this->branchService->getBranches($siteSettingId);
+        $branches = $this->branchService->getBranches(siteSettingId: $this->siteSettingId);
         
         return view('admin.services.index', compact('services', 'branches'));
     }
 
     public function create()
     {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $branches = $this->branchService->getBranches($siteSettingId);
+        $branches = $this->branchService->getBranches($this->siteSettingId);
         return view('admin.services.create', compact('branches'));
     }
 
@@ -47,7 +45,7 @@ class ServicesController extends Controller
     {
         try {
             $data = $request->validated();
-            $data['site_setting_id'] = $this->siteSettingService->getCurrentSiteSettingId();
+            $data['site_setting_id'] = $this->siteSettingId;
 
             $this->serviceService->createService($data);
             return redirect()->route('services.index')->with('success', 'Service created successfully.');
@@ -60,8 +58,7 @@ class ServicesController extends Controller
     public function edit(Service $service)
     {
         $service = $this->serviceService->showService($service);
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $branches = $this->branchService->getBranches($siteSettingId);
+        $branches = $this->branchService->getBranches($this->siteSettingId);
         $serviceBranches = $service->branches->pluck('id')->toArray();
         $gallery = $this->serviceService->getServiceGallery($service);
         

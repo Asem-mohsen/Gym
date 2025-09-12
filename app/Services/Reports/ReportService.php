@@ -2,6 +2,7 @@
 
 namespace App\Services\Reports;
 
+use Exception;
 use App\Models\SiteSetting;
 use App\Models\Membership;
 use App\Models\Subscription;
@@ -44,7 +45,7 @@ class ReportService
             $this->saveReportAsDocument($reportData, $data['export_format'] ?? 'pdf');
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Report generation failed: ' . $e->getMessage());
             return false;
         }
@@ -366,7 +367,7 @@ class ReportService
             }
 
             return false;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Report download failed: ' . $e->getMessage());
             return false;
         }
@@ -381,7 +382,7 @@ class ReportService
             Storage::disk('public')->put('reports/' . $filename, $pdf->output());
             
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('PDF generation failed: ' . $e->getMessage());
             return false;
         }
@@ -395,7 +396,7 @@ class ReportService
             Excel::store(new GymReportExport($data), 'reports/' . $filename, 'public');
             
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Excel generation failed: ' . $e->getMessage());
             return false;
         }
@@ -437,7 +438,7 @@ class ReportService
             // Attach to the specific gym
             $document->siteSettings()->attach($this->gym->id);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to save report as document: ' . $e->getMessage());
         }
     }
@@ -454,7 +455,7 @@ class ReportService
                 ->usingFileName($filename)
                 ->toMediaCollection('document');
                 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to generate PDF document: ' . $e->getMessage());
         }
     }
@@ -473,7 +474,7 @@ class ReportService
                 ->usingFileName($filename)
                 ->toMediaCollection('document');
                 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to generate Excel document: ' . $e->getMessage());
         }
     }

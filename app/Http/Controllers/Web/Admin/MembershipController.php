@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use App\Enums\MembershipPeriod;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Membership\{ AddMembershipRequest , UpdateMembershipRequest};
 use App\Models\Membership;
@@ -28,7 +29,7 @@ class MembershipController extends Controller
 
     public function create()
     {
-        $features = $this->featureService->selectFeatures();
+        $features = $this->featureService->selectFeatures($this->siteSettingId);
         return view('admin.memberships.create', get_defined_vars());
     }
 
@@ -37,6 +38,8 @@ class MembershipController extends Controller
         try {
             $data = $request->validated();
             $data['site_setting_id'] = $this->siteSettingId;
+            
+            $data['billing_interval'] = MembershipPeriod::getBillingIntervalFromPeriod($data['period']);
 
             $membership = $this->membershipService->createMembership($data);
             
@@ -70,7 +73,7 @@ class MembershipController extends Controller
         }
 
         $membership = $this->membershipService->showMembership($membership);
-        $features = $this->featureService->selectFeatures();
+        $features = $this->featureService->selectFeatures($this->siteSettingId);
         return view('admin.memberships.edit', get_defined_vars());
     }
 
@@ -84,6 +87,8 @@ class MembershipController extends Controller
 
             $data = $request->validated();
             $data['site_setting_id'] = $this->siteSettingId;
+            
+            $data['billing_interval'] =MembershipPeriod::getBillingIntervalFromPeriod($data['period']);
 
             $this->membershipService->updateMembership($membership, $data);
             

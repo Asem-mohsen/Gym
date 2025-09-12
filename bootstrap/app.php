@@ -42,6 +42,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'share.site.setting' => \App\Http\Middleware\ShareSiteSetting::class,
             'require.gym.context' => \App\Http\Middleware\RequireGymContext::class,
             'gym.resource.auth' => \App\Http\Middleware\GymResourceAuthorization::class,
+            'check.gym.visibility' => \App\Http\Middleware\CheckGymVisibility::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

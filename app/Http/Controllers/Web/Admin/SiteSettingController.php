@@ -34,6 +34,7 @@ class SiteSettingController extends Controller
             $data['favicon'] = $request->file('favicon');
             $data['email_logo'] = $request->file('email_logo');
             $data['footer_logo'] = $request->file('footer_logo');
+            $data['is_website_visible'] = $request->has('is_website_visible');
 
             $this->siteSettingService->updateSiteSetting($site, $data);
 

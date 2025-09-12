@@ -42,7 +42,7 @@ class ClassModel extends Model implements HasMedia
 
     public function branches()
     {
-        return $this->belongsToMany(Branch::class, 'class_branch', 'class_id', 'branch_id');
+        return $this->belongsToMany(Branch::class, 'class_branch', 'class_id', 'branch_id')->where('is_visible', true);
     }
 
     public function bookings(): MorphMany

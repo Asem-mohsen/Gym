@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\User;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Models\Membership;
 use App\Models\Offer;
@@ -86,7 +87,7 @@ class PaymentController extends Controller
                 'message' => 'Payment intent created successfully'
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             
             return response()->json([
@@ -129,19 +130,19 @@ class PaymentController extends Controller
             // Step 1: Get authentication token
             $authToken = $this->paymobService->getAuthToken();
             if (!$authToken) {
-                throw new \Exception('Failed to authenticate with Paymob');
+                throw new Exception('Failed to authenticate with Paymob');
             }
 
             // Step 2: Create order
             $orderData = $this->paymobService->createOrderForBookable($authToken, $class, $booking);
             if (!$orderData) {
-                throw new \Exception('Failed to create order on Paymob');
+                throw new Exception('Failed to create order on Paymob');
             }
 
             // Step 3: Create payment key
             $paymentKeyData = $this->paymobService->createPaymentKeyForBookable($authToken, $orderData, $class, $booking);
             if (!$paymentKeyData) {
-                throw new \Exception('Failed to create payment key');
+                throw new Exception('Failed to create payment key');
             }
 
             // Step 4: Create payment record
@@ -165,7 +166,7 @@ class PaymentController extends Controller
             
             return redirect($paymentUrl);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             
             return back()->with('error', 'Payment initialization failed: ' . $e->getMessage());

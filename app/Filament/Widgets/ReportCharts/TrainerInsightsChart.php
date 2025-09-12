@@ -7,9 +7,9 @@ use Illuminate\Support\Carbon;
 
 class TrainerInsightsChart extends ChartWidget
 {
-    protected static ?string $heading = 'Trainer Insights';
+    protected ?string $heading = 'Trainer Insights';
     protected static ?int $sort = 6;
-    protected static ?string $maxHeight = '300px';
+    protected ?string $maxHeight = '300px';
 
     protected function getData(): array
     {

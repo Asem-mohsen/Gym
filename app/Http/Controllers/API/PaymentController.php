@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Payments\CreatePaymentIntentRequest;
 use App\Models\Membership;
@@ -75,7 +76,7 @@ class PaymentController extends Controller
                 'message' => 'Payment intent created successfully'
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             
             return response()->json([
@@ -100,7 +101,7 @@ class PaymentController extends Controller
             $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
             
             if ($paymentIntent->status !== 'succeeded') {
-                throw new \Exception('Payment not completed');
+                throw new Exception('Payment not completed');
             }
 
             // Extract metadata
@@ -131,7 +132,7 @@ class PaymentController extends Controller
                 'message' => 'Payment confirmed successfully'
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             
             return response()->json([
@@ -237,10 +238,10 @@ class PaymentController extends Controller
                     'message' => 'Membership enrollment successful'
                 ]);
             } else {
-                throw new \Exception('Payment failed: ' . $paymentIntent->status);
+                throw new Exception('Payment failed: ' . $paymentIntent->status);
             }
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             
             return response()->json([
@@ -272,7 +273,7 @@ class PaymentController extends Controller
                 'message' => 'Payment status retrieved successfully'
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to get payment status: ' . $e->getMessage()

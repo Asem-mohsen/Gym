@@ -52,7 +52,7 @@
                                             <small class=" text-white">
                                                 <strong>Branch:</strong> {{ $userSubscription->branch->name ?? 'N/A' }} |
                                                 <strong>Start Date:</strong> {{ \Carbon\Carbon::parse($userSubscription->start_date)->format('M j, Y') }} |
-                                                <strong>Days Remaining:</strong> {{ \Carbon\Carbon::parse($userSubscription->end_date)->diffInDays(now()) }} days
+                                                <strong>Days Remaining:</strong> {{ $userSubscription->remaining_days }} days
                                             </small>
                                         </div>
                                     </div>

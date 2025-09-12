@@ -1,6 +1,7 @@
 <?php 
 namespace App\Services\Auth;
 
+use Exception;
 use App\Models\User;
 use App\Repositories\{RoleRepository, UserRepository};
 use App\Services\{EmailService, SiteSettingService};
@@ -35,7 +36,7 @@ class AuthService
             ];
         }
 
-        throw new \Exception('Authentication failed', 401);
+        throw new Exception('Authentication failed', 401);
     }
 
     /**
@@ -81,14 +82,14 @@ class AuthService
    public function webLoign(array $credentials): User
    {
        if (!Auth::attempt($credentials)) {
-           throw new \Exception('Invalid credentials provided.', 401);
+           throw new Exception('Invalid credentials provided.', 401);
        }
 
        $user = Auth::user();
 
        if (!$user->status) {
            Auth::logout();
-           throw new \Exception('Your account has been disabled.', 403);
+           throw new Exception('Your account has been disabled.', 403);
        }
 
        return $user;

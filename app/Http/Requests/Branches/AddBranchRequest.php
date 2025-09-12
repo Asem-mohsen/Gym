@@ -19,12 +19,18 @@ class AddBranchRequest extends FormRequest
             'name.ar'     => ['required' , 'max:255', 'string'],
             'location.en' => ['required' , 'max:1000'],
             'location.ar' => ['required' , 'max:1000'],
+            'latitude'    => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude'   => ['nullable', 'numeric', 'between:-180,180'],
+            'city'        => ['nullable', 'max:255'],
+            'region'      => ['nullable', 'max:255'],
+            'country'     => ['nullable', 'max:255'],
             'type'        => ['required' , 'in:mix,men,ladies'],
             'size'        => ['required'],
             'facebook_url'=> ['nullable', 'url'],
             'x_url'       => ['nullable', 'url'],
             'instagram_url'=>['nullable', 'url'],
             'map_url'     => ['nullable', 'url'],
+            'is_visible'  => ['nullable', 'boolean'],
             'phones'       =>['required', 'array' , 'min:1'],
         ];
     }

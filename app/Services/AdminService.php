@@ -1,6 +1,7 @@
 <?php 
 namespace App\Services;
 
+use Exception;
 use App\Repositories\AdminRepository;
 use App\Mail\AdminOnboardingMail;
 use Illuminate\Support\Facades\{Hash, Log, Mail, DB};
@@ -22,9 +23,9 @@ class AdminService
         $this->roleAssignmentService = $roleAssignmentService;
     }
 
-    public function getAdmins(int $siteSettingId)
+    public function getAdmins(int $siteSettingId, ? int $branchId = null)
     {
-        return $this->adminRepository->getAllAdmins($siteSettingId);
+        return $this->adminRepository->getAllAdmins($siteSettingId, $branchId);
     }
 
     public function createAdmin(array $data, int $siteSettingId)
@@ -149,7 +150,7 @@ class AdminService
             );
             
             Mail::to($user->email)->send(new AdminOnboardingMail($user, $gymName, $gymSlug, $token));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send onboarding email to admin: ' . $user->email, [
                 'error' => $e->getMessage(),
                 'user_id' => $user->id

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\SiteSettingResource\Pages;
 
+use Filament\Actions\CreateAction;
+use Filament\Actions\Action;
 use App\Filament\Resources\SiteSettingResource;
 use App\Models\SiteSetting;
 use Filament\Actions;
@@ -16,8 +18,8 @@ class ListSiteSettings extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
-            Actions\Action::make('download_contract')
+            CreateAction::make(),
+            Action::make('download_contract')
                 ->label('Download Contract Template')
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('success')

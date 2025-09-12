@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Models\{User, Membership, Branch, ClassModel, Service, Booking, Checkin, Payment};
 use App\Repositories\{ RoleRepository, UserRepository};
@@ -34,7 +35,7 @@ class DashboardController extends Controller
             if (Auth::check() && method_exists(Auth::user(), 'can') && Auth::user()->can('view_financials')) {
                 $financialAnalytics = $this->getFinancialAnalytics($siteSettingId);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // If permission check fails, continue without financial data
             $financialAnalytics = null;
         }
@@ -557,7 +558,7 @@ class DashboardController extends Controller
         for ($i = 2; $i >= 0; $i--) {
             $month = Carbon::now()->subMonths($i);
             $churnMonths[] = $month->format('M Y');
-            
+
             // For now, use a simplified churn calculation
             // This can be enhanced later with more sophisticated logic
             $monthlyBookings = Booking::where('bookable_type', Membership::class)

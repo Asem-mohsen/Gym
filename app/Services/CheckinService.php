@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Database\Eloquent\Collection;
 use App\Models\{Checkin, User, SiteSetting, Subscription};
 use App\Repositories\SubscriptionRepository;
 use Illuminate\Http\Request;
@@ -217,7 +218,7 @@ class CheckinService
     /**
      * Get recent check-ins for a gym
      */
-    public function getRecentCheckins(int $gymId, int $limit = 10): \Illuminate\Database\Eloquent\Collection
+    public function getRecentCheckins(int $gymId, int $limit = 10): Collection
     {
         return Checkin::where('site_setting_id', $gymId)
             ->with(['user', 'branch'])

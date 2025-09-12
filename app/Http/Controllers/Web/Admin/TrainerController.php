@@ -31,12 +31,7 @@ class TrainerController extends Controller
     public function index(Request $request)
     {
         try {
-            $trainers = $this->userService->getTrainers(
-                $this->siteSettingId,
-                $request->get('per_page', 15),
-                $request->get('branch_id'),
-                $request->get('search')
-            );
+            $trainers = $this->userService->getTrainers($this->siteSettingId,$request->get('branch_id'));
             
             $branches = $this->branchService->getBranches($this->siteSettingId);
             

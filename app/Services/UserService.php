@@ -1,6 +1,7 @@
 <?php 
 namespace App\Services;
 
+use Exception;
 use App\Repositories\{UserRepository, RoleRepository};
 use App\Mail\UserOnboardingMail;
 use App\Models\SiteSetting;
@@ -34,9 +35,9 @@ class UserService
         return $this->userRepository->getAllUsers($siteSettingId);
     }
 
-    public function getTrainers(int $siteSettingId, $perPage = 15, $branchId = null, $search = null)
+    public function getTrainers(int $siteSettingId, $branchId = null)
     {
-        return $this->userRepository->getAllTrainers($siteSettingId, $perPage, $branchId, $search);
+        return $this->userRepository->getAllTrainers($siteSettingId,$branchId);
     }
 
     public function getStaff(int $siteSettingId, $branchId = null)
@@ -183,7 +184,7 @@ class UserService
                 
                 Mail::to($user->email)->send(new UserOnboardingMail($user, $gymName));
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send onboarding email to user: ' . $user->email, [
                 'error' => $e->getMessage(),
                 'user_id' => $user->id

@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use Illuminate\Database\Eloquent\Collection;
 use App\Models\Invitation;
 use App\Models\User;
 
@@ -65,7 +66,7 @@ class InvitationRepository
         return Invitation::where('qr_code', $qrCode)->first();
     }
 
-    public function getUserInvitations(int $userId, int $siteSettingId, array $with = []): \Illuminate\Database\Eloquent\Collection
+    public function getUserInvitations(int $userId, int $siteSettingId, array $with = []): Collection
     {
         return Invitation::with($with)
             ->where('inviter_id', $userId)
@@ -74,7 +75,7 @@ class InvitationRepository
             ->get();
     }
 
-    public function getUserActiveInvitations(int $userId, int $siteSettingId): \Illuminate\Database\Eloquent\Collection
+    public function getUserActiveInvitations(int $userId, int $siteSettingId): Collection
     {
         return Invitation::active()
             ->where('inviter_id', $userId)
@@ -83,7 +84,7 @@ class InvitationRepository
             ->get();
     }
 
-    public function getUserUsedInvitations(int $userId, int $siteSettingId): \Illuminate\Database\Eloquent\Collection
+    public function getUserUsedInvitations(int $userId, int $siteSettingId): Collection
     {
         return Invitation::used()
             ->where('inviter_id', $userId)
@@ -92,7 +93,7 @@ class InvitationRepository
             ->get();
     }
 
-    public function getUserExpiredInvitations(int $userId, int $siteSettingId): \Illuminate\Database\Eloquent\Collection
+    public function getUserExpiredInvitations(int $userId, int $siteSettingId): Collection
     {
         return Invitation::expired()
             ->where('inviter_id', $userId)
@@ -101,14 +102,14 @@ class InvitationRepository
             ->get();
     }
 
-    public function getInvitationsByEmail(string $email, int $siteSettingId): \Illuminate\Database\Eloquent\Collection
+    public function getInvitationsByEmail(string $email, int $siteSettingId): Collection
     {
         return Invitation::where('invitee_email', $email)
             ->where('site_setting_id', $siteSettingId)
             ->get();
     }
 
-    public function getInvitationsByPhone(string $phone, int $siteSettingId): \Illuminate\Database\Eloquent\Collection
+    public function getInvitationsByPhone(string $phone, int $siteSettingId): Collection
     {
         return Invitation::where('invitee_phone', $phone)
             ->where('site_setting_id', $siteSettingId)

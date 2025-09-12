@@ -2,10 +2,22 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\Action;
+use Illuminate\Support\Facades\Auth;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Resources\BranchScoreReviewRequestResource\Pages\ListBranchScoreReviewRequests;
+use App\Filament\Resources\BranchScoreReviewRequestResource\Pages\ViewBranchScoreReviewRequest;
+use App\Filament\Resources\BranchScoreReviewRequestResource\Pages\EditBranchScoreReviewRequest;
 use App\Filament\Resources\BranchScoreReviewRequestResource\Pages;
 use App\Models\BranchScoreReviewRequest;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -14,27 +26,24 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
-
-use Filament\Tables\Actions\Action;
 
 class BranchScoreReviewRequestResource extends Resource
 {
     protected static ?string $model = BranchScoreReviewRequest::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static ?string $navigationGroup = 'Score Management';
+    protected static string | \UnitEnum | null $navigationGroup = 'Score Management';
 
     protected static ?string $navigationLabel = 'Review Requests';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make('Request Information')
                     ->schema([
                         Placeholder::make('branch_info')
@@ -127,25 +136,25 @@ class BranchScoreReviewRequestResource extends Resource
                     ->color('info'),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
+                SelectFilter::make('status')
                     ->label('Status')
                     ->options([
                         'pending' => 'Pending',
                         'approved' => 'Approved',
                         'rejected' => 'Rejected',
                     ]),
-                Tables\Filters\TernaryFilter::make('is_reviewed')
+                TernaryFilter::make('is_reviewed')
                     ->label('Review Status'),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
                 Action::make('approve')
                     ->label('Approve')
                     ->icon('heroicon-o-check')
                     ->color('success')
                     ->visible(fn (BranchScoreReviewRequest $record): bool => !$record->is_reviewed)
-                    ->form([
+                    ->schema([
                         Textarea::make('review_notes')
                             ->label('Review Notes')
                             ->required()
@@ -159,7 +168,7 @@ class BranchScoreReviewRequestResource extends Resource
                             'is_approved' => true,
                             'is_reviewed' => true,
                             'reviewed_at' => now(),
-                            'reviewed_by_id' => \Illuminate\Support\Facades\Auth::id(),
+                            'reviewed_by_id' => Auth::id(),
                             'review_notes' => $data['review_notes'],
                             'scheduled_review_date' => $data['scheduled_review_date'],
                         ]);
@@ -169,7 +178,7 @@ class BranchScoreReviewRequestResource extends Resource
                     ->icon('heroicon-o-x-mark')
                     ->color('danger')
                     ->visible(fn (BranchScoreReviewRequest $record): bool => !$record->is_reviewed)
-                    ->form([
+                    ->schema([
                         Textarea::make('review_notes')
                             ->label('Rejection Reason')
                             ->required()
@@ -180,14 +189,14 @@ class BranchScoreReviewRequestResource extends Resource
                             'is_approved' => false,
                             'is_reviewed' => true,
                             'reviewed_at' => now(),
-                            'reviewed_by_id' => \Illuminate\Support\Facades\Auth::id(),
+                            'reviewed_by_id' => Auth::id(),
                             'review_notes' => $data['review_notes'],
                         ]);
                     }),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('requested_at', 'desc');
@@ -204,9 +213,9 @@ class BranchScoreReviewRequestResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListBranchScoreReviewRequests::route('/'),
-            'view' => Pages\ViewBranchScoreReviewRequest::route('/{record}'),
-            'edit' => Pages\EditBranchScoreReviewRequest::route('/{record}/edit'),
+            'index' => ListBranchScoreReviewRequests::route('/'),
+            'view' => ViewBranchScoreReviewRequest::route('/{record}'),
+            'edit' => EditBranchScoreReviewRequest::route('/{record}/edit'),
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Log;
@@ -20,7 +21,7 @@ class RoleAssignmentService
             } else {
                 $this->assignDefaultRole($user);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error("Failed to assign roles to user {$user->id}: " . $e->getMessage());
             throw $e;
         }

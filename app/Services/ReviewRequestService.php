@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use App\Repositories\ReviewRequestRepository;
 use App\Models\BranchScoreReviewRequest;
 use App\Models\Branch;
@@ -69,7 +70,7 @@ class ReviewRequestService
             $branchScore = $this->reviewRequestRepository->getBranchScoreById($data['branch_score_id'], $siteSettingId);
             
             if (!$branchScore) {
-                throw new \Exception('Branch score not found or not accessible.');
+                throw new Exception('Branch score not found or not accessible.');
             }
         }
 
@@ -97,7 +98,7 @@ class ReviewRequestService
     public function getReviewRequestForShow(BranchScoreReviewRequest $reviewRequest, int $siteSettingId): BranchScoreReviewRequest
     {
         if (!$this->reviewRequestRepository->isReviewRequestAccessible($reviewRequest, $siteSettingId)) {
-            throw new \Exception('Unauthorized access to this review request.');
+            throw new Exception('Unauthorized access to this review request.');
         }
 
         return $reviewRequest;
@@ -108,7 +109,7 @@ class ReviewRequestService
         $reviewRequest = $this->getReviewRequestForShow($reviewRequest, $siteSettingId);
 
         if (!$this->reviewRequestRepository->isReviewRequestEditable($reviewRequest)) {
-            throw new \Exception('Cannot edit a approved request (only pending requests can be edited).');
+            throw new Exception('Cannot edit a approved request (only pending requests can be edited).');
         }
 
         return $reviewRequest;
@@ -117,11 +118,11 @@ class ReviewRequestService
     public function updateReviewRequest(BranchScoreReviewRequest $reviewRequest, array $data, int $siteSettingId): bool
     {
         if (!$this->reviewRequestRepository->isReviewRequestAccessible($reviewRequest, $siteSettingId)) {
-            throw new \Exception('Unauthorized access to this review request.');
+            throw new Exception('Unauthorized access to this review request.');
         }
 
         if (!$this->reviewRequestRepository->isReviewRequestEditable($reviewRequest)) {
-            throw new \Exception('Cannot update a reviewed request.');
+            throw new Exception('Cannot update a reviewed request.');
         }
 
         $updateData = [
@@ -146,7 +147,7 @@ class ReviewRequestService
         $reviewRequest = $this->getReviewRequestForShow($reviewRequest, $siteSettingId);
 
         if (!$this->reviewRequestRepository->isReviewRequestEditable($reviewRequest)) {
-            throw new \Exception('Cannot delete a reviewed request.');
+            throw new Exception('Cannot delete a reviewed request.');
         }
 
         return $this->reviewRequestRepository->deleteReviewRequest($reviewRequest);

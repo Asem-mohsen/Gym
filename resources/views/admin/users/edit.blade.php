@@ -86,11 +86,11 @@
                 </div>
                 <div class="mb-10 col-md-4">
                     <label for="country" class="form-label">Country</label>
-                    <input type="text" value="{{ old('country') }}" value="Egypt" placeholder="Egypt" name="country" class="form-control form-control-solid"/>
+                    <input type="text" value="{{ old('country', $user->country) }}" value="Egypt" placeholder="Egypt" name="country" class="form-control form-control-solid"/>
                 </div>
                 <div class="mb-10 col-md-4">
                     <label for="city" class="form-label">City</label>
-                    <input type="text" value="{{ old('city') }}" name="city" class="form-control form-control-solid"/>
+                    <input type="text" value="{{ old('city', $user->city) }}" name="city" class="form-control form-control-solid"/>
                 </div>
 
                 <!-- Trainer Information Section -->

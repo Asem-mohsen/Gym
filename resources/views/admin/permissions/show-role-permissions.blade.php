@@ -86,7 +86,7 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <strong>Role Name:</strong>
-                        <p class="mb-0">{{ ucfirst($role->name) }}</p>
+                        {{ ucfirst($role->name) }}
                     </div>
 
                     <div class="mb-3">
@@ -94,7 +94,7 @@
                         @if($rolePermissions->count() > 0)
                             <div class="mt-2">
                                 @foreach($rolePermissions as $permission)
-                                    <span class="badge bg-success me-1 mb-1">{{ $permission->name }}</span>
+                                    <span class="badge bg-success me-1 mb-1 text-white">{{ $permission->name }}</span>
                                 @endforeach
                             </div>
                         @else
@@ -144,17 +144,5 @@
     function deselectAllPermissions() {
         $('input[name="permission_ids[]"]').prop('checked', false);
     }
-
-    $(document).ready(function() {
-        // Add confirmation before form submission
-        $('form').on('submit', function(e) {
-            const checkedPermissions = $('input[name="permission_ids[]"]:checked').length;
-            if (checkedPermissions === 0) {
-                if (!confirm('You haven\'t selected any permissions. Are you sure you want to remove all permissions from this role?')) {
-                    e.preventDefault();
-                }
-            }
-        });
-    });
 </script>
 @endsection

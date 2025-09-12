@@ -1,6 +1,7 @@
 <?php 
 namespace App\Services;
 
+use Exception;
 use App\Models\SiteSetting;
 use App\Repositories\BranchRepository;
 use App\Repositories\SiteSettingRepository;
@@ -81,7 +82,7 @@ class SiteSettingService
         $siteSetting = $this->siteSettingRepository->findById($id);
 
         if (!$siteSetting) {
-            throw new \Exception("Site setting not found.", 404);
+            throw new Exception("Site setting not found.", 404);
         }
 
         return $siteSetting;
@@ -137,7 +138,7 @@ class SiteSettingService
             if ($defaultSiteSetting) {
                 return $defaultSiteSetting->id;
             }
-            throw new \Exception("No site settings available.", 404);
+            throw new Exception("No site settings available.", 404);
         }
         
         return $siteSettingId;

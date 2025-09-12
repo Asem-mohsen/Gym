@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use App\Imports\UsersImport;
 use App\Imports\BranchesImport;
 use App\Imports\MembershipsImport;
@@ -38,8 +39,12 @@ class GymDataImportService
                 'users' => [],
                 'branches' => [],
                 'memberships' => [],
+                'membership_features' => [],
                 'classes' => [],
+                'class_schedules' => [],
+                'class_pricing' => [],
                 'services' => [],
+                'subscriptions' => [],
                 'errors' => [],
                 'summary' => []
             ];
@@ -60,7 +65,7 @@ class GymDataImportService
 
             return $this->importResults;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             
             Log::error('Gym data import failed: ' . $e->getMessage(), [
@@ -87,7 +92,10 @@ class GymDataImportService
         $totalImported = 0;
         $totalErrors = 0;
 
-        foreach (['users', 'branches', 'memberships', 'classes', 'services'] as $type) {
+        // Include all sheet types
+        $sheetTypes = ['users', 'branches', 'memberships', 'membership_features', 'classes', 'class_schedules', 'class_pricing', 'services', 'subscriptions'];
+        
+        foreach ($sheetTypes as $type) {
             $totalImported += $this->importResults[$type]['count'] ?? 0;
             $totalErrors += count($this->importResults[$type]['errors'] ?? []);
         }

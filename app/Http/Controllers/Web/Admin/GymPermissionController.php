@@ -44,16 +44,16 @@ class GymPermissionController extends Controller
         try {
             $roles = Role::with(['permissions' => function($query) {
                 $query->wherePivot('site_setting_id', $this->siteSettingId);
-            }])->get();
-            
-            // Get user count for each role in this gym
-            foreach ($roles as $role) {
-                $role->users_count = User::whereHas('gyms', function($query) {
-                    $query->where('site_setting_id', $this->siteSettingId);
-                })->whereHas('roles', function($query) use ($role) {
-                    $query->where('roles.id', $role->id);
-                })->count();
-            }
+            }])
+            ->where('name', '!=', 'master_admin')
+            ->withCount([
+                'users as users_count' => function ($query) {
+                    $query->whereHas('gyms', function($query) {
+                        $query->where('site_setting_id', $this->siteSettingId);
+                    });
+                }
+            ])
+            ->get();
             
             $permissionGroups = $this->gymPermissionService->getPermissionGroups();
             
@@ -71,9 +71,16 @@ class GymPermissionController extends Controller
         try {
             $users = User::whereHas('gyms', function($query) {
                 $query->where('site_setting_id', $this->siteSettingId);
-            })->with(['roles', 'permissions' => function($query) {
-                $query->wherePivot('site_setting_id', $this->siteSettingId);
-            }])->get();
+            })
+            ->with([
+                'roles.permissions' => function($query) {
+                    $query->wherePivot('site_setting_id', $this->siteSettingId);
+                },
+                'permissions' => function($query) {
+                    $query->wherePivot('site_setting_id', $this->siteSettingId);
+                }
+            ])
+            ->get();
             
             $permissionGroups = $this->gymPermissionService->getPermissionGroups();
             
@@ -89,7 +96,9 @@ class GymPermissionController extends Controller
     public function assignRolePermissions(AssignRolePermissionsRequest $request, Role $role)
     {
         try {
-            $this->gymPermissionService->assignPermissionsToRole($role, $request->permission_ids, $this->siteSettingId);
+            $permissionIds = $request->permission_ids ?? [];
+            
+            $this->gymPermissionService->assignPermissionsToRole($role, $permissionIds, $this->siteSettingId);
             
             return redirect()->back()->with('success', 'Role permissions updated successfully.');
         } catch (Exception $e) {
@@ -106,15 +115,9 @@ class GymPermissionController extends Controller
     public function assignUserPermissions(AssignUserPermissionsRequest $request, User $user)
     {
         try {
-            // Log what permissions are being assigned
-            Log::info('Assigning permissions to user', [
-                'user_id' => $user->id,
-                'user_name' => $user->name,
-                'permissions' => $request->permission_ids,
-                'site_setting_id' => $this->siteSettingId
-            ]);
+            $permissionIds = $request->permission_ids ?? [];
             
-            $this->gymPermissionService->assignPermissionsToUser($user, $request->permission_ids, $this->siteSettingId);
+            $this->gymPermissionService->assignPermissionsToUser($user, $permissionIds, $this->siteSettingId);
             
             return redirect()->back()->with('success', 'User permissions updated successfully.');
         } catch (Exception $e) {
@@ -136,7 +139,12 @@ class GymPermissionController extends Controller
                 return redirect()->back()->with('error', 'You do not have permission to view this role.');
             }
             
-            $rolePermissions = $this->gymPermissionService->getRolePermissions($role, $this->siteSettingId);
+            // Eager load permissions to avoid additional queries
+            $role->load(['permissions' => function($query) {
+                $query->wherePivot('site_setting_id', $this->siteSettingId);
+            }]);
+            
+            $rolePermissions = $role->permissions;
             $permissionGroups = $this->gymPermissionService->getPermissionGroups();
             
             return view('admin.permissions.show-role-permissions', compact('role', 'rolePermissions', 'permissionGroups'));
@@ -155,22 +163,23 @@ class GymPermissionController extends Controller
                 return redirect()->back()->with('error', 'You do not have permission to view this role.');
             }
 
-            $user->load(['roles.permissions' => function($query) {
-                $query->wherePivot('site_setting_id', $this->siteSettingId);
-            }, 'permissions' => function($query) {
-                $query->wherePivot('site_setting_id', $this->siteSettingId);
-            }]);
+            // Eager load all relationships to avoid N+1 queries
+            $user->load([
+                'roles.permissions' => function($query) {
+                    $query->wherePivot('site_setting_id', $this->siteSettingId);
+                }, 
+                'permissions' => function($query) {
+                    $query->wherePivot('site_setting_id', $this->siteSettingId);
+                }
+            ]);
 
-            $userPermissions = $this->gymPermissionService->getUserPermissions($user, $this->siteSettingId);
+            $userPermissions = $user->permissions;
             $permissionGroups = $this->gymPermissionService->getPermissionGroups();
             
-            $allUserPermissions = collect();
-            
-            $allUserPermissions = $allUserPermissions->merge($userPermissions);
+            $allUserPermissions = $userPermissions->toBase();
             
             foreach ($user->roles as $role) {
-                $rolePermissions = $this->gymPermissionService->getRolePermissions($role, $this->siteSettingId);
-                $allUserPermissions = $allUserPermissions->merge($rolePermissions);
+                $allUserPermissions = $allUserPermissions->merge($role->permissions);
             }
             
             $allUserPermissions = $allUserPermissions->unique('name');

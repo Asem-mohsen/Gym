@@ -7,7 +7,7 @@ use Filament\Widgets\ChartWidget;
 
 class ScoreDistributionChart extends ChartWidget
 {
-    protected static ?string $heading = 'Score Distribution';
+    protected ?string $heading = 'Score Distribution';
 
     protected static ?int $sort = 2;
 

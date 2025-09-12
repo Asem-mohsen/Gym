@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Models\BranchScoreReviewRequest;
 use App\Services\ReviewRequestService;
@@ -40,7 +41,7 @@ class ReviewRequestController extends Controller
             $this->reviewRequestService->createReviewRequest($request->validated(), $this->siteSettingId);
             
             return redirect()->route('review-requests.index')->with('success', 'Review request submitted successfully. We will review it and get back to you.');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Failed to submit review request: ' . $e->getMessage());
         }
     }
@@ -56,7 +57,7 @@ class ReviewRequestController extends Controller
         try {
             $reviewRequest = $this->reviewRequestService->getReviewRequestForEdit($reviewRequest, $this->siteSettingId);
             return view('admin.review-requests.edit', compact('reviewRequest'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return redirect()->route('review-requests.index')->with('error', 'Failed to edit review request: ' . $e->getMessage());
         }
     }
@@ -68,7 +69,7 @@ class ReviewRequestController extends Controller
             
             return redirect()->route('review-requests.show', $reviewRequest)
                 ->with('success', 'Review request updated successfully.');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Failed to update review request: ' . $e->getMessage());
@@ -82,7 +83,7 @@ class ReviewRequestController extends Controller
             
             return redirect()->route('review-requests.index')
                 ->with('success', 'Review request cancelled successfully.');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return redirect()->back()
                 ->with('error', 'Failed to cancel review request: ' . $e->getMessage());
         }

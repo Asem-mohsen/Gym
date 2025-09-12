@@ -1,6 +1,7 @@
 <?php 
 namespace App\Repositories;
 
+use Exception;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -10,8 +11,7 @@ class UserRepository
 {
     public function getAllUsers(int $siteSettingId)
     {
-        $query = User::where('is_admin', '0')
-            ->whereHas('roles', function ($query) {
+        $query = User::whereHas('roles', function ($query) {
                 $query->where('name', 'regular_user');
             })
             ->whereHas('gyms', function ($query) use ($siteSettingId) {
@@ -21,45 +21,30 @@ class UserRepository
         return $query->with('roles')->get();
     }
 
-    public function getAllTrainers(int $siteSettingId, $perPage = 15, $branchId = null, $search = null)
+    public function getAllTrainers(int $siteSettingId, $branchId = null)
     {
-        $trainerRole = Role::where('name', 'trainer')->first();
-        
-        $query = User::where('is_admin', '0')
-            ->whereHas('gyms', function ($query) use ($siteSettingId) {
+        $query = User::whereHas('gyms', function ($query) use ($siteSettingId) {
                 $query->where('site_setting_id', $siteSettingId);
+            })
+            ->whereHas('roles', function ($query) {
+                $query->where('roles.name', 'trainer');
             });
-
-        if ($trainerRole) {
-            $query->whereHas('roles', function ($query) use ($trainerRole) {
-                $query->where('roles.id', $trainerRole->id);
-            });
-        }
 
         if ($branchId) {
-            $query->whereHas('subscriptions', function ($query) use ($branchId) {
+            $query->whereHas('assignedBranches', function ($query) use ($branchId) {
                 $query->where('branch_id', $branchId);
             });
         }
 
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
-            });
-        }
-
-        return $query->with('roles')->paginate($perPage);
+        return $query->with('roles')->get();
     }
 
     public function getAllStaff(int $siteSettingId, ?int $branchId = null)
     {
         // Get staff roles (excluding admin and regular_user)
-        $staffRoles = Role::whereNotIn('name', ['admin', 'regular_user', 'trainer'])->pluck('id');
+        $staffRoles = Role::whereNotIn('name', ['admin', 'regular_user', 'trainer', 'master_admin'])->pluck('id');
         
-        $query = User::where('is_admin', '0')
-            ->whereHas('gyms', function ($query) use ($siteSettingId) {
+        $query = User::whereHas('gyms', function ($query) use ($siteSettingId) {
                 $query->where('site_setting_id', $siteSettingId);
             })
             ->whereHas('roles', function ($query) use ($staffRoles) {
@@ -67,7 +52,7 @@ class UserRepository
             });
 
         if ($branchId) {
-            $query->whereHas('subscriptions', function ($query) use ($branchId) {
+            $query->whereHas('assignedBranches', function ($query) use ($branchId) {
                 $query->where('branch_id', $branchId);
             });
         }
@@ -160,7 +145,7 @@ class UserRepository
             
             DB::commit();
             
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error deleting user', ['error' => $e->getMessage()]);
             throw $e;

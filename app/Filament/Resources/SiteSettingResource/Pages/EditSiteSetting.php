@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\SiteSettingResource\Pages;
 
+use Filament\Actions\ViewAction;
+use Filament\Actions\DeleteAction;
 use App\Filament\Resources\SiteSettingResource;
 use App\Services\ContractDocumentService;
 use Filament\Actions;
@@ -15,8 +17,8 @@ class EditSiteSetting extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\ViewAction::make(),
-            Actions\DeleteAction::make(),
+            ViewAction::make(),
+            DeleteAction::make(),
         ];
     }
 

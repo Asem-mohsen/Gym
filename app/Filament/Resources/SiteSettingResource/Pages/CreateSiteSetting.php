@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\SiteSettingResource\Pages;
 
 use App\Filament\Resources\SiteSettingResource;
+use App\Jobs\ProcessContractDocumentJob;
 use App\Models\User;
-use App\Services\ContractDocumentService;
 use App\Services\RoleAssignmentService;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Str;
@@ -27,8 +27,7 @@ class CreateSiteSetting extends CreateRecord
         
         $this->handleOwnerAssignment($siteSetting);
         
-        $service = new ContractDocumentService();
-        $service->handleContractDocument($siteSetting);
+        ProcessContractDocumentJob::dispatch($siteSetting->id)->delay(now()->addSeconds(5));
     }
     
     private function handleOwnerAssignment($siteSetting): void

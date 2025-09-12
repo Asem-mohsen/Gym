@@ -54,4 +54,54 @@ class Subscription extends Model
     {
         return $this->getRemainingInvitationsAttribute() > 0;
     }
+
+    /**
+     * Check if this is a one-day membership subscription
+     */
+    public function isOneDayMembership(): bool
+    {
+        return $this->membership->period === \App\Enums\MembershipPeriod::DAY->value;
+    }
+
+    /**
+     * Check if the subscription is expired (including one-day memberships)
+     */
+    public function isExpired(): bool
+    {
+        return $this->status === 'expired' || 
+               $this->end_date < now()->toDateString();
+    }
+
+    /**
+     * Check if the subscription is active (including one-day memberships)
+     */
+    public function isActive(): bool
+    {
+        return $this->status === 'active' && 
+               $this->end_date >= now()->toDateString();
+    }
+
+    /**
+     * Get the remaining days for this subscription
+     */
+    public function getRemainingDaysAttribute(): int
+    {
+        $endDate = \Carbon\Carbon::parse($this->end_date);
+        $today = \Carbon\Carbon::today();
+        
+        if ($endDate->isPast()) {
+            return 0;
+        }
+        
+        return $today->diffInDays($endDate);
+    }
+
+    /**
+     * Calculate end date based on membership period and start date
+     */
+    public function calculateEndDateFromStartDate(): \Carbon\Carbon
+    {
+        $startDate = \Carbon\Carbon::parse($this->start_date);
+        return $this->membership->calculateEndDate($startDate);
+    }
 }

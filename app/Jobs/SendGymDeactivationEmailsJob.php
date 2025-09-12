@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use Exception;
+use Throwable;
 use App\Mail\GymDeactivationNotificationEmail;
 use App\Models\{SiteSetting, User};
 use Illuminate\Bus\Queueable;
@@ -49,7 +51,7 @@ class SendGymDeactivationEmailsJob implements ShouldQueue
                         'gym_id' => $this->gym->id
                     ]);
 
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $failureCount++;
                     
                     Log::error('Failed to send gym deactivation email', [
@@ -68,7 +70,7 @@ class SendGymDeactivationEmailsJob implements ShouldQueue
                 'failure_count' => $failureCount
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Gym deactivation email job failed', [
                 'gym_id' => $this->gym->id,
                 'error' => $e->getMessage(),
@@ -99,7 +101,7 @@ class SendGymDeactivationEmailsJob implements ShouldQueue
     /**
      * Handle job failure
      */
-    public function failed(\Throwable $exception): void
+    public function failed(Throwable $exception): void
     {
         Log::error('Gym deactivation email job failed permanently', [
             'gym_id' => $this->gym->id,

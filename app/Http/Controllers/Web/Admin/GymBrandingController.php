@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use InvalidArgumentException;
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GymBranding\UpdateGymBrandingRequest;
 use App\Models\{GymSetting, SiteSetting};
@@ -27,10 +29,11 @@ class GymBrandingController extends Controller
         $defaultSections = GymSetting::getDefaultHomePageSections();
         $mediaTypes = GymSetting::getAvailableMediaTypes();
         $pageTypes = GymSetting::getAvailablePageTypes();
+        $repeaterConfigs = GymSetting::getDefaultRepeaterConfigs();
 
         $brandingData = $branding['branding'] ?? [];
         
-        return view('admin.gym-branding.show', compact('siteSetting', 'brandingData', 'defaultSections', 'mediaTypes', 'pageTypes'));
+        return view('admin.gym-branding.show', compact('siteSetting', 'brandingData', 'defaultSections', 'mediaTypes', 'pageTypes', 'repeaterConfigs'));
     }
 
     /**
@@ -97,7 +100,7 @@ class GymBrandingController extends Controller
                     $texts = $brandingData['texts'] ?? [];
                     
                     if (!$pageType) {
-                        throw new \InvalidArgumentException('Page type is required for text updates');
+                        throw new InvalidArgumentException('Page type is required for text updates');
                     }
                     
                     $updatedGymSetting = $this->gymBrandingService->updatePageTexts($siteSettingId, $pageType, $texts);
@@ -105,6 +108,26 @@ class GymBrandingController extends Controller
                     return response()->json([
                         'success' => true,
                         'message' => 'Page texts updated successfully',
+                        'data' => $updatedGymSetting
+                    ]);
+                    
+                case 'repeater_fields':
+                    // Handle repeater field updates
+                    $section = $request->input('section');
+                    $repeaterDataJson = $request->input('repeater_data');
+                    
+                    if (!$section) {
+                        throw new InvalidArgumentException('Section is required for repeater field updates');
+                    }
+                    
+                    // Decode JSON data if it's a string
+                    $data = is_string($repeaterDataJson) ? json_decode($repeaterDataJson, true) : ($repeaterDataJson ?? []);
+                    
+                    $updatedGymSetting = $this->gymBrandingService->updateRepeaterFields($siteSettingId, $section, $data);
+                    
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Repeater fields updated successfully',
                         'data' => $updatedGymSetting
                     ]);
                     
@@ -120,7 +143,7 @@ class GymBrandingController extends Controller
                 'data' => $updatedGymSetting
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update branding settings: ' . $e->getMessage()
@@ -142,7 +165,7 @@ class GymBrandingController extends Controller
                 'deleted' => $deleted
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to reset branding settings: ' . $e->getMessage()
@@ -165,7 +188,7 @@ class GymBrandingController extends Controller
                 ]
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate CSS variables: ' . $e->getMessage()
@@ -204,7 +227,7 @@ class GymBrandingController extends Controller
                 ]
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate preview: ' . $e->getMessage()
@@ -228,7 +251,7 @@ class GymBrandingController extends Controller
                 ]
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to get page texts: ' . $e->getMessage()
@@ -246,7 +269,7 @@ class GymBrandingController extends Controller
             $customTexts = $request->input('texts', []);
 
             if (!$pageType) {
-                throw new \InvalidArgumentException('Page type is required');
+                throw new InvalidArgumentException('Page type is required');
             }
 
             $preview = $this->gymBrandingService->previewPageTexts($pageType, $customTexts);
@@ -256,7 +279,7 @@ class GymBrandingController extends Controller
                 'data' => $preview
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to preview page texts: ' . $e->getMessage()
@@ -280,10 +303,86 @@ class GymBrandingController extends Controller
                 'reset' => $reset
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to reset page texts: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get repeater fields for a specific section
+     */
+    public function getRepeaterFields(int $siteSettingId, string $section): JsonResponse
+    {
+        try {
+            $data = $this->gymBrandingService->getRepeaterFields($siteSettingId, $section);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'section' => $section,
+                    'data' => $data
+                ]
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get repeater fields: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Preview repeater fields
+     */
+    public function previewRepeaterFields(Request $request): JsonResponse
+    {
+        try {
+            $section = $request->input('section');
+            $customData = $request->input('data', []);
+
+            if (!$section) {
+                throw new InvalidArgumentException('Section is required');
+            }
+
+            $preview = $this->gymBrandingService->previewRepeaterFields($section, $customData);
+
+            return response()->json([
+                'success' => true,
+                'data' => $preview
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to preview repeater fields: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Reset repeater fields to defaults
+     */
+    public function resetRepeaterFields(int $siteSettingId, ?string $section = null): JsonResponse
+    {
+        try {
+            $reset = $this->gymBrandingService->resetRepeaterFields($siteSettingId, $section);
+
+            return response()->json([
+                'success' => true,
+                'message' => $section 
+                    ? "Repeater fields for {$section} reset to defaults successfully"
+                    : 'All repeater fields reset to defaults successfully',
+                'reset' => $reset
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to reset repeater fields: ' . $e->getMessage()
             ], 500);
         }
     }

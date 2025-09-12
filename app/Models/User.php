@@ -12,7 +12,6 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Traits\HasRoles;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -34,6 +33,8 @@ class User extends Authenticatable implements HasMedia, FilamentUser
         'last_visit_at',
         'gender',
         'status',
+        'country',
+        'city',
     ];
 
     protected $hidden = [

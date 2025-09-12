@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\GymBranding;
 
+use App\Models\GymSetting;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateGymBrandingRequest extends FormRequest
@@ -21,7 +22,7 @@ class UpdateGymBrandingRequest extends FormRequest
     {
         return [
             // Form type
-            'form_type' => 'nullable|string|in:colors_typography,page_sections,media_settings,page_texts',
+            'form_type' => 'nullable|string|in:colors_typography,page_sections,media_settings,page_texts,repeater_fields',
             
             // Colors - only validate if not empty
             'primary_color' => 'nullable|string|max:7',
@@ -48,6 +49,10 @@ class UpdateGymBrandingRequest extends FormRequest
             'page_type' => 'nullable|string|in:login,register,auth_common,home,about,services,contact,team,gallery,classes',
             'texts' => 'nullable|array',
             'texts.*' => 'nullable|string|max:1000',
+            
+            // Repeater Fields
+            'section' => 'nullable|string',
+            'repeater_data' => 'nullable|string',
         ];
     }
 
@@ -94,7 +99,7 @@ class UpdateGymBrandingRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $mediaSettings = $this->input('media_settings', []);
-            $multipleFileTypes = \App\Models\GymSetting::getMultipleFileMediaTypes();
+            $multipleFileTypes = GymSetting::getMultipleFileMediaTypes();
             
             foreach ($mediaSettings as $mediaType => $files) {
                 if (empty($files)) continue;
@@ -119,6 +124,17 @@ class UpdateGymBrandingRequest extends FormRequest
                     } elseif ($files && !$files->isValid()) {
                         $validator->errors()->add("media_settings.{$mediaType}", "Invalid file.");
                     }
+                }
+            }
+            
+            // Validate repeater_data JSON
+            $repeaterData = $this->input('repeater_data');
+            if ($repeaterData && !empty($repeaterData)) {
+                $decoded = json_decode($repeaterData, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    $validator->errors()->add('repeater_data', 'The repeater data must be valid JSON.');
+                } elseif (!is_array($decoded)) {
+                    $validator->errors()->add('repeater_data', 'The repeater data must be a valid array.');
                 }
             }
         });

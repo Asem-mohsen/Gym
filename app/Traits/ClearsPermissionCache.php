@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Exception;
 use Illuminate\Support\Facades\{Artisan, Log};
 use Spatie\Permission\PermissionRegistrar;
 
@@ -24,7 +25,7 @@ trait ClearsPermissionCache
             Artisan::call('view:clear');
 
             Artisan::call('optimize:clear');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::warning('Failed to clear permission cache in ' . static::class . ': ' . $e->getMessage());
         }
     }

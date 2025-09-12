@@ -2,27 +2,27 @@
 
 namespace App\Filament\Widgets;
 
+use Filament\Schemas\Schema;
 use App\Models\SiteSetting;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Form;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 
 class BranchesPerGymChart extends ChartWidget
 {
-    protected static ?string $heading = 'Branches Per Gym';
+    protected ?string $heading = 'Branches Per Gym';
     protected static ?int $sort = 2;
 
     public ?string $selectedGym = null;
     public ?string $dateFrom = null;
     public ?string $dateTo = null;
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Select::make('selectedGym')
                     ->label('Filter by Gym')
                     ->options(SiteSetting::pluck('gym_name', 'id'))

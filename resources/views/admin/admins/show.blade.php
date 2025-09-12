@@ -142,8 +142,8 @@
                         <div class="col-md-6">
                             <div class="d-flex align-items-center">
                                 <span class="fs-6 fw-semibold text-muted me-2">Branch:</span>
-                                <span class="fs-6 fw-bold text-gray-800">{{ $admin->branches->pluck('name')->implode(', ') }}</span>
-                                @if($admin->branches->count() == 0)
+                                <span class="fs-6 fw-bold text-gray-800">{{ $admin->assignedBranches->pluck('name')->implode(', ') }}</span>
+                                @if($admin->assignedBranches->count() == 0)
                                     <span class="badge badge-light-danger fs-7 fw-bold">No Branch</span>
                                 @endif
                             </div>

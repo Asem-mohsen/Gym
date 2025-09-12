@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use App\Models\User;
 use App\Models\SiteSetting;
 use Illuminate\Support\Facades\Crypt;
@@ -43,7 +44,7 @@ class QrCodeService
             }
 
             return $data;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return null;
         }
     }

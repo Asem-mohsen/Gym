@@ -8,7 +8,7 @@ class SiteSettingRepository
 {
     public function getSiteSettings($with = [])
     {
-        return SiteSetting::with($with)->get();
+        return SiteSetting::with($with)->where('is_website_visible', true)->get();
     }
 
     public function createSiteSetting(array $data)

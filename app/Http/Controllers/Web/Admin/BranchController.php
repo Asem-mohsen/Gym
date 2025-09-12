@@ -42,6 +42,8 @@ class BranchController extends Controller
 
             $branchData = Arr::except($validated, ['phones']);
             $phonesData = $validated['phones'];
+            
+            $branchData['is_visible'] = $request->has('is_visible');
 
             $siteId = Auth::user()?->site->id;
 
@@ -58,6 +60,8 @@ class BranchController extends Controller
             $validated = $request->validated();
             $branchData = Arr::except($validated, ['phones']);
             $phonesData = $validated['phones'] ?? [];
+            
+            $branchData['is_visible'] = $request->has('is_visible');
     
             $this->branchService->updateBranch($branch, $branchData, $phonesData);
     

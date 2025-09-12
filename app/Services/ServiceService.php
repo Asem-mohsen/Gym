@@ -16,9 +16,9 @@ class ServiceService
         $this->galleryRepository = $galleryRepository;
     }
 
-    public function getServices(int $siteSettingId)
+    public function getServices(int $siteSettingId, ?int $branchId = null)
     {
-        return $this->serviceRepository->getAllService($siteSettingId);
+        return $this->serviceRepository->getAllService($siteSettingId, $branchId);
     }
 
     public function getAvailableServices(int $siteSettingId)
@@ -80,11 +80,6 @@ class ServiceService
     public function deleteService($service)
     {
         return $this->serviceRepository->deleteService($service);
-    }
-
-    public function getServicesWithBranches(int $siteSettingId)
-    {
-        return $this->serviceRepository->getServicesWithBranches($siteSettingId);
     }
 
     public function assignBranchesToService(Service $service, array $branchIds)
@@ -157,10 +152,5 @@ class ServiceService
     public function getServiceGallery(Service $service)
     {
         return $service->galleries()->with('media')->first();
-    }
-
-    public function getServicesWithPagination(int $siteSettingId, $perPage = 15, $search = null, $branchId = null)
-    {
-        return $this->serviceRepository->getServicesWithBranches($siteSettingId, $perPage, $search, $branchId);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services\Payments;
 
+use Exception;
 use App\Models\{ Membership, Offer, User, ClassModel, Booking};
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -42,7 +43,7 @@ class PaymobService
             }
 
             return null;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Paymob authentication exception', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -86,7 +87,7 @@ class PaymobService
             }
 
             return null;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Paymob order creation exception', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -157,7 +158,7 @@ class PaymobService
             }
 
             return null;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Paymob payment key creation exception', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
@@ -308,7 +309,7 @@ class PaymobService
             }
 
             return null;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Paymob class order creation exception', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -378,7 +379,7 @@ class PaymobService
             }
 
             return null;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Paymob class payment key creation exception', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),

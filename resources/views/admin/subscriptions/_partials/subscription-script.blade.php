@@ -2,6 +2,19 @@
     $(document).ready(function () {
         let selectedOfferId = "{{ $selectedOfferId ?? '' }}";
 
+        // Membership periods mapping
+        const membershipPeriods = {
+            'One Day': 1,
+            'Month': 30,
+            '3 Month': 90,
+            '6 Month': 180,
+            'Year': 365,
+            '2 Years': 730,
+            '3 Years': 1095,
+            '4 Years': 1460,
+            '6 Years': 2190
+        };
+
         function fetchOffers() {
             $.ajax({
                 url: "/admin/get-offers", 
@@ -22,6 +35,40 @@
             });
         }
 
+        function calculateEndDate() {
+            const membershipId = $("#membership_id").val();
+            const startDate = $("#start_date").val();
+            
+            if (membershipId && startDate) {
+                // Get membership period from the selected option
+                const selectedOption = $("#membership_id option:selected");
+                const membershipText = selectedOption.text();
+                
+                // Extract period from membership text (assuming format like "Basic - One Day")
+                let period = null;
+                for (const [key, days] of Object.entries(membershipPeriods)) {
+                    if (membershipText.includes(key)) {
+                        period = key;
+                        break;
+                    }
+                }
+                
+                if (period) {
+                    const start = new Date(startDate);
+                    const end = new Date(start);
+                    
+                    if (period === 'One Day') {
+                        end.setDate(start.getDate() + 1);
+                    } else {
+                        end.setDate(start.getDate() + membershipPeriods[period]);
+                    }
+                    
+                    const endDateString = end.toISOString().split('T')[0];
+                    $("#end_date").val(endDateString);
+                }
+            }
+        }
+
         if (selectedOfferId) {
             $("#offersListContainer").removeClass("d-none");
             fetchOffers();
@@ -36,5 +83,15 @@
                 $("#offersListContainer").addClass("d-none");
             }
         });
+
+        // Auto-calculate end date when membership or start date changes
+        $("#membership_id, #start_date").change(function () {
+            calculateEndDate();
+        });
+
+        // Calculate end date on page load if both fields have values
+        if ($("#membership_id").val() && $("#start_date").val()) {
+            calculateEndDate();
+        }
     });
 </script>

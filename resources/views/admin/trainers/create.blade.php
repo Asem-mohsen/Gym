@@ -66,6 +66,15 @@
                     @enderror
                 </div>
                 
+                <div class="mb-10 col-md-6">
+                    <label for="country" class="required form-label">Country</label>
+                    <input type="text" value="{{ old('country') }}" value="Egypt" placeholder="Egypt" name="country" class="form-control form-control-solid"/>
+                </div>
+                <div class="mb-10 col-md-6">
+                    <label for="city" class="required form-label">City</label>
+                    <input type="text" value="{{ old('city') }}" name="city" class="form-control form-control-solid"/>
+                </div>
+                
                 <div class="mb-10 col-md-12">
                     <label for="address" class="required form-label">Address</label>
                     <textarea name="address" class="form-control form-control-solid" rows="3" required>{{ old('address') }}</textarea>

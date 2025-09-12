@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Models\Membership;
+use App\Models\User;
+use App\Models\Service;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddBookingRequest;
 use App\Models\Booking;
@@ -62,13 +65,13 @@ class BookingController extends Controller
             ]);
 
             // Validate that the membership belongs to the gym
-            $membership = \App\Models\Membership::where('id', $validatedData['membership_id'])
+            $membership = Membership::where('id', $validatedData['membership_id'])
                 ->where('site_setting_id', $gym->id)
                 ->firstOrFail();
 
             $booking = $this->bookingService->createBooking([
                 'user_id' => $validatedData['user_id'],
-                'bookable_type' => \App\Models\Membership::class,
+                'bookable_type' => Membership::class,
                 'bookable_id' => $validatedData['membership_id'],
                 'start_date' => $validatedData['start_date'],
                 'end_date' => $validatedData['end_date'],
@@ -92,7 +95,7 @@ class BookingController extends Controller
             ]);
 
             // Validate that the coach belongs to the gym
-            $coach = \App\Models\User::where('id', $validatedData['coach_id'])
+            $coach = User::where('id', $validatedData['coach_id'])
                 ->whereHas('gyms', function($query) use ($gym) {
                     $query->where('site_setting_id', $gym->id);
                 })
@@ -101,7 +104,7 @@ class BookingController extends Controller
             $booking = $this->bookingService->createBooking([
                 'user_id' => $validatedData['user_id'],
                 'coach_id' => $validatedData['coach_id'],
-                'bookable_type' => \App\Models\User::class,
+                'bookable_type' => User::class,
                 'bookable_id' => $validatedData['coach_id'],
                 'start_date' => $validatedData['start_date'],
                 'end_date' => $validatedData['end_date'],
@@ -126,13 +129,13 @@ class BookingController extends Controller
             ]);
 
             // Validate that the service belongs to the gym
-            $service = \App\Models\Service::where('id', $validatedData['service_id'])
+            $service = Service::where('id', $validatedData['service_id'])
                 ->where('site_setting_id', $gym->id)
                 ->firstOrFail();
 
             $booking = $this->bookingService->createBooking([
                 'user_id' => $validatedData['user_id'],
-                'bookable_type' => \App\Models\Service::class,
+                'bookable_type' => Service::class,
                 'bookable_id' => $validatedData['service_id'],
                 'start_date' => $validatedData['start_date'],
                 'end_date' => $validatedData['end_date'],

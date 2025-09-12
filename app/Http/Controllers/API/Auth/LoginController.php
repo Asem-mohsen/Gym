@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\Auth;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Services\Auth\AuthService;
@@ -22,7 +23,7 @@ class LoginController extends Controller
             $data = $this->authService->login($credentials);
 
             return successResponse($data, 'User logged in successfully');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return failureResponse($e->getMessage(), $e->getCode());
         }
     }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use App\Mail\{WelcomeEmail, BookingConfirmationEmail, AccountDeletionEmail};
 use App\Models\User;
 use App\Models\SiteSetting;
@@ -20,7 +21,7 @@ class EmailService
         try {
             Mail::to($user->email)->send(new WelcomeEmail($user, $gym));
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send welcome email', [
                 'user_id' => $user->id,
                 'gym_id' => $gym->id,
@@ -41,7 +42,7 @@ class EmailService
             
             Mail::to($user->email)->send(new BookingConfirmationEmail($booking, $payment, $gym));
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send booking confirmation email', [
                 'booking_id' => $booking->id,
                 'user_id' => $booking->user_id,
@@ -59,7 +60,7 @@ class EmailService
         try {
             Mail::to($user->email)->send(new AccountDeletionEmail($user, $gym));
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send account deletion email', [
                 'user_id' => $user->id,
                 'gym_id' => $gym->id,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Auth;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Services\Auth\AuthService;
@@ -28,7 +29,7 @@ class LoginController extends Controller
             try {
                 $brandingData = $this->gymBrandingService->getBrandingForAdmin($gymContext['id']);
                 $gymCssVariables = $this->gymBrandingService->generateCssVariables($gymContext['id']);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::warning('Failed to load branding data for login page: ' . $e->getMessage());
             }
         }
@@ -64,7 +65,7 @@ class LoginController extends Controller
 
             return redirect()->route('admin.dashboard');
             
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($request->ajax() || $request->expectsJson()) {
                 return response()->json([
                     'message' => $e->getMessage(),

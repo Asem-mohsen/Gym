@@ -37,7 +37,7 @@ class SiteSetting extends Model implements HasMedia
 
     public function branches(): HasMany
     {
-        return $this->hasMany(Branch::class, 'site_setting_id');
+        return $this->hasMany(Branch::class, 'site_setting_id')->where('is_visible', true);
     }
 
     public function users(): BelongsToMany

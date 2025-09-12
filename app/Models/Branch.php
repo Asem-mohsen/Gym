@@ -21,6 +21,11 @@ class Branch extends Model implements HasMedia
     protected $guarded = ['id'];
 
     public $translatable = ['name','location'];
+    
+    protected $casts = [
+        'latitude' => 'float',
+        'longitude' => 'float',
+    ];
 
     public function siteSetting(): BelongsTo
     {
@@ -57,6 +62,8 @@ class Branch extends Model implements HasMedia
         return $this->hasMany(Checkin::class, 'branch_id');
     }
 
+
+
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class, 'branch_id');
@@ -80,6 +87,14 @@ class Branch extends Model implements HasMedia
     public function assignedUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_branch', 'branch_id', 'user_id');
+    }
+
+    public function trainers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_branch', 'branch_id', 'user_id')
+            ->whereHas('roles', function($q) {
+                $q->where('name', 'trainer');
+            });
     }
 
     public function classes(): BelongsToMany

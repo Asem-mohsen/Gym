@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Stripe\Stripe;
@@ -37,7 +38,7 @@ class StripePaymentController extends Controller
 
             return successResponse(['url' => $checkout_session->url] , 'user will be redirected to payment gatway');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return failureResponse(['error' => $e->getMessage()] , 'An error occured please try again' );
         }
 

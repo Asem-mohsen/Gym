@@ -70,6 +70,18 @@
                 </div>
                 <div class="col-md-6">
                     <div class="mb-5">
+                        <label class="form-label fw-bold">Visibility Status</label>
+                        <p class="form-control-static">
+                            @if($branch->is_visible)
+                                <span class="badge badge-light-success">Visible to Users</span>
+                            @else
+                                <span class="badge badge-light-danger">Hidden from Users</span>
+                            @endif
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-5">
                         <label class="form-label fw-bold">Created At</label>
                         <p class="form-control-static">{{ $branch->created_at->format('d M Y, h:i A') }}</p>
                     </div>
@@ -122,25 +134,89 @@
                     </div>
                 </div>
                 
-                <!-- Map URL -->
+                <!-- Coordinates Information -->
                 <div class="col-md-12">
+                    <h4 class="mb-4">Location Coordinates</h4>
+                </div>
+                
+                <div class="col-md-3">
                     <div class="mb-5">
-                        <label class="form-label fw-bold">Map Location</label>
-                        @if($branch->map_url)
-                            <p class="form-control-static">
-                                <a href="{{ $branch->map_url }}" target="_blank" class="btn btn-primary">
-                                    <i class="ki-duotone ki-map fs-2 me-2">
-                                        <span class="path1"></span>
-                                        <span class="path2"></span>
-                                    </i>
-                                    View Branch Location on Map
-                                </a>
-                            </p>
-                        @else
-                            <p class="form-control-static text-muted">Map location not provided</p>
-                        @endif
+                        <label class="form-label fw-bold">Latitude</label>
+                        <p class="form-control-static">
+                            @if($branch->latitude)
+                                <span class="badge badge-light-info fs-6">{{ $branch->latitude }}</span>
+                            @else
+                                <span class="text-muted">Not provided</span>
+                            @endif
+                        </p>
                     </div>
                 </div>
+                
+                <div class="col-md-3">
+                    <div class="mb-5">
+                        <label class="form-label fw-bold">Longitude</label>
+                        <p class="form-control-static">
+                            @if($branch->longitude)
+                                <span class="badge badge-light-info fs-6">{{ $branch->longitude }}</span>
+                            @else
+                                <span class="text-muted">Not provided</span>
+                            @endif
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="mb-5">
+                        <label class="form-label fw-bold">City</label>
+                        <p class="form-control-static">
+                            @if($branch->city)
+                                <span class="badge badge-light-success fs-6">{{ $branch->city }}</span>
+                            @else
+                                <span class="text-muted">Not provided</span>
+                            @endif
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="mb-5">
+                        <label class="form-label fw-bold">Region</label>
+                        <p class="form-control-static">
+                            @if($branch->region)
+                                <span class="badge badge-light-warning fs-6">{{ $branch->region }}</span>
+                            @else
+                                <span class="text-muted">Not provided</span>
+                            @endif
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-5">
+                        <label class="form-label fw-bold">Country</label>
+                        <p class="form-control-static">
+                            @if($branch->country)
+                                <span class="badge badge-light-primary fs-6">{{ $branch->country }}</span>
+                            @else
+                                <span class="text-muted">Not provided</span>
+                            @endif
+                        </p>
+                    </div>
+                </div>
+                
+                @if($branch->latitude && $branch->longitude)
+                    <div class="col-md-6">
+                        <div class="mb-5">
+                            <label class="form-label fw-bold">Quick Map Link</label>
+                            <p class="form-control-static">
+                                <a href="https://maps.google.com/maps?q={{ $branch->latitude }},{{ $branch->longitude }}" target="_blank" class="btn btn-sm btn-light-primary">
+                                    <i class="fas fa-external-link-alt me-2"></i>
+                                    Open in Google Maps
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                @endif
                 
                 <!-- Phone Numbers -->
                 <div class="col-md-12">

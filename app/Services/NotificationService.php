@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Models\{User, Notification, SiteSetting, Subscription, Document, Contact};
 use App\Notifications\{AdminToUsersNotification, MembershipExpirationNotification, NewResourceAssignmentNotification, ContactUsNotification};
 use App\Services\RealTimeNotificationService;
@@ -205,7 +207,7 @@ class NotificationService
     /**
      * Get users by roles for a specific gym
      */
-    private function getUsersByRoles(int $siteSettingId, array $roles): \Illuminate\Database\Eloquent\Collection
+    private function getUsersByRoles(int $siteSettingId, array $roles): Collection
     {
         return User::whereHas('gyms', function ($query) use ($siteSettingId) {
                 $query->where('site_setting_id', $siteSettingId);
@@ -220,7 +222,7 @@ class NotificationService
     /**
      * Get subscriptions expiring soon
      */
-    private function getExpiringSubscriptions(int $siteSettingId): \Illuminate\Database\Eloquent\Collection
+    private function getExpiringSubscriptions(int $siteSettingId): Collection
     {
         return Subscription::whereHas('branch', function ($query) use ($siteSettingId) {
                 $query->where('site_setting_id', $siteSettingId);
@@ -234,7 +236,7 @@ class NotificationService
     /**
      * Get user notifications
      */
-    public function getUserNotifications(User $user, int $limit = 20, int $page = 1): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function getUserNotifications(User $user, int $limit = 20, int $page = 1): LengthAwarePaginator
     {
         return $user->notifications()
             ->orderBy('created_at', 'desc')
@@ -289,7 +291,7 @@ class NotificationService
     /**
      * Get notifications by site with filtering
      */
-    public function getNotificationsBySite(int $siteSettingId, array $filters = [], int $perPage = 20): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function getNotificationsBySite(int $siteSettingId, array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
         $query = Notification::where('site_setting_id', $siteSettingId);
 
@@ -345,7 +347,7 @@ class NotificationService
     /**
      * Get recently sent notifications for a site (admin view)
      */
-    public function getRecentlySentNotifications(int $siteSettingId, int $limit = 5): \Illuminate\Database\Eloquent\Collection
+    public function getRecentlySentNotifications(int $siteSettingId, int $limit = 5): Collection
     {
         return Notification::whereHas('notifiable', function ($query) use ($siteSettingId) {
                 $query->whereHas('gyms', function ($gymQuery) use ($siteSettingId) {
@@ -360,7 +362,7 @@ class NotificationService
     /**
      * Get recent sent notifications grouped by type/subject (one from each type)
      */
-    public function getRecentSentNotificationsByType(int $siteSettingId, int $limit = 5): \Illuminate\Database\Eloquent\Collection
+    public function getRecentSentNotificationsByType(int $siteSettingId, int $limit = 5): Collection
     {
         return Notification::whereHas('notifiable', function ($query) use ($siteSettingId) {
                 $query->whereHas('gyms', function ($gymQuery) use ($siteSettingId) {
@@ -382,7 +384,7 @@ class NotificationService
     /**
      * Get recent system notifications (from users to admins)
      */
-    public function getRecentSystemNotifications(int $siteSettingId, int $limit = 5): \Illuminate\Database\Eloquent\Collection
+    public function getRecentSystemNotifications(int $siteSettingId, int $limit = 5): Collection
     {
         return Notification::whereHas('notifiable', function ($query) use ($siteSettingId) {
                 $query->whereHas('gyms', function ($gymQuery) use ($siteSettingId) {

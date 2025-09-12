@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Models\{Branch, Gallery, SiteSetting, User};
 use App\Services\GalleryService;
@@ -25,7 +26,7 @@ class GalleryController extends Controller
             
             return successResponse($galleries, 'Galleries retrieved successfully');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return failureResponse('Failed to retrieve galleries', 500);
         }
     }
@@ -46,7 +47,7 @@ class GalleryController extends Controller
             
             return successResponse($galleries, 'Branch galleries retrieved successfully');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return failureResponse('Failed to retrieve branch galleries', 500);
         }
     }
@@ -66,7 +67,7 @@ class GalleryController extends Controller
 
             return successResponse($gallery, 'Gallery retrieved successfully');
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return failureResponse('Failed to retrieve gallery', 500);
         }
     }

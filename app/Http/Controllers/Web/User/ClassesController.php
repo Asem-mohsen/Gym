@@ -31,15 +31,15 @@ class ClassesController extends Controller
         }
 
         $class = $this->classService->showClass($class);
+
         $blogPosts = $this->blogService->getBlogPosts(siteSettingId: $siteSetting->id);
         $categories = $this->blogService->getCategories(withCount: ['blogPosts']);
         $tags = $this->blogService->getTags(withCount: ['blogPosts']);
         
         $timetableData = $this->classService->getTimetableData($siteSetting->id);
         $classTypes = $this->classService->getClassTypes($siteSetting->id);
-        $branches = $this->branchService->getBranches($siteSetting->id);
         
-        return view('user.classes.class-details', compact('class', 'blogPosts', 'categories', 'tags', 'timetableData', 'classTypes', 'siteSetting', 'branches'));
+        return view('user.classes.class-details', compact('class', 'blogPosts', 'categories', 'tags', 'timetableData', 'classTypes', 'siteSetting'));
     }
 
     public function book(StoreBookingRequest $request, SiteSetting $siteSetting, ClassModel $class)

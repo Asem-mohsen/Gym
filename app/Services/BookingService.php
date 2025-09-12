@@ -1,6 +1,7 @@
 <?php 
 namespace App\Services;
 
+use Exception;
 use App\Repositories\BookingRepository;
 use App\Services\EmailService;
 use Illuminate\Support\Facades\Log;
@@ -39,7 +40,7 @@ class BookingService
     {
         try {
             $this->emailService->sendBookingConfirmationEmail($booking);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send booking confirmation email', [
                 'booking_id' => $booking->id,
                 'error' => $e->getMessage()

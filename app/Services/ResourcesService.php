@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use App\Repositories\DocumentRepository;
 use App\Models\{Document, SiteSetting};
 use App\Services\NotificationService;
@@ -65,7 +66,7 @@ class ResourcesService
             if ($siteSetting) {
                 $this->notificationService->sendNewResourceAssignmentNotification($document, $siteSetting, $assignedBy);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Log error but don't fail the main operation
             Log::error('Failed to send resource assignment notification', [
                 'document_id' => $document->id,

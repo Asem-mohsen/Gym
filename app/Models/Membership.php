@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -62,7 +63,7 @@ class Membership extends Model
     /**
      * Calculate end date for this membership
      */
-    public function calculateEndDate(?\Carbon\Carbon $startDate = null): \Carbon\Carbon
+    public function calculateEndDate(?Carbon $startDate = null): Carbon
     {
         $period = $this->getPeriodEnum();
         
@@ -76,5 +77,47 @@ class Membership extends Model
     public function hasValidPeriod(): bool
     {
         return MembershipPeriod::isValid($this->period);
+    }
+
+    /**
+     * Get the billing interval for this membership
+     */
+    public function getBillingInterval(): string
+    {
+        return $this->billing_interval ?? MembershipPeriod::getBillingIntervalFromPeriod($this->period);
+    }
+
+    /**
+     * Check if this is a daily membership
+     */
+    public function isDailyMembership(): bool
+    {
+        return $this->period === MembershipPeriod::DAY->value;
+    }
+
+    /**
+     * Check if this is a monthly membership
+     */
+    public function isMonthlyMembership(): bool
+    {
+        return in_array($this->period, [
+            MembershipPeriod::MONTH->value,
+            MembershipPeriod::THREE_MONTHS->value,
+            MembershipPeriod::SIX_MONTHS->value
+        ]);
+    }
+
+    /**
+     * Check if this is a yearly membership
+     */
+    public function isYearlyMembership(): bool
+    {
+        return in_array($this->period, [
+            MembershipPeriod::YEAR->value,
+            MembershipPeriod::TWO_YEARS->value,
+            MembershipPeriod::THREE_YEARS->value,
+            MembershipPeriod::FOUR_YEARS->value,
+            MembershipPeriod::SIX_YEARS->value
+        ]);
     }
 }

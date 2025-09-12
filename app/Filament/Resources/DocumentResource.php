@@ -2,10 +2,21 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Resources\DocumentResource\Pages\ListDocuments;
+use App\Filament\Resources\DocumentResource\Pages\CreateDocument;
+use App\Filament\Resources\DocumentResource\Pages\EditDocument;
 use App\Filament\Resources\DocumentResource\Pages;
 use App\Models\Document;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -18,23 +29,21 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 
-use Filament\Tables\Actions\Action;
-
 class DocumentResource extends Resource
 {
     protected static ?string $model = Document::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $navigationGroup = 'Score Management';
+    protected static string | \UnitEnum | null $navigationGroup = 'Score Management';
 
     protected static ?string $navigationLabel = 'Documents';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Document Information')
+        return $schema
+            ->components([
+                Section::make('Document Information')
                     ->schema([
                         TextInput::make('title')
                             ->label('Title')
@@ -62,7 +71,7 @@ class DocumentResource extends Resource
                             ->default(true),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Document File')
+                Section::make('Document File')
                     ->schema([
                         SpatieMediaLibraryFileUpload::make('document')
                             ->label('Document File')
@@ -87,7 +96,7 @@ class DocumentResource extends Resource
                             ->required(),
                     ]),
 
-                Forms\Components\Section::make('Gym Access')
+                Section::make('Gym Access')
                     ->schema([
                         Select::make('siteSettings')
                             ->label('Available to Gyms')
@@ -159,11 +168,11 @@ class DocumentResource extends Resource
                     ->label('Active'),
             ])
             ->filters([
-                Tables\Filters\TernaryFilter::make('is_active')
+                TernaryFilter::make('is_active')
                     ->label('Active Status'),
-                Tables\Filters\TernaryFilter::make('is_internal')
+                TernaryFilter::make('is_internal')
                     ->label('Internal Documents'),
-                Tables\Filters\SelectFilter::make('document_type')
+                SelectFilter::make('document_type')
                     ->label('Document Type')
                     ->options([
                         'score_document' => 'Score Document',
@@ -176,9 +185,9 @@ class DocumentResource extends Resource
                         'other' => 'Other',
                     ]),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
                 Action::make('download')
                     ->label('Download')
                     ->icon('heroicon-o-arrow-down-tray')
@@ -186,9 +195,9 @@ class DocumentResource extends Resource
                     ->url(fn (Document $record): string => $record->document_url)
                     ->openUrlInNewTab(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');
@@ -204,9 +213,9 @@ class DocumentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListDocuments::route('/'),
-            'create' => Pages\CreateDocument::route('/create'),
-            'edit' => Pages\EditDocument::route('/{record}/edit'),
+            'index' => ListDocuments::route('/'),
+            'create' => CreateDocument::route('/create'),
+            'edit' => EditDocument::route('/{record}/edit'),
         ];
     }
 }

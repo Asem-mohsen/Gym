@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Membership;
 use App\Models\SiteSetting;
 use App\Enums\MembershipPeriod;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class MembershipsSeeder extends Seeder
@@ -31,6 +30,7 @@ class MembershipsSeeder extends Seeder
                 'period' => MembershipPeriod::MONTH->value,
                 'description' => json_encode(['en' => 'Basic membership description', 'ar' => 'وصف العضوية الأساسية']),
                 'price' => 30.00,
+                'billing_interval' => MembershipPeriod::MONTH->getBillingInterval(),
                 'status' => 1,
                 'order' => 1,
                 'site_setting_id' => $siteSetting->id,
@@ -43,6 +43,7 @@ class MembershipsSeeder extends Seeder
                 'period' => MembershipPeriod::THREE_MONTHS->value,
                 'description' => json_encode(['en' => 'Standard membership description', 'ar' => 'وصف العضوية القياسية']),
                 'price' => 75.00,
+                'billing_interval' => MembershipPeriod::THREE_MONTHS->getBillingInterval(),
                 'status' => 1,
                 'order' => 2,
                 'site_setting_id' => $siteSetting->id,
@@ -52,11 +53,25 @@ class MembershipsSeeder extends Seeder
             
             $memberships[] = [
                 'name' => json_encode(['en' => 'VIP', 'ar' => 'امتياز']),
-                'period' => MembershipPeriod::THREE_MONTHS->value,
-                'description' => json_encode(['en' => 'VIP membership description', 'ar' => 'وصف العضوية القياسية']),
+                'period' => MembershipPeriod::YEAR->value,
+                'description' => json_encode(['en' => 'VIP membership description', 'ar' => 'وصف العضوية المميزة']),
                 'price' => 375.00,
+                'billing_interval' => MembershipPeriod::YEAR->getBillingInterval(),
                 'status' => 1,
-                'order' => 2,
+                'order' => 3,
+                'site_setting_id' => $siteSetting->id,
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+            
+            $memberships[] = [
+                'name' => json_encode(['en' => 'Day Pass', 'ar' => 'تذكرة يومية']),
+                'period' => MembershipPeriod::DAY->value,
+                'description' => json_encode(['en' => 'One day access pass', 'ar' => 'تذكرة دخول ليوم واحد']),
+                'price' => 5.00,
+                'billing_interval' => MembershipPeriod::DAY->getBillingInterval(),
+                'status' => 1,
+                'order' => 4,
                 'site_setting_id' => $siteSetting->id,
                 'created_at' => now(),
                 'updated_at' => now()

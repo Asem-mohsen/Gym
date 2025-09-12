@@ -1,6 +1,12 @@
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- Toastr JS -->
+<script src="{{ asset('assets/user/js/jquery-3.3.1.min.js') }}"></script>
+<script src="{{ asset('assets/admin/js/toastr.min.js') }}"></script>
+
+@include('components.toastr')
+
 <!-- Search and Location Functionality -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -72,7 +78,7 @@
                     function(error) {
                         locationButton.innerHTML = '<i class="fas fa-map-marker-alt me-2"></i>Use My Location';
                         locationButton.disabled = false;
-                        alert('Unable to get your location. Please try again or search manually.');
+                        toastr.warning('Unable to get your location. Please try again or search manually.');
                     },
                     {
                         enableHighAccuracy: true,
@@ -81,7 +87,7 @@
                     }
                 );
             } else {
-                alert('Geolocation is not supported by this browser.');
+                toastr.warning('Geolocation is not supported by this browser.');
             }
         });
         

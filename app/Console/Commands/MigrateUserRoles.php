@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Spatie\Permission\Models\Role;
@@ -54,7 +55,7 @@ class MigrateUserRoles extends Command
                 } else {
                     $this->warn("Role '{$roleName}' not found for user: {$user->name}");
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->error("Error migrating user {$user->name}: " . $e->getMessage());
             }
         }

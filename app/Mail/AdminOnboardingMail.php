@@ -2,6 +2,8 @@
 
 namespace App\Mail;
 
+use Throwable;
+use Illuminate\Mail\Mailables\Attachment;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -83,14 +85,14 @@ class AdminOnboardingMail extends Mailable implements ShouldQueue
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {
         return [];
     }
 
-    public function failed(\Throwable $exception): void
+    public function failed(Throwable $exception): void
     {
         Log::error('AdminOnboardingMail: Job failed', [
             'user_id' => $this->user->id ?? 'unknown',

@@ -45,6 +45,11 @@
                         <i class="ki-duotone ki-document fs-2 me-2"></i>Page Texts
                     </button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="repeaters-tab" data-bs-toggle="tab" data-bs-target="#repeaters" type="button" role="tab">
+                        <i class="ki-duotone ki-repeat fs-2 me-2"></i>Repeater Fields
+                    </button>
+                </li>
             </ul>
 
             <!-- Tabs Content -->
@@ -436,9 +441,9 @@
                                 <div class="d-flex justify-content-between align-items-center mb-4">
                                     <h4 id="selectedPageTitle">Select a page to customize</h4>
                                     <div>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="previewTexts">
-                                            <i class="ki-duotone ki-eye fs-2"></i>Preview
-                                        </button>
+                                        <a href="{{ route('user.home', ['siteSetting' => $siteSetting->slug]) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="ki-duotone ki-exit-up fs-2"></i>Go to Website
+                                        </a>
                                         <button type="button" class="btn btn-sm btn-outline-warning" id="resetPageTexts">
                                             <i class="ki-duotone ki-refresh fs-2"></i>Reset to Defaults
                                         </button>
@@ -459,18 +464,79 @@
                                             <button type="submit" class="btn btn-primary">
                                                 <i class="ki-duotone ki-check fs-2"></i>Save Page Texts
                                             </button>
+                                            <a href="{{ route('user.home', ['siteSetting' => $siteSetting->slug]) }}" target="_blank" class="btn btn-outline-secondary ms-2">
+                                                <i class="ki-duotone ki-exit-up fs-2"></i>View on Website
+                                            </a>
                                         </div>
                                     </div>
                                 </form>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Repeater Fields Tab -->
+                <div class="tab-pane fade" id="repeaters" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h4 class="mb-4">Select Repeater Section</h4>
+                            <p class="text-muted mb-4">Choose a repeater section to customize its content.</p>
                             
-                            <div id="textPreviewArea" class="d-none">
-                                <h4 class="mb-4 text-center">Live Preview</h4>
-                                <div class="border rounded p-4" style="min-height: 400px;">
-                                    <div id="textPreviewContent">
-                                        <!-- Preview content will be shown here -->
+                            <div class="list-group" id="repeaterList">
+                                @foreach($repeaterConfigs as $sectionKey => $config)
+                                    <button type="button" class="list-group-item list-group-item-action repeater-selector" 
+                                            data-section="{{ $sectionKey }}">
+                                        <div class="d-flex align-items-start">
+                                            <i class="ki-duotone ki-repeat fs-2 me-3 mt-1"></i>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1">{{ $config['title'] }}</h6>
+                                                <p class="mb-1 text-muted small">{{ $config['description'] }}</p>
+                                                <div class="d-flex flex-column">
+                                                    <small class="text-primary fw-bold">{{ $config['page_location'] }}</small>
+                                                    <small class="text-muted">{{ $config['section_location'] }}</small>
+                                                    <small class="text-info">Max {{ $config['max_items'] }} items</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <div id="repeaterCustomizationArea" class="d-none">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h4 id="selectedRepeaterTitle">Select a repeater section to customize</h4>
+                                    <div>
+                                        <a href="{{ route('user.home', ['siteSetting' => $siteSetting->slug]) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                            <i class="ki-duotone ki-exit-up fs-2"></i>Go to Website
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-warning" id="resetRepeaters">
+                                            <i class="ki-duotone ki-refresh fs-2"></i>Reset to Defaults
+                                        </button>
                                     </div>
                                 </div>
+                                
+                                <form id="repeatersForm">
+                                    @csrf
+                                    <input type="hidden" id="currentRepeaterSection" name="section">
+                                    <input type="hidden" name="form_type" value="repeater_fields">
+                                    
+                                    <div id="repeaterFieldsContainer">
+                                        <!-- Dynamic repeater fields will be loaded here -->
+                                    </div>
+                                    
+                                    <div class="row mt-4">
+                                        <div class="col-12">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="ki-duotone ki-check fs-2"></i>Save Repeater Fields
+                                            </button>
+                                            <a href="{{ route('user.home', ['siteSetting' => $siteSetting->slug]) }}" target="_blank" class="btn btn-outline-secondary ms-2">
+                                                <i class="ki-duotone ki-exit-up fs-2"></i>View on Website
+                                            </a>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -487,6 +553,109 @@
 .page-selector.active small {
     color: white !important;
 }
+
+.repeater-selector.active h6,
+.repeater-selector.active small {
+    color: white !important;
+}
+
+.repeater-selector.active p {
+    color: white !important;
+}
+
+.repeater-item {
+    border: 1px solid #e4e6ea;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background: #f8f9fa;
+}
+
+.repeater-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.repeater-item-title {
+    font-weight: 600;
+    color: #181c32;
+}
+
+.repeater-item-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.repeater-field-group {
+    margin-bottom: 15px;
+}
+
+.repeater-field-group label {
+    font-weight: 500;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.repeater-field-group .form-control,
+.repeater-field-group .form-select {
+    border: 1px solid #e4e6ea;
+    border-radius: 6px;
+}
+
+.repeater-field-group .form-control:focus,
+.repeater-field-group .form-select:focus {
+    border-color: #009ef7;
+    box-shadow: 0 0 0 0.2rem rgba(0, 158, 247, 0.25);
+}
+
+.add-repeater-item {
+    border: 2px dashed #e4e6ea;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.add-repeater-item:hover {
+    border-color: #009ef7;
+    background: #f1f8ff;
+}
+
+.add-repeater-item i {
+    font-size: 2rem;
+    color: #009ef7;
+    margin-bottom: 10px;
+}
+
+/* Button hover effects */
+.btn-outline-danger:hover {
+    color: white !important;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-outline-primary:hover {
+    color: white !important;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-outline-secondary:hover {
+    color: white !important;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-outline-warning:hover {
+    color: white !important;
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
 </style>
 @endsection
 
@@ -755,12 +924,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Text customization functionality
     const pageSelectors = document.querySelectorAll('.page-selector');
     const textCustomizationArea = document.getElementById('textCustomizationArea');
-    const textPreviewArea = document.getElementById('textPreviewArea');
     const selectedPageTitle = document.getElementById('selectedPageTitle');
     const currentPageType = document.getElementById('currentPageType');
     const textFieldsContainer = document.getElementById('textFieldsContainer');
     const textsForm = document.getElementById('textsForm');
-    const previewTextsBtn = document.getElementById('previewTexts');
     const resetPageTextsBtn = document.getElementById('resetPageTexts');
     
     let currentPageData = null;
@@ -791,7 +958,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     currentPageData = data.data;
                     displayTextFields(data.data.texts, pageType);
                     textCustomizationArea.classList.remove('d-none');
-                    textPreviewArea.classList.add('d-none');
                 } else {
                     toastr.error('Error loading page texts: ' + data.message);
                 }
@@ -856,215 +1022,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Preview texts
-    previewTextsBtn.addEventListener('click', function() {
-        if (!currentPageData) return;
-        
-        const formData = new FormData(textsForm);
-        const texts = {};
-        
-        for (let [key, value] of formData.entries()) {
-            if (key.startsWith('texts[')) {
-                const textKey = key.replace('texts[', '').replace(']', '');
-                texts[textKey] = value;
-            }
-        }
-        
-        fetch('{{ route("gym-branding.preview-page-texts") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                page_type: currentPageData.page_type,
-                texts: texts
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                displayTextPreview(data.data);
-                textPreviewArea.classList.remove('d-none');
-            } else {
-                toastr.error('Error previewing texts: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            toastr.error('An error occurred while previewing texts.');
-        });
-    });
-    
-    // Display text preview
-    function displayTextPreview(previewData) {
-        const previewContent = document.getElementById('textPreviewContent');
-        const pageType = previewData.page_type;
-        const texts = previewData.texts;
-        
-        let previewHTML = `<div class="text-center mb-4">
-            <h3>${pageType.charAt(0).toUpperCase() + pageType.slice(1)} Page Preview</h3>
-        </div>`;
-        
-        // Generate preview based on page type
-        switch (pageType) {
-            case 'login':
-                previewHTML += `
-                    <div class="d-flex flex-column flex-lg-row" style="min-height: 500px;">
-                        <div class="d-flex flex-column flex-lg-row-fluid w-lg-50 p-10 order-2 order-lg-1 bg-white">
-                            <div class="d-flex flex-center flex-column flex-lg-row-fluid">
-                                <div class="w-lg-400px p-10">
-                                    <div class="text-center mb-11">
-                                        <h1 class="text-gray-900 fw-bolder mb-3">${texts.title || 'Welcome Back'}</h1>
-                                        ${texts.subtitle ? `<p class="text-gray-600 mb-0">${texts.subtitle}</p>` : ''}
-                                    </div>
-                                    <div class="fv-row mb-8">
-                                        <input type="text" placeholder="Email" class="form-control bg-transparent" readonly />
-                                    </div>
-                                    <div class="fv-row mb-3">
-                                        <input type="password" placeholder="Password" class="form-control bg-transparent" readonly />
-                                    </div>
-                                    <div class="d-flex flex-column flex-wrap gap-3 fs-base fw-semibold mb-8">
-                                        <a href="#" class="link-primary">${texts.forgot_password_text || 'Forgot Password ?'}</a>
-                                        <a href="#" class="link-primary">${texts.register_link_text || 'Register'}</a>
-                                    </div>
-                                    <div class="d-grid mb-10">
-                                        <button class="btn btn-primary">${texts.button_text || 'Sign In'}</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-flex flex-lg-row-fluid w-lg-50 bgi-size-cover bgi-position-left order-1 order-lg-2 bg-dark text-white">
-                            <div class="d-flex justify-content-between py-7 py-lg-15 px-5 px-md-15 w-100">
-                                <div class="w-20">
-                                    <div class="mb-0 mb-lg-12">
-                                        <div class="h-30px h-lg-50px bg-light rounded d-flex align-items-center justify-content-center w-50px">
-                                            <small class="text-muted">Logo</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="w-80">
-                                    <h3 class="d-none d-lg-block text-white fs-2qx fw-bolder text-end mb-7">
-                                        ${texts.platform_title || 'Unlock your full potential'}
-                                    </h3>
-                                    <div class="d-none d-lg-block text-white fs-base text-end">
-                                        <p>${texts.platform_description || 'Stay consistent, stay strong — your fitness journey starts here.'}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                break;
-            case 'register':
-                previewHTML += `
-                    <div class="d-flex flex-column flex-lg-row" style="min-height: 500px;">
-                        <div class="d-flex flex-column flex-lg-row-fluid w-lg-50 p-10 order-2 order-lg-1 bg-white">
-                            <div class="d-flex flex-center flex-column flex-lg-row-fluid">
-                                <div class="w-lg-400px p-10">
-                                    <div class="text-center mb-11">
-                                        <h1 class="text-gray-900 fw-bolder mb-3">${texts.title || 'Create Account'}</h1>
-                                        ${texts.subtitle ? `<p class="text-gray-600 mb-0">${texts.subtitle}</p>` : ''}
-                                    </div>
-                                    <div class="fv-row mb-8">
-                                        <input type="text" placeholder="Full Name" class="form-control bg-transparent" readonly />
-                                    </div>
-                                    <div class="fv-row mb-8">
-                                        <input type="email" placeholder="Email" class="form-control bg-transparent" readonly />
-                                    </div>
-                                    <div class="fv-row mb-8">
-                                        <input type="text" placeholder="Phone (Optional)" class="form-control bg-transparent" readonly />
-                                    </div>
-                                    <div class="fv-row mb-8">
-                                        <input type="password" placeholder="Password" class="form-control bg-transparent" readonly />
-                                    </div>
-                                    <div class="fv-row mb-8">
-                                        <input type="password" placeholder="Confirm Password" class="form-control bg-transparent" readonly />
-                                    </div>
-                                    <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
-                                        <a href="#" class="link-primary">${texts.login_link_text || 'Already have an account? Sign In'}</a>
-                                    </div>
-                                    <div class="d-grid mb-10">
-                                        <button class="btn btn-primary">${texts.button_text || 'Create Account'}</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                         <div class="d-flex flex-lg-row-fluid w-lg-50 bgi-size-cover bgi-position-left order-1 order-lg-2 bg-dark text-white">
-                            <div class="d-flex justify-content-between py-7 py-lg-15 px-5 px-md-15 w-100">
-                                <div class="w-20">
-                                    <div class="mb-0 mb-lg-12">
-                                        <div class="h-30px h-lg-50px bg-light rounded d-flex align-items-center justify-content-center w-50px">
-                                            <small class="text-muted">Logo</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="w-80">
-                                    <h3 class="d-none d-lg-block text-white fs-2qx fw-bolder text-end mb-7">
-                                        ${texts.platform_title || 'Unlock your full potential'}
-                                    </h3>
-                                    <div class="d-none d-lg-block text-white fs-base text-end">
-                                        <p>${texts.platform_description || 'Stay consistent, stay strong — your fitness journey starts here.'}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                break;
-            case 'auth_common':
-                previewHTML += `
-                    <div class="d-flex flex-lg-row-fluid w-lg-50 bgi-size-cover bgi-position-left bg-dark text-white" style="min-height: 400px;">
-                        <div class="d-flex justify-content-between py-7 py-lg-15 px-5 px-md-15 w-100">
-                            <div class="w-50">
-                                <div class="mb-0 mb-lg-12">
-                                    <div class="h-60px h-lg-75px bg-light rounded d-flex align-items-center justify-content-center">
-                                        <small class="text-muted">Logo</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="w-50">
-                                <h3 class="d-none d-lg-block text-white fs-2qx fw-bolder text-end mb-7">
-                                    ${texts.platform_title || 'Unlock your full potential'}
-                                </h3>
-                                <div class="d-none d-lg-block text-white fs-base text-end">
-                                    <p>${texts.platform_description || 'Stay consistent, stay strong — your fitness journey starts here.'}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                break;
-            case 'home':
-                previewHTML += `
-                    <div class="hero-section bg-light p-4 mb-4 rounded">
-                        <h1>${texts.hero_title || 'Transform Your Body'}</h1>
-                        <p class="lead">${texts.hero_subtitle || 'Achieve your fitness goals with our expert trainers'}</p>
-                        <button class="btn btn-primary">${texts.hero_button_text || 'Get Started'}</button>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h3>${texts.choseus_title || 'Why Choose Us'}</h3>
-                            <p>${texts.choseus_subtitle || 'We provide the best fitness experience'}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h3>${texts.classes_title || 'Our Classes'}</h3>
-                            <p>${texts.classes_subtitle || 'Join our amazing fitness classes'}</p>
-                        </div>
-                    </div>
-                `;
-                break;
-            default:
-                previewHTML += `
-                    <div class="text-center">
-                        <h2>${texts.title || 'Page Title'}</h2>
-                        <p class="lead">${texts.subtitle || 'Page subtitle'}</p>
-                    </div>
-                `;
-        }
-        
-        previewContent.innerHTML = previewHTML;
-    }
     
     // Reset page texts
     resetPageTextsBtn.addEventListener('click', function() {
@@ -1100,6 +1057,312 @@ document.addEventListener('DOMContentLoaded', function() {
         submitForm(this, 'page_texts');
         return false;
     });
+    
+    // Repeater fields functionality
+    const repeaterSelectors = document.querySelectorAll('.repeater-selector');
+    const repeaterCustomizationArea = document.getElementById('repeaterCustomizationArea');
+    const selectedRepeaterTitle = document.getElementById('selectedRepeaterTitle');
+    const currentRepeaterSection = document.getElementById('currentRepeaterSection');
+    const repeaterFieldsContainer = document.getElementById('repeaterFieldsContainer');
+    const repeatersForm = document.getElementById('repeatersForm');
+    const resetRepeatersBtn = document.getElementById('resetRepeaters');
+    
+    let currentRepeaterData = null;
+    let currentRepeaterConfig = null;
+    
+    // Repeater selection
+    repeaterSelectors.forEach(selector => {
+        selector.addEventListener('click', function() {
+            const section = this.dataset.section;
+            loadRepeaterFields(section);
+            
+            // Update active state
+            repeaterSelectors.forEach(s => s.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+    
+    // Load repeater fields
+    function loadRepeaterFields(section) {
+        fetch(`{{ route('gym-branding.repeater-fields', [$siteSetting->id, 'PLACEHOLDER']) }}`.replace('PLACEHOLDER', section))
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    currentRepeaterData = data.data;
+                    currentRepeaterConfig = getRepeaterConfig(section);
+                    displayRepeaterFields(data.data.data, section);
+                    repeaterCustomizationArea.classList.remove('d-none');
+                } else {
+                    toastr.error('Error loading repeater fields: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('An error occurred while loading repeater fields: ' + error.message);
+            });
+    }
+    
+    // Get repeater config from the page data
+    function getRepeaterConfig(section) {
+        const repeaterConfigs = @json($repeaterConfigs);
+        return repeaterConfigs[section] || null;
+    }
+    
+    // Display repeater fields
+    function displayRepeaterFields(data, section) {
+        const config = getRepeaterConfig(section);
+        if (!config) return;
+        
+        selectedRepeaterTitle.textContent = `Customize ${config.title}`;
+        currentRepeaterSection.value = section;
+        
+        repeaterFieldsContainer.innerHTML = '';
+        
+        // Display existing items
+        data.forEach((item, index) => {
+            addRepeaterItem(item, index, config);
+        });
+        
+        // Add "Add Item" button if under max limit
+        if (data.length < config.max_items) {
+            addAddItemButton(config);
+        }
+    }
+    
+    // Add a repeater item
+    function addRepeaterItem(item = {}, index = 0, config) {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'repeater-item';
+        itemDiv.setAttribute('data-index', index);
+        
+        const header = document.createElement('div');
+        header.className = 'repeater-item-header';
+        header.innerHTML = `
+            <div class="repeater-item-title">Item ${index + 1}</div>
+            <div class="repeater-item-actions">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-repeater-item">
+                    <i class="ki-duotone ki-trash fs-2"></i>Remove
+                </button>
+            </div>
+        `;
+        
+        const fieldsDiv = document.createElement('div');
+        fieldsDiv.className = 'repeater-fields';
+        
+        // Add fields based on config
+        Object.entries(config.fields).forEach(([fieldKey, fieldConfig]) => {
+            const fieldGroup = document.createElement('div');
+            fieldGroup.className = 'repeater-field-group';
+            
+            const label = document.createElement('label');
+            label.textContent = fieldConfig.label;
+            if (fieldConfig.required) {
+                label.innerHTML += ' <span class="text-danger">*</span>';
+            }
+            
+            let input;
+            if (fieldConfig.type === 'textarea') {
+                input = document.createElement('textarea');
+                input.rows = 3;
+            } else if (fieldConfig.type === 'select') {
+                input = document.createElement('select');
+                if (fieldConfig.options) {
+                    fieldConfig.options.forEach(option => {
+                        const optionEl = document.createElement('option');
+                        optionEl.value = option.value;
+                        optionEl.textContent = option.label;
+                        input.appendChild(optionEl);
+                    });
+                }
+            } else {
+                input = document.createElement('input');
+                input.type = fieldConfig.type || 'text';
+            }
+            
+            input.className = 'form-control';
+            input.name = `repeater_data[${index}][${fieldKey}]`;
+            input.value = item[fieldKey] || '';
+            input.placeholder = fieldConfig.placeholder || '';
+            
+            fieldGroup.appendChild(label);
+            fieldGroup.appendChild(input);
+            
+            // Add help text if available
+            if (fieldConfig.help_text) {
+                const helpDiv = document.createElement('div');
+                helpDiv.className = 'form-text text-muted small';
+                helpDiv.innerHTML = fieldConfig.help_text;
+                fieldGroup.appendChild(helpDiv);
+            }
+            
+            fieldsDiv.appendChild(fieldGroup);
+        });
+        
+        itemDiv.appendChild(header);
+        itemDiv.appendChild(fieldsDiv);
+        repeaterFieldsContainer.appendChild(itemDiv);
+        
+        // Add remove functionality
+        const removeBtn = itemDiv.querySelector('.remove-repeater-item');
+        removeBtn.addEventListener('click', function() {
+            itemDiv.remove();
+            updateItemIndexes();
+            checkAddButtonVisibility(config);
+        });
+    }
+    
+    // Add "Add Item" button
+    function addAddItemButton(config) {
+        const addButton = document.createElement('div');
+        addButton.className = 'add-repeater-item';
+        addButton.innerHTML = `
+            <i class="ki-duotone ki-plus fs-2"></i>
+            <div>Add New Item</div>
+            <small class="text-muted">Click to add another item (${getCurrentItemCount()}/${config.max_items})</small>
+        `;
+        
+        addButton.addEventListener('click', function() {
+            const newIndex = getCurrentItemCount();
+            addRepeaterItem({}, newIndex, config);
+            this.remove();
+            checkAddButtonVisibility(config);
+        });
+        
+        repeaterFieldsContainer.appendChild(addButton);
+    }
+    
+    // Get current item count
+    function getCurrentItemCount() {
+        return document.querySelectorAll('.repeater-item').length;
+    }
+    
+    // Update item indexes after removal
+    function updateItemIndexes() {
+        const items = document.querySelectorAll('.repeater-item');
+        items.forEach((item, index) => {
+            item.setAttribute('data-index', index);
+            item.querySelector('.repeater-item-title').textContent = `Item ${index + 1}`;
+            
+            // Update input names
+            const inputs = item.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                const name = input.name;
+                const newName = name.replace(/\[\d+\]/, `[${index}]`);
+                input.name = newName;
+            });
+        });
+    }
+    
+    // Check if add button should be visible
+    function checkAddButtonVisibility(config) {
+        const currentCount = getCurrentItemCount();
+        const addButton = document.querySelector('.add-repeater-item');
+        
+        if (currentCount < config.max_items && !addButton) {
+            addAddItemButton(config);
+        } else if (currentCount >= config.max_items && addButton) {
+            addButton.remove();
+        }
+    }
+    
+    
+    // Reset repeaters
+    resetRepeatersBtn.addEventListener('click', function() {
+        if (!currentRepeaterData) return;
+        
+        if (confirm(`Are you sure you want to reset ${currentRepeaterData.section} repeater fields to defaults?`)) {
+            fetch(`{{ route('gym-branding.reset-repeater-fields', [$siteSetting->id, 'PLACEHOLDER']) }}`.replace('PLACEHOLDER', currentRepeaterData.section), {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success('Repeater fields reset to defaults!');
+                    loadRepeaterFields(currentRepeaterData.section);
+                } else {
+                    toastr.error('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('An error occurred while resetting repeater fields.');
+            });
+        }
+    });
+    
+    // Submit repeaters form
+    repeatersForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Collect repeater data properly
+        const formData = new FormData(this);
+        const repeaterData = [];
+        
+        // Collect all repeater items
+        const items = document.querySelectorAll('.repeater-item');
+        items.forEach((item, index) => {
+            const itemData = {};
+            const inputs = item.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                const fieldName = input.name.match(/\[([^\]]+)\]$/)[1];
+                itemData[fieldName] = input.value;
+            });
+            repeaterData.push(itemData);
+        });
+        
+        // Add the collected data to form data
+        formData.set('repeater_data', JSON.stringify(repeaterData));
+        
+        // Submit the form
+        submitRepeaterForm(formData);
+        return false;
+    });
+    
+    // Custom submit function for repeater forms
+    function submitRepeaterForm(formData) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        fetch(`{{ route('gym-branding.update', $siteSetting->id) }}`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 302) {
+                    throw new Error('Redirect detected - possible authentication issue');
+                }
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                toastr.success('Repeater fields updated successfully!');
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
+            } else {
+                toastr.error('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            toastr.error('An error occurred while saving the repeater fields: ' + error.message);
+        });
+    }
 });
 </script>
 @endsection

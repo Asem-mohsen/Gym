@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use App\Services\NotificationService;
 use Illuminate\Support\Facades\Log;
@@ -68,7 +69,7 @@ class CleanupExpiredNotifications extends Command
 
             return 0;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error('Error during notification cleanup: ' . $e->getMessage());
             Log::error('Notification cleanup command failed', [
                 'error' => $e->getMessage(),

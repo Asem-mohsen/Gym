@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Services\CheckinSettingService;
 use App\Http\Requests\Admin\CheckinSettingRequest;
@@ -144,7 +145,7 @@ class CheckinSettingController extends Controller
             $qrData = $this->checkinSettingService->generateTestQrCode($gym);
 
             return response()->json($qrData);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error' => 'Failed to generate QR code',
                 'message' => $e->getMessage()

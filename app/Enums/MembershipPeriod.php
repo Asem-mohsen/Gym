@@ -2,8 +2,11 @@
 
 namespace App\Enums;
 
+use Carbon\Carbon;
+
 enum MembershipPeriod: string
 {
+    case DAY = 'One Day';
     case MONTH = 'Month';
     case THREE_MONTHS = '3 Month';
     case SIX_MONTHS = '6 Month';
@@ -19,6 +22,7 @@ enum MembershipPeriod: string
     public static function getOptions(): array
     {
         return [
+            ['value' => self::DAY->value, 'label' => self::DAY->value],
             ['value' => self::MONTH->value, 'label' => self::MONTH->value],
             ['value' => self::THREE_MONTHS->value, 'label' => self::THREE_MONTHS->value],
             ['value' => self::SIX_MONTHS->value, 'label' => self::SIX_MONTHS->value],
@@ -36,6 +40,7 @@ enum MembershipPeriod: string
     public function getMonths(): int
     {
         return match($this) {
+            self::DAY => 0,
             self::MONTH => 1,
             self::THREE_MONTHS => 3,
             self::SIX_MONTHS => 6,
@@ -50,9 +55,14 @@ enum MembershipPeriod: string
     /**
      * Calculate end date from a given start date
      */
-    public function calculateEndDate(?\Carbon\Carbon $startDate = null): \Carbon\Carbon
+    public function calculateEndDate(?Carbon $startDate = null): Carbon
     {
         $startDate = $startDate ?? now();
+        
+        if ($this === self::DAY) {
+            return $startDate->copy()->addDay();
+        }
+        
         return $startDate->copy()->addMonths($this->getMonths());
     }
 
@@ -78,5 +88,26 @@ enum MembershipPeriod: string
     public static function fromString(string $period): ?self
     {
         return self::tryFrom($period);
+    }
+
+    /**
+     * Get the billing interval for this period
+     */
+    public function getBillingInterval(): string
+    {
+        return match($this) {
+            self::DAY => 'daily',
+            self::MONTH, self::THREE_MONTHS, self::SIX_MONTHS => 'monthly',
+            self::YEAR, self::TWO_YEARS, self::THREE_YEARS, self::FOUR_YEARS, self::SIX_YEARS => 'yearly',
+        };
+    }
+
+    /**
+     * Get billing interval from period string
+     */
+    public static function getBillingIntervalFromPeriod(string $period): string
+    {
+        $periodEnum = self::fromString($period);
+        return $periodEnum ? $periodEnum->getBillingInterval() : 'monthly';
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\User;
 
+use Exception;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Payments\{CreatePaymentIntentRequest, CreatePaymentWithBranchIntentRequest};
 use App\Models\{Branch, Membership, Offer, Payment, SiteSetting, Subscription, ClassModel, Service, Booking};
@@ -52,7 +53,7 @@ class PaymobPaymentController extends Controller
             // No branches, proceed directly with payment
             return $this->processPayment($membership, $user, $validated['offer_id'] ?? null, $siteSetting, null);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Paymob payment initialization failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -79,12 +80,12 @@ class PaymobPaymentController extends Controller
             $branch = Branch::findOrFail($request->branch_id);
 
             if ($branch->site_setting_id !== $siteSetting->id) {
-                throw new \Exception('Invalid branch selected');
+                throw new Exception('Invalid branch selected');
             }
 
             return $this->processPayment($membership, $user, $validated['offer_id'] ?? null, $siteSetting, $branch);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Paymob payment with branch failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -107,19 +108,19 @@ class PaymobPaymentController extends Controller
             // Step 1: Get authentication token
             $authToken = $this->paymobService->getAuthToken();
             if (!$authToken) {
-                throw new \Exception('Failed to authenticate with Paymob');
+                throw new Exception('Failed to authenticate with Paymob');
             }
 
             // Step 2: Create order
             $orderData = $this->paymobService->createOrder($authToken, $membership, $user, $offer);
             if (!$orderData) {
-                throw new \Exception('Failed to create order on Paymob');
+                throw new Exception('Failed to create order on Paymob');
             }
 
             // Step 3: Create payment key
             $paymentKeyData = $this->paymobService->createPaymentKey($authToken, $orderData, $membership, $user, $offer);
             if (!$paymentKeyData) {
-                throw new \Exception('Failed to create payment key');
+                throw new Exception('Failed to create payment key');
             }
 
             $payment = $this->paymentService->createPayment($membership, [
@@ -148,7 +149,7 @@ class PaymobPaymentController extends Controller
                 'message' => 'Payment initialized successfully'
             ]);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Payment processing failed', [
                 'error' => $e->getMessage(),
@@ -218,7 +219,7 @@ class PaymobPaymentController extends Controller
                 return $this->redirectToFailure($payment, 'Payment failed. Please try again.');
             }
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error('Paymob callback processing failed', [
                 'error' => $e->getMessage(),

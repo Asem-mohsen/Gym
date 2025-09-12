@@ -7,9 +7,9 @@ use Illuminate\Support\Carbon;
 
 class PaymentChart extends ChartWidget
 {
-    protected static ?string $heading = 'Payment Analysis';
+    protected ?string $heading = 'Payment Analysis';
     protected static ?int $sort = 2;
-    protected static ?string $maxHeight = '300px';
+    protected ?string $maxHeight = '300px';
 
     protected function getData(): array
     {

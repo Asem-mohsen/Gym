@@ -14,30 +14,19 @@
 
         <div class="card-header border-0 pt-6">
 
-            <div class="card-title">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="d-flex align-items-center position-relative my-1">
-                        <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-5">
-                            <span class="path1"></span>
-                            <span class="path2"></span>
-                        </i>
-                        <input type="text" data-kt-table-filter="search" class="form-control form-control-solid w-250px ps-12" placeholder="Search" />
-                    </div>
-                    
-                    <!-- Branch Filter -->
-                    <form method="GET" action="{{ request()->url() }}" class="d-flex align-items-center gap-2" id="filter-form">
-                        <input type="hidden" name="search" id="search-hidden" value="{{ request('search') }}">
-                        <select name="branch_id" class="form-control form-control-solid w-200px" onchange="this.form.submit()">
-                            <option value="">All Branches</option>
-                            @foreach($branches as $branch)
-                                <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>
-                                    {{ $branch->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </form>
-                </div>
-            </div>
+            @include('_partials.search-filter-bar', [
+                'searchPlaceholder' => 'Search staff...',
+                'filters' => [
+                    [
+                        'name' => 'branch_id',
+                        'label' => 'Branch',
+                        'options' => $branches,
+                        'valueKey' => 'id',
+                        'labelKey' => 'name',
+                        'defaultLabel' => 'All Branches'
+                    ]
+                ]
+            ])
 
             @can('create_staff')
                 <div class="card-toolbar">
@@ -60,7 +49,6 @@
                         <th>Phone</th>
                         <th>Role</th>
                         <th>Status</th>
-                        <th>Password Status</th>
                         <th>Joined</th>
                         <th>Actions</th>
                     </tr>
@@ -105,19 +93,6 @@
                                     <x-badge 
                                         :color="'danger'" 
                                         content="Inactive"
-                                    />
-                                @endif
-                            </td>
-                            <td>
-                                @if($member->has_set_password)
-                                    <x-badge 
-                                        :color="'success'" 
-                                        content="Set"
-                                    />
-                                @else
-                                    <x-badge 
-                                        :color="'warning'" 
-                                        content="Pending"
                                     />
                                 @endif
                             </td>

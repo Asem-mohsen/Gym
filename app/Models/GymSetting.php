@@ -25,6 +25,7 @@ class GymSetting extends Model implements HasMedia
         'section_styles',
         'media_settings',
         'page_texts',
+        'repeater_fields',
     ];
 
     protected $casts = [
@@ -32,6 +33,7 @@ class GymSetting extends Model implements HasMedia
         'section_styles' => 'array',
         'media_settings' => 'array',
         'page_texts' => 'array',
+        'repeater_fields' => 'array',
     ];
 
     /**
@@ -92,6 +94,8 @@ class GymSetting extends Model implements HasMedia
             // Page-specific media
             'login_page_image',
             'register_page_image',
+            'forget_password_page_image',
+            'reset_password_page_image',
             'services_hero_banner',
             'services_middle_image',
             'about_team_image',
@@ -120,6 +124,8 @@ class GymSetting extends Model implements HasMedia
             // Page-specific media (all single images)
             'login_page_image' => 1,
             'register_page_image' => 1,
+            'forget_password_page_image' => 1,
+            'reset_password_page_image' => 1,
             'services_hero_banner' => 1,
             'services_middle_image' => 1,
             'about_team_image' => 1,
@@ -289,5 +295,225 @@ class GymSetting extends Model implements HasMedia
     {
         $allTexts = $this->getPageTexts();
         return $allTexts[$page] ?? [];
+    }
+
+    /**
+     * Get default repeater configurations for different sections
+     */
+    public static function getDefaultRepeaterConfigs(): array
+    {
+        return [
+            'home_choseus' => [
+                'title' => 'Why Choose Us Section',
+                'description' => 'Features and benefits that make your gym stand out',
+                'page_location' => 'Home Page',
+                'section_location' => 'Below the main banner, above classes section',
+                'max_items' => 4,
+                'fields' => [
+                    'icon' => [
+                        'type' => 'text',
+                        'label' => 'Icon Class',
+                        'placeholder' => 'e.g., flaticon-034-stationary-bike',
+                        'help_text' => 'Use Flaticon classes. <a href="https://www.flaticon.com/" target="_blank">Browse icons here</a>',
+                        'required' => true
+                    ],
+                    'title' => [
+                        'type' => 'text',
+                        'label' => 'Feature Title',
+                        'placeholder' => 'e.g., Modern equipment',
+                        'required' => true
+                    ],
+                    'description' => [
+                        'type' => 'textarea',
+                        'label' => 'Feature Description',
+                        'placeholder' => 'Brief description of the feature',
+                        'required' => true
+                    ]
+                ],
+                'default_items' => [
+                    [
+                        'icon' => 'flaticon-034-stationary-bike',
+                        'title' => 'Modern equipment',
+                        'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut dolore facilisis.'
+                    ],
+                    [
+                        'icon' => 'flaticon-033-juice',
+                        'title' => 'Healthy nutrition plan',
+                        'description' => 'Quis ipsum suspendisse ultrices gravida. Risus commodo viverra maecenas accumsan lacus vel facilisis.'
+                    ],
+                    [
+                        'icon' => 'flaticon-002-dumbell',
+                        'title' => 'Professional training plan',
+                        'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut dolore facilisis.'
+                    ],
+                    [
+                        'icon' => 'flaticon-014-heart-beat',
+                        'title' => 'Unique to your needs',
+                        'description' => 'Quis ipsum suspendisse ultrices gravida. Risus commodo viverra maecenas accumsan lacus vel facilisis.'
+                    ]
+                ]
+            ],
+            'home_hero' => [
+                'title' => 'Main Banner Section',
+                'description' => 'The large banner at the top of your homepage with rotating slides',
+                'page_location' => 'Home Page',
+                'section_location' => 'Top of the page (first thing visitors see)',
+                'max_items' => 2,
+                'fields' => [
+                    'title' => [
+                        'type' => 'text',
+                        'label' => 'Main Headline',
+                        'placeholder' => 'e.g., Be strong training hard',
+                        'required' => true
+                    ],
+                    'subtitle' => [
+                        'type' => 'text',
+                        'label' => 'Subtitle',
+                        'placeholder' => 'e.g., Shape your body',
+                        'required' => true
+                    ],
+                    'button_text' => [
+                        'type' => 'text',
+                        'label' => 'Button Text',
+                        'placeholder' => 'e.g., Get info',
+                        'required' => true
+                    ],
+                    'button_link' => [
+                        'type' => 'select',
+                        'label' => 'Button Link',
+                        'placeholder' => 'Select a page to link to',
+                        'help_text' => 'Choose which page the button will redirect users to',
+                        'required' => false,
+                        'options' => [
+                            ['value' => '#', 'label' => 'Same Page (No redirect)'],
+                            ['value' => 'home', 'label' => 'Home Page'],
+                            ['value' => 'about', 'label' => 'About Us'],
+                            ['value' => 'services', 'label' => 'Services'],
+                            ['value' => 'classes', 'label' => 'Classes'],
+                            ['value' => 'memberships', 'label' => 'Memberships'],
+                            ['value' => 'gallery', 'label' => 'Gallery'],
+                            ['value' => 'blog', 'label' => 'Blog'],
+                            ['value' => 'team', 'label' => 'Our Team'],
+                            ['value' => 'contact', 'label' => 'Contact Us']
+                        ]
+                    ]
+                ],
+                'default_items' => [
+                    [
+                        'title' => 'Be strong training hard',
+                        'subtitle' => 'Shape your body',
+                        'button_text' => 'Get info',
+                        'button_link' => '#'
+                    ],
+                    [
+                        'title' => 'Be strong training hard',
+                        'subtitle' => 'Shape your body',
+                        'button_text' => 'Get info',
+                        'button_link' => '#'
+                    ]
+                ]
+            ],
+            'about_features' => [
+                'title' => 'About Page Features',
+                'description' => 'Feature highlights on the About Us page',
+                'page_location' => 'About Us Page',
+                'section_location' => 'Main content area of the about page',
+                'max_items' => 6,
+                'fields' => [
+                    'icon' => [
+                        'type' => 'text',
+                        'label' => 'Icon Class',
+                        'placeholder' => 'e.g., flaticon-034-stationary-bike',
+                        'help_text' => 'Use Flaticon classes. <a href="https://www.flaticon.com/" target="_blank">Browse icons here</a>',
+                        'required' => true
+                    ],
+                    'title' => [
+                        'type' => 'text',
+                        'label' => 'Feature Title',
+                        'placeholder' => 'Feature title',
+                        'required' => true
+                    ],
+                    'description' => [
+                        'type' => 'textarea',
+                        'label' => 'Feature Description',
+                        'placeholder' => 'Feature description',
+                        'required' => true
+                    ]
+                ],
+                'default_items' => []
+            ]
+        ];
+    }
+
+    /**
+     * Get repeater data for a specific section
+     */
+    public function getRepeaterData(string $section): array
+    {
+        $repeaterFields = $this->repeater_fields ?? [];
+        $defaultConfigs = self::getDefaultRepeaterConfigs();
+        
+        if (!isset($defaultConfigs[$section])) {
+            return [];
+        }
+        
+        $config = $defaultConfigs[$section];
+        $customData = $repeaterFields[$section] ?? [];
+        
+        // If no custom data, return default items
+        if (empty($customData)) {
+            return $config['default_items'] ?? [];
+        }
+        
+        return $customData;
+    }
+
+    /**
+     * Get all repeater data
+     */
+    public function getAllRepeaterData(): array
+    {
+        $repeaterFields = $this->repeater_fields ?? [];
+        $defaultConfigs = self::getDefaultRepeaterConfigs();
+        $result = [];
+        
+        foreach ($defaultConfigs as $section => $config) {
+            $result[$section] = $this->getRepeaterData($section);
+        }
+        
+        return $result;
+    }
+
+    /**
+     * Update repeater data for a specific section
+     */
+    public function updateRepeaterData(string $section, array $data): void
+    {
+        $repeaterFields = $this->repeater_fields ?? [];
+        $repeaterFields[$section] = $data;
+        $this->update(['repeater_fields' => $repeaterFields]);
+    }
+
+    /**
+     * Convert page name to actual route URL
+     */
+    public static function convertPageNameToUrl(string $pageName, string $siteSettingSlug): string
+    {
+        if ($pageName === '#') {
+            return '#';
+        }
+
+        return match($pageName) {
+            'home' => route('user.home', ['siteSetting' => $siteSettingSlug]),
+            'about' => route('user.about-us', ['siteSetting' => $siteSettingSlug]),
+            'services' => route('user.services.index', ['siteSetting' => $siteSettingSlug]),
+            'classes' => route('user.classes.index', ['siteSetting' => $siteSettingSlug]),
+            'memberships' => route('user.memberships.index', ['siteSetting' => $siteSettingSlug]),
+            'gallery' => route('user.gallery', ['siteSetting' => $siteSettingSlug]),
+            'blog' => route('user.blog', ['siteSetting' => $siteSettingSlug]),
+            'team' => route('user.team', ['siteSetting' => $siteSettingSlug]),
+            'contact' => route('user.contact', ['siteSetting' => $siteSettingSlug]),
+            default => '#'
+        };
     }
 }
