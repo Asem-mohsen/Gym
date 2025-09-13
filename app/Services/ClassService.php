@@ -7,6 +7,7 @@ use App\Repositories\ClassScheduleRepository;
 use App\Repositories\ClassPricingRepository;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class ClassService
 {
@@ -81,70 +82,82 @@ class ClassService
 
     public function createClass(array $data , int $siteSettingId)
     {
-        $data['slug'] = Str::slug($data['name']);
-        $data['site_setting_id'] = $siteSettingId;
-        $image = $data['image'] ?? null;
-        $branchIds = $data['branch_ids'] ?? [];
-        unset($data['image'], $data['branch_ids']);
+        return DB::transaction(function () use ($data, $siteSettingId) {
+            $data['slug'] = Str::slug($data['name']);
+            $data['site_setting_id'] = $siteSettingId;
+            $image = $data['image'] ?? null;
+            $branchIds = $data['branch_ids'] ?? [];
+            unset($data['image'], $data['branch_ids']);
 
-        $class = $this->classRepository->create($data);
+            $class = $this->classRepository->create($data);
 
-        $class->trainers()->sync($data['trainers'] ?? []);
+            $class->trainers()->sync($data['trainers'] ?? []);
 
-        // Assign branches
-        if (!empty($branchIds)) {
-            $class->branches()->sync($branchIds);
-        }
+            // Assign branches
+            if (!empty($branchIds)) {
+                $class->branches()->sync($branchIds);
+            }
 
-        foreach ($data['schedules'] ?? [] as $schedule) {
-            $this->scheduleRepository->create(array_merge($schedule, ['class_id' => $class->id]));
-        }
+            // Create schedules
+            foreach ($data['schedules'] ?? [] as $schedule) {
+                $this->scheduleRepository->create(array_merge($schedule, ['class_id' => $class->id]));
+            }
 
-        foreach ($data['pricings'] ?? [] as $pricing) {
-            $this->pricingRepository->create(array_merge($pricing, ['class_id' => $class->id]));
-        }
+            // Create pricings
+            foreach ($data['pricings'] ?? [] as $pricing) {
+                $this->pricingRepository->create(array_merge($pricing, ['class_id' => $class->id]));
+            }
 
-        if ($image) {
-            $class->addMedia($image)->toMediaCollection('class_images');
-        }
+            // Handle image upload
+            if ($image) {
+                $class->addMedia($image)->toMediaCollection('class_images');
+            }
 
-        return $class->load(['trainers', 'schedules', 'pricings', 'branches']);
+            return $class->load(['trainers', 'schedules', 'pricings', 'branches']);
+        });
     }
 
     public function updateClass($class, array $data)
     {
-        $data['slug'] = Str::slug($data['name']);
-        $image = $data['image'] ?? null;
-        $branchIds = $data['branch_ids'] ?? [];
-        unset($data['image'], $data['branch_ids']);
+        return DB::transaction(function () use ($class, $data) {
+            $data['slug'] = Str::slug($data['name']);
+            $image = $data['image'] ?? null;
+            $branchIds = $data['branch_ids'] ?? [];
+            unset($data['image'], $data['branch_ids']);
 
-        $this->classRepository->update($class, $data);
+            $this->classRepository->update($class, $data);
 
-        $class->trainers()->sync($data['trainers'] ?? []);
+            $class->trainers()->sync($data['trainers'] ?? []);
 
-        // Update branch assignments
-        if (!empty($branchIds)) {
+            // Update branch assignments
+            if (!empty($branchIds)) {
                 $class->branches()->sync($branchIds);
-        }
-        
-        $class->schedules()->delete();
-        
-        foreach ($data['schedules'] ?? [] as $schedule) {
-            $this->scheduleRepository->create(array_merge($schedule, ['class_id' => $class->id]));
-        }
+            }
+            
+            // Delete existing schedules (now with cascade delete, bookings will be handled automatically)
+            $class->schedules()->delete();
+            
+            // Create new schedules
+            foreach ($data['schedules'] ?? [] as $schedule) {
+                $this->scheduleRepository->create(array_merge($schedule, ['class_id' => $class->id]));
+            }
 
-        $class->pricings()->delete();
+            // Delete existing pricings (now with cascade delete, bookings will be handled automatically)
+            $class->pricings()->delete();
 
-        foreach ($data['pricings'] ?? [] as $pricing) {
-            $this->pricingRepository->create(array_merge($pricing, ['class_id' => $class->id]));
-        }
+            // Create new pricings
+            foreach ($data['pricings'] ?? [] as $pricing) {
+                $this->pricingRepository->create(array_merge($pricing, ['class_id' => $class->id]));
+            }
 
-        if ($image) {
-            $class->clearMediaCollection('class_images');
-            $class->addMedia($image)->toMediaCollection('class_images');
-        }
+            // Handle image update
+            if ($image) {
+                $class->clearMediaCollection('class_images');
+                $class->addMedia($image)->toMediaCollection('class_images');
+            }
 
-        return $class->load(['trainers', 'schedules', 'pricings', 'branches']);
+            return $class->load(['trainers', 'schedules', 'pricings', 'branches']);
+        });
     }
 
     public function showClass($class)
@@ -157,8 +170,8 @@ class ClassService
         return $this->classRepository->delete($class);
     }
 
-    public function getClassesWithPagination(int $siteSettingId, $perPage = 15, $search = null, $type = null)
+    public function getClassesWithPagination(int $siteSettingId, $type = null, ?int $branchId = null)
     {
-        return $this->classRepository->getAll(where: ['site_setting_id' => $siteSettingId], with: ['trainers', 'schedules', 'pricings'], perPage: $perPage, search: $search, type: $type);
+        return $this->classRepository->getAll(where: ['site_setting_id' => $siteSettingId], with: ['trainers', 'schedules', 'pricings'], type: $type, branchId: $branchId);
     }
 } 

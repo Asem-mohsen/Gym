@@ -50,7 +50,7 @@
                     </div>
 
                     <div class="card-footer">
-                        @can('create_galleries')
+                        @can('create_gallery')
                             <button type="submit" class="btn btn-success">Save</button>
                         @endcan
                         <a href="{{ route('galleries.index') }}" class="btn btn-dark">Cancel</a>

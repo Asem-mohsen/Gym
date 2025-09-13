@@ -96,7 +96,7 @@
                                     @else
                                         <x-badge 
                                             :color="'danger'" 
-                                            content="Disactivated"
+                                            content="Diactivated"
                                         />
                                     @endif
                                 </td>

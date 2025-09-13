@@ -8,7 +8,7 @@ class CreateGalleryRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('create_galleries');
+        return $this->user()->can('create_gallery');
     }
 
     public function rules(): array

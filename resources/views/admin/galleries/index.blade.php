@@ -26,7 +26,7 @@
 
             </div>
 
-            @can('create_galleries')
+            @can('create_gallery')
                 <div class="card-toolbar">
                     <div class="d-flex justify-content-end" data-kt-table-toolbar="base">
                         <a href="{{ route('galleries.create') }}" class="btn btn-primary"><i class="ki-duotone ki-plus fs-2"></i>Add New Gallery</a>

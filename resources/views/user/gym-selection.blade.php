@@ -111,7 +111,7 @@
                                     </div>
                                     
                                     <div class="gym-card-footer">
-                                        <a href="{{ route('user.home', $gym->slug) }}" class="gym-button">
+                                        <a href="{{ route('user.home', $gym->slug) }}" class="gym-button" target="_blank">
                                             <i class="fas fa-arrow-right me-2"></i>
                                             Explore Gym
                                         </a>

@@ -17,6 +17,7 @@ use App\Http\Controllers\Web\User\NotFoundController;
 use App\Http\Controllers\Web\User\CheckinController;
 use App\Http\Controllers\Web\User\PaymentController;
 use App\Http\Controllers\Web\User\PaymobPaymentController;
+use App\Http\Controllers\Web\User\BranchController;
 
 // Public Routes
 Route::get('/', [GymSelectionController::class, 'index'])->name('gym.selection');
@@ -35,6 +36,11 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.c
         Route::get('/', 'index')->name('index');
         Route::get('/{service}', 'show')->name('show');
         Route::post('/{service}/book', 'book')->name('book')->middleware(['auth:web']);
+    });
+
+    Route::prefix('branches')->name('branches.')->controller(BranchController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{branch}', 'show')->name('show');
     });
 
     Route::get('/trainers', [TeamController::class, 'index'])->name('team');

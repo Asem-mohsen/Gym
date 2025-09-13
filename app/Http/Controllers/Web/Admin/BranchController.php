@@ -40,14 +40,20 @@ class BranchController extends Controller
         try {
             $validated = $request->validated();
 
-            $branchData = Arr::except($validated, ['phones']);
+            $branchData = Arr::except($validated, ['phones', 'main_image', 'gallery_images', 'opening_hours']);
             $phonesData = $validated['phones'];
+            $openingHoursData = $this->prepareOpeningHoursData($validated['opening_hours'] ?? []);
+            
+            $galleryData = [
+                'main_image' => $request->file('main_image'),
+                'gallery_images' => $request->file('gallery_images', []),
+            ];
             
             $branchData['is_visible'] = $request->has('is_visible');
 
             $siteId = Auth::user()?->site->id;
 
-            $this->branchService->createBranch($branchData , $phonesData , $siteId);
+            $this->branchService->createBranch($branchData , $phonesData , $siteId, $galleryData, $openingHoursData);
             return redirect()->route('branches.index')->with('success', 'Branch created successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while creating a new branch, please try again in a few minutes.');
@@ -58,12 +64,18 @@ class BranchController extends Controller
     {
         try {
             $validated = $request->validated();
-            $branchData = Arr::except($validated, ['phones']);
+            $branchData = Arr::except($validated, ['phones', 'main_image', 'gallery_images', 'opening_hours']);
             $phonesData = $validated['phones'] ?? [];
+            $openingHoursData = $this->prepareOpeningHoursData($validated['opening_hours'] ?? []);
+            
+            $galleryData = [
+                'main_image' => $request->file('main_image'),
+                'gallery_images' => $request->file('gallery_images', []),
+            ];
             
             $branchData['is_visible'] = $request->has('is_visible');
     
-            $this->branchService->updateBranch($branch, $branchData, $phonesData);
+            $this->branchService->updateBranch($branch, $branchData, $phonesData, $galleryData, $openingHoursData);
     
             return redirect()->route('branches.index')->with('success', 'Branch updated successfully.');
         } catch (Exception $e) {
@@ -97,5 +109,32 @@ class BranchController extends Controller
             Log::error($e->getMessage());
             return redirect()->back()->with('error', 'Error happened while deleting branch, please try again in a few minutes.');
         }
+    }
+
+    /**
+     * Prepare opening hours data for storage
+     */
+    private function prepareOpeningHoursData(array $openingHoursData): array
+    {
+        $preparedData = [];
+        
+        foreach ($openingHoursData as $index => $hoursData) {
+            if (!empty($hoursData['days']) && is_array($hoursData['days'])) {
+                // Handle is_closed - if not present, default to false
+                $isClosed = false;
+                if (isset($hoursData['is_closed'])) {
+                    $isClosed = in_array($hoursData['is_closed'], ['1', 1, true, 'true'], true);
+                }
+                
+                $preparedData[] = [
+                    'days' => $hoursData['days'],
+                    'opening_time' => $isClosed ? null : ($hoursData['opening_time'] ?? null),
+                    'closing_time' => $isClosed ? null : ($hoursData['closing_time'] ?? null),
+                    'is_closed' => $isClosed,
+                ];
+            }
+        }
+        
+        return $preparedData;
     }
 }

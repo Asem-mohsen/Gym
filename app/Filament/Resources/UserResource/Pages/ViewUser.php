@@ -113,7 +113,7 @@ class ViewUser extends ViewRecord
                                                 default => 'gray',
                                             }),
                                         TextEntry::make('size')
-                                            ->label('Size (sq ft)'),
+                                            ->label('Number of Employees'),
                                         TextEntry::make('manager.name')
                                             ->label('Manager')
                                             ->placeholder('No manager assigned'),

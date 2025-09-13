@@ -67,7 +67,7 @@
                     <tbody class="fw-semibold text-gray-600">
                         @foreach ($classes as $key => $class)
                             <tr>
-                                <td>{{ ($classes->currentPage() - 1) * $classes->perPage() + $loop->iteration }}</td>
+                                <td>{{ $loop->iteration }}</td>
                                 <td>{{ $class->name }}</td>
                                 <td>{{ $class->type }}</td>
                                 <td>{{ ucfirst($class->status) }}</td>
