@@ -28,7 +28,7 @@ class HomeController extends Controller
     public function index(SiteSetting $siteSetting)
     {
         $memberships = $this->membershipService->getMemberships(siteSettingId: $siteSetting->id);
-        $galleries = $this->galleryService->getGalleriesForModel(model: $siteSetting , limit: 6);
+        $galleries = $this->galleryService->getGalleriesForPage($siteSetting->id, 'home', 6);
         $classes = $this->classService->getClasses(siteSettingId: $siteSetting->id);
         $trainers = $this->userService->getTrainers(siteSettingId: $siteSetting->id);
         $branches = $this->branchService->getBranchesForPublic($siteSetting->id);

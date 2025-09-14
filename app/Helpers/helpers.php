@@ -110,3 +110,17 @@ if (!function_exists('getDocumentExtension')) {
         return $extensionMap[$extension] ?? 'file';
     }
 }
+
+if (!function_exists('getLocaleFromRequest')) {
+    /**
+     * Get locale from request header
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string
+     */
+    function getLocaleFromRequest($request): string
+    {
+        $locale = $request->header('Accept-Language', 'en');
+        return in_array($locale, ['en', 'ar']) ? $locale : 'en';
+    }
+}

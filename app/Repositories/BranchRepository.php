@@ -180,6 +180,7 @@ class BranchRepository
                 'sort_order' => 0,
             ], [
                 'site_setting_id' => $branch->site_setting_id,
+                'pages' => ['branch'], // Default to branch page
             ]);
 
             // Add gallery images

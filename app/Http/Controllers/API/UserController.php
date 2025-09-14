@@ -2,26 +2,21 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Http\Requests\Users\{ UpdateUserRequest , AddUserRequest};
+use App\Http\Requests\Users\UpdateUserRequest;
 use App\Models\User;
 use App\Models\SiteSetting;
-use App\Services\SiteSettingService;
 use App\Services\UserService;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use App\Http\Controllers\Controller;
 class UserController extends Controller
 {
     protected $userService;
-    protected $siteSettingId;
-
-    public function __construct(UserService $userService, SiteSettingService $siteSettingService)
+    public function __construct(UserService $userService)
     {
         $this->userService = $userService;
-        $this->siteSettingId = $siteSettingService->getCurrentSiteSettingId();
     }
 
     public function index(User $user , SiteSetting $gym)

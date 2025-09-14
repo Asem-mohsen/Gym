@@ -107,6 +107,7 @@ class ServiceService
             'is_active' => true,
             'sort_order' => 1,
             'site_setting_id' => $service->site_setting_id,
+            'pages' => ['services'],
         ];
 
         $gallery = $this->galleryRepository->createGallery($galleryData, $service);
@@ -131,6 +132,7 @@ class ServiceService
                 'title' => $data['gallery_title'],
                 'description' => $data['gallery_description'] ?? null,
                 'site_setting_id' => $service->site_setting_id,
+                'pages' => ['services'],
             ];
             
             $this->galleryRepository->updateGallery($existingGallery, $galleryData);

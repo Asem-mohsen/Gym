@@ -4,9 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Contact\ContactRequest;
+use App\Http\Resources\SiteSettingResource;
 use App\Models\SiteSetting;
 use App\Services\ContactService;
-use Illuminate\Http\Request;
 use Exception;
 
 class ContactController extends Controller
@@ -18,11 +18,7 @@ class ContactController extends Controller
 
     public function index(SiteSetting $gym)
     {
-        $data = [
-            'gym' => $gym,
-        ];
-
-        return successResponse($data, 'Contact data retrieved successfully');
+        return successResponse(new SiteSettingResource($gym), 'Contact data retrieved successfully');
     }
     
     public function sendMessage(ContactRequest $request, SiteSetting $gym)

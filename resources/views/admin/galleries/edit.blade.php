@@ -4,14 +4,15 @@
 @section('main-breadcrumb', 'Gallery Management')
 @section('main-breadcrumb-link', route('galleries.index'))
 
-@section('sub-breadcrumb','Create Gallery')
+@section('sub-breadcrumb','Edit Gallery')
 
 @section('content')
 
 <div class="col-md-12 mb-md-5 mb-xl-10">
     <div class="card">
-        <form action="{{ route('galleries.update', $gallery->id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('galleries.update', $gallery) }}" method="POST" enctype="multipart/form-data">
             @csrf
+            @method('PUT')
             <div class="card">
                 <div class="card-body row">
                     <div class="mb-10 col-md-6">
@@ -41,11 +42,33 @@
                             'selectedValue' => $gallery->is_active,
                         ])
                     </div>
+                    <div class="mb-10 col-md-6">
+                        <label for="pages" class="required form-label">Display Pages</label>
+                        @php
+                            $options = [
+                                ['value' => 'home', 'label' => 'Home Page'],
+                                ['value' => 'about', 'label' => 'About Page'],
+                                ['value' => 'services', 'label' => 'Services Page'],
+                                ['value' => 'classes', 'label' => 'Classes Page'],
+                                ['value' => 'gallery', 'label' => 'Gallery Page'],
+                                ['value' => 'contact', 'label' => 'Contact Page'],
+                                ['value' => 'branch', 'label' => 'Branch Page'],
+                            ];
+                            $selectedPages = $gallery->pages ?? [];
+                        @endphp
+                        @include('_partials.select-multiple',[
+                            'options' => $options,
+                            'name' => 'pages',
+                            'id' => 'pages',
+                            'values' => old('pages', $gallery->pages ?? []),
+                        ])
+                        <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple pages</small>
+                    </div>
 
-                    <div class="mb-10 col-md-12">
+                    <div class="mb-10 col-md-6">
                         <div class="form-group">
-                            <label for="gallery_images" class="form-control-label">Upload Images *</label>
-                            <input class="form-control form-control-solid" type="file" name="gallery_images[]" multiple accept="image/*" required>
+                            <label for="gallery_images" class="form-control-label">Upload Images</label>
+                            <input class="form-control form-control-solid" type="file" name="gallery_images[]" multiple accept="image/*">
                         </div>
                     </div>
 
@@ -65,17 +88,13 @@
                                         <div class="card-body p-2">
                                             <small class="text-muted">{{ $image->file_name }}</small>
                                             <div class="mt-2">
-                                                <form action="{{ route('galleries.remove-media', [$gallery->id, $image->id]) }}" 
-                                                        method="post" 
-                                                        style="display: inline;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" 
-                                                            class="btn btn-sm btn-danger" 
-                                                            onclick="return confirm('Are you sure you want to remove this image?')">
-                                                        <i class="fa fa-trash"></i> Remove
-                                                    </button>
-                                                </form>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-danger remove-image-btn" 
+                                                        data-gallery-id="{{ $gallery->id }}" 
+                                                        data-media-id="{{ $image->id }}"
+                                                        onclick="removeImage({{ $gallery->id }}, {{ $image->id }})">
+                                                    <i class="fa fa-trash"></i> Remove
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -103,40 +122,5 @@
 
 
 @section('js')
-<script>
-    document.querySelector('input[name="gallery_images[]"]').addEventListener('change', function(e) {
-        const files = e.target.files;
-        const previewContainer = document.createElement('div');
-        previewContainer.className = 'row mt-3';
-        
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const col = document.createElement('div');
-                    col.className = 'col-md-3 mb-3';
-                    col.innerHTML = `
-                        <div class="card">
-                            <img src="${e.target.result}" class="card-img-top" style="height: 150px; object-fit: cover;">
-                            <div class="card-body p-2">
-                                <small class="text-muted">${file.name}</small>
-                            </div>
-                        </div>
-                    `;
-                    previewContainer.appendChild(col);
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-        
-        const existingPreview = document.querySelector('.image-preview');
-        if (existingPreview) {
-            existingPreview.remove();
-        }
-        
-        previewContainer.className += ' image-preview';
-        document.querySelector('.form-group').appendChild(previewContainer);
-    });
-</script>
-@stop
+    @include('admin.galleries.assets.scripts')
+@endsection

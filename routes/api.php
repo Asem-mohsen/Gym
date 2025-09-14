@@ -24,24 +24,11 @@ use App\Http\Controllers\API\SiteSettingController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\GymContextController;
 use App\Http\Controllers\API\CheckinController;
+use App\Http\Controllers\API\GymSelectionController;
 use App\Http\Controllers\API\NotificationController;
 
 // API Routes
 Route::prefix('v1')->group(function(){
-
-    // Guest
-    Route::middleware(['preventAuth'])->group(function () {
-
-        Route::post('/login'    , [LoginController::class , 'login']);
-        Route::post('/register' , [RegisterController::class , 'register']);
-
-        Route::controller(ForgetPasswordController::class)->group(function(){
-            Route::post('/forget-password/send-code', 'sendCode');
-            Route::post('/forget-password/verify-code', 'verifyCode');
-            Route::post('/forget-password/reset','resetPassword');
-        });
-
-    });
 
     // Gym Context Management (available for both guests and authenticated users)
     Route::controller(GymContextController::class)->group(function(){
@@ -97,10 +84,26 @@ Route::prefix('v1')->group(function(){
         });
     });
 
+    Route::get('/', [GymSelectionController::class, 'index']);
+
     // User Public - Gym-specific routes
     Route::prefix('{gym:slug}')->middleware(['store.gym.context', 'share.site.setting', 'check.gym.visibility'])->group(function(){
         Route::controller(HomeController::class)->group(function(){
             Route::get('/', 'index')->name('index');
+        });
+
+        // Guest
+        Route::middleware(['preventAuth'])->group(function () {
+
+            Route::post('/login'    , [LoginController::class , 'login']);
+            Route::post('/register' , [RegisterController::class , 'register']);
+
+            Route::controller(ForgetPasswordController::class)->group(function(){
+                Route::post('/forget-password/send-code', 'sendCode');
+                Route::post('/forget-password/verify-code', 'verifyCode');
+                Route::post('/forget-password/reset','resetPassword');
+            });
+
         });
 
         Route::prefix('trainers')->group(function(){
@@ -110,12 +113,7 @@ Route::prefix('v1')->group(function(){
             });
         });
 
-        Route::prefix('memberships')->group(function(){
-            Route::controller(MembershipController::class)->group(function(){
-                Route::get('/', 'index');
-                Route::get('/{membership}/membership', 'show');
-            });
-        });
+        Route::resource('memberships', MembershipController::class)->only(['index', 'show']);
 
         Route::prefix('contact')->group(function(){
             Route::controller(ContactController::class)->group(function(){
@@ -140,16 +138,8 @@ Route::prefix('v1')->group(function(){
 
         Route::prefix('services')->group(function(){
             Route::controller(ServicesController::class)->group(function(){
-                Route::get('/services', 'services');
-            });
-        });
-
-        Route::prefix('users/{user}')->group(function(){
-            Route::controller(UserController::class)->group(function(){
-                Route::get('/profile', 'profile');
-                Route::get('/edit', 'edit');
-                Route::put('/update', 'update');
-                Route::delete('/delete', 'destroy');
+                Route::get('/', 'index');
+                Route::get('/{service}', 'show');
             });
         });
 

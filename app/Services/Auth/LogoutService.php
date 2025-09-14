@@ -117,7 +117,6 @@ class LogoutService
             // If no request is passed, check the current guard
             return Auth::getDefaultDriver() === 'sanctum';
         }
-        
         return $request->expectsJson() || $request->is('api/*');
     }
 }

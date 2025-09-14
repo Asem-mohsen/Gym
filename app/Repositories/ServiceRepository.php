@@ -8,6 +8,7 @@ class ServiceRepository
     public function getAllService(int $siteSettingId, ?int $branchId)
     {
         $query = Service::where('site_setting_id', $siteSettingId)
+            ->with('branches')
             ->when($branchId, function($query) use ($branchId){
                 $query->whereHas('branches', function($query)use ($branchId) {
                     $query->where('branch_id',$branchId)->where('is_visible', true);

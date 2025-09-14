@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class ClassSchedule extends Model
 {
@@ -20,17 +21,35 @@ class ClassSchedule extends Model
 
     protected $casts = [
         'start_time' => 'datetime',
-        'end_time' => 'datetime',
+        'end_time'   => 'datetime',
     ];
 
     public function getStartTimeAttribute($value)
     {
-        return $value ? date('H:i', strtotime($value)) : null;
+        return $value ? Carbon::parse($value)->format('h:i A') : null;
     }
 
     public function getEndTimeAttribute($value)
     {
-        return $value ? date('H:i', strtotime($value)) : null;
+        return $value ? Carbon::parse($value)->format('h:i A') : null;
+    }
+
+    public function getDurationAttribute()
+    {
+        if ($this->attributes['start_time'] && $this->attributes['end_time']) {
+            $startTime = Carbon::parse($this->attributes['start_time']);
+            $endTime = Carbon::parse($this->attributes['end_time']);
+            
+            if ($endTime->lessThan($startTime)) {
+                $endTime->addDay();
+            }
+            
+            $minutes = $startTime->diffInMinutes($endTime);
+    
+            return sprintf('%02d:%02d', floor($minutes / 60), $minutes % 60);
+        }
+    
+        return null;
     }
 
     public function classModel()

@@ -6,6 +6,7 @@ use Exception;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Services\Auth\AuthService;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class LoginController extends Controller
 {
@@ -23,8 +24,10 @@ class LoginController extends Controller
             $data = $this->authService->login($credentials);
 
             return successResponse($data, 'User logged in successfully');
-        } catch (Exception $e) {
-            return failureResponse($e->getMessage(), $e->getCode());
+        } catch (UnauthorizedHttpException $e) {
+            return failureResponse($e->getMessage(), 403); // or 401 if you prefer
+        } catch (\Throwable $e) {
+            return failureResponse($e->getMessage(), 500);
         }
     }
 }

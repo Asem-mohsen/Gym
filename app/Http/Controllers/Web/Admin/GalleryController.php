@@ -4,15 +4,16 @@ namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Gallery\{CreateGalleryRequest, UpdateGalleryRequest};
-use App\Models\{Gallery, User};
-use App\Services\GalleryService;
-use Illuminate\Support\Facades\Auth;
+use App\Models\{Gallery};
+use App\Services\{GalleryService, SiteSettingService};
 
 class GalleryController extends Controller
 {
-    public function __construct(protected GalleryService $galleryService)
+    protected int $siteSettingId;
+    public function __construct(protected GalleryService $galleryService, protected SiteSettingService $siteSettingService)
     {
         $this->galleryService = $galleryService;
+        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
     }
 
     /**
@@ -20,68 +21,28 @@ class GalleryController extends Controller
      */
     public function index()
     {
-        /**
-         * @var User $user
-         */
-        $user = Auth::user();
-        $siteSetting = $user->getCurrentSite();
-        
-        if (!$siteSetting) {
-            abort(404, 'Site settings not found for this admin');
-        }
+        $galleries = $this->galleryService->getGalleriesForSiteSetting($this->siteSettingId);
 
-        $galleries = $this->galleryService->getGalleriesForSiteSetting($siteSetting->id);
-        $stats = $this->galleryService->getGalleryStats($siteSetting);
-
-        return view('admin.galleries.index', compact('galleries', 'stats', 'siteSetting'));
+        return view('admin.galleries.index', compact('galleries'));
     }
 
     public function create()
     {
-        /**
-         * @var User $user
-         */
-        $user = Auth::user();
-        $siteSetting = $user->getCurrentSite();
-        
-        if (!$siteSetting) {
-            abort(404, 'Site settings not found');
-        }
-
-
-        return view('admin.galleries.create', compact('siteSetting'));
+        return view('admin.galleries.create');
     }
 
     public function edit(Gallery $gallery)
     {
-        /**
-         * @var User $user
-         */
-        $user = Auth::user();
-        $siteSetting = $user->getCurrentSite();
-        
-        if (!$siteSetting) {
-            abort(404, 'Site settings not found');
-        }
-
-        return view('admin.galleries.edit', compact('gallery', 'siteSetting'));
+        return view('admin.galleries.edit', compact('gallery'));
     }
 
     public function store(CreateGalleryRequest $request)
     {
-       /**
-         * @var User $user
-         */
-        $user = Auth::user();
-        $siteSetting = $user->getCurrentSite();
+        $data = $request->only(['title', 'description', 'is_active', 'sort_order', 'pages']);
         
-        if (!$siteSetting) {
-            abort(404, 'Site settings not found');
-        }
-
-        $data = $request->only(['title', 'description', 'is_active', 'sort_order']);
+        $data['is_active'] = (bool) $data['is_active'];
         
-        $data['site_setting_id'] = $siteSetting->id;
+        $data['site_setting_id'] = $this->siteSettingId;
         $mediaFiles = [];
 
         if ($request->hasFile('gallery_images')) {
@@ -102,19 +63,8 @@ class GalleryController extends Controller
 
     public function update(UpdateGalleryRequest $request, Gallery $gallery)
     {
-        /**
-         * @var User $user
-         */
-        $user = Auth::user();
-        $siteSetting = $user->getCurrentSite();
+        $data = $request->only(['title', 'description', 'is_active', 'sort_order', 'pages']);
         
-        if (!$siteSetting) {
-            abort(404, 'Site settings not found');
-        }
-
-        $data = $request->only(['title', 'description', 'is_active', 'sort_order']);
-
-        // Handle new image uploads
         if ($request->hasFile('gallery_images')) {
             foreach ($request->file('gallery_images') as $file) {
                 $customProperties = [
@@ -134,16 +84,6 @@ class GalleryController extends Controller
 
     public function destroy(Gallery $gallery)
     {
-        /**
-         * @var User $user
-        */
-        $user = Auth::user();
-        $siteSetting = $user->getCurrentSite();
-        
-        if (!$siteSetting) {
-            abort(404, 'Site settings not found');
-        }
-
         $this->galleryService->deleteGallery($gallery);
 
         return redirect()->route('galleries.index')->with('success', 'Gallery deleted successfully');
@@ -151,19 +91,9 @@ class GalleryController extends Controller
 
     public function removeMedia(int $galleryId, int $mediaId)
     {
-        /**
-         * @var User $user
-         */
-        $user = Auth::user();
-        $siteSetting = $user->getCurrentSite();
-        
-        if (!$siteSetting) {
-            abort(404, 'Site settings not found');
-        }
-
         $gallery = $this->galleryService->getGalleryById($galleryId);
         
-        if (!$gallery || $gallery->site_setting_id !== $siteSetting->id) {
+        if (!$gallery || $gallery->site_setting_id !== $this->siteSettingId) {
             abort(404, 'Gallery not found');
         }
 

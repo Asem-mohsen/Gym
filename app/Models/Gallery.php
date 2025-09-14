@@ -18,6 +18,7 @@ class Gallery extends Model implements HasMedia
 
     protected $casts = [
         'is_active' => 'boolean',
+        'pages' => 'array',
     ];
 
     /**
@@ -65,6 +66,14 @@ class Gallery extends Model implements HasMedia
     public function scopeForSiteSetting($query, $siteSettingId)
     {
         return $query->where('site_setting_id', $siteSettingId);
+    }
+
+    /**
+     * Scope to filter by page
+     */
+    public function scopeForPage($query, $page)
+    {
+        return $query->whereJsonContains('pages', $page);
     }
 
     /**

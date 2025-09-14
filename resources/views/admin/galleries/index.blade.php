@@ -45,6 +45,7 @@
                         <th>Title</th>
                         <th>Description</th>
                         <th>Images Count</th>
+                        <th>Pages</th>
                         <th>Status</th>
                         <th>Sort Order</th>
                         <th>Created</th>
@@ -83,6 +84,15 @@
                             </td>
                             <td>
                                 <span class="badge badge-info">{{ $gallery->getMedia('gallery_images')->count() }}</span>
+                            </td>
+                            <td>
+                                @if($gallery->pages && count($gallery->pages) > 0)
+                                    @foreach($gallery->pages as $page)
+                                        <span class="badge badge-primary me-1">{{ ucfirst($page) }}</span>
+                                    @endforeach
+                                @else
+                                    <span class="text-muted">No pages selected</span>
+                                @endif
                             </td>
                             <td>
                                 @if($gallery->is_active)

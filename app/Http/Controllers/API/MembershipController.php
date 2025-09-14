@@ -3,90 +3,63 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Membership\{AddMembershipRequest,UpdateMembershipRequest};
-use App\Models\Membership;
-use App\Models\SiteSetting;
-use App\Services\{MembershipService, SiteSettingService};
+use App\Http\Resources\{MembershipResource, TrainerResource, BranchResource};
+use App\Models\{Membership, SiteSetting};
+use App\Services\{MembershipService, UserService, SubscriptionService, BranchService};
 use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\{Log, Auth};
 
 class MembershipController extends Controller
 {
-    protected ?int $siteSettingId;
-    
-    public function __construct(protected MembershipService $membershipService, protected SiteSettingService $siteSettingService)
+    public function __construct(protected MembershipService $membershipService, protected UserService $userService, protected SubscriptionService $subscriptionService, protected BranchService $branchService)
     {
         $this->membershipService = $membershipService;
-        
-        // For authenticated routes, get from user
-        if (Auth::check()) {
-            $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        }
+        $this->userService = $userService;
+        $this->subscriptionService = $subscriptionService;
+        $this->branchService = $branchService;
     }
 
     public function index(SiteSetting $gym)
     {
         try {
             $memberships = $this->membershipService->getMemberships($gym->id);
-            return successResponse(compact('memberships'), 'Memberships data retrieved successfully');
+            return successResponse(MembershipResource::collection($memberships), 'Memberships data retrieved successfully');
         } catch (Exception $e) {
+            Log::error('Error fetching memberships: ' . $e->getMessage());
             return failureResponse('Error retrieving memberships, please try again.');
-        }
-    }
-
-    public function store(AddMembershipRequest $request)
-    {
-        try {
-            $membership = $this->membershipService->createMembership($request->validated());
-            return successResponse(compact('membership'), 'Membership data successfully');
-        } catch (Exception $e) {
-            return failureResponse('Error creating membership, please try again.');
         }
     }
 
     public function show(SiteSetting $gym, Membership $membership)
     {
         try {
-            // Validate that the membership belongs to the specified gym
             if ($membership->site_setting_id != $gym->id) {
                 return failureResponse('Invalid membership or gym', 400);
             }
+
+            $trainers = $this->userService->getTrainers(siteSettingId: $gym->id);
+            $membership = $this->membershipService->showMembership($membership);
+            $branches = $this->branchService->getBranchesForPublic($gym->id);
+
+            $userSubscription = null;
+            if (Auth::guard('sanctum')->check()) {
+                $userSubscription = $this->subscriptionService->getActiveSubscription(
+                    userId: Auth::guard('sanctum')->user()->id,
+                    siteSettingId: $gym->id
+                );
+            }
             
-            $membership = $this->membershipService->showMembership($membership);
-            return successResponse(compact('membership'), $membership->name .' retrieved successfully');
+            $data = [
+                'membership' => new MembershipResource($membership),
+                'trainers' => TrainerResource::collection($trainers),
+                'branches' => BranchResource::collection($branches),
+                'user_subscription' => $userSubscription,
+            ];
+
+            return successResponse($data, $membership->name .' retrieved successfully');
         } catch (Exception $e) {
+            Log::error('Error fetching membership: ' . $e->getMessage());
             return failureResponse('Error fetching membership, please try again.');
-        }
-    }
-
-    public function edit(Membership $membership)
-    {
-        try {
-            $membership = $this->membershipService->showMembership($membership);
-            return successResponse(compact('membership'), $membership->name .' data successfully');
-        } catch (Exception $e) {
-            return failureResponse('Error fetching membership, please try again.');
-        }
-    }
-
-    public function update(UpdateMembershipRequest $request , Membership $membership)
-    {
-        try {
-            $updatedMembership = $this->membershipService->updateMembership($membership, $request->validated());
-            return successResponse(compact('updatedMembership'), 'Membership updated successfully');
-        } catch (Exception $e) {
-            return failureResponse('Error happened while updating membership, please try again in a few minutes');
-        }
-    }
-
-    public function destroy(Membership $membership)
-    {
-        try {
-            $this->membershipService->deleteMembership($membership);
-            return successResponse(message: 'Membership deleted successfully');
-        } catch (Exception $e) {
-            return failureResponse('Error happened while deleting membership, please try again in a few minutes');
         }
     }
 }

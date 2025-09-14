@@ -28,7 +28,8 @@ class UserRepository
             })
             ->whereHas('roles', function ($query) {
                 $query->where('roles.name', 'trainer');
-            });
+            })
+            ->with('trainerInformation');
 
         if ($branchId) {
             $query->whereHas('assignedBranches', function ($query) use ($branchId) {
