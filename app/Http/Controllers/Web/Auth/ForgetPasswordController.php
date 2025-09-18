@@ -25,7 +25,7 @@ class ForgetPasswordController extends Controller
     {
         $validated = $request->validated();
 
-        $success = $this->forgetPasswordService->sendResetToken($validated['email']);
+        $success = $this->forgetPasswordService->sendResetToken($validated['email'], 'token');
 
         $gymContext = $this->gymContextService->getCurrentGymContext();
         

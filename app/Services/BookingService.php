@@ -3,33 +3,40 @@ namespace App\Services;
 
 use Exception;
 use App\Repositories\BookingRepository;
-use App\Services\EmailService;
+use App\Services\{EmailService, PricingService};
 use Illuminate\Support\Facades\Log;
+use App\Models\{Booking, Service, ClassModel, Membership};
 
 class BookingService
 {
     protected $bookingRepository;
     protected $emailService;
+    protected $pricingService;
 
     public function __construct(
         BookingRepository $bookingRepository,
-        EmailService $emailService
+        EmailService $emailService,
+        PricingService $pricingService
     ) {
         $this->bookingRepository = $bookingRepository;
         $this->emailService = $emailService;
+        $this->pricingService = $pricingService;
     }
 
-    public function getBookings()
+    public function createBooking(array $data, int $userId): Booking
     {
-        return $this->bookingRepository->getAllBookings();
-    }
+        $typeMap = [
+            'service'    => Service::class,
+            'class'      => ClassModel::class,
+            'membership' => Membership::class,
+        ];
 
-    public function createBooking(array $data)
-    {
-        $booking = $this->bookingRepository->createBooking($data);
-        
+        $amount = $this->pricingService->calculateAmount($data['bookable_type'], $data['bookable_id'], $data['pricing_id'] ?? null);
+
+        $booking = $this->bookingRepository->createBooking($data, $userId, $typeMap[$data['bookable_type']], $amount);
+
         $this->sendBookingConfirmationEmail($booking);
-        
+
         return $booking;
     }
 
@@ -46,15 +53,5 @@ class BookingService
                 'error' => $e->getMessage()
             ]);
         }
-    }
-
-    public function showBooking($booking)
-    {
-        return $this->bookingRepository->findById($booking->id);
-    }
-
-    public function deleteBooking($booking)
-    {
-        return $this->bookingRepository->deleteBooking($booking);
     }
 }

@@ -84,7 +84,7 @@ class InvitationController extends Controller
             return redirect()->route('user.login.index', ['siteSetting' => $siteSetting->slug])->with('error', 'Please login to view your invitations.');
         }
 
-        $invitationData = $this->invitationService->getUserInvitations($user, $siteSetting);
+        $invitationData = $this->invitationService->getUserInvitationsWithStatistics($user, $siteSetting);
 
         return view('user.invitations.index', array_merge($invitationData, compact('siteSetting')));
     }

@@ -15,12 +15,12 @@ class GalleryResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'title' => $this->title,
-            'description' => $this->description,
-            'is_active' => $this->is_active,
-            'sort_order' => $this->sort_order,
-            'images' => $this->getGalleryImages(),
+            'images' => $this->media->map(function ($mediaItem) {
+                return [
+                    'id' => $mediaItem->id,
+                    'url' => $mediaItem->getUrl(),
+                ];
+            })->toArray(),
         ];
     }
 }

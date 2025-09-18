@@ -25,6 +25,7 @@ use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\GymContextController;
 use App\Http\Controllers\API\CheckinController;
 use App\Http\Controllers\API\GymSelectionController;
+use App\Http\Controllers\API\InvitationController;
 use App\Http\Controllers\API\NotificationController;
 
 // API Routes
@@ -43,10 +44,9 @@ Route::prefix('v1')->group(function(){
 
         Route::prefix('profile')->group(function(){
             Route::controller(UserController::class)->group(function(){
-                Route::get('/profile', 'profile');
-                Route::get('/edit', 'edit');
-                Route::put('/update', 'update');
-                Route::delete('/delete', 'destroy');
+                Route::get('/', 'profile');
+                Route::put('/', 'update');
+                Route::delete('/', 'destroy');
             });
         });
 
@@ -67,19 +67,9 @@ Route::prefix('v1')->group(function(){
         });
 
         // Payment routes for authenticated users
-        Route::prefix('{gym:slug}')->group(function(){
-            Route::prefix('payments')->group(function(){
-                Route::controller(PaymentController::class)->group(function(){
-                    Route::post('/create-intent', 'createPaymentIntent')->name('payments.create-intent');
-                    Route::post('/confirm', 'confirmPayment')->name('payments.confirm');
-                });
-            });
-
-            Route::prefix('mobile')->group(function(){
-                Route::controller(PaymentController::class)->group(function(){
-                    Route::post('/enroll-membership', 'mobileEnrollMembership')->name('mobile.enroll-membership');
-                    Route::get('/payment-status/{paymentIntentId}', 'getPaymentStatus')->name('mobile.payment-status');
-                });
+        Route::prefix('{gym:slug}')->middleware(['store.gym.context', 'share.site.setting', 'check.gym.visibility'])->group(function(){
+            Route::controller(PaymentController::class)->group(function(){
+                Route::post('/payments', 'initializePayment');
             });
         });
     });
@@ -128,18 +118,21 @@ Route::prefix('v1')->group(function(){
             });
         });
 
-        Route::prefix('booking')->group(function(){
-            Route::controller(BookingController::class)->group(function(){
-                Route::post('/membership/booking', 'bookMembership');
-                Route::post('/coach/booking', 'bookCoach');
-                Route::post('/service/booking', 'bookService');
-            });
-        });
 
         Route::prefix('services')->group(function(){
             Route::controller(ServicesController::class)->group(function(){
                 Route::get('/', 'index');
                 Route::get('/{service}', 'show');
+            });
+        });
+
+        Route::prefix('invitations')->group(function(){
+            Route::controller(InvitationController::class)->group(function(){
+                Route::get('/', 'index');
+                Route::post('/', 'store');
+                Route::post('/{invitation}/verify', 'verify');
+                Route::post('/{invitation}/resend', 'resend');
+                Route::delete('/{invitation}', 'destroy');
             });
         });
 
@@ -171,17 +164,14 @@ Route::prefix('v1')->group(function(){
             Route::prefix('{blogPost}/shares')->group(function(){
                 Route::controller(BlogPostShareController::class)->group(function(){
                     Route::post('/', 'share');
-                    Route::get('/statistics', 'getShareStatistics');
                     Route::get('/urls', 'getSharingUrls');
                 });
             });
         });
 
-        Route::prefix('galleries')->group(function(){
+        Route::prefix('gallery')->group(function(){
             Route::controller(GalleryController::class)->group(function(){
                 Route::get('/', 'index');
-                Route::get('/branch/{branch}', 'getBranchGalleries');
-                Route::get('/{gallery}', 'show');
             });
         });
 
@@ -204,4 +194,11 @@ Route::prefix('v1')->group(function(){
         });
 
     });
+
+    Route::prefix('booking')->controller(BookingController::class)->group(function(){
+        Route::post('/', 'store');
+    });
+
+    Route::post('/payments/intent', [PaymentController::class, 'intent']);
+    Route::post('/paymob/webhook', [\App\Http\Controllers\Webhooks\PaymobWebhookController::class, 'handle'])->name('paymob.webhook');
 });

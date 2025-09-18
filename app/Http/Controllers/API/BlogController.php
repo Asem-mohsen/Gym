@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\BlogPost;
-use App\Models\SiteSetting;
-use App\Services\{SiteSettingService, BlogService};
+use App\Http\Resources\{BlogPostResource, CategoryResource, TagResource};
+use App\Models\{BlogPost, SiteSetting};
+use App\Services\BlogService;
+use Illuminate\Http\Request;
 
 class BlogController extends Controller
 {
@@ -16,12 +17,33 @@ class BlogController extends Controller
         $this->blogService = $blogService;
     }
 
-    public function index(SiteSetting $gym)
+    public function index(Request $request, SiteSetting $gym)
     {
+        $filters = [
+            'category' => $request->get('category'),
+            'tag' => $request->get('tag'),
+            'search' => $request->get('search'),
+        ];
+        
+        $filters = array_filter($filters, function($value) {
+            return !empty($value);
+        });
+        
+        $blogPosts = $this->blogService->getBlogPosts($gym->id, true, perPage: 10, filters: $filters);
+        $categories = $this->blogService->getCategories(withCount: ['blogPosts']);
+        $tags = $this->blogService->getTags(withCount: ['blogPosts']);
+        
         $data = [
-            'blogPosts' => $this->blogService->getBlogPosts($gym->id, true),
-            'categories' => $this->blogService->getCategories(withCount: ['blogPosts']),
-            'tags' => $this->blogService->getTags(withCount: ['blogPosts']),
+            'blog_posts' => BlogPostResource::collection($blogPosts),
+            'categories' => CategoryResource::collection($categories),
+            'tags'       => TagResource::collection($tags),
+            'filters' => [
+                'applied' => $filters,
+                'available' => [
+                    'categories' => $categories->pluck('slug', 'name'),
+                    'tags' => $tags->pluck('slug', 'name'),
+                ]
+            ]
         ];
         
         return successResponse($data, 'Blog posts retrieved successfully');
@@ -29,8 +51,23 @@ class BlogController extends Controller
 
     public function show(SiteSetting $gym, BlogPost $blogPost)
     {
+        $blogPost = $this->blogService->showBlogPost(
+            $blogPost->id, 
+            [
+                'media', 
+                'categories', 
+                'tags', 
+                'user',
+                'shares',
+                'approvedComments.user',
+                'approvedComments.likes',
+                'approvedComments.children.user',
+                'approvedComments.children.likes'
+            ]
+        );
+
         $data = [
-            'blogPost' => $this->blogService->showBlogPost($blogPost->id, ['media', 'categories', 'tags']),
+            'blog_post' => new BlogPostResource($blogPost),
         ];
 
         return successResponse($data, 'Blog post retrieved successfully');

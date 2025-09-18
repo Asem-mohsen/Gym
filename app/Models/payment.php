@@ -17,6 +17,7 @@ class Payment extends Model
         'completed_at' => 'datetime',
         'failed_at' => 'datetime',
         'amount' => 'decimal:2',
+        'meta' => 'array',
     ];
 
     public function user(): BelongsTo
@@ -39,6 +40,11 @@ class Payment extends Model
         return $this->morphTo();
     }
 
+    public function attempts()
+    {
+        return $this->hasMany(PaymentAttempt::class);
+    }
+    
     public function siteSetting(): BelongsTo
     {
         return $this->belongsTo(SiteSetting::class, 'site_setting_id');

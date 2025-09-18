@@ -138,8 +138,8 @@ class PaymobService
                 'currency' => 'EGP',
                 'integration_id' => (int)$this->integrationId,
                 'lock_order_when_paid' => false,
-                'success_url' => route('payments.paymob.callback'),
-                'failure_url' => route('payments.paymob.callback'),
+                'success_url' => url('/api/v1/paymob/response'),
+                'failure_url' => url('/api/v1/paymob/response'),
                 'items' => [
                     [
                         'name' => $membership->name,
@@ -359,8 +359,8 @@ class PaymobService
                 'currency' => 'EGP',
                 'integration_id' => (int)$this->integrationId,
                 'lock_order_when_paid' => false,
-                'success_url' => route('payments.paymob.callback'),
-                'failure_url' => route('payments.paymob.callback'),
+                'success_url' => url('/api/v1/paymob/response'),
+                'failure_url' => url('/api/v1/paymob/response'),
                 'items' => [
                     [
                         'name' => $bookable->name,

@@ -13,7 +13,7 @@ class StoreInvitationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return Auth::check();
+        return Auth::guard('sanctum')->check() || Auth::check();
     }
 
     /**
@@ -26,7 +26,7 @@ class StoreInvitationRequest extends FormRequest
         return [
             'invitee_email' => ['required', 'email', 'max:255'],
             'invitee_phone' => ['required', 'string', 'max:20'],
-            'invitee_name' => ['nullable', 'string', 'max:255'],
+            'invitee_name' => ['required', 'string', 'max:255'],
         ];
     }
 

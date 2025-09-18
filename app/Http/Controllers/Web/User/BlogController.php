@@ -123,7 +123,7 @@ class BlogController extends Controller
         ]);
 
         try {
-            $result = $this->shareService->processShare($blogPost->id, $request->platform, $request);
+            $result = $this->shareService->processShare($blogPost->id, $request->platform, $request, Auth::id());
 
             if ($result['success']) {
                 return redirect()->back()->with('success', $result['message']);

@@ -4,11 +4,13 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
+use App\Models\SiteSetting;
 use App\Services\BlogPostShareService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 
 class BlogPostShareController extends Controller
 {
@@ -20,35 +22,25 @@ class BlogPostShareController extends Controller
     /**
      * Share a blog post on social media
      */
-    public function share(Request $request, BlogPost $blogPost): JsonResponse
+    public function share(Request $request, SiteSetting $gym, BlogPost $blogPost): JsonResponse
     {
         try {
+            if (!Auth::guard('sanctum')->check()) {
+                return failureResponse('You must be logged in to share posts.', 401);
+            }
+
             $request->validate([
                 'platform' => 'required|in:facebook,twitter,email',
             ]);
 
             $platform = $request->platform;
-            $result = $this->shareService->processShare($blogPost->id, $platform, $request);
+            $userId = Auth::guard('sanctum')->id();
+            $result = $this->shareService->processShare($blogPost->id, $platform, $request, $userId);
 
             if ($result['success']) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $result['message'],
-                    'data' => [
-                        'platform' => $platform,
-                        'shares_count' => $result['shares_count'],
-                        'total_shares' => $result['total_shares']
-                    ]
-                ]);
+                return successResponse($result, 'Blog post shared successfully');
             } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => $result['message'],
-                    'data' => [
-                        'platform' => $platform,
-                        'shares_count' => $result['shares_count']
-                    ]
-                ], 400);
+                return failureResponse($result['message']);
             }
         } catch (Exception $e) {
             Log::error('Error sharing blog post', [
@@ -57,60 +49,26 @@ class BlogPostShareController extends Controller
                 'platform' => $request->platform ?? 'unknown'
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Error processing share. Please try again.',
-            ], 500);
-        }
-    }
-
-    /**
-     * Get share statistics for a blog post
-     */
-    public function getShareStatistics(BlogPost $blogPost): JsonResponse
-    {
-        try {
-            $statistics = $this->shareService->getShareStatistics($blogPost->id);
-
-            return response()->json([
-                'success' => true,
-                'data' => $statistics
-            ]);
-        } catch (Exception $e) {
-            Log::error('Error fetching share statistics', [
-                'message' => $e->getMessage(),
-                'blog_post_id' => $blogPost->id
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Error fetching share statistics. Please try again.',
-            ], 500);
+            return failureResponse('Error processing share. Please try again.');
         }
     }
 
     /**
      * Get sharing URLs for a blog post
      */
-    public function getSharingUrls(BlogPost $blogPost): JsonResponse
+    public function getSharingUrls(SiteSetting $gym, BlogPost $blogPost): JsonResponse
     {
         try {
             $urls = $this->shareService->generateSharingUrls($blogPost);
 
-            return response()->json([
-                'success' => true,
-                'data' => $urls
-            ]);
+            return successResponse($urls, 'Sharing URLs fetched successfully');
         } catch (Exception $e) {
             Log::error('Error generating sharing URLs', [
                 'message' => $e->getMessage(),
                 'blog_post_id' => $blogPost->id
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Error generating sharing URLs. Please try again.',
-            ], 500);
+            return failureResponse('Error generating sharing URLs. Please try again.');
         }
     }
 }

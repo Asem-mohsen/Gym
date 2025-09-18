@@ -22,9 +22,9 @@ class SiteSettingService
         /**
          * @var User $user
          */
-        $user = Auth::user();
+        $user = Auth::check() ? Auth::user() : Auth::guard('sanctum')->user();
         
-        return Auth::check() ? $user->gyms()->first()->id : null;
+        return $user ? $user->gyms()->first()->id : null;
     }
 
     public function createSiteSetting(array $siteSettingData, array $branchesData)

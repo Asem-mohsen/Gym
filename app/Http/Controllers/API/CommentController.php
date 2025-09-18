@@ -4,13 +4,11 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Comments\StoreCommentRequest;
-use App\Models\BlogPost;
-use App\Models\Comment;
+use App\Http\Resources\CommentResource;
+use App\Models\{BlogPost, Comment, SiteSetting};
 use App\Services\CommentService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\{JsonResponse, Request};
+use Illuminate\Support\Facades\{Auth, Log};
 use Exception;
 
 class CommentController extends Controller
@@ -23,63 +21,42 @@ class CommentController extends Controller
     /**
      * Store a new comment
      */
-    public function store(StoreCommentRequest $request): JsonResponse
+    public function store(StoreCommentRequest $request, SiteSetting $gym, BlogPost $blogPost): JsonResponse
     {
         try {
+            if (!Auth::guard('sanctum')->check()) {
+                return failureResponse('You must be logged in to post comments.');
+            }
+
             $validated = $request->validated();
-            $userId = Auth::id();
+            $userId = Auth::guard('sanctum')->id();
 
-            $comment = $this->commentService->createComment(
-                $validated,
-                $validated['blog_post_id'],
-                $userId
-            );
+            $comment = $this->commentService->createComment(['content' => $validated['content']],$blogPost->id,$userId);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Comment posted successfully',
-                'data' => [
-                    'comment' => $comment->load('user'),
-                    'is_authenticated' => !is_null($userId)
-                ]
-            ], 201);
+            return successResponse(new CommentResource($comment->load('user', 'likes')),'Comment posted successfully');
         } catch (Exception $e) {
-            Log::error('Error storing comment', [
-                'message' => $e->getMessage(),
-                'data' => $request->validated()
-            ]);
+            Log::error('Error storing comment', ['message' => $e->getMessage(),'data' => $request->validated()]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Error posting comment. Please try again.',
-            ], 500);
+            return failureResponse('Error posting comment. Please try again.');
         }
     }
 
     /**
      * Store a reply to a comment
      */
-    public function reply(StoreCommentRequest $request, Comment $comment): JsonResponse
+    public function reply(StoreCommentRequest $request,SiteSetting $gym, BlogPost $blogPost, Comment $comment): JsonResponse
     {
         try {
+            if (!Auth::guard('sanctum')->check()) {
+                return failureResponse('You must be logged in to post replies.');
+            }
+
             $validated = $request->validated();
-            $userId = Auth::id();
+            $userId = Auth::guard('sanctum')->id();
 
-            $reply = $this->commentService->createReply(
-                $validated,
-                $comment->id,
-                $validated['blog_post_id'],
-                $userId
-            );
+            $reply = $this->commentService->createReply(['content' => $validated['content']],$comment->id,$blogPost->id,$userId);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Reply posted successfully',
-                'data' => [
-                    'reply' => $reply->load('user'),
-                    'is_authenticated' => !is_null($userId)
-                ]
-            ], 201);
+            return successResponse(new CommentResource($reply->load('user', 'likes')),'Reply posted successfully');
         } catch (Exception $e) {
             Log::error('Error storing reply', [
                 'message' => $e->getMessage(),
@@ -87,83 +64,61 @@ class CommentController extends Controller
                 'data' => $request->validated()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Error posting reply. Please try again.',
-            ], 500);
+            return failureResponse('Error posting reply. Please try again.');
         }
     }
 
     /**
      * Toggle like on a comment
      */
-    public function toggleLike(Comment $comment): JsonResponse
+    public function toggleLike(SiteSetting $gym, BlogPost $blogPost, Comment $comment): JsonResponse
     {
         try {
-            if (!Auth::check()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'You must be logged in to like comments.',
-                ], 401);
+            if (!Auth::guard('sanctum')->check()) {
+                return failureResponse('You must be logged in to like comments.');
             }
 
-            $result = $this->commentService->toggleLike($comment, Auth::user());
+            $result = $this->commentService->toggleLike($comment, Auth::guard('sanctum')->user());
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Comment ' . $result['action'] . ' successfully',
-                'data' => $result
-            ]);
+            return successResponse($result,'Comment ' . $result['action'] . ' successfully');
         } catch (Exception $e) {
             Log::error('Error toggling comment like', [
                 'message' => $e->getMessage(),
                 'comment_id' => $comment->id
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Error processing like. Please try again.',
-            ], 500);
+            return failureResponse('Error processing like. Please try again.');
         }
     }
 
     /**
      * Get comments for a blog post
      */
-    public function getComments(BlogPost $blogPost, Request $request): JsonResponse
+    public function getComments(Request $request, SiteSetting $gym, BlogPost $blogPost): JsonResponse
     {
         try {
             $perPage = $request->get('per_page', 10);
             $comments = $this->commentService->getCommentsForBlogPost($blogPost->id, $perPage);
 
-            return response()->json([
-                'success' => true,
-                'data' => $comments
-            ]);
+            return successResponse(CommentResource::collection($comments),'Comments fetched successfully');
         } catch (Exception $e) {
             Log::error('Error fetching comments', [
                 'message' => $e->getMessage(),
                 'blog_post_id' => $blogPost->id
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Error fetching comments. Please try again.',
-            ], 500);
+            return failureResponse('Error fetching comments. Please try again.');
         }
     }
 
     /**
      * Update a comment
      */
-    public function update(Request $request, Comment $comment): JsonResponse
+    public function update(Request $request,SiteSetting $gym, BlogPost $blogPost, Comment $comment): JsonResponse
     {
         try {
-            if (!Auth::check() || Auth::id() !== $comment->user_id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized to edit this comment.',
-                ], 403);
+            if (!Auth::guard('sanctum')->check() || Auth::guard('sanctum')->id() !== $comment->user_id) {
+                return failureResponse('Unauthorized to edit this comment.');
             }
 
             $validated = $request->validate([
@@ -172,21 +127,14 @@ class CommentController extends Controller
 
             $updatedComment = $this->commentService->updateComment($comment, $validated);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Comment updated successfully',
-                'data' => $updatedComment->load('user')
-            ]);
+            return successResponse(new CommentResource($updatedComment->load('user', 'likes')),'Comment updated successfully');
         } catch (Exception $e) {
             Log::error('Error updating comment', [
                 'message' => $e->getMessage(),
                 'comment_id' => $comment->id
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Error updating comment. Please try again.',
-            ], 500);
+            return failureResponse('Error updating comment. Please try again.');
         }
     }
 
@@ -196,29 +144,20 @@ class CommentController extends Controller
     public function destroy(Comment $comment): JsonResponse
     {
         try {
-            if (!Auth::check() || Auth::id() !== $comment->user_id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized to delete this comment.',
-                ], 403);
+            if (!Auth::guard('sanctum')->check() || Auth::guard('sanctum')->id() !== $comment->user_id) {
+                return failureResponse('Unauthorized to delete this comment.');
             }
 
             $this->commentService->deleteComment($comment);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Comment deleted successfully'
-            ]);
+            return successResponse('Comment deleted successfully');
         } catch (Exception $e) {
             Log::error('Error deleting comment', [
                 'message' => $e->getMessage(),
                 'comment_id' => $comment->id
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Error deleting comment. Please try again.',
-            ], 500);
+            return failureResponse('Error deleting comment. Please try again.');
         }
     }
 }

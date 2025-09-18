@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\SiteSetting;
-use App\Services\{ClassService, GalleryService, MembershipService, SiteSettingService, UserService, GymBrandingService, BranchService};
+use App\Services\{ClassService, GalleryService, MembershipService, SiteSettingService, UserService, GymBrandingService, BranchService, ServiceService};
 use App\Http\Controllers\Controller;
-use App\Http\Resources\{MembershipResource, GalleryResource, ClassResource, TrainerResource, BranchResource};
+use App\Http\Resources\{MembershipResource, GalleryResource, ClassResource, TrainerResource, BranchResource, ServiceResource};
 
 class HomeController extends Controller
 {
@@ -16,7 +16,9 @@ class HomeController extends Controller
         protected ClassService $classService,
         protected UserService $userService,
         protected GymBrandingService $gymBrandingService,
-        protected BranchService $branchService
+        protected BranchService $branchService,
+        protected ServiceService $serviceService
+
     )
     {
         $this->membershipService = $membershipService;
@@ -25,6 +27,7 @@ class HomeController extends Controller
         $this->userService = $userService;
         $this->gymBrandingService = $gymBrandingService;
         $this->branchService = $branchService;
+        $this->serviceService = $serviceService;
     }
 
     public function index(SiteSetting $gym)
@@ -34,13 +37,15 @@ class HomeController extends Controller
         $classes = $this->classService->getClasses(siteSettingId: $gym->id);
         $trainers = $this->userService->getTrainers(siteSettingId: $gym->id);
         $branches = $this->branchService->getBranchesForPublic($gym->id);
+        $services = $this->serviceService->getAvailableServices(siteSettingId: $gym->id);
         
         $data = [
             'memberships' => MembershipResource::collection($memberships),
             'trainers'    => TrainerResource::collection($trainers),
             'galleries'   => GalleryResource::collection($galleries),
             'classes'     => ClassResource::collection($classes),
-            'branches'    => BranchResource::collection($branches)
+            'branches'    => BranchResource::collection($branches),
+            'services'    => ServiceResource::collection($services)
         ];
 
         return successResponse($data, 'Home data retrieved');

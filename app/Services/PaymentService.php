@@ -1,51 +1,76 @@
 <?php 
 namespace App\Services;
 
+use App\Domain\Billing\DTOs\PaymentRequest;
+use App\Domain\Billing\Gateways\Paymob\PaymobGateway;
+use App\Enums\PaymentMethod;
 use Exception;
 use App\Models\Booking;
+use App\Models\Payment;
+use App\Models\User;
 use App\Repositories\PaymentRepository;
 use App\Services\{SiteSettingService, EmailService};
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class PaymentService
 {
-    protected int $siteSettingId;
-
     public function __construct(
         protected PaymentRepository $paymentRepository,
         protected SiteSettingService $siteSettingService,
-        protected EmailService $emailService
+        protected EmailService $emailService,
+        private PaymobGateway $gateway
     )
-    {
-        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-    }
+    {}
 
     public function getPayments()
     {
-        return $this->paymentRepository->getPayments($this->siteSettingId);
+        return $this->paymentRepository->getPayments($this->siteSettingService->getCurrentSiteSettingId());
     }
 
-    public function createPayment($paymentable, array $data)
+    public function createCashPayment(Booking $booking, $user, string $method): Payment
     {
-        $payment = $this->paymentRepository->createPayment($paymentable, $data);
-        
-        if ($payment->status === 'completed') {
-            $this->sendConfirmationEmail($payment);
-        }
-        
+        $payment = Payment::create([
+            'paymentable_type' => $booking->bookable_type,
+            'paymentable_id' => $booking->bookable_id,
+            'site_setting_id' => $user->getCurrentSite()->id,
+            'user_id'    => $user->id,
+            'gateway'    => null,
+            'payment_method' => $method,
+            'status'     => 'cash_pending',
+            'currency'   => 'EGP',
+            'amount'     => $booking->amount,
+            'meta'       => [
+                'method' => $method,
+            ],
+        ]);
+
+        $this->sendConfirmationEmail($payment);
+
         return $payment;
     }
 
-    public function updatePayment($payment, $paymentable, array $data)
+    public function createGatewayPayment(Booking $booking, string $method, User $user)
     {
-        $updatedPayment = $this->paymentRepository->updatePayment($payment, $paymentable, $data);
-        
-        // Send confirmation email if payment status changed to completed
-        if (isset($data['status']) && $data['status'] === 'completed' && $payment->status !== 'completed') {
-            $this->sendConfirmationEmail($updatedPayment);
-        }
-        
-        return $updatedPayment;
+        $paymentRequest = new PaymentRequest(
+            item: $booking,
+            method: PaymentMethod::from($method),
+            merchantOrderId: Str::ulid(),
+            returnUrl: route('paymob.return'),
+            billingData: [
+                'email'       => $booking->getCustomerEmail(),
+                'phone_number'=> $booking->getCustomerPhone(),
+                'first_name'  => $booking->user->first_name ?? 'Guest',
+                'last_name'   => $booking->user->last_name ?? 'User',
+                'street'      => $booking->user->address ?? 'NA',
+                'city'        => $booking->user->city,
+                'country'     => $booking->user->country,
+                'site_setting_id' => $user->getCurrentSite()->id
+            ],
+            user: $booking->user
+        );
+
+        return $this->gateway->createIntent($paymentRequest);
     }
 
     /**

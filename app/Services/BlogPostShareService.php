@@ -23,10 +23,9 @@ class BlogPostShareService
     /**
      * Record a social media share
      */
-    public function recordShare(int $blogPostId, string $platform, Request $request): BlogPostShare
+    public function recordShare(int $blogPostId, string $platform, Request $request, int $userId): BlogPostShare
     {
         try {
-            $userId = Auth::id();
             
             $shareData = [
                 'blog_post_id' => $blogPostId,
@@ -107,12 +106,9 @@ class BlogPostShareService
     /**
      * Process social media share
      */
-    public function processShare(int $blogPostId, string $platform, Request $request): array
+    public function processShare(int $blogPostId, string $platform, Request $request, int $userId): array
     {
         try {
-            $userId = Auth::id();
-            
-            // Check if user has already shared on this platform
             if ($userId && $this->hasUserSharedOnPlatform($blogPostId, $userId, $platform)) {
                 return [
                     'success' => false,
@@ -121,10 +117,8 @@ class BlogPostShareService
                 ];
             }
 
-            // Record the share
-            $share = $this->recordShare($blogPostId, $platform, $request);
+            $share = $this->recordShare($blogPostId, $platform, $request, $userId);
 
-            // Get updated statistics
             $statistics = $this->getShareStatistics($blogPostId);
 
             Log::info('Social media share processed successfully', [

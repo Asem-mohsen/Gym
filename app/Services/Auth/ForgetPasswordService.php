@@ -13,13 +13,17 @@ class ForgetPasswordService
         protected UserService $userService
     ) {}
 
-    public function sendResetToken(string $email): bool
+    public function sendResetToken(string $email, string $type = 'token'): bool
     {
-        $user = User::where('email', $email)->first();
+        $user = $this->userService->findUserBy('email', $email);
 
         if (!$user) return false;
 
-        $token = Str::random(64);
+        if ($type === 'token') {
+            $token = Str::random(64);
+        } else {
+            $token = str_pad(random_int(0, 99999), 5, '0', STR_PAD_LEFT);
+        }
 
         DB::table('password_reset_tokens')->updateOrInsert(
             ['email' => $email],
@@ -35,7 +39,8 @@ class ForgetPasswordService
         return true;
     }
 
-    public function verifyToken(string $token, string $email)
+
+    public function verifyTokenOrCode(string $tokenOrCode, string $email, string $type = 'token')
     {
         $record = DB::table('password_reset_tokens')->where('email', $email)->first();
 
@@ -44,23 +49,25 @@ class ForgetPasswordService
         $isExpired = Carbon::parse($record->created_at)->addMinutes(config('auth.passwords.users.expire', 60))->isPast();
 
         if ($isExpired) {
-            $this->sendResetToken($email);
+            $this->sendResetToken($email, $type);
             return 'expired';
         }
 
-        return Hash::check($token, $record->token);
+        return Hash::check($tokenOrCode, $record->token);
     }
 
-    public function resetPassword(string $email, string $token, string $newPassword): string
+    public function resetPassword(string $email, ?string $token = null, string $newPassword): string
     {
-        $valid = $this->verifyToken($token, $email);
+        if ($token) {
+            $valid = $this->verifyTokenOrCode($token, $email);
 
-        if ($valid === 'expired') {
-            return 'expired';
-        }
-
-        if (!$valid) {
-            return 'invalid';
+            if ($valid === 'expired') {
+                return 'expired';
+            }
+    
+            if (!$valid) {
+                return 'invalid';
+            }
         }
 
         $user = User::where('email', $email)->first();
@@ -72,4 +79,5 @@ class ForgetPasswordService
 
         return 'success';
     }
+
 }

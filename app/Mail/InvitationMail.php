@@ -26,7 +26,7 @@ class InvitationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'You\'re Invited to Join ' . $this->invitation->gym->name,
+            subject: 'You\'re Invited to Join ' . $this->invitation->gym->gym_name,
         );
     }
 

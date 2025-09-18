@@ -166,8 +166,11 @@
                                 </div>
                             @endif
 
-                            <form id="bookingForm" action="{{ route('user.services.book', ['siteSetting' => $siteSetting->slug, 'service' => $service->id]) }}" method="POST">
+                            <form id="bookingForm" action="{{ route('user.checkout.create', ['siteSetting' => $siteSetting->slug]) }}" method="POST">
                                 @csrf
+                                
+                                <input type="hidden" name="bookable_type" value="service">
+                                <input type="hidden" name="bookable_id" value="{{ $service->id }}">
                                 
                                 <!-- Branch Selection -->
                                 @if($service->branches->count() > 1)
@@ -198,13 +201,13 @@
                                         <label class="form-label">Payment Method *</label>
                                         <div class="payment-options">
                                             <div class="payment-option">
-                                                <input class="payment-radio" type="radio" name="payment_method" id="payment_cash" value="cash" required>
+                                                <input class="payment-radio" type="radio" name="method" id="payment_cash" value="cash" required>
                                                 <label class="payment-label" for="payment_cash">
                                                     <i class="fa fa-money"></i> Cash Payment
                                                 </label>
                                             </div>
                                             <div class="payment-option">
-                                                <input class="payment-radio" type="radio" name="payment_method" id="payment_card" value="card" required>
+                                                <input class="payment-radio" type="radio" name="method" id="payment_card" value="card" required>
                                                 <label class="payment-label" for="payment_card">
                                                     <i class="fa fa-credit-card"></i> Card Payment
                                                 </label>

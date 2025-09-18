@@ -24,14 +24,24 @@ class ClassSchedule extends Model
         'end_time'   => 'datetime',
     ];
 
+    public function getFormattedStartTimeAttribute()
+    {
+        return $this->attributes['start_time'] ? Carbon::parse($this->attributes['start_time'])->format('h:i A') : null;
+    }
+
+    public function getFormattedEndTimeAttribute()
+    {
+        return $this->attributes['end_time'] ? Carbon::parse($this->attributes['end_time'])->format('h:i A') : null;
+    }
+
     public function getStartTimeAttribute($value)
     {
-        return $value ? Carbon::parse($value)->format('h:i A') : null;
+        return $value ? Carbon::parse($value)->format('H:i') : null;
     }
 
     public function getEndTimeAttribute($value)
     {
-        return $value ? Carbon::parse($value)->format('h:i A') : null;
+        return $value ? Carbon::parse($value)->format('H:i') : null;
     }
 
     public function getDurationAttribute()

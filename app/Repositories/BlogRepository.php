@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\DB;
 class BlogRepository
 {
     /**
-     * Get all branches with their phones.
+     * Get all blog posts with optional filtering.
      */
-    public function getBlogPosts(int $siteSettingId, $isPublished = true, ?int $perPage = null, ?int $take = null, $orderBy = 'created_at', $orderByDirection = 'desc')
+    public function getBlogPosts(int $siteSettingId, $isPublished = true, ?int $perPage = null, ?int $take = null, $orderBy = 'created_at', $orderByDirection = 'desc', array $filters = [])
     {
         $query = BlogPost::with(['user.gyms', 'categories', 'tags'])
             ->whereHas('user.gyms', function ($query) use ($siteSettingId) {
@@ -25,6 +25,23 @@ class BlogRepository
             })
             ->when($orderBy, function ($query) use ($orderBy, $orderByDirection) {
                 $query->orderBy($orderBy, $orderByDirection);
+            })
+            ->when(!empty($filters['category']), function ($query) use ($filters) {
+                $query->whereHas('categories', function ($q) use ($filters) {
+                    $q->where('slug', $filters['category']);
+                });
+            })
+            ->when(!empty($filters['tag']), function ($query) use ($filters) {
+                $query->whereHas('tags', function ($q) use ($filters) {
+                    $q->where('slug', $filters['tag']);
+                });
+            })
+            ->when(!empty($filters['search']), function ($query) use ($filters) {
+                $query->where(function ($q) use ($filters) {
+                    $q->where('title', 'like', '%' . $filters['search'] . '%')
+                      ->orWhere('content', 'like', '%' . $filters['search'] . '%')
+                      ->orWhere('excerpt', 'like', '%' . $filters['search'] . '%');
+                });
             });
             
         return $perPage 

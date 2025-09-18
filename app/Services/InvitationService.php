@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\{Invitation, User, SiteSetting, Subscription};
 use App\Repositories\InvitationRepository;
 use App\Mail\InvitationMail;
-use Illuminate\Support\Facades\{DB, Mail};
+use Illuminate\Support\Facades\{DB, Log, Mail};
 use Exception;
 use Illuminate\Support\Str;
 
@@ -25,7 +25,6 @@ class InvitationService
      */
     public function sendInvitation(array $data, User $inviter, SiteSetting $gym): Invitation
     {
-        // Check if user has active subscription with invitation feature
         $subscription = $this->getUserActiveSubscription($inviter, $gym);
         
         if (!$subscription) {
@@ -57,16 +56,15 @@ class InvitationService
 
             $invitation = $this->invitationRepository->createInvitation($invitationData);
 
-            // Increment invitations used count
             $subscription->increment('invitations_used');
 
-            // Send invitation email
             $this->sendInvitationEmail($invitation);
 
             DB::commit();
             
             return $invitation;
         } catch (Exception $e) {
+            Log::error('Error sending invitation: ' . $e->getMessage());
             DB::rollBack();
             throw $e;
         }
@@ -105,7 +103,7 @@ class InvitationService
     /**
      * Get user's invitations with statistics
      */
-    public function getUserInvitations(User $user, SiteSetting $gym): array
+    public function getUserInvitationsWithStatistics(User $user, SiteSetting $gym): array
     {
         $invitations = $this->invitationRepository->getUserInvitations($user->id, $gym->id, ['membership']);
         $activeInvitations = $this->invitationRepository->getUserActiveInvitations($user->id, $gym->id);
@@ -125,6 +123,12 @@ class InvitationService
         ];
     }
 
+    public function getUserInvitations(User $user, SiteSetting $gym)
+    {
+        $invitations = $this->invitationRepository->getUserInvitations($user->id, $gym->id, ['membership']);
+
+        return $invitations;
+    }
     /**
      * Get user's active subscription for the gym
      */
@@ -192,7 +196,7 @@ class InvitationService
                 'used_by_id' => null,
             ]);
 
-            $this->sendInvitationEmail($invitation);
+            // $this->sendInvitationEmail($invitation);
 
             DB::commit();
             
@@ -201,5 +205,13 @@ class InvitationService
             DB::rollBack();
             throw $e;
         }
+    }
+
+    /**
+     * Delete an invitation
+    */
+    public function deleteInvitation(Invitation $invitation): void
+    {
+        $this->invitationRepository->deleteInvitation($invitation);
     }
 }

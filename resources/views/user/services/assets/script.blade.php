@@ -1,15 +1,15 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const bookingForm = document.getElementById('bookingForm');
-        const paymentMethodRadios = document.querySelectorAll('input[name="payment_method"]');
+        const paymentMethodRadios = document.querySelectorAll('input[name="method"]');
         
         if (bookingForm) {
             bookingForm.addEventListener('submit', function(e) {
-                const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked');
+                const selectedPaymentMethod = document.querySelector('input[name="method"]:checked');
                 
                 if (document.querySelector('.payment-options') && !selectedPaymentMethod) {
                     e.preventDefault();
-                    alert('Please select a payment method.');
+                    toastr.error('Please select a payment method.');
                     return;
                 }
             });

@@ -12,20 +12,42 @@ class LocationService
     /**
      * Get user's location from request or IP
      */
-    public function getUserLocation(Request $request): ?array
+    public function getUserLocation($validatedData): ?array
     {
-        if ($request->has('latitude') && $request->has('longitude')) {
+        // Priority 1: GPS coordinates from request (most accurate)
+        if (isset($validatedData['latitude']) && isset($validatedData['longitude']) && 
+            $validatedData['latitude'] && $validatedData['longitude']) {
             return [
-                'latitude' => (float) $request->latitude,
-                'longitude' => (float) $request->longitude,
-                'city' => $request->get('city'),
-                'region' => $request->get('region')
+                'latitude' => (float) $validatedData['latitude'],
+                'longitude' => (float) $validatedData['longitude'],
+                'city' => $validatedData['city'] ?? null,
+                'region' => $validatedData['region'] ?? null,
+                'country' => $validatedData['country'] ?? null,
+                'source' => 'gps'
             ];
         }
 
-        $ip = $request->ip();
-        if ($ip && $ip !== '127.0.0.1') {
-            return $this->getLocationFromIP($ip);
+        // Priority 2: Manual city/region input
+        if ((isset($validatedData['city']) && $validatedData['city']) || 
+            (isset($validatedData['region']) && $validatedData['region'])) {
+            return [
+                'latitude' => null,
+                'longitude' => null,
+                'city' => $validatedData['city'] ?? null,
+                'region' => $validatedData['region'] ?? null,
+                'country' => $validatedData['country'] ?? null,
+                'source' => 'manual'
+            ];
+        }
+
+        // Priority 3: IP-based geolocation (fallback)
+        $ip = $validatedData['ip'] ?? null;
+        if ($ip && $ip !== '127.0.0.1' && $ip !== '::1') {
+            $location = $this->getLocationFromIP($ip);
+            if ($location) {
+                $location['source'] = 'ip';
+                return $location;
+            }
         }
 
         return null;
@@ -51,7 +73,6 @@ class LocationService
                 ];
             }
         } catch (Exception $e) {
-            // Log error but don't fail
             Log::warning('Failed to get location from IP: ' . $e->getMessage());
         }
 
@@ -95,6 +116,32 @@ class LocationService
             }
             
             return -($averageScore + $distanceScore);
+        });
+    }
+
+    /**
+     * Sort gyms by distance only (closest first)
+     */
+    public function sortGymsByDistance(Collection $gyms, ?array $userLocation = null): Collection
+    {
+        if (!$userLocation || !isset($userLocation['latitude']) || !isset($userLocation['longitude'])) {
+            // If no location, return unsorted
+            return $gyms;
+        }
+
+        return $gyms->sortBy(function ($gym) use ($userLocation) {
+            $minDistance = $this->getMinimumDistanceToGym($gym, $userLocation);
+            return $minDistance ?? 999999; // Put gyms without coordinates at the end
+        });
+    }
+
+    /**
+     * Sort gyms by score only (highest score first)
+     */
+    public function sortGymsByScoreOnly(Collection $gyms): Collection
+    {
+        return $gyms->sortByDesc(function ($gym) {
+            return $gym->branches->avg('score_value') ?? 0;
         });
     }
     

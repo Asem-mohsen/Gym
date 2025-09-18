@@ -3,12 +3,9 @@
 namespace App\Services;
 
 use App\Models\Comment;
-use App\Models\BlogPost;
 use App\Models\User;
 use App\Repositories\CommentRepository;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
@@ -32,7 +29,7 @@ class CommentService
     /**
      * Create a new comment
      */
-    public function createComment(array $data, int $blogPostId, ?int $userId = null): Comment
+    public function createComment(array $data, int $blogPostId, int $userId): Comment
     {
         try {
             $commentData = [
@@ -44,12 +41,6 @@ class CommentService
             ];
 
             $comment = $this->commentRepository->createComment($commentData);
-
-            Log::info('Comment created successfully', [
-                'comment_id' => $comment->id,
-                'blog_post_id' => $blogPostId,
-                'user_id' => $userId
-            ]);
 
             return $comment;
         } catch (Exception $e) {

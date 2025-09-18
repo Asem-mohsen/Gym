@@ -5,7 +5,7 @@ use Exception;
 use App\Repositories\{UserRepository, RoleRepository};
 use App\Mail\UserOnboardingMail;
 use App\Models\SiteSetting;
-use Illuminate\Support\Facades\{Hash, Log, Mail};
+use Illuminate\Support\Facades\{DB, Hash, Log, Mail};
 use App\Services\Auth\PasswordGenerationService;
 use App\Services\{EmailService, SiteSettingService};
 use App\Models\User;
@@ -160,6 +160,11 @@ class UserService
         return $updatedUser;
     }
 
+    public function findUserBy(string $column, string $value): ?User
+    {
+        return $this->userRepository->findBy($column, $value);
+    }
+
     public function deleteUser($user, SiteSetting $siteSetting)
     {
         if ($siteSetting) {
@@ -168,6 +173,11 @@ class UserService
         
         $this->userRepository->deleteUser($user);
         
+        DB::table('personal_access_tokens')
+                ->where('tokenable_id', $user->id)
+                ->where('tokenable_type', User::class)
+                ->delete();
+
         return $siteSetting;
     }
 

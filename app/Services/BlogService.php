@@ -19,7 +19,7 @@ class BlogService
         $this->blogRepository = $blogRepository;
     }
 
-    public function getBlogPosts(int $siteSettingId, $isPublished = true, $perPage = null, $take = null, $orderBy = 'created_at', $orderByDirection = 'desc')
+    public function getBlogPosts(int $siteSettingId, $isPublished = true, $perPage = null, $take = null, $orderBy = 'created_at', $orderByDirection = 'desc', array $filters = [])
     {
         return $this->blogRepository->getBlogPosts(
             $siteSettingId,
@@ -27,7 +27,8 @@ class BlogService
             $perPage !== null ? (int) $perPage : null,
             $take !== null ? (int) $take : null,
             $orderBy,
-            $orderByDirection
+            $orderByDirection,
+            $filters
         );
     }
 

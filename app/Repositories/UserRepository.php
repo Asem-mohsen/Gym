@@ -157,6 +157,11 @@ class UserRepository
     {
         return User::with($with)->find($id);
     }
+    
+    public function findBy(string $column, string $value): ?User
+    {
+        return User::where($column, $value)->first();
+    }
 
     /**
      * Get users by role name
