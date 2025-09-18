@@ -44,7 +44,28 @@ class MembershipRepository
 
     public function findById(int $id, array $with = []): ?Membership
     {
-        $membership = Membership::with($with)->find($id);
+        $query = Membership::query();
+    
+        $query->when(in_array('features', $with), function ($q) {
+            $q->with('features');
+        });
+    
+        $query->when(in_array('offers', $with), function ($q) {
+            $q->with(['offers' => function ($q) {
+                $q->where('status', 1)
+                  ->where(function ($sub) {
+                      $sub->whereNull('end_date')
+                          ->orWhere('end_date', '>=', now());
+                  });
+            }]);
+        });
+    
+        $extraRelations = array_diff($with, ['features', 'offers']);
+        if (!empty($extraRelations)) {
+            $query->with($extraRelations);
+        }
+    
+        $membership = $query->find($id);
     
         if ($membership) {
             $membership->price = $this->calculateDiscountedPrice($membership);
@@ -68,6 +89,9 @@ class MembershipRepository
         $offerable = Offerable::where('offerable_type', Membership::class)
             ->where('offerable_id', $membership->id)
             ->with('offer')
+            ->whereHas('offer', function ($query) {
+                $query->where('status', 1)->whereDate('start_date', '<=', now()->toDateString())->whereDate('end_date', '>=', now()->toDateString());
+            })
             ->first();
 
         if (!$offerable || !$offerable->offer) {

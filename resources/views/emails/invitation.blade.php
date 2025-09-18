@@ -38,7 +38,6 @@
             <li>Visit {{ $gym->name }} during business hours</li>
             <li>Show this QR code to the staff at the front desk</li>
             <li>The staff will scan the QR code to verify your invitation</li>
-            <li>Complete the registration process to activate your membership</li>
         </ol>
     </div>
 

@@ -120,4 +120,9 @@ class InvitationRepository
     {
         $invitation->markAsUsed($user);
     }
+
+    public function deleteInvitation(Invitation $invitation): void
+    {
+        $invitation->delete();
+    }
 }

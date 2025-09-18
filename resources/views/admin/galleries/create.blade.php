@@ -31,8 +31,8 @@
                         <label for="is_active" class="required form-label">Status</label>
                         @php
                             $options = [
-                                ['value' => 'active',  'label' => 'Active'],
-                                ['value' => 'inactive', 'label' => 'Inactive'],
+                                ['value' => '1',  'label' => 'Active'],
+                                ['value' => '0', 'label' => 'Inactive'],
                             ];
                         @endphp
                         @include('_partials.select',[
@@ -41,16 +41,37 @@
                             'id' => 'is_active',
                         ])
                     </div>
+                    <div class="mb-10 col-md-6">
+                        <label for="pages" class="required form-label">Display Pages</label>
+                        @php
+                            $options = [
+                                ['value' => 'home', 'label' => 'Home Page'],
+                                ['value' => 'about', 'label' => 'About Page'],
+                                ['value' => 'services', 'label' => 'Services Page'],
+                                ['value' => 'classes', 'label' => 'Classes Page'],
+                                ['value' => 'gallery', 'label' => 'Gallery Page'],
+                                ['value' => 'contact', 'label' => 'Contact Page'],
+                                ['value' => 'branch', 'label' => 'Branch Page'],
+                            ];
+                        @endphp
+                        @include('_partials.select-multiple',[
+                            'options' => $options,
+                            'name' => 'pages',
+                            'id' => 'pages',
+                            'values' => old('pages', []),
+                        ])
+                        <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple pages</small>
+                    </div>
 
-                    <div class="mb-10 col-md-12">
+                    <div class="mb-10 col-md-6">
                         <div class="form-group">
-                            <label for="gallery_images" class="form-control-label">Upload Images *</label>
+                            <label for="gallery_images" class="form-control-label required">Upload Images</label>
                             <input class="form-control form-control-solid" type="file" name="gallery_images[]" multiple accept="image/*" required>
                         </div>
                     </div>
 
                     <div class="card-footer">
-                        @can('create_galleries')
+                        @can('create_gallery')
                             <button type="submit" class="btn btn-success">Save</button>
                         @endcan
                         <a href="{{ route('galleries.index') }}" class="btn btn-dark">Cancel</a>
@@ -63,40 +84,5 @@
 @endsection
 
 @section('js')
-<script>
-    document.querySelector('input[name="gallery_images[]"]').addEventListener('change', function(e) {
-        const files = e.target.files;
-        const previewContainer = document.createElement('div');
-        previewContainer.className = 'row mt-3';
-        
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const col = document.createElement('div');
-                    col.className = 'col-md-3 mb-3';
-                    col.innerHTML = `
-                        <div class="card">
-                            <img src="${e.target.result}" class="card-img-top" style="height: 150px; object-fit: cover;">
-                            <div class="card-body p-2">
-                                <small class="text-muted">${file.name}</small>
-                            </div>
-                        </div>
-                    `;
-                    previewContainer.appendChild(col);
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-        
-        const existingPreview = document.querySelector('.image-preview');
-        if (existingPreview) {
-            existingPreview.remove();
-        }
-        
-        previewContainer.className += ' image-preview';
-        document.querySelector('.form-group').appendChild(previewContainer);
-    });
-</script>
+    @include('admin.galleries.assets.scripts')
 @stop

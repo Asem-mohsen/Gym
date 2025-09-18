@@ -35,8 +35,9 @@ class PasswordResetMail extends Mailable
         return new Content(
             view: 'emails.reset-password',
             with: [
-                'resetUrl' => url('/auth/forget-password/reset?token=' . $this->token . '&email=' . $this->user->email),
+                'token' => $this->token,
                 'user' => $this->user,
+                'resetUrl' => url('/auth/forget-password/reset?token=' . $this->token . '&email=' . $this->user->email),
             ],
         );
     }

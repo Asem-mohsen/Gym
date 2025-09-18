@@ -155,6 +155,16 @@ class User extends Authenticatable implements HasMedia, FilamentUser
         return $site;
     }
 
+    public function getFirstNameAttribute(): string
+    {
+        return $this->name ? explode(' ', $this->name)[0] : '';
+    }
+
+    public function getLastNameAttribute(): string
+    {
+        return $this->name ? explode(' ', $this->name)[1] : '';
+    }
+
     /**
      * Check if user is a gym owner
      */

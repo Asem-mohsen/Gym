@@ -6,6 +6,7 @@ if (!function_exists('successResponse')) {
     function successResponse($data = [], $message = '', $code = 200): JsonResponse
     {
         return response()->json([
+            'status' => true,
             'message' => $message,
             'data' => $data
         ], $code);
@@ -16,6 +17,7 @@ if (!function_exists('failureResponse')) {
     function failureResponse($message = '', $code = 403): JsonResponse
     {
         return response()->json([
+            'status' => false,
             'message' => $message
         ], $code);
     }

@@ -33,6 +33,14 @@ class GalleryService
     }
 
     /**
+     * Get galleries for a specific page
+     */
+    public function getGalleriesForPage(int $siteSettingId, string $page, int $limit = 10): Collection
+    {
+        return $this->galleryRepository->getGalleriesForPage($siteSettingId, $page, $limit);
+    }
+
+    /**
      * Get a specific gallery by ID
      */
     public function getGalleryById(int $id, array $with = []): ?Gallery
@@ -95,28 +103,5 @@ class GalleryService
     public function removeMediaFromGallery(Gallery $gallery, int $mediaId): bool
     {
         return $this->galleryRepository->removeMediaFromGallery($gallery, $mediaId);
-    }
-    
-    /**
-     * Get gallery statistics
-     */
-    public function getGalleryStats(Model $model): array
-    {
-        $galleries = $this->galleryRepository->getGalleriesForModel($model);
-        
-        $totalImages = 0;
-        $totalSize = 0;
-        
-        foreach ($galleries as $gallery) {
-            $media = $gallery->getMedia('gallery_images');
-            $totalImages += $media->count();
-            $totalSize += $media->sum('size');
-        }
-
-        return [
-            'total_galleries' => $galleries->count(),
-            'total_images' => $totalImages,
-            'total_size_mb' => round($totalSize / (1024 * 1024), 2),
-        ];
     }
 } 

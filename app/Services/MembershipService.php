@@ -29,7 +29,7 @@ class MembershipService
 
     public function showMembership($membership)
     {
-        return $this->membershipRepository->findById($membership->id , ['features', 'offers']);
+        return $this->membershipRepository->findById($membership->id , ['features','offers']);
     }
 
     public function deleteMembership($membership)

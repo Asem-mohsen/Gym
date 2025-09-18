@@ -15,13 +15,16 @@ class ResetPasswordRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'email' => 'required|email|exists:users,email',
-            'token' => 'required|string',
             'password' => [
                 'required', 'confirmed',
                 Password::min(8)->mixedCase()->letters()->numbers()->symbols()->uncompromised()
             ]
         ];
+
+        if (!$this->is('api/*') && !$this->expectsJson()) $rules['token'] = 'required|string';
+        
+        return $rules;
     }
 }

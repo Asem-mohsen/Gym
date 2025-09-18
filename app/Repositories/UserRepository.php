@@ -28,7 +28,8 @@ class UserRepository
             })
             ->whereHas('roles', function ($query) {
                 $query->where('roles.name', 'trainer');
-            });
+            })
+            ->with('trainerInformation');
 
         if ($branchId) {
             $query->whereHas('assignedBranches', function ($query) use ($branchId) {
@@ -155,6 +156,11 @@ class UserRepository
     public function findById(int $id, array $with = []): ?User
     {
         return User::with($with)->find($id);
+    }
+    
+    public function findBy(string $column, string $value): ?User
+    {
+        return User::where($column, $value)->first();
     }
 
     /**

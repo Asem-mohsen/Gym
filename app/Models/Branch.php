@@ -102,6 +102,11 @@ class Branch extends Model implements HasMedia
         return $this->belongsToMany(ClassModel::class, 'class_branch', 'branch_id', 'class_id');
     }
 
+    public function openingHours(): HasMany
+    {
+        return $this->hasMany(BranchOpeningHour::class);
+    }
+
     public function getScoreValueAttribute(): int
     {
         return $this->score()->first()?->score ?? 0;
@@ -115,6 +120,16 @@ class Branch extends Model implements HasMedia
         if ($score >= 70) return 'good';
         if ($score >= 60) return 'average';
         return 'poor';
+    }
+
+    /**
+     * Register media collections for the branch
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('branch_images')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+            ->useDisk('public');
     }
 
 }

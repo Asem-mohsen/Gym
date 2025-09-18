@@ -165,9 +165,12 @@
                         <!-- Booking Section -->
                         <div class="cd-single-item booking-form-container">
                             <h3>Book This Class</h3>
-                            <form action="{{ route('user.classes.book', ['siteSetting' => $siteSetting->slug, 'class' => $class->id]) }}" method="POST" class="booking-form">
+                            <form action="{{ route('user.checkout.create', ['siteSetting' => $siteSetting->slug]) }}" method="POST" class="booking-form">
                                 @csrf
                                 <div class="row">
+                                    <input type="hidden" name="bookable_type" value="class">
+                                    <input type="hidden" name="bookable_id" value="{{ $class->id }}">
+                                    <input type="hidden" name="method" value="card">
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <label for="branch_id">Select Branch *</label>
@@ -192,6 +195,23 @@
                                             </select>
                                         </div>
                                     </div>
+                                    @if($class->pricings->count() > 1)
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="pricing_id">Select your preferred duration *</label>
+                                                <select name="pricing_id" id="pricing_id" class="form-control" required>
+                                                    <option value="">Choose a duration</option>
+                                                    @foreach($class->pricings as $pricing)
+                                                        <option value="{{ $pricing->id }}">
+                                                            {{ ucfirst($pricing->duration) }} - EGP{{ number_format($pricing->price) }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <input type="hidden" name="pricing_id" value="{{ $class->pricings->first()->id }}">
+                                    @endif
                                 </div>
                                 
                                 @auth

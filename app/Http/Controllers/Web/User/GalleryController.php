@@ -19,9 +19,8 @@ class GalleryController extends Controller
     public function index(SiteSetting $siteSetting)
     {
         $galleries = $this->galleryService->getGalleriesForModel($siteSetting);
-        $stats = $this->galleryService->getGalleryStats($siteSetting);
 
-        return view('user.gallery', compact('galleries', 'stats', 'siteSetting'));
+        return view('user.gallery', compact('galleries', 'siteSetting'));
     }
 
     /**

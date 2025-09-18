@@ -41,6 +41,55 @@ class UpdateBranchRequest extends FormRequest
             'map_url'     => ['nullable', 'url'],
             'is_visible'  => ['nullable', 'boolean'],
             'phones'       =>['required', 'array' , 'min:1'],
+            'opening_hours' => ['nullable', 'array'],
+            'opening_hours.*.days' => ['required_with:opening_hours', 'array', 'min:1'],
+            'opening_hours.*.days.*' => ['in:monday,tuesday,wednesday,thursday,friday,saturday,sunday'],
+            'opening_hours.*.opening_time' => ['nullable', 'date_format:H:i', 'required_without:opening_hours.*.is_closed'],
+            'opening_hours.*.closing_time' => ['nullable', 'date_format:H:i', 'required_without:opening_hours.*.is_closed'],
+            'opening_hours.*.is_closed' => ['nullable', 'in:0,1,true,false'],
+            'main_image'   => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:3072'],
+            'gallery_images' => ['nullable', 'array'],
+            'gallery_images.*' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
         ];
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $openingHours = $this->input('opening_hours', []);
+            
+            foreach ($openingHours as $index => $hoursData) {
+                if (!empty($hoursData['opening_time']) && !empty($hoursData['closing_time']) && !($hoursData['is_closed'] ?? false)) {
+                    $openingTime = $hoursData['opening_time'];
+                    $closingTime = $hoursData['closing_time'];
+                    
+                    // Convert to 24-hour format for comparison
+                    $openingMinutes = $this->timeToMinutes($openingTime);
+                    $closingMinutes = $this->timeToMinutes($closingTime);
+                    
+                    if ($closingMinutes < $openingMinutes) {
+                        $diff = $openingMinutes - $closingMinutes;
+                        if ($diff > 720) { // 12 hours = 720 minutes
+                            $validator->errors()->add(
+                                "opening_hours.{$index}.closing_time",
+                                "The closing time must be after the opening time or on the next day."
+                            );
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Convert time string to minutes since midnight
+     */
+    private function timeToMinutes($time)
+    {
+        $parts = explode(':', $time);
+        return ($parts[0] * 60) + $parts[1];
     }
 }

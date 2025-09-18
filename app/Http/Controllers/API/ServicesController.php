@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Service\{AddServiceRequest , UpdateServiceRequest};
-use App\Models\Service;
-use App\Models\SiteSetting;
+use App\Http\Resources\ServiceResource;
+use App\Models\{Service, SiteSetting};
 use App\Services\ServiceService;
 use Exception;
-use Illuminate\Http\Request;
 
 class ServicesController extends Controller
 {
@@ -19,71 +17,36 @@ class ServicesController extends Controller
         $this->serviceService = $serviceService;
     }
 
-    public function index()
-    {
-        try {
-            // This method is for admin routes, so we need to get site_setting_id from authenticated user
-            // For now, we'll require it to be passed in the request
-            $siteSettingId = request()->input('site_setting_id');
-            
-            if (!$siteSettingId) {
-                return failureResponse('site_setting_id is required', 400);
-            }
-
-            $services = $this->serviceService->getServices($siteSettingId);
-            return successResponse(compact('services'), 'Service data retrieved successfully');
-        } catch (Exception $e) {
-            return failureResponse('Error retrieving services, please try again.');
-        }
-    }
-
-    public function services(SiteSetting $gym)
+    public function index(SiteSetting $gym)
     {
         try {
             $services = $this->serviceService->getServices($gym->id);
-            return successResponse(compact('services'), 'Services data retrieved successfully');
+            
+            $bookingTypes = $services->pluck('booking_type')->unique()->values()->toArray();
+            
+            $data = [
+                'services' => ServiceResource::collection($services),
+                'booking_types' => $bookingTypes,
+            ];
+            
+            return successResponse($data, 'Services data retrieved successfully');
         } catch (Exception $e) {
             return failureResponse('Error retrieving services, please try again.');
         }
     }
 
-    public function store(AddServiceRequest $request)
+    public function show(SiteSetting $gym, Service $service)
     {
         try {
-            $services = $this->serviceService->createService($request->validated());
-            return successResponse(compact('services'), 'Service data created successfully');
-        } catch (Exception $e) {
-            return failureResponse('Error creating services, please try again.');
-        }
-    }
-
-    public function edit(Service $service)
-    {
-        try {
+            if ($service->site_setting_id != $gym->id) {
+                return failureResponse('Invalid service or gym', 400);
+            }
+            
             $service = $this->serviceService->showService($service);
-            return successResponse(compact('service'), 'Service data retrieved successfully');
+            
+            return successResponse(new ServiceResource($service), 'Service data retrieved successfully');
         } catch (Exception $e) {
-            return failureResponse('Error retrieving services, please try again.');
-        }
-    }
-
-    public function update(UpdateServiceRequest $request , Service $service)
-    {
-        try {
-            $service = $this->serviceService->updateService($service , $request->validated());
-            return successResponse(compact('service'), 'Service data updated successfully');
-        } catch (Exception $e) {
-            return failureResponse('Error updating services, please try again.');
-        }
-    }
-
-    public function destroy(Service $service)
-    {
-        try {
-            $this->serviceService->deleteService($service);
-            return successResponse(message: 'Service data deleted successfully');
-        } catch (Exception $e) {
-            return failureResponse('Error deleting services, please try again.');
+            return failureResponse('Error retrieving service, please try again.');
         }
     }
 }

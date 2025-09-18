@@ -15,8 +15,8 @@ use App\Http\Controllers\Web\User\GymSelectionController;
 use App\Http\Controllers\Web\User\InvitationController;
 use App\Http\Controllers\Web\User\NotFoundController;
 use App\Http\Controllers\Web\User\CheckinController;
-use App\Http\Controllers\Web\User\PaymentController;
-use App\Http\Controllers\Web\User\PaymobPaymentController;
+use App\Http\Controllers\Web\User\BranchController;
+use App\Http\Controllers\Web\User\CheckoutController;
 
 // Public Routes
 Route::get('/', [GymSelectionController::class, 'index'])->name('gym.selection');
@@ -28,13 +28,16 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.c
     Route::prefix('classes')->name('classes.')->controller(ClassesController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/{class}', 'show')->name('show');
-        Route::post('/{class}/book', 'book')->name('book')->middleware(['auth:web']);
     });
 
     Route::prefix('services')->name('services.')->controller(ServicesController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/{service}', 'show')->name('show');
-        Route::post('/{service}/book', 'book')->name('book')->middleware(['auth:web']);
+    });
+
+    Route::prefix('branches')->name('branches.')->controller(BranchController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{branch}', 'show')->name('show');
     });
 
     Route::get('/trainers', [TeamController::class, 'index'])->name('team');
@@ -61,15 +64,10 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.c
         Route::get('/{membership}/membership', 'show')->name('memberships.show');
     });
 
+    Route::post('/checkout', [CheckoutController::class, 'create'])->name('checkout.create');
+
     Route::middleware(['auth:web'])->group(function () {
 
-        Route::prefix('payments')->controller(PaymentController::class)->group(function () {
-            Route::post('/create-intent', 'createPaymentIntent')->name('payments.create-intent');
-            Route::post('/paymob/initialize', 'initializePayment')->name('payments.paymob.initialize');
-            Route::post('/paymob/process-with-branch', 'processPaymentWithBranch')->name('payments.paymob.process-with-branch');
-            Route::get('/create/{bookingId}', 'createPayment')->name('payment.create');
-        });
-    
         Route::prefix('invitations')->controller(InvitationController::class)->group(function () {
             Route::get('/', 'index')->name('invitations.index');
             Route::get('/create', 'create')->name('invitations.create');
@@ -100,11 +98,7 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.c
     });
 });
 
-// Paymob callback routes (no auth required, no site setting context)
-Route::controller(PaymobPaymentController::class)->group(function () {
-    Route::post('/paymob/callback', 'handleCallback')->name('payments.paymob.callback');
-    Route::get('/paymob/callback', 'handleCallback')->name('payments.paymob.callback.get');
-});
+Route::get('/paymob/return', [CheckoutController::class, 'return'])->name('paymob.return'); // front redirect
 
 Route::get('/404', [NotFoundController::class, 'index'])->name('404');
 

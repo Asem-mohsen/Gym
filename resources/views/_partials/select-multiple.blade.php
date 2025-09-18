@@ -2,8 +2,10 @@
     @foreach($options as $option)
         @php
             $is_selected = '';
-            if(old($name, null) != null){
-                if (in_array($option['value'], old($name))) {
+            $oldValues = old($name);
+            
+            if($oldValues !== null && is_array($oldValues)){
+                if (in_array($option['value'], $oldValues)) {
                     $is_selected = 'selected';
                 }
             }

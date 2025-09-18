@@ -9,11 +9,13 @@
             
             <h1>Hi, {{ $user->name }}!</h1>
 
-            <p>We received a request to reset your password. Find below the code to reset your password:</p>
+            <p>We received a request to reset your password. Use the following code to reset your password:</p>
 
-            <p>
-                <a href="{{ $resetUrl }}">Reset Password</a>
-            </p>
+            <div style="background-color: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0;">
+                <h2 style="color: #007bff; font-size: 32px; font-weight: bold; letter-spacing: 5px; margin: 0;">{{ $token }}</h2>
+            </div>
+
+            <p style="color: #6c757d; font-size: 14px;">This code will expire in {{ config('auth.passwords.users.expire', 60) }} minutes.</p>
 
             <p>If you didn’t request a password reset, please ignore this email.</p>
 

@@ -100,11 +100,13 @@
                         <div class="action-section text-center">
                             @auth
                                 @if(!$userSubscription)
-                                    <form id="payment-form" action="{{ route('user.payments.paymob.initialize', ['siteSetting' => $siteSetting->slug]) }}" method="POST" class="d-inline">
+                                    <form id="payment-form" action="{{ route('user.checkout.create', ['siteSetting' => $siteSetting->slug]) }}" method="POST" class="d-inline">
                                         @csrf
-                                        <input type="hidden" name="membership_id" value="{{ $membership->id }}">
-                                        <input type="hidden" name="offer_id" value="{{ $membership->offers->first()?->id ?? "" }}">
-                                        <input type="hidden" name="site_setting_id" value="{{ $siteSetting->id }}">
+                                        <input type="hidden" name="bookable_type" value="membership">
+                                        <input type="hidden" name="bookable_id" value="{{ $membership->id }}">
+                                        <input type="hidden" name="method" value="card">
+                                        <input type="hidden" name="branch_id" value="{{ $siteSetting->branches->first()->id }}">
+
                                         <button type="submit" class="btn btn-primary btn-lg enroll-btn" id="enroll-btn">
                                             <span id="button-text">
                                                 <i class="fa fa-credit-card me-2"></i>
@@ -114,6 +116,7 @@
                                                 <span class="visually-hidden">Loading...</span>
                                             </div>
                                         </button>
+                                        
                                     </form>
                                 @else
                                     <div class="already-subscribed-message">

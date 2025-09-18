@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Repositories\{RoleRepository, UserRepository};
 use App\Services\{EmailService, SiteSettingService};
 use Illuminate\Support\Facades\{Auth, Hash};
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class AuthService
 {
@@ -24,7 +25,7 @@ class AuthService
     /**
      * Handle user login and return token if successful.
      */
-    public function login(array $credentials): array
+    public function login(array $credentials)
     {
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
@@ -35,30 +36,21 @@ class AuthService
                 'token' => $accessToken,
             ];
         }
-
-        throw new Exception('Authentication failed', 401);
+        throw new UnauthorizedHttpException('Unauthorized', 'Invalid email or password');
     }
 
     /**
      * Register a new user and generate a token.
      */
-    public function register(array $data): array
+    public function register(array $data , $gym): array
     {
         $data['password'] = Hash::make($data['password']);
 
         $user = $this->userRepository->createUser($data);
 
-        $regularUserRole = $this->roleRepository->getRoleByName('regular_user');
-        
-        if ($regularUserRole) {
-            $user->assignRole($regularUserRole);
-        }
+        $user->assignRole('regular_user');
 
-        $gym = $this->siteSettingService->getSiteSettingById($data['site_setting_id']);
-        
-        if ($gym) {
-            $this->emailService->sendWelcomeEmail($user, $gym);
-        }
+        $this->emailService->sendWelcomeEmail($user, $gym);
 
         $accessToken = $this->generateToken($user);
 

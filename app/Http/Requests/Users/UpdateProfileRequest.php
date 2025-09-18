@@ -3,72 +3,58 @@
 namespace App\Http\Requests\Users;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class UpdateProfileRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return Auth::guard('sanctum')->check();
     }
 
     public function rules(): array
     {
-        $userId = Auth::id();
-        
-        return [
-            'name'    => ['required', 'string', 'max:255'],
-            'email'   => [
-                'required', 
-                'email', 
-                'max:255',
-                Rule::unique('users', 'email')->ignore($userId)
-            ],
-            'password'=> ['nullable', 'string', 'min:8', 'confirmed'],
-            'address' => ['nullable', 'string', 'max:255'],
-            'gender'  => ['nullable', 'string', 'in:male,female,other'],
-            'phone'   => ['nullable', 'string', 'max:20'],
-            'country'   => ['nullable', 'string', 'max:255'],
-            'city'      => ['nullable', 'string', 'max:255'],
-            'image'   => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
-            'photos'  => ['nullable', 'array', 'max:10'],
-            'photos.*' => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'],
-            'photo_titles' => ['nullable', 'array'],
-            'photo_titles.*' => ['nullable', 'string', 'max:255'],
-            'new_photo_titles' => ['nullable', 'array'],
-            'new_photo_titles.*' => ['nullable', 'string', 'max:255'],
-            'delete_photos' => ['nullable', 'array'],
-            'delete_photos.*' => ['integer', 'exists:user_photos,id'],
+        $rules = [
+            'name'    => ['required' , 'max:255'],
+            'email'   => ['required' , 'email' , 'max:255'],
+            'password'=> ['nullable' , 'max:255' , 'confirmed'],
+            'address' => ['required' , 'max:255'],
+            'gender'  => ['required' , 'max:15'],
+            'phone'   => ['required' , 'numeric'],
+            'country'   => ['nullable' , 'max:255'],
+            'city'      => ['nullable' , 'max:255'],
+            'image'   => ['nullable' , 'image' , 'mimes:jpeg,png,jpg,gif' , 'max:2048'],
         ];
+
+        // Add trainer information validation if user has trainer role
+        if ($this->hasTrainerRole()) {
+            $rules = array_merge($rules, [
+                'weight' => 'nullable|numeric|min:0|max:999.99',
+                'height' => 'nullable|numeric|min:0|max:999.99',
+                'date_of_birth' => 'nullable|date|before:today',
+                'brief_description' => 'nullable|string|max:1000',
+                'facebook_url' => 'nullable|url|max:255',
+                'twitter_url' => 'nullable|url|max:255',
+                'instagram_url' => 'nullable|url|max:255',
+                'youtube_url' => 'nullable|url|max:255',
+            ]);
+        }
+
+        return $rules;
     }
 
-    public function messages(): array
+    /**
+     * Check if the user has trainer role
+     */
+    private function hasTrainerRole(): bool
     {
-        return [
-            'name.required' => 'Full name is required.',
-            'name.max' => 'Full name cannot exceed 255 characters.',
-            'email.required' => 'Email address is required.',
-            'email.email' => 'Please enter a valid email address.',
-            'email.unique' => 'This email address is already taken.',
-            'password.min' => 'Password must be at least 8 characters long.',
-            'password.confirmed' => 'Password confirmation does not match.',
-            'gender.in' => 'Please select a valid gender.',
-            'phone.max' => 'Phone number cannot exceed 20 characters.',
-            'country.max' => 'Country cannot exceed 255 characters.',
-            'city.max' => 'City cannot exceed 255 characters.',
-            'country.required' => 'Country is required.',
-            'city.required' => 'City is required.',
-            'image.image' => 'The file must be an image.',
-            'image.mimes' => 'The image must be a file of type: jpeg, png, jpg, gif.',
-            'image.max' => 'The image may not be greater than 2MB.',
-            'photos.max' => 'You can upload maximum 10 photos.',
-            'photos.*.image' => 'Each file must be an image.',
-            'photos.*.mimes' => 'Each image must be a file of type: jpeg, png, jpg, gif, webp.',
-            'photos.*.max' => 'Each image may not be greater than 5MB.',
-            'photo_titles.*.max' => 'Photo title cannot exceed 255 characters.',
-            'new_photo_titles.*.max' => 'Photo title cannot exceed 255 characters.',
-            'delete_photos.*.exists' => 'One or more photos to delete do not exist.',
-        ];
+        /**
+         * @var User $user
+         */
+        $user = Auth::guard('sanctum')->user();
+        if (!$user) return false;
+
+        return $user->hasRole('trainer');
     }
 }

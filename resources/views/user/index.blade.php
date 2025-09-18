@@ -134,6 +134,48 @@
     </section>
     <!-- ChoseUs Section End -->
 
+    <!-- Branches Section Begin -->
+    @if ($branches->count() > 0)
+        <section class="branches-section spad">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="section-title">
+                            <span>Our Branches</span>
+                            <h2>FIND US NEAR YOU</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    @foreach ($branches as $branch)
+                        <div class="col-lg-4 col-md-6">
+                            <div class="branch-item">
+                                <div class="bi-pic">
+                                    @if($branch->getFirstMediaUrl('branch_images'))
+                                        <img src="{{ $branch->getFirstMediaUrl('branch_images') }}" class="branch-image" alt="{{ $branch->name }}">
+                                    @else
+                                        <img src="{{ asset('assets/user/img/hero/hero-1.jpg') }}" class="branch-image" alt="{{ $branch->name }}">
+                                    @endif
+                                </div>
+                                <div class="bi-text mt-3">
+                                    <div class="d-flex align-items-center justify-content-between gap-2">
+                                        <h4 class="text-white">{{ $branch->name }}</h4>
+                                        <span class="badge badge-{{ $branch->type === 'mix' ? 'primary' : ($branch->type === 'women' ? 'pink' : 'info') }}">
+                                            {{ ucfirst($branch->type) }}
+                                        </span>
+                                    </div>
+                                    <p class="text-white mt-3">{{ $branch->location }}</p>
+                                    <a href="{{ route('user.branches.show', ['siteSetting' => $siteSetting->slug, 'branch' => $branch->id]) }}" class="primary-btn">Visit Branch</a>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+    <!-- Branches Section End -->
+
     <!-- Classes Section Begin -->
     <section class="classes-section spad">
         <div class="container">

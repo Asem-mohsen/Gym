@@ -53,7 +53,7 @@
                 formDataObj[key] = value;
             }
             
-            showBranchSelectionModal(branches, formDataObj, '{{ route("user.payments.paymob.process-with-branch", ["siteSetting" => $siteSetting->slug]) }}');
+            showBranchSelectionModal(branches, formDataObj, '{{ route("user.checkout.create", ["siteSetting" => $siteSetting->slug]) }}');
         }
     });
 </script>

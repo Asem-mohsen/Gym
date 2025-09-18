@@ -2,22 +2,26 @@
 namespace App\Http\Requests\Booking;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreBookingRequest extends FormRequest
 {
 
     public function authorize(): bool
     {
-        return true;
+        return Auth::check() || Auth::guard('sanctum')->check();
     }
 
     public function rules(): array
     {
         return [
-            'branch_id' => 'required|exists:branches,id',
-            'schedule_id' => 'nullable|exists:class_schedules,id',
-            'booking_date' => 'nullable|date|after_or_equal:today',
-            'payment_method' => 'required_if:booking_type,paid_booking|in:cash,card',
+            'bookable_type' => 'required|string|in:service,class,membership',
+            'bookable_id'   => 'required|integer',
+            'pricing_id'    => 'required_if:bookable_type,class|integer',
+            'schedule_id'   => 'required_if:bookable_type,class|integer',
+            'branch_id'     => 'nullable|integer|exists:branches,id',
+            'booking_date'  => 'nullable|date',
+            'method'        => 'required|string|in:card,wallet,kiosk,cash,paypal,credit_card,debit_card',
         ];
     }
 }

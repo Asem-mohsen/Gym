@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Users;
 
-use App\Models\Role;
 use Illuminate\Foundation\Http\FormRequest;
 use Spatie\Permission\Models\Role as SpatieRole;
 

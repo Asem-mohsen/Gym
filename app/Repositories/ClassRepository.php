@@ -10,9 +10,7 @@ class ClassRepository
     {
         return ClassModel::where('site_setting_id', $siteSettingId)
             ->where('status', 'active')
-            ->whereHas('branches', function($query) {
-                $query->where('is_visible', true);
-            })
+            ->whereHas('branches')
             ->with('schedules', 'pricings','trainers')
             ->get();
     }
@@ -21,9 +19,7 @@ class ClassRepository
     {
         return ClassModel::where('site_setting_id', $siteSettingId)
             ->where('status', 'active')
-            ->whereHas('branches', function($query) {
-                $query->where('is_visible', true);
-            })
+            ->whereHas('branches')
             ->with(['schedules', 'trainers'])
             ->get();
     }
@@ -38,23 +34,24 @@ class ClassRepository
             ->values();
     }
 
-    public function getAll(array $where = [], array $with = [], int $perPage = 15, ?string $search = null, ?string $type = null)
+    public function getAll(array $where = [], array $with = [], ?string $type = null, ?int $branchId = null)
     {
-        $query = ClassModel::with($with);
+        $query = ClassModel::with($with)
+            ->when($branchId, function($query) use ($branchId) {
+                $query->whereHas('branches', function($query) use ($branchId) {
+                    $query->where('branch_id', $branchId)->where('is_visible', true);
+                });
+            });
         
         if ($where) {
             $query->where($where);
-        }
-        
-        if ($search) {
-            $query->where('name', 'like', "%{$search}%");
         }
         
         if ($type) {
             $query->where('type', $type);
         }
         
-        return $query->paginate($perPage);
+        return $query->get();
     }
 
     public function findById($id, $with = [])

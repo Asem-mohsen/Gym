@@ -34,6 +34,19 @@ class GalleryRepository
     }
 
     /**
+     * Get galleries for a specific page
+     */
+    public function getGalleriesForPage(int $siteSettingId, string $page, int $limit = 10): Collection
+    {
+        return Gallery::where('site_setting_id', $siteSettingId)
+            ->with(['media' => fn($q) => $q->limit($limit)])
+            ->active()
+            ->forPage($page)
+            ->ordered()
+            ->get();
+    }
+
+    /**
      * Get a specific gallery by ID
      */
     public function findById(int $id, array $with = []): ?Gallery

@@ -8,6 +8,7 @@ use App\Models\ClassModel;
 use App\Repositories\{ ClassRepository, UserRepository };
 use App\Services\{ ClassService, SiteSettingService, BranchService };
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ClassController extends Controller
 {
@@ -25,11 +26,12 @@ class ClassController extends Controller
 
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 15);
-        $search = $request->get('search');
         $type = $request->get('type');
-        
-        $classes = $this->classService->getClassesWithPagination($this->siteSettingId, $perPage, $search, $type);
+        $branchId = $request->get('branch_id');
+
+        $branches = $this->branchService->getBranches($this->siteSettingId);
+
+        $classes = $this->classService->getClassesWithPagination($this->siteSettingId,$type,$branchId);
         
         $classTypes = $this->classRepository->getClassTypes($this->siteSettingId);
         
@@ -61,10 +63,15 @@ class ClassController extends Controller
 
     public function update(UpdateClassRequest $request, ClassModel $class)
     {
-        $data = $request->validated();
-        $data['image'] = $request->file('image');
-        $this->classService->updateClass($class, $data);
-        return redirect()->route('classes.index')->with('success', 'Class updated successfully.');
+        try {
+            $data = $request->validated();
+            $data['image'] = $request->file('image');
+            $this->classService->updateClass($class, $data);
+            return redirect()->route('classes.index')->with('success', 'Class updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error updating class: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error updating class. Please try again.');
+        }
     }
 
     public function destroy($id)

@@ -14,9 +14,16 @@ class VerifyCodeRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        $rules = [  
             'email'   => ['required' , 'email' , 'max:255' , 'exists:users,email'],
-            'token'   => ['required' , 'string'],
         ];
+
+        if ($this->is('api/*') || $this->expectsJson()) {
+            $rules['code'] = 'required|string|size:5|regex:/^[0-9]{5}$/';
+        }else{
+            $rules['token'] = 'required|string';
+        }
+
+        return $rules;
     }
 }
