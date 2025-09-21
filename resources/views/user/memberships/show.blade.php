@@ -100,7 +100,7 @@
                         <div class="action-section text-center">
                             @auth
                                 @if(!$userSubscription)
-                                    <form id="payment-form" action="{{ route('user.checkout.create', ['siteSetting' => $siteSetting->slug]) }}" method="POST" class="d-inline">
+                                    <form id="payment-form" action="{{ route('user.checkout.create', ['siteSetting' => $siteSetting->slug]) }}" method="POST" class="payment-form d-inline">
                                         @csrf
                                         <input type="hidden" name="bookable_type" value="membership">
                                         <input type="hidden" name="bookable_id" value="{{ $membership->id }}">

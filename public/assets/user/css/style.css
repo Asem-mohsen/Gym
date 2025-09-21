@@ -3566,3 +3566,28 @@ ol {
 		font-size: 28px;
 	}
 }
+/* Payment Form Handler Styles */
+.btn-submitting {
+    opacity: 0.7;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+.btn-submitting:hover {
+    opacity: 0.7;
+}
+
+.btn-submitting:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Loading spinner animation */
+.fa-spinner.fa-spin {
+    animation: fa-spin 1s infinite linear;
+}
+
+@keyframes fa-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

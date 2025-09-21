@@ -171,4 +171,57 @@
         });
     });
 
+    /*------------------
+        Payment Form Handler
+    --------------------*/
+    // General payment form submission handler
+    window.PaymentFormHandler = {
+        init: function() {
+            this.bindEvents();
+        },
+
+        bindEvents: function() {
+            var self = this;
+            
+            $(document).on('submit', '.payment-form, .booking-form', function(e) {
+                self.handleFormSubmission($(this), e);
+            });
+        },
+
+        handleFormSubmission: function($form, e) {
+            var $submitBtn = $form.find('button[type="submit"], input[type="submit"], .btn-submit');
+            
+            if ($submitBtn.length === 0) {
+                return;
+            }
+
+            $submitBtn.prop('disabled', true);
+            
+            var originalText = $submitBtn.html();
+            var originalClass = $submitBtn.attr('class');
+            
+            $submitBtn.html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+            $submitBtn.addClass('btn-submitting');
+            
+            $submitBtn.data('original-text', originalText);
+            $submitBtn.data('original-class', originalClass);
+            
+            setTimeout(function() {
+                if ($submitBtn.prop('disabled')) {
+                    PaymentFormHandler.restoreButton($submitBtn);
+                }
+            }, 30000);
+        },
+
+        restoreButton: function($submitBtn) {
+            $submitBtn.prop('disabled', false);
+            $submitBtn.html($submitBtn.data('original-text'));
+            $submitBtn.attr('class', $submitBtn.data('original-class'));
+        }
+    };
+
+    $(document).ready(function() {
+        PaymentFormHandler.init();
+    });
+
 })(jQuery);

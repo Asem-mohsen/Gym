@@ -166,11 +166,11 @@
                                 </div>
                             @endif
 
-                            <form id="bookingForm" action="{{ route('user.checkout.create', ['siteSetting' => $siteSetting->slug]) }}" method="POST">
+                            <form id="bookingForm" action="{{ route('user.checkout.create', ['siteSetting' => $siteSetting->slug]) }}" method="POST" class="payment-form">
                                 @csrf
-                                
                                 <input type="hidden" name="bookable_type" value="service">
                                 <input type="hidden" name="bookable_id" value="{{ $service->id }}">
+                                <input type="hidden" name="method" value="card">
                                 
                                 <!-- Branch Selection -->
                                 @if($service->branches->count() > 1)
@@ -214,6 +214,9 @@
                                             </div>
                                         </div>
                                     </div>
+                                @else
+                                    <input type="hidden" name="method" value="cash">
+                                    <input type="hidden" name="is_free" value="1">
                                 @endif
 
                                 <!-- Submit Button -->

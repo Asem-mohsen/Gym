@@ -15,11 +15,17 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('site_setting_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('merchant_order_id')->nullable();
             $table->morphs('paymentable');
+            $table->string('gateway')->nullable()->default('paymob');
+            $table->string('gateway_order_id')->nullable();
             $table->decimal('amount', 10, 2);
             $table->foreignId('offer_id')->nullable()->constrained()->onDelete('set null');
-            $table->enum('status', ['pending', 'completed', 'failed'])->default('pending');
-            $table->string('stripe_payment_intent_id')->nullable();
+            $table->enum('status', ['pending', 'completed', 'failed','cash_pending'])->default('pending');
+            $table->string('currency')->default('EGP');
+            $table->json('meta')->nullable();
+            $table->timestamp('completed_at')->nullable();
+            $table->timestamp('failed_at')->nullable();
             $table->timestamps();
         });
     }

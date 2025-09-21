@@ -48,7 +48,7 @@
                             <div class="cd-single-item">
                                 <h3>Class Details</h3>
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-12">
                                         <div class="class-detail-item">
                                             <h5><i class="fa fa-clock-o"></i> Schedules</h5>
                                             @if($class->schedules->count() > 0)
@@ -74,6 +74,23 @@
                                                         <li>
                                                             <strong>${{ number_format($pricing->price, 2) }}</strong> 
                                                             <span>{{ $pricing->duration }}</span>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            @else
+                                                <p>Pricing not available</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="class-detail-item">
+                                            <h5><i class="fa fa-money"></i> Branches</h5>
+                                            @if($class->pricings->count() > 0)
+                                                <ul class="pricing-list">
+                                                    @foreach($class->branches as $branch)
+                                                        <li>
+                                                            <strong>{{ $branch->name }}</strong> 
+                                                            <span><a href="{{ $branch->map_url }}" class="text-white" target="_blank">See location on map</a></span>
                                                         </li>
                                                     @endforeach
                                                 </ul>
@@ -165,23 +182,28 @@
                         <!-- Booking Section -->
                         <div class="cd-single-item booking-form-container">
                             <h3>Book This Class</h3>
-                            <form action="{{ route('user.checkout.create', ['siteSetting' => $siteSetting->slug]) }}" method="POST" class="booking-form">
+                            <form action="{{ route('user.checkout.create', ['siteSetting' => $siteSetting->slug]) }}" method="POST" class="booking-form payment-form">
                                 @csrf
                                 <div class="row">
                                     <input type="hidden" name="bookable_type" value="class">
                                     <input type="hidden" name="bookable_id" value="{{ $class->id }}">
                                     <input type="hidden" name="method" value="card">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label for="branch_id">Select Branch *</label>
-                                            <select name="branch_id" id="branch_id" class="form-control" required>
-                                                <option value="">Choose a branch</option>
-                                                @foreach($class->branches as $branch)
-                                                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                                                @endforeach
-                                            </select>
+
+                                    @if($class->branches->count() > 1)
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="branch_id">Select Branch *</label>
+                                                <select name="branch_id" id="branch_id" class="form-control" required>
+                                                    <option value="">Choose a branch</option>
+                                                    @foreach($class->branches as $branch)
+                                                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
+                                    @else
+                                        <input type="hidden" name="branch_id" value="{{ $class->branches->first()->id }}">
+                                    @endif
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <label for="schedule_id">Select Schedule *</label>
@@ -217,8 +239,13 @@
                                 @auth
                                     <div class="row">
                                         <div class="col-12">
-                                            <button type="submit" class="btn btn-primary btn-lg btn-block">
-                                                <i class="fa fa-calendar-check-o"></i> Book Class
+                                            <button type="submit" class="btn btn-primary btn-lg btn-block" id="bookClassBtn">
+                                                <span class="btn-text">
+                                                    <i class="fa fa-calendar-check-o"></i> Book Class
+                                                </span>
+                                                <span class="btn-loading d-none">
+                                                    <i class="fa fa-spinner fa-spin"></i> Processing...
+                                                </span>
                                             </button>
                                         </div>
                                     </div>

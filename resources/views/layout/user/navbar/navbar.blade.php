@@ -102,7 +102,7 @@
                                     <i class="fa fa-envelope"></i> My Invitations
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <form action="{{ route('auth.logout.current') }}" method="POST" class="d-inline">
+                                <form action="{{ route('auth.logout.current', ['siteSetting' => $siteSetting->slug]) }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="dropdown-item logout-btn">
                                         <i class="fa fa-sign-out"></i> Logout

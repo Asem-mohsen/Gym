@@ -116,7 +116,7 @@ class PaymentRepository
             ->where('status', 'completed')
             ->select(
                 DB::raw('CASE 
-                    WHEN paymob_payment_key IS NOT NULL THEN "Card"
+                    WHEN gateway_order_id IS NOT NULL THEN "Card"
                     WHEN payment_method = "cash" THEN "Cash"
                     ELSE "Online"
                 END as payment_method'),
@@ -125,7 +125,7 @@ class PaymentRepository
             )
             ->groupBy(
                 DB::raw('CASE 
-                    WHEN paymob_payment_key IS NOT NULL THEN "Card"
+                    WHEN gateway_order_id IS NOT NULL THEN "Card"
                     WHEN payment_method = "cash" THEN "Cash"
                     ELSE "Online"
                 END')
@@ -269,8 +269,7 @@ class PaymentRepository
             'site_setting_id'  => $data['site_setting_id'] ?? null,
             'status'           => $data['status'] ?? 'completed',
             'currency'         => $data['currency'] ?? 'EGP',
-            'paymob_order_id'  => $data['paymob_order_id'] ?? null,
-            'paymob_payment_key' => $data['paymob_payment_key'] ?? null,
+            'gateway_order_id'  => $data['gateway_order_id'] ?? null,
         ]);
     }
 
@@ -285,9 +284,7 @@ class PaymentRepository
             'branch_id' => $data['branch_id'] ?? $payment->branch_id,
             'status'   => $data['status'] ?? $payment->status,
             'currency' => $data['currency'] ?? $payment->currency,
-            'paymob_order_id' => $data['paymob_order_id'] ?? $payment->paymob_order_id,
-            'paymob_payment_key' => $data['paymob_payment_key'] ?? $payment->paymob_payment_key,
-            'paymob_transaction_id' => $data['paymob_transaction_id'] ?? $payment->paymob_transaction_id,
+            'gateway_order_id' => $data['gateway_order_id'] ?? $payment->gateway_order_id,
             'completed_at' => $data['completed_at'] ?? $payment->completed_at,
             'failed_at' => $data['failed_at'] ?? $payment->failed_at,
         ]);

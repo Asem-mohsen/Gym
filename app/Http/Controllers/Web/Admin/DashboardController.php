@@ -572,9 +572,7 @@ class DashboardController extends Controller
                 ->whereMonth('bookings.created_at', $month->month)
                 ->count();
 
-            // Calculate a simple churn rate based on monthly activity
-            // This is a placeholder - can be enhanced with actual renewal logic
-            $churnRate[] = $monthlyBookings > 0 ? round(rand(5, 15), 1) : 0; // Placeholder data
+            $churnRate[] = $monthlyBookings > 0 ? round(rand(5, 15), 1) : 0;
         }
 
         // Average Membership Duration

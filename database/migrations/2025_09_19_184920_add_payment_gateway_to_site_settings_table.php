@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('payments', function (Blueprint $table) {
-            $table->string('stripe_payment_intent_id')->after('status')->nullable();
+        Schema::table('site_settings', function (Blueprint $table) {
+            $table->string('payment_gateway')->default('paymob')->after('is_website_visible');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('payments', function (Blueprint $table) {
-            $table->dropColumn('stripe_payment_intent_id');
+        Schema::table('site_settings', function (Blueprint $table) {
+            $table->dropColumn('payment_gateway');
         });
     }
 };

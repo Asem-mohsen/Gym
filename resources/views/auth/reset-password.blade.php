@@ -6,13 +6,13 @@
 <div class="card">
     <div class="card-body">
         
-        @if(isset($gymContext))
+        @if(isset($siteSetting))
             <div class="mb-3">
-                <h2 class="text-center">{{ $gymContext['name'] }}</h2>
+                <h2 class="text-center">{{ $siteSetting->gym_name }}</h2>
             </div>
         @endif
 
-        <form method="POST" action="{{ route('auth.forget-password.reset', ['siteSetting' => $gymContext['slug']]) }}">
+        <form method="POST" action="{{ route('auth.forget-password.reset', ['siteSetting' => $siteSetting->slug]) }}">
             @csrf
             <input type="hidden" name="token" value="{{ $token }}">
 

@@ -44,9 +44,9 @@
 						</div>
 
 						<div class="w-50 text-end">
-							<a href="{{ route('user.home' , ['siteSetting' => $gymContext['slug']]) }}" class="mb-0 mb-lg-12">
-								@if(isset($gymContext) && isset($gymContext['logo']))
-									<img src="{{ $gymContext['logo'] }}" alt="{{ $gymContext['name'] }}" class="h-60px h-lg-75px" />
+							<a href="{{ route('user.home' , ['siteSetting' => $siteSetting->slug]) }}" class="mb-0 mb-lg-12">
+								@if(isset($siteSetting) && $siteSetting->getFirstMediaUrl('gym_logo') != null)
+									<img src="{{ $siteSetting->getFirstMediaUrl('gym_logo') }}" alt="{{ $siteSetting->gym_name }}" class="h-60px h-lg-75px" />
 								@else
 									<img alt="Logo" src="{{ asset('assets/admin/img/logo.png') }}" class="h-60px h-lg-75px" />
 								@endif

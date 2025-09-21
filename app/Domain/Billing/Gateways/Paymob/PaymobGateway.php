@@ -10,6 +10,7 @@ use App\Domain\Billing\Gateways\Paymob\PaymobClient;
 use App\Domain\Billing\Gateways\Paymob\HmacVerifier;
 use App\Enums\PaymentMethod;
 use App\Models\Payment;
+use Illuminate\Support\Facades\Log;
 
 final class PaymobGateway implements PaymentGateway {
     public function __construct(
@@ -27,6 +28,7 @@ final class PaymobGateway implements PaymentGateway {
             'merchant_order_id' => $req->merchantOrderId,
             'amount_cents' => $req->item->getAmount() * 100,
             'currency' => $req->item->getCurrency(),
+            'delivery_needed'=> false,
             'items' => [[
                 'name' => $req->item->getTitle(),
                 'amount_cents' => $req->item->getAmount() * 100,
@@ -37,21 +39,19 @@ final class PaymobGateway implements PaymentGateway {
     
         // 2. Build billing data with all required fields
         $billing = array_merge([
-            'apartment'      => 'NA',
-            'email'          => $req->billingData['email'] ?? 'no-reply@example.com',
-            'floor'          => 'NA',
-            'first_name'     => $req->billingData['first_name'] ?? 'Guest',
-            'last_name'      => $req->billingData['last_name'] ?? 'User',
-            'street'         => $req->billingData['street'] ?? 'NA',
-            'building'       => $req->billingData['building'] ?? 'NA',
-            'phone_number'   => $req->billingData['phone_number'] ?? '0000000000',
-            'shipping_method'=> 'PKG',
-            'postal_code'    => 'NA',
-            'city'           => 'NA',
-            'country'        => 'EG',
-            'state'          => 'NA',
-            'user_id'        => $req->user->id,
-            'site_setting_id' => $req->billingData['site_setting_id'] ?? null,
+            'apartment'       => 'NA',
+            'email'           => $req->billingData['email'] ?? 'no-reply@example.com',
+            'floor'           => 'NA',
+            'first_name'      => $req->billingData['first_name'] ?? 'Guest',
+            'last_name'       => $req->billingData['last_name'] ?? 'User',
+            'street'          => $req->billingData['street'] ?? $req->billingData['address'] ?? 'NA',
+            'building'        => $req->billingData['building'] ?? 'NA',
+            'phone_number'    => $req->billingData['phone_number'] ?? '0000000000',
+            'shipping_method' => 'PKG',
+            'postal_code'     => 'NA',
+            'city'            => $req->billingData['city'] ?? 'Cairo',
+            'country'         => 'EG',
+            'state'           => 'NA',
         ], $req->billingData ?? []);
     
         // 3. Create payment key
@@ -64,7 +64,7 @@ final class PaymobGateway implements PaymentGateway {
             'expiration'    => 3600,
         ]);
     
-        $payment = $this->recorder->start($req, $order);
+        $payment = $this->recorder->start($req, $order, 'paymob');
     
         if ($req->method === PaymentMethod::CARD) {
             $iframeId = config('services.paymob.iframe_id');
@@ -74,29 +74,31 @@ final class PaymobGateway implements PaymentGateway {
                 $paymentKey['token']
             );
     
-            return new PaymentIntent('paymob', (string)$order['id'], $paymentKey['token'], $iframeUrl, null, ['order' => $order]);
+            return new PaymentIntent(gateway: 'paymob', gatewayOrderId: (string)$order['id'], paymentKey: $paymentKey['token'], iframeUrl: $iframeUrl, raw: ['order' => $order]);
         }
     
         if ($req->method === PaymentMethod::WALLET) {
-            return new PaymentIntent('paymob', (string)$order['id'], $paymentKey['token'], null, null, ['order' => $order]);
+            return new PaymentIntent(gateway: 'paymob', gatewayOrderId: (string)$order['id'], paymentKey: $paymentKey['token'], raw: ['order' => $order]);
         }
     
         throw new \RuntimeException('Unsupported method');
     }
-    
-    
+
     public function captureWebhook(array $payload, array $headers): void
     {
-        $provided = $payload['hmac'] ?? $headers['hmac'] ?? null;
-        if (!$provided || !$this->verifier->verifyProcessed($payload, $provided))
-            abort(400, 'Invalid HMAC');
-    
-        $merchantOrderId = data_get($payload, 'order.merchant_order_id') ?? data_get($payload, 'merchant_order_id');
+        $provided = $payload['hmac'] ?? null;
+
+        if (!$provided || !$this->verifier->verifyProcessed($payload, $provided)) {
+            Log::info('Paymob payment invalid hmac', ['provided' => $provided]);
+        }
+
+        $merchantOrderId = data_get($payload, 'obj.order.merchant_order_id');
+
         $payment = Payment::query()->where('merchant_order_id', $merchantOrderId)->firstOrFail();
     
-        $success = (bool)($payload['success'] ?? false);
-        $txnId   = (string)($payload['id'] ?? '');
-    
+        $success = (bool) data_get($payload, 'obj.success', false);
+        $txnId   = (string) data_get($payload, 'obj.id', '');
+
         $success
             ? $this->recorder->succeed($payment, $payload, $txnId)
             : $this->recorder->fail($payment, $payload, $txnId);

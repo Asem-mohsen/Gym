@@ -40,6 +40,11 @@ class Payment extends Model
         return $this->morphTo();
     }
 
+    public function payable(): MorphTo
+    {
+        return $this->paymentable();
+    }
+
     public function attempts()
     {
         return $this->hasMany(PaymentAttempt::class);

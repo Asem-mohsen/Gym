@@ -50,18 +50,20 @@ class UserService
         return $this->userRepository->findById($user->id, $with);
     }
 
-    public function createUser(array $data, int $siteSettingId)
+    public function createUser(array $data, $gym)
     {
         $image = $data['image'] ?? null;
         
         $roleIds = $data['role_ids'] ?? [];
 
-        unset($data['image'], $data['role_ids'], $data['password']);
+        unset($data['image'], $data['role_ids']);
     
         $data['is_admin'] = 0;
+        $data['password_set_at'] = now();
+        $data['password'] = Hash::make($data['password']);
         
         $user = $this->userRepository->createUser($data);
-        $user->gyms()->attach($siteSettingId);
+        $user->gyms()->attach($gym->id);
     
         $this->roleAssignmentService->assignRolesToUser($user, $roleIds);
 
@@ -69,11 +71,7 @@ class UserService
             $user->addMedia($image)->toMediaCollection('user_images');
         }
 
-        $gym = $this->siteSettingService->getSiteSettingById($siteSettingId);
-        
-        if ($gym) {
-            $this->emailService->sendWelcomeEmail($user, $gym);
-        }
+        $this->emailService->sendWelcomeEmail($user, $gym);
     
         return $user;
     }
@@ -190,7 +188,7 @@ class UserService
         try {
             // Only send onboarding email if user hasn't set their password yet
             if (!$user->hasSetPassword()) {
-                $gymName = $user->gyms()->where('site_setting_id', $siteSettingId)->first()->gym_name;
+                $gymName = $user->gyms()->whereKey($siteSettingId)->first()->gym_name;
                 
                 Mail::to($user->email)->send(new UserOnboardingMail($user, $gymName));
             }
