@@ -182,7 +182,7 @@ Route::prefix('v1')->group(function(){
             Route::post('/gate', 'gateCheckin');
             Route::get('/personal-qr', 'getPersonalQr');
             Route::get('/history', 'getUserCheckinHistory');
-            Route::post('/validate-token', 'validateQrToken');
+            Route::match(['get', 'post'], '/validate-token', 'validateQrToken');
         });
 
     });

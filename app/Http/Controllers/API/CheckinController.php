@@ -142,7 +142,7 @@ class CheckinController extends Controller
                 return failureResponse('You are not associated with this gym.', 403);
             }
 
-            $qrUrl = $this->qrCodeService->generatePersonalQrUrl($user, $gym);
+            $qrUrl = $this->qrCodeService->generatePersonalQrUrlForApi($user, $gym);
             $qrData = $this->qrCodeService->generateQrData($qrUrl);
 
             return successResponse([
@@ -185,20 +185,31 @@ class CheckinController extends Controller
     }
 
     /**
-     * Validate a QR token without performing check-in
+     * Validate a QR token and perform check-in if valid
      */
     public function validateQrToken(Request $request, SiteSetting $gym)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'token' => 'required|string',
-            ]);
-
-            if ($validator->fails()) {
-                return failureResponse('Invalid request data.', 400);
+            // Handle both POST (API calls) and GET (QR code scans) requests
+            $token = $request->get('token') ?? $request->input('token');
+            
+            if (!$token) {
+                return failureResponse('Token is required.', 400);
             }
 
-            $tokenData = $this->qrCodeService->decryptPersonalQrToken($request->token);
+            // Validate additional parameters for POST requests
+            if ($request->isMethod('post')) {
+                $validator = Validator::make($request->all(), [
+                    'token' => 'required|string',
+                    'branch_id' => 'nullable|exists:branches,id',
+                ]);
+
+                if ($validator->fails()) {
+                    return failureResponse('Invalid request data.', 400);
+                }
+            }
+
+            $tokenData = $this->qrCodeService->decryptPersonalQrToken($token);
 
             if (!$tokenData) {
                 return failureResponse('Invalid or expired QR code.', 400);
@@ -216,13 +227,42 @@ class CheckinController extends Controller
 
             $validation = $this->checkinService->validateCheckin($user, $gym);
 
+            if (!$validation['valid']) {
+                return failureResponse($validation['message'], 400);
+            }
+
+            if ($this->checkinService->hasRecentCheckin($user->id, $gym->id)) {
+                return failureResponse('User has already checked in recently.', 429);
+            }
+
+            $checkin = $this->checkinService->logVisit(
+                userId: $user->id,
+                gymId: $gym->id,
+                checkinType: 'gate_scan',
+                request: $request
+            );
+
+            $message = $validation['warning'] ?? false 
+                ? 'QR validated and check-in recorded. User has already checked in today.'
+                : 'QR validated and check-in successful! Welcome ' . $user->name;
+
+            // For GET requests (QR code scans), return a simple HTML response
+            if ($request->isMethod('get')) {
+                return response()->view('api.checkin-success', [
+                    'message' => $message,
+                    'user' => $user,
+                    'checkin' => $checkin,
+                    'gym' => $gym
+                ]);
+            }
+
             return successResponse([
+                'checkin' => $checkin,
                 'validation' => $validation,
-                'can_checkin' => $validation['valid'] && !($validation['warning'] ?? false),
-            ], 'QR token validated successfully.');
+            ], $message);
 
         } catch (Exception $e) {
-            return failureResponse('Failed to validate QR token.', 500);
+            return failureResponse('Failed to validate QR token and perform check-in.', 500);
         }
     }
 }

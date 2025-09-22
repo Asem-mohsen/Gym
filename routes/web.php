@@ -101,7 +101,7 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.c
             Route::get('/history', 'showCheckinHistory')->name('checkin.history');
             Route::get('/stats', 'showCheckinStats')->name('checkin.stats');
             Route::get('/staff-scanner', 'showStaffScanner')->name('checkin.staff-scanner');
-            Route::post('/gate', 'processGateCheckin')->name('checkin.gate');
+            Route::match(['get', 'post'], '/gate', 'processGateCheckin')->name('checkin.gate');
         });
 
         Route::prefix('blog/{blogPost}')->controller(BlogController::class)->group(function () {

@@ -98,6 +98,7 @@ class CheckinController extends Controller
      */
     public function showStaffScanner(SiteSetting $gym)
     {
+        /** @var User $user */
         $user = Auth::user();
         
         if (!$user) {
@@ -105,7 +106,7 @@ class CheckinController extends Controller
         }
 
         // Check if user has permission to use staff scanner
-        if (!$user->hasGymPermission($gym->id, 'manage_checkin_settings')) {
+        if (!$user->hasGymPermission('view_checkin_settings', $gym->id)) {
             return redirect()->back()->with('error', 'You do not have permission to access the staff scanner.');
         }
 
@@ -122,31 +123,42 @@ class CheckinController extends Controller
     }
 
     /**
-     * Process gate check-in (staff scanning user QR)
+     * Process gate check-in (staff scanning user QR or direct QR scan)
      */
     public function processGateCheckin(Request $request, SiteSetting $gym)
     {
-        /**
-         * @var User $user
-         */
-        $user = Auth::user();
+        // Handle both POST requests (from staff scanner) and GET requests (from QR scan)
+        $token = $request->get('qr_token') ?? $request->get('token');
         
-        if (!$user) {
-            return redirect()->route('auth.login.index', ['siteSetting' => $gym->slug]);
+        if (!$token) {
+            return redirect()->back()->with('error', 'QR token is required.');
         }
 
-        // Check if user has permission to use staff scanner
-        if (!$user->hasGymPermission('view_checkin_settings', $gym->id)) {
-            return redirect()->back()->with('error', 'You do not have permission to access the staff scanner.');
-        }
+        // For direct QR scans (GET requests), we don't need authentication
+        // For staff scanner (POST requests), we need to check permissions
+        if ($request->isMethod('post')) {
+            /**
+             * @var User $user
+             */
+            $user = Auth::user();
+            
+            if (!$user) {
+                return redirect()->route('auth.login.index', ['siteSetting' => $gym->slug]);
+            }
 
-        $request->validate([
-            'qr_token' => 'required|string',
-            'branch_id' => 'nullable|exists:branches,id'
-        ]);
+            // Check if user has permission to use staff scanner
+            if (!$user->hasGymPermission('view_checkin_settings', $gym->id)) {
+                return redirect()->back()->with('error', 'You do not have permission to access the staff scanner.');
+            }
+
+            $request->validate([
+                'qr_token' => 'required|string',
+                'branch_id' => 'nullable|exists:branches,id'
+            ]);
+        }
 
         // Decrypt and validate QR token
-        $decryptedData = $this->qrCodeService->decryptQrToken($request->qr_token);
+        $decryptedData = $this->qrCodeService->decryptQrToken($token);
         
         if (!$decryptedData) {
             return redirect()->back()->with('error', 'Invalid QR code. Please try again.');
@@ -156,28 +168,58 @@ class CheckinController extends Controller
         $targetUser = User::find($targetUserId);
 
         if (!$targetUser) {
+            if ($request->isMethod('get')) {
+                return redirect()->route('user.checkin.personal-qr', ['siteSetting' => $gym->slug])
+                    ->with('error', 'User not found.');
+            }
             return redirect()->back()->with('error', 'User not found.');
         }
 
         // Validate user can check in
-        $validation = $this->checkinService->validateCheckin($targetUser, $gym->id, 'gate_scan');
+        $validation = $this->checkinService->validateCheckin($targetUser, $gym, 'gate_scan');
         
-        if ($validation['code'] !== 'VALID') {
+        if (!$validation['valid']) {
+            if ($request->isMethod('get')) {
+                return redirect()->route('user.checkin.personal-qr', ['siteSetting' => $gym->slug])
+                    ->with('error', $validation['message']);
+            }
             return redirect()->back()->with('error', $validation['message']);
+        }
+
+        // Check for recent check-ins to prevent spam
+        if ($this->checkinService->hasRecentCheckin($targetUserId, $gym->id)) {
+            if ($request->isMethod('get')) {
+                return redirect()->route('user.checkin.personal-qr', ['siteSetting' => $gym->slug])
+                    ->with('warning', 'User has already checked in recently.');
+            }
+            return redirect()->back()->with('warning', 'User has already checked in recently.');
         }
 
         // Log the check-in
         $metadata = [
-            'scanned_by' => $user->id,
-            'scanned_by_name' => $user->name,
-            'branch_id' => $request->branch_id,
+            'branch_id' => $request->get('branch_id'),
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
         ];
 
+        // Add staff information if this is a staff scan
+        if ($request->isMethod('post') && Auth::check()) {
+            $staffUser = Auth::user();
+            $metadata['scanned_by'] = $staffUser->id;
+            $metadata['scanned_by_name'] = $staffUser->name;
+        }
+
         $this->checkinService->logVisit($targetUserId, $gym->id, 'gate_scan', $request, $metadata);
 
-        return redirect()->back()->with('success', 'Check-in successful for ' . $targetUser->name);
+        $message = $validation['warning'] ?? false 
+            ? 'Check-in recorded. User has already checked in today.'
+            : 'Check-in successful! Welcome ' . $targetUser->name;
+
+        if ($request->isMethod('get')) {
+            return redirect()->route('user.checkin.personal-qr', ['siteSetting' => $gym->slug])
+                ->with('success', $message);
+        }
+        return redirect()->back()->with('success', $message);
     }
 
     /**
