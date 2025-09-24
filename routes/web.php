@@ -21,6 +21,7 @@ use App\Http\Controllers\Web\User\StripePaymentController;
 use App\Http\Controllers\Web\User\FawryPaymentController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use App\Http\Controllers\Webhooks\FawryWebhookController;
+use App\Models\SiteSetting;
 
 // Public Routes
 Route::get('/', [GymSelectionController::class, 'index'])->name('gym.selection');
@@ -112,6 +113,12 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.c
         });
 
     });
+
+    Route::get('/404', [NotFoundController::class, 'index'])->name('404');
+
+    Route::fallback(function (SiteSetting $siteSetting) {
+        return redirect()->route('user.404' , ['siteSetting' => $siteSetting->slug]);
+    });
 });
 
 Route::get('/paymob/return', [CheckoutController::class, 'return'])->name('paymob.return'); // front redirect
@@ -119,12 +126,6 @@ Route::get('/paymob/return', [CheckoutController::class, 'return'])->name('paymo
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');
 Route::post('/fawry/webhook', [FawryWebhookController::class, 'handle'])->name('fawry.webhook');
 Route::post('/fawry/callback', [FawryWebhookController::class, 'statusCallback'])->name('fawry.callback');
-
-Route::get('/404', [NotFoundController::class, 'index'])->name('404');
-
-Route::fallback(function () {
-    return redirect()->route('404');
-});
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

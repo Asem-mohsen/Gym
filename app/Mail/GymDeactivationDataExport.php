@@ -6,6 +6,7 @@ use App\Models\SiteSetting;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailables\Attachment;
@@ -34,6 +35,13 @@ class GymDeactivationDataExport extends Mailable
     {
         return new Envelope(
             subject: 'Gym Deactivation - Your Data Export',
+            from: new Address(
+                $this->gym->contact_email ?: config('mail.from.address'),
+                $this->gym->gym_name
+            ),
+            replyTo: $this->gym->contact_email ? 
+                [new Address($this->gym->contact_email, $this->gym->gym_name)] : 
+                [],
         );
     }
 

@@ -135,46 +135,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <h4 class="mt-5 mb-4">Typography & Styling</h4>
-                                
-                                <div class="row g-4">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="font_family" class="form-label fw-bold">Font Family</label>
-                                            <select class="form-control" id="font_family" name="font_family">
-                                                <option value="Inter, system-ui, -apple-system, sans-serif" 
-                                                        {{ ($brandingData['font_family'] ?? '') == 'Inter, system-ui, -apple-system, sans-serif' ? 'selected' : '' }}>
-                                                    Inter (Default)
-                                                </option>
-                                                <option value="'Roboto', sans-serif" 
-                                                        {{ ($brandingData['font_family'] ?? '') == "'Roboto', sans-serif" ? 'selected' : '' }}>
-                                                    Roboto
-                                                </option>
-                                                <option value="'Open Sans', sans-serif" 
-                                                        {{ ($brandingData['font_family'] ?? '') == "'Open Sans', sans-serif" ? 'selected' : '' }}>
-                                                    Open Sans
-                                                </option>
-                                                <option value="'Poppins', sans-serif" 
-                                                        {{ ($brandingData['font_family'] ?? '') == "'Poppins', sans-serif" ? 'selected' : '' }}>
-                                                    Poppins
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="border_radius" class="form-label fw-bold">Border Radius</label>
-                                            <select class="form-control" id="border_radius" name="border_radius">
-                                                <option value="0" {{ ($brandingData['border_radius'] ?? '') == '0' ? 'selected' : '' }}>None</option>
-                                                <option value="0.25rem" {{ ($brandingData['border_radius'] ?? '') == '0.25rem' ? 'selected' : '' }}>Small</option>
-                                                <option value="0.375rem" {{ ($brandingData['border_radius'] ?? '') == '0.375rem' ? 'selected' : '' }}>Medium (Default)</option>
-                                                <option value="0.5rem" {{ ($brandingData['border_radius'] ?? '') == '0.5rem' ? 'selected' : '' }}>Large</option>
-                                                <option value="1rem" {{ ($brandingData['border_radius'] ?? '') == '1rem' ? 'selected' : '' }}>Extra Large</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                             
                             <!-- Live Preview -->
@@ -201,17 +161,6 @@
                                             <button class="btn btn-outline-primary">Outline</button>
                                         </div>
                                         <p class="text-muted small">This shows how it will look with new colors</p>
-                                    </div>
-                                    
-                                    <div class="alert alert-info">
-                                        <strong>Info:</strong> This is how alerts will appear
-                                    </div>
-                                    
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h6 class="card-title">Sample Card</h6>
-                                            <p class="card-text">This demonstrates your border radius and styling.</p>
-                                        </div>
                                     </div>
                                 </div>
                             </div>

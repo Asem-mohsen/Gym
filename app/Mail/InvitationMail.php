@@ -7,6 +7,7 @@ use App\Models\Invitation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -27,6 +28,13 @@ class InvitationMail extends Mailable
     {
         return new Envelope(
             subject: 'You\'re Invited to Join ' . $this->invitation->gym->gym_name,
+            from: new Address(
+                $this->invitation->gym->contact_email ?: config('mail.from.address'),
+                $this->invitation->gym->gym_name
+            ),
+            replyTo: $this->invitation->gym->contact_email ? 
+                [new Address($this->invitation->gym->contact_email, $this->invitation->gym->gym_name)] : 
+                [],
         );
     }
 

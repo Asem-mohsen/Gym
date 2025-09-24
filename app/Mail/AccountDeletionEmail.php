@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\SiteSetting;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -27,6 +28,13 @@ class AccountDeletionEmail extends Mailable
     {
         return new Envelope(
             subject: 'We\'ll Miss You at ' . $this->gym->getTranslation('gym_name', 'en'),
+            from: new Address(
+                $this->gym->contact_email ?: config('mail.from.address'),
+                $this->gym->getTranslation('gym_name', 'en')
+            ),
+            replyTo: $this->gym->contact_email ? 
+                [new Address($this->gym->contact_email, $this->gym->getTranslation('gym_name', 'en'))] : 
+                [],
         );
     }
 

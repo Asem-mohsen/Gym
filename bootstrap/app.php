@@ -43,6 +43,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'require.gym.context' => \App\Http\Middleware\RequireGymContext::class,
             'gym.resource.auth' => \App\Http\Middleware\GymResourceAuthorization::class,
             'check.gym.visibility' => \App\Http\Middleware\CheckGymVisibility::class,
+            'prevent.admin.indexing' => \App\Http\Middleware\PreventAdminIndexing::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

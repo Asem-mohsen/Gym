@@ -23,7 +23,7 @@ class ForgetPasswordController extends Controller
     {
         $validated = $request->validated();
 
-        $success = $this->forgetPasswordService->sendResetToken($validated['email'], 'token');
+        $success = $this->forgetPasswordService->sendResetToken($validated['email'], 'token', $siteSetting);
 
         return $success
             ? to_route('auth.login.index', ['siteSetting' => $siteSetting->slug])->with('success', 'If the provided email is registered in our system, a password reset link has been sent to it.')
@@ -34,7 +34,7 @@ class ForgetPasswordController extends Controller
     {
         $validated = $request->validated();
 
-        $status = $this->forgetPasswordService->verifyTokenOrCode($validated['token'], $validated['email']);
+        $status = $this->forgetPasswordService->verifyTokenOrCode($validated['token'], $validated['email'], $siteSetting);
 
         if ($status === 'expired') {
             return back()->withErrors(['token' => 'Token expired. A new email has been sent.']);
@@ -55,7 +55,7 @@ class ForgetPasswordController extends Controller
     {
         $validated = $request->validated();
 
-        $status = $this->forgetPasswordService->resetPassword($validated['email'], $validated['token'], $validated['password']);
+        $status = $this->forgetPasswordService->resetPassword($validated['email'], $validated['token'], $validated['password'], $siteSetting);
 
         return match ($status) {
             'expired' => back()->withErrors(['token' => 'Token expired. We sent you a new one.']),

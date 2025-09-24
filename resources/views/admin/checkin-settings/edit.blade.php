@@ -162,10 +162,10 @@
                     <label class="form-label"><strong>Enabled Methods:</strong></label>
                     <div class="text-muted">
                         @if($checkinSetting->enable_self_scan)
-                            <span class="badge bg-primary me-1">Self-Scan</span>
+                            <span class="badge bg-primary text-white me-1">Self-Scan</span>
                         @endif
                         @if($checkinSetting->enable_gate_scan)
-                            <span class="badge bg-success me-1">Gate-Scan</span>
+                            <span class="badge bg-success text-white me-1">Gate-Scan</span>
                         @endif
                     </div>
                 </div>

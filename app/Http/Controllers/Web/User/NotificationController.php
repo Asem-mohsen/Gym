@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\Web\User;
 
 use App\Http\Controllers\Controller;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Exception;
-use Illuminate\Support\Facades\Log;
 
 class NotificationController extends Controller
 {
@@ -22,7 +21,7 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         try {
-            $user = Auth::guard('sanctum')->user();
+            $user = Auth::user();
             $perPage = $request->get('per_page', 20);
             
             $notifications = $this->notificationService->getUserNotifications($user, $perPage);
@@ -38,7 +37,6 @@ class NotificationController extends Controller
                 ]
             ]);
         } catch (Exception $e) {
-            Log::error('Error loading notifications.', ['error' => $e->getMessage()]);
             return response()->json([
                 'success' => false,
                 'message' => 'Error loading notifications.'
@@ -52,7 +50,7 @@ class NotificationController extends Controller
     public function unreadCount()
     {
         try {
-            $user = Auth::guard('sanctum')->user();
+            $user = Auth::user();
             $count = $this->notificationService->getUnreadCount($user);
             
             return response()->json([
@@ -73,7 +71,7 @@ class NotificationController extends Controller
     public function markAsRead(Request $request, $id)
     {
         try {
-            $user = Auth::guard('sanctum')->user();
+            $user = Auth::user();
             $success = $this->notificationService->markAsRead($user, $id);
             
             if ($success) {
@@ -101,7 +99,7 @@ class NotificationController extends Controller
     public function markAllAsRead()
     {
         try {
-            $user = Auth::guard('sanctum')->user();
+            $user = Auth::user();
             $success = $this->notificationService->markAllAsRead($user);
             
             if ($success) {
@@ -129,7 +127,7 @@ class NotificationController extends Controller
     public function destroy($id)
     {
         try {
-            $user = Auth::guard('sanctum')->user();
+            $user = Auth::user();
 
             $success = $this->notificationService->deleteNotification($user, $id);
             
@@ -153,16 +151,15 @@ class NotificationController extends Controller
     }
 
     /**
-     * Get recent notifications for sidebar
+     * Get recent notifications for navbar dropdown
      */
     public function recent()
     {
         try {
-            $user = Auth::guard('sanctum')->user();
+            $user = Auth::user();
             $notifications = $this->notificationService->getUserNotifications($user, 5);
             $unreadCount = $this->notificationService->getUnreadCount($user);
             
-            Log::info('Notifications', ['notifications' => $notifications->items(), 'unread_count' => $unreadCount]);
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -171,7 +168,6 @@ class NotificationController extends Controller
                 ]
             ]);
         } catch (Exception $e) {
-            Log::error('Error loading recent notifications.', ['error' => $e->getMessage()]);
             return response()->json([
                 'success' => false,
                 'message' => 'Error loading recent notifications.'

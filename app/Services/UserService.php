@@ -188,9 +188,11 @@ class UserService
         try {
             // Only send onboarding email if user hasn't set their password yet
             if (!$user->hasSetPassword()) {
-                $gymName = $user->gyms()->whereKey($siteSettingId)->first()->gym_name;
+                $gym = $user->gyms()->whereKey($siteSettingId)->first();
+                $gymName = $gym->gym_name;
+                $gymContactEmail = $gym->contact_email;
                 
-                Mail::to($user->email)->send(new UserOnboardingMail($user, $gymName));
+                Mail::to($user->email)->send(new UserOnboardingMail($user, $gymName, $gymContactEmail));
             }
         } catch (Exception $e) {
             Log::error('Failed to send onboarding email to user: ' . $user->email, [

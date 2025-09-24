@@ -16,11 +16,6 @@ class RealTimeNotificationService
     {
         try {
             broadcast(new NotificationSentEvent($notification));
-            
-            Log::info('Real-time notification broadcasted to all users', [
-                'notification_type' => $notification['type'] ?? 'general',
-                'subject' => $notification['subject'] ?? 'No subject'
-            ]);
         } catch (Exception $e) {
             Log::error('Failed to broadcast real-time notification', [
                 'error' => $e->getMessage(),
@@ -40,10 +35,6 @@ class RealTimeNotificationService
             $notification['target_users'] = $userIds;
             broadcast(new NotificationSentEvent($notification));
             
-            Log::info('Real-time notification broadcasted to specific users', [
-                'user_count' => count($userIds),
-                'notification_type' => $notification['type'] ?? 'general'
-            ]);
         } catch (Exception $e) {
             Log::error('Failed to broadcast real-time notification to users', [
                 'error' => $e->getMessage(),
@@ -62,9 +53,6 @@ class RealTimeNotificationService
             $notification['target_audience'] = 'admins';
             broadcast(new NotificationSentEvent($notification));
             
-            Log::info('Real-time notification broadcasted to admins', [
-                'notification_type' => $notification['type'] ?? 'general'
-            ]);
         } catch (Exception $e) {
             Log::error('Failed to broadcast real-time notification to admins', [
                 'error' => $e->getMessage(),

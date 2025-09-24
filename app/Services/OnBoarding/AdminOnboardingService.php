@@ -30,7 +30,8 @@ class AdminOnboardingService
             $gym = $user->gyms()->first();
             $gymName = $gym->gym_name ?? 'Our Gym';
             $gymSlug = $gym->slug ?? 'our-gym';
-            Mail::to($user->email)->send(new AdminOnboardingMail($user, $gymName, $gymSlug, $token));
+            $gymContactEmail = $gym->contact_email ?? null;
+            Mail::to($user->email)->send(new AdminOnboardingMail($user, $gymName, $gymSlug, $token, $gymContactEmail));
 
             return true;
         } catch (Exception $e) {

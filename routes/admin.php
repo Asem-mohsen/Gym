@@ -35,7 +35,7 @@ use App\Http\Controllers\Web\Admin\GymBrandingController;
 use App\Http\Controllers\Web\Admin\NotificationController;
 
 // Admin Routes
-Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
+Route::prefix('admin')->middleware(['auth:web', 'admin', 'prevent.admin.indexing'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     // User Management Routes
