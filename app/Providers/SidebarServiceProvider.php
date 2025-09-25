@@ -22,7 +22,7 @@ class SidebarServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        View::composer('layout.admin.sidebar.sidebar', function ($view) {
+        View::composer(['layout.admin.sidebar.sidebar', 'layout.admin.header.head'], function ($view) {
             /**
              * @var User $user
             */

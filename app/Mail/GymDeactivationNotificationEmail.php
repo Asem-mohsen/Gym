@@ -7,6 +7,7 @@ use App\Models\SiteSetting;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -28,6 +29,13 @@ class GymDeactivationNotificationEmail extends Mailable implements ShouldQueue
     {
         return new Envelope(
             subject: 'Important Notice: ' . $this->gym->gym_name . ' Gym Deactivation',
+            from: new Address(
+                $this->gym->contact_email ?: config('mail.from.address'),
+                $this->gym->gym_name
+            ),
+            replyTo: $this->gym->contact_email ? 
+                [new Address($this->gym->contact_email, $this->gym->gym_name)] : 
+                [],
         );
     }
 

@@ -36,8 +36,10 @@ return [
     ],
 
     'stripe' => [
-        'secret' => env('STRIPE_SECRET'),
-        'public' => env('STRIPE_KEY'),
+        'secret_key' => env('STRIPE_SECRET_KEY'),
+        'public_key' => env('STRIPE_PUBLIC_KEY'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        'api_version' => env('STRIPE_API_VERSION', '2023-10-16'),
     ],
     'paymob' => [
         'base_url'     => env('PAYMOB_BASE_URL', 'https://accept.paymob.com/api'),
@@ -51,6 +53,15 @@ return [
             'kiosk'  => env('PAYMOB_KIOSK_INTEGRATION_ID', ''),
         ],
     ],
+
+    'fawry' => [
+        'base_url' => env('FAWRY_BASE_URL', 'https://atfawry.fawrystaging.com/ECommerceWeb/Fawry/payments/'),
+        'merchant_code' => env('FAWRY_MERCHANT_CODE'),
+        'security_key' => env('FAWRY_SECURITY_KEY'),
+        'merchant_ref_num' => env('FAWRY_MERCHANT_REF_NUM'),
+        'webhook_secret' => env('FAWRY_WEBHOOK_SECRET'),
+        'environment' => env('FAWRY_ENVIRONMENT', 'staging'), // staging or production
+    ],
     'pusher' => [
         'app_id' => env('PUSHER_APP_ID'),
         'key' => env('PUSHER_APP_KEY'),
@@ -58,4 +69,6 @@ return [
         'cluster' => env('PUSHER_APP_CLUSTER', 'eu'),
         'use_tls' => env('PUSHER_USE_TLS', true),
     ],
+
+    'default_payment_gateway' => env('DEFAULT_PAYMENT_GATEWAY', 'paymob'),
 ];

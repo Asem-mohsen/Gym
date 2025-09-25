@@ -35,7 +35,7 @@ use App\Http\Controllers\Web\Admin\GymBrandingController;
 use App\Http\Controllers\Web\Admin\NotificationController;
 
 // Admin Routes
-Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
+Route::prefix('admin')->middleware(['auth:web', 'admin', 'prevent.admin.indexing'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     // User Management Routes
@@ -112,6 +112,7 @@ Route::prefix('admin')->middleware(['auth:web', 'admin'])->group(function () {
         });
         
         Route::resource('payments', PaymentsController::class)->only(['index']);
+        Route::post('payment-gateway/save', [PaymentsController::class, 'saveGateway'])->name('admin.payment-gateway.save');
         
         // Cash Payments Management Routes
         Route::prefix('cash-payments')->controller(CashPaymentController::class)->name('admin.cash-payments.')->group(function () {

@@ -3,6 +3,7 @@ namespace App\Services\Auth;
 
 use App\Mail\PasswordResetMail;
 use App\Models\User;
+use App\Models\SiteSetting;
 use App\Services\UserService;
 use Illuminate\Support\Facades\{DB, Hash, Mail};
 use Illuminate\Support\{Carbon, Str};
@@ -13,7 +14,7 @@ class ForgetPasswordService
         protected UserService $userService
     ) {}
 
-    public function sendResetToken(string $email, string $type = 'token'): bool
+    public function sendResetToken(string $email, string $type = 'token', ?SiteSetting $gym = null): bool
     {
         $user = $this->userService->findUserBy('email', $email);
 
@@ -34,13 +35,13 @@ class ForgetPasswordService
             ]
         );
 
-        Mail::to($email)->send(new PasswordResetMail($token, $user));
+        Mail::to($email)->send(new PasswordResetMail($token, $user, $gym));
 
         return true;
     }
 
 
-    public function verifyTokenOrCode(string $tokenOrCode, string $email, string $type = 'token')
+    public function verifyTokenOrCode(string $tokenOrCode, string $email, string $type = 'token', ?SiteSetting $gym = null)
     {
         $record = DB::table('password_reset_tokens')->where('email', $email)->first();
 
@@ -49,17 +50,17 @@ class ForgetPasswordService
         $isExpired = Carbon::parse($record->created_at)->addMinutes(config('auth.passwords.users.expire', 60))->isPast();
 
         if ($isExpired) {
-            $this->sendResetToken($email, $type);
+            $this->sendResetToken($email, $type, $gym);
             return 'expired';
         }
 
         return Hash::check($tokenOrCode, $record->token);
     }
 
-    public function resetPassword(string $email, ?string $token = null, string $newPassword): string
+    public function resetPassword(string $email, ?string $token = null, string $newPassword, ?SiteSetting $gym = null): string
     {
         if ($token) {
-            $valid = $this->verifyTokenOrCode($token, $email);
+            $valid = $this->verifyTokenOrCode(tokenOrCode: $token, email: $email, gym: $gym);
 
             if ($valid === 'expired') {
                 return 'expired';

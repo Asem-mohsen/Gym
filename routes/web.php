@@ -17,6 +17,11 @@ use App\Http\Controllers\Web\User\NotFoundController;
 use App\Http\Controllers\Web\User\CheckinController;
 use App\Http\Controllers\Web\User\BranchController;
 use App\Http\Controllers\Web\User\CheckoutController;
+use App\Http\Controllers\Web\User\StripePaymentController;
+use App\Http\Controllers\Web\User\FawryPaymentController;
+use App\Http\Controllers\Webhooks\StripeWebhookController;
+use App\Http\Controllers\Webhooks\FawryWebhookController;
+use App\Models\SiteSetting;
 
 // Public Routes
 Route::get('/', [GymSelectionController::class, 'index'])->name('gym.selection');
@@ -65,6 +70,18 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.c
     });
 
     Route::post('/checkout', [CheckoutController::class, 'create'])->name('checkout.create');
+    
+    // Stripe Payment Routes
+    Route::prefix('stripe')->controller(StripePaymentController::class)->name('payment.stripe.')->group(function () {
+        Route::get('/return', 'return')->name('return');
+        Route::get('/cancel', 'cancel')->name('cancel');
+    });
+
+    Route::prefix('fawry')->controller(FawryPaymentController::class)->name('payment.fawry.')->group(function () {
+        Route::post('/process', 'processPayment')->name('process');
+        Route::get('/return', 'handleReturn')->name('return');
+        Route::get('/status', 'checkStatus')->name('status');
+    });
 
     Route::middleware(['auth:web'])->group(function () {
 
@@ -85,7 +102,7 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.c
             Route::get('/history', 'showCheckinHistory')->name('checkin.history');
             Route::get('/stats', 'showCheckinStats')->name('checkin.stats');
             Route::get('/staff-scanner', 'showStaffScanner')->name('checkin.staff-scanner');
-            Route::post('/gate', 'processGateCheckin')->name('checkin.gate');
+            Route::match(['get', 'post'], '/gate', 'processGateCheckin')->name('checkin.gate');
         });
 
         Route::prefix('blog/{blogPost}')->controller(BlogController::class)->group(function () {
@@ -96,15 +113,19 @@ Route::prefix('gym/{siteSetting:slug}')->name('user.')->middleware(['store.gym.c
         });
 
     });
+
+    Route::get('/404', [NotFoundController::class, 'index'])->name('404');
+
+    Route::fallback(function (SiteSetting $siteSetting) {
+        return redirect()->route('user.404' , ['siteSetting' => $siteSetting->slug]);
+    });
 });
 
 Route::get('/paymob/return', [CheckoutController::class, 'return'])->name('paymob.return'); // front redirect
 
-Route::get('/404', [NotFoundController::class, 'index'])->name('404');
-
-Route::fallback(function () {
-    return redirect()->route('404');
-});
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle'])->name('stripe.webhook');
+Route::post('/fawry/webhook', [FawryWebhookController::class, 'handle'])->name('fawry.webhook');
+Route::post('/fawry/callback', [FawryWebhookController::class, 'statusCallback'])->name('fawry.callback');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

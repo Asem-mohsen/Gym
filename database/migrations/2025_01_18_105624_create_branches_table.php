@@ -17,11 +17,18 @@ return new class extends Migration
             $table->foreignId('site_setting_id')->constrained('site_settings')->onDelete('cascade');
             $table->json('name'); 
             $table->json('location'); 
+            $table->decimal('latitude', 10, 8)->nullable();
+            $table->decimal('longitude', 11, 8)->nullable();
+            $table->string('city')->nullable();
+            $table->string('region')->nullable();
+            $table->string('country')->nullable();
             $table->string('type'); // mix - women - men
             $table->integer('size')->nullable();
+            $table->string('map_url')->nullable();
             $table->string('facebook_url')->nullable();
             $table->string('instagram_url')->nullable();
             $table->string('x_url')->nullable();
+            $table->boolean('is_visible')->default(true);
             $table->timestamps();
         });
     }

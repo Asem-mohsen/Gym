@@ -3,18 +3,18 @@
 @section('title', 'Sign Up')
 
 @section('form')
-    <form class="form w-100" novalidate="novalidate" id="kt_sign_up_form" method="POST" action="{{ route('auth.register', ['siteSetting' => $gymContext['slug']]) }}">
+    <form class="form w-100" novalidate="novalidate" id="kt_sign_up_form" method="POST" action="{{ route('auth.register', ['siteSetting' => $siteSetting->slug]) }}">
         @csrf
         
-        @if(isset($gymContext) && isset($gymContext['logo']))
-            <img src="{{ $gymContext['logo'] }}" alt="{{ $gymContext['name'] }}" class="d-flex justify-content-center m-auto h-60px h-lg-75px" />
-        @elseif(isset($gymContext))
+        @if(isset($siteSetting) && $siteSetting->getFirstMediaUrl('gym_logo') != null)
+            <img src="{{ $siteSetting->getFirstMediaUrl('gym_logo') }}" alt="{{ $siteSetting->gym_name }}" class="d-flex justify-content-center m-auto h-60px h-lg-75px" />
+        @elseif(isset($siteSetting))
             <div class="mb-3">
-                <h2 class="text-center">{{ $gymContext['name'] }}</h2>
+                <h2 class="text-center">{{ $siteSetting->gym_name }}</h2>
             </div>
         @endif
         
-        <input type="hidden" name="site_setting_id" value="{{ $gymContext['id'] ?? '' }}">
+        <input type="hidden" name="site_setting_id" value="{{ $siteSetting->id ?? '' }}">
         
         <div class="text-center mb-11 mt-5">
             <h1 class="text-gray-900 fw-bolder mb-3">
@@ -67,7 +67,7 @@
         </div>
 
         <div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
-            <a href="{{ route('auth.login.index', ['siteSetting' => $gymContext['slug']]) }}" class="link-primary">
+            <a href="{{ route('auth.login.index', ['siteSetting' => $siteSetting->slug]) }}" class="link-primary">
                 {{ $brandingData['branding']['page_texts']['register']['login_link_text'] ?? 'Already have an account? Sign In' }}
             </a>
         </div>

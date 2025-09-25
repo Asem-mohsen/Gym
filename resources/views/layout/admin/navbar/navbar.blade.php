@@ -79,9 +79,9 @@
             </div>
 
             <div class="menu-item px-5">
-                <form method="POST" action="{{ route('auth.logout.current') }}">
+                <form method="POST" action="{{ route('auth.logout.current', ['siteSetting' => auth()->user()->getCurrentSite()->slug]) }}">
                     @csrf
-                    <a href="{{ route('auth.logout.current') }}" class="menu-link px-5"  onclick="event.preventDefault(); this.closest('form').submit();">
+                    <a href="{{ route('auth.logout.current', ['siteSetting' => auth()->user()->getCurrentSite()->slug]) }}" class="menu-link px-5"  onclick="event.preventDefault(); this.closest('form').submit();">
                         Sign Out
                     </a>
                 </form>

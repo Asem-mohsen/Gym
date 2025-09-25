@@ -22,7 +22,7 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         try {
-            $user = Auth::user();
+            $user = Auth::guard('sanctum')->user();
             $perPage = $request->get('per_page', 20);
             
             $notifications = $this->notificationService->getUserNotifications($user, $perPage);
@@ -52,7 +52,7 @@ class NotificationController extends Controller
     public function unreadCount()
     {
         try {
-            $user = Auth::user();
+            $user = Auth::guard('sanctum')->user();
             $count = $this->notificationService->getUnreadCount($user);
             
             return response()->json([
@@ -73,7 +73,7 @@ class NotificationController extends Controller
     public function markAsRead(Request $request, $id)
     {
         try {
-            $user = Auth::user();
+            $user = Auth::guard('sanctum')->user();
             $success = $this->notificationService->markAsRead($user, $id);
             
             if ($success) {
@@ -101,7 +101,7 @@ class NotificationController extends Controller
     public function markAllAsRead()
     {
         try {
-            $user = Auth::user();
+            $user = Auth::guard('sanctum')->user();
             $success = $this->notificationService->markAllAsRead($user);
             
             if ($success) {
@@ -129,7 +129,8 @@ class NotificationController extends Controller
     public function destroy($id)
     {
         try {
-            $user = Auth::user();
+            $user = Auth::guard('sanctum')->user();
+
             $success = $this->notificationService->deleteNotification($user, $id);
             
             if ($success) {
@@ -157,7 +158,7 @@ class NotificationController extends Controller
     public function recent()
     {
         try {
-            $user = Auth::user();
+            $user = Auth::guard('sanctum')->user();
             $notifications = $this->notificationService->getUserNotifications($user, 5);
             $unreadCount = $this->notificationService->getUnreadCount($user);
             

@@ -30,13 +30,6 @@ class NotificationService
 
             $users = $this->getUsersByRoles($siteSettingId, $data['target_roles'] ?? ['regular_user']);
 
-            Log::info('Notification sending attempt', [
-                'site_setting_id' => $siteSettingId,
-                'target_roles' => $data['target_roles'] ?? ['regular_user'],
-                'users_found' => $users->count(),
-                'user_emails' => $users->pluck('email')->toArray()
-            ]);
-
             if ($users->isEmpty()) {
                 Log::warning('No users found for notification', [
                     'site_setting_id' => $siteSettingId,
@@ -63,15 +56,6 @@ class NotificationService
             );
 
             $this->realTimeService->broadcastToAll($notification);
-
-            // Log the notification
-            Log::info('Admin notification sent to users', [
-                'site_setting_id' => $siteSettingId,
-                'target_roles' => $data['target_roles'] ?? ['regular_user'],
-                'user_count' => $users->count(),
-                'subject' => $data['subject'],
-                'sent_by' => $data['sent_by'] ?? 'Admin'
-            ]);
 
             DB::commit();
             return true;
@@ -215,8 +199,9 @@ class NotificationService
             ->whereHas('roles', function ($query) use ($roles) {
                 $query->whereIn('name', $roles);
             })
-            ->where('status', 'active')
-            ->get();
+            ->whereNull('deleted_at')
+            ->where('status', true)
+            ->get();    
     }
 
     /**

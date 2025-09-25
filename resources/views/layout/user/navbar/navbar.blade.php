@@ -4,9 +4,16 @@
     <div class="canvas-close">
         <i class="fa fa-close"></i>
     </div>
-    <div class="canvas-search search-switch">
-        <i class="fa fa-search"></i>
-    </div>
+    @auth
+        <div class="canvas-notification">
+            <i class="fa fa-bell"></i>
+            <span class="notification-badge-mobile" id="notificationBadgeMobile" style="display: none;">0</span>
+        </div>
+    @else
+        <div class="canvas-search search-switch">
+            <i class="fa fa-search"></i>
+        </div>
+    @endauth
     <nav class="canvas-menu mobile-menu">
         <ul>
             <li class="{{ request()->routeIs('user.home') ? 'active' : '' }}"><a href="{{ route('user.home', ['siteSetting' => $siteSetting->slug]) }}">Home</a></li>
@@ -102,12 +109,31 @@
                                     <i class="fa fa-envelope"></i> My Invitations
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <form action="{{ route('auth.logout.current') }}" method="POST" class="d-inline">
+                                <form action="{{ route('auth.logout.current', ['siteSetting' => $siteSetting->slug]) }}" method="POST" class="d-inline">
                                     @csrf
                                     <button type="submit" class="dropdown-item logout-btn">
                                         <i class="fa fa-sign-out"></i> Logout
                                     </button>
                                 </form>
+                            </div>
+                        </div>
+
+                        <div class="notification-dropdown">
+                            <div class="notification-icon" id="notificationToggle">
+                                <i class="fa fa-bell"></i>
+                                <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                            </div>
+                            <div class="notification-dropdown-menu" id="notificationDropdown">
+                                <div class="notification-header">
+                                    <h6>Notifications</h6>
+                                    <button class="mark-all-read-btn" id="markAllReadBtn">Mark all as read</button>
+                                </div>
+                                <div class="notification-list" id="notificationList">
+                                    <div class="notification-loading">Loading notifications...</div>
+                                </div>
+                                <div class="notification-footer">
+                                    <a href="#" class="view-all-notifications">View all notifications</a>
+                                </div>
                             </div>
                         </div>
                     @else
@@ -116,12 +142,11 @@
                                 <i class="fa fa-user text-white"></i>
                             </a>
                         </div>
+                        <div class="to-search search-switch">
+                            <i class="fa fa-search"></i>
+                        </div>
                     @endauth
                     
-                    <div class="to-search search-switch">
-                        <i class="fa fa-search"></i>
-                    </div>
-
                     <div class="to-social">
                         <a href="{{$siteSetting->facebook_url}}"><i class="fa fa-facebook"></i></a>
                         <a href="{{$siteSetting->x_url}}"><i class="fa fa-twitter"></i></a>

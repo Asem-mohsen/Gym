@@ -24,8 +24,8 @@ class BranchSeeder extends Seeder
         }
         
         // Get admin users to assign as managers
-        $adminUsers = User::whereHas('role', function($query) {
-            $query->where('name', 'Admin');
+        $adminUsers = User::whereHas('roles', function($query) {
+            $query->where('name', 'admin');
         })->get();
         
         if ($adminUsers->isEmpty()) {

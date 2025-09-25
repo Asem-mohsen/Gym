@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->morphs('bookable');
+            $table->date('booking_date')->nullable();
+            $table->string('payment_method')->nullable();
             $table->timestamps();
         });
     }

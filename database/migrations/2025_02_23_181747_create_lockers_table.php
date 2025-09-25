@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('locker_number')->unique();
             $table->boolean('is_locked')->default(false);
             $table->string('password')->nullable();
+            $table->string('recovery_token')->nullable();
             $table->timestamps();
         });
     }

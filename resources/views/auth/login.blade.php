@@ -3,16 +3,16 @@
 @section('title', 'Sign In')
 
 @section('form')
-    <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" data-kt-redirect-url="{{ route('user.home' , ['siteSetting' => $gymContext['slug'] ?? '']) }}" method="POST" action="{{ route('auth.login', ['siteSetting' => $gymContext['slug']]) }}">
+    <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" data-kt-redirect-url="{{ route('user.home' , ['siteSetting' => $siteSetting->slug ?? '']) }}" method="POST" action="{{ route('auth.login', ['siteSetting' => $siteSetting->slug]) }}">
         @csrf
         
-        <input type="hidden" name="site_setting_id" value="{{ $gymContext['id'] ?? '' }}">
+        <input type="hidden" name="site_setting_id" value="{{ $siteSetting->id ?? '' }}">
         
-        @if(isset($gymContext) && isset($gymContext['logo']))
-            <img src="{{ $gymContext['logo'] }}" alt="{{ $gymContext['name'] }}" class="d-flex justify-content-center m-auto h-60px h-lg-75px" />
-        @elseif(isset($gymContext))
+        @if(isset($siteSetting) && $siteSetting->getFirstMediaUrl('gym_logo') != null)
+            <img src="{{ $siteSetting->getFirstMediaUrl('gym_logo') }}" alt="{{ $siteSetting->gym_name }}" class="d-flex justify-content-center m-auto h-60px h-lg-75px" />
+        @elseif(isset($siteSetting))
             <div class="mb-3">
-                <h2 class="text-center">{{ $gymContext['name'] }}</h2>
+                <h2 class="text-center">{{ $siteSetting->gym_name }}</h2>
             </div>
         @endif
         
@@ -43,10 +43,10 @@
         </div>
 
         <div class="d-flex flex-column flex-wrap gap-3 fs-base fw-semibold mb-8">
-            <a href="{{ route('auth.forget-password.index', ['siteSetting' => $gymContext['slug']]) }}" class="link-primary">
+            <a href="{{ route('auth.forget-password.index', ['siteSetting' => $siteSetting->slug]) }}" class="link-primary">
                 {{ $brandingData['branding']['page_texts']['login']['forgot_password_text'] ?? 'Forgot Password ?' }}
             </a>
-            <a href="{{ route('auth.register.index', ['siteSetting' => $gymContext['slug']]) }}" class="link-primary">
+            <a href="{{ route('auth.register.index', ['siteSetting' => $siteSetting->slug]) }}" class="link-primary">
                 {{ $brandingData['branding']['page_texts']['login']['register_link_text'] ?? 'Register' }}
             </a>
         </div>

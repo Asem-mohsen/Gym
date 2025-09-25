@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('offers', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('site_setting_id')->constrained()->onDelete('cascade');
             $table->json('title');
             $table->json('description');
             $table->enum('discount_type',['fixed', 'percentage']);

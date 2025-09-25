@@ -28,12 +28,14 @@ class MembershipsSeeder extends Seeder
             $memberships[] = [
                 'name' => json_encode(['en' => 'Basic', 'ar' => 'أساسي']),
                 'period' => MembershipPeriod::MONTH->value,
-                'description' => json_encode(['en' => 'Basic membership description', 'ar' => 'وصف العضوية الأساسية']),
+                'subtitle' => json_encode(['en' => 'Basic membership description', 'ar' => 'وصف العضوية الأساسية']),
+                'general_description' => json_encode(['en' => 'Basic membership description', 'ar' => 'وصف العضوية الأساسية']),
                 'price' => 30.00,
                 'billing_interval' => MembershipPeriod::MONTH->getBillingInterval(),
                 'status' => 1,
                 'order' => 1,
                 'site_setting_id' => $siteSetting->id,
+                'invitation_limit' => 2,
                 'created_at' => now(),
                 'updated_at' => now()
             ];
@@ -41,12 +43,14 @@ class MembershipsSeeder extends Seeder
             $memberships[] = [
                 'name' => json_encode(['en' => 'Standard', 'ar' => 'قياسي']),
                 'period' => MembershipPeriod::THREE_MONTHS->value,
-                'description' => json_encode(['en' => 'Standard membership description', 'ar' => 'وصف العضوية القياسية']),
+                'subtitle' => json_encode(['en' => 'Standard membership description', 'ar' => 'وصف العضوية القياسية']),
+                'general_description' => json_encode(['en' => 'Standard membership description', 'ar' => 'وصف العضوية القياسية']),
                 'price' => 75.00,
                 'billing_interval' => MembershipPeriod::THREE_MONTHS->getBillingInterval(),
                 'status' => 1,
                 'order' => 2,
                 'site_setting_id' => $siteSetting->id,
+                'invitation_limit' => 5,
                 'created_at' => now(),
                 'updated_at' => now()
             ];
@@ -54,12 +58,14 @@ class MembershipsSeeder extends Seeder
             $memberships[] = [
                 'name' => json_encode(['en' => 'VIP', 'ar' => 'امتياز']),
                 'period' => MembershipPeriod::YEAR->value,
-                'description' => json_encode(['en' => 'VIP membership description', 'ar' => 'وصف العضوية المميزة']),
+                'subtitle' => json_encode(['en' => 'VIP membership description', 'ar' => 'وصف العضوية المميزة']),
+                'general_description' => json_encode(['en' => 'VIP membership description', 'ar' => 'وصف العضوية المميزة']),
                 'price' => 375.00,
                 'billing_interval' => MembershipPeriod::YEAR->getBillingInterval(),
                 'status' => 1,
                 'order' => 3,
                 'site_setting_id' => $siteSetting->id,
+                'invitation_limit' => 10,
                 'created_at' => now(),
                 'updated_at' => now()
             ];
@@ -67,12 +73,14 @@ class MembershipsSeeder extends Seeder
             $memberships[] = [
                 'name' => json_encode(['en' => 'Day Pass', 'ar' => 'تذكرة يومية']),
                 'period' => MembershipPeriod::DAY->value,
-                'description' => json_encode(['en' => 'One day access pass', 'ar' => 'تذكرة دخول ليوم واحد']),
+                'subtitle' => json_encode(['en' => 'One day access pass', 'ar' => 'تذكرة دخول ليوم واحد']),
+                'general_description' => json_encode(['en' => 'One day access pass', 'ar' => 'تذكرة دخول ليوم واحد']),
                 'price' => 5.00,
                 'billing_interval' => MembershipPeriod::DAY->getBillingInterval(),
                 'status' => 1,
                 'order' => 4,
                 'site_setting_id' => $siteSetting->id,
+                'invitation_limit' => 0,
                 'created_at' => now(),
                 'updated_at' => now()
             ];

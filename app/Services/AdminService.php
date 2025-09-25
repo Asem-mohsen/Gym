@@ -138,6 +138,7 @@ class AdminService
             $gym = $user->gyms()->where('site_setting_id', $siteSettingId)->first();
             $gymName = $gym->gym_name;
             $gymSlug = $gym->slug;
+            $gymContactEmail = $gym->contact_email;
             
             $token = Str::random(64);
             DB::table('password_reset_tokens')->updateOrInsert(
@@ -149,7 +150,7 @@ class AdminService
                 ]
             );
             
-            Mail::to($user->email)->send(new AdminOnboardingMail($user, $gymName, $gymSlug, $token));
+            Mail::to($user->email)->send(new AdminOnboardingMail($user, $gymName, $gymSlug, $token, $gymContactEmail));
         } catch (Exception $e) {
             Log::error('Failed to send onboarding email to admin: ' . $user->email, [
                 'error' => $e->getMessage(),

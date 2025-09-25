@@ -83,7 +83,7 @@ class QrCodeService
 
 
     /**
-     * Generate a personal QR code URL for a user
+     * Generate a personal QR code URL for a user (web endpoint)
      */
     public function generatePersonalQrUrlWithEndpoint(User $user, SiteSetting $gym): string
     {
@@ -91,6 +91,17 @@ class QrCodeService
         $identifier = $gym->slug ?? $gym->id;
         return url("/gym/{$identifier}/checkin/gate?token={$token}");
     }
+
+    /**
+     * Generate a personal QR code URL for API validation
+     */
+    public function generatePersonalQrUrlForApi(User $user, SiteSetting $gym): string
+    {
+        $token = $this->generatePersonalQrToken($user, $gym);
+        $identifier = $gym->slug ?? $gym->id;
+        return url("/api/v1/{$identifier}/checkin/validate-token?token={$token}");
+    }
+
 
     /**
      * Decrypt QR token (alias for decryptPersonalQrToken for consistency)

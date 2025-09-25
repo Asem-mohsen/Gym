@@ -12,8 +12,8 @@ final class PaymobClient {
     }
 
     public function authenticate(): string {
-        $secret = config('services.paymob.api_key');
-        return $this->base()->post('/auth/tokens', ['api_key' => $secret])->throw()->json('token');
+        $apiKey = config('services.paymob.api_key');
+        return $this->base()->post('/auth/tokens', ['api_key' => $apiKey])->throw()->json('token');
     }
 
     public function registerOrder(string $token, array $payload): array {

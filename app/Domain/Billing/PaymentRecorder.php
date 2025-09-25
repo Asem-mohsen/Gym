@@ -8,8 +8,9 @@ use Illuminate\Support\Facades\DB;
 use App\Domain\Billing\Contracts\Purchasable;
 
 final class PaymentRecorder {
-    public function start(PaymentRequest $req, array $gatewayOrder): Payment {
-        return DB::transaction(function () use ($req, $gatewayOrder) {
+    
+    public function start(PaymentRequest $req, array $gatewayOrder, string $gatewayName = 'paymob'): Payment {
+        return DB::transaction(function () use ($req, $gatewayOrder, $gatewayName) {
             $payment = Payment::query()->firstOrCreate(
                 ['merchant_order_id' => $req->merchantOrderId],
                 [
@@ -17,12 +18,12 @@ final class PaymentRecorder {
                     'paymentable_id'   => $req->item->getPurchasableId(),
                     'amount'       => $req->item->getAmount(),
                     'currency'     => $req->item->getCurrency(),
-                    'gateway'      => 'paymob',
+                    'gateway'      => $gatewayName,
                     'gateway_order_id' => $gatewayOrder['id'] ?? null,
                     'meta'           => $req->item->getMetadata(),
                     'user_id'        => $req->user->id,
                     'payment_method' => $req->method->value,
-                    'site_setting_id' => $req->billingData['site_setting_id'],
+                    'site_setting_id' => $req->user->getCurrentSite()->id,
                 ]
             );
 
@@ -30,8 +31,8 @@ final class PaymentRecorder {
                 'method' => $req->method->value,
                 'gateway_transaction_id' => $gatewayOrder['id'] ?? null,
                 'gateway_integration_id' => $gatewayOrder['integration_id'] ?? null,
-                'status' => 'pending',
-                'gatway' => 'paymob',
+                'status'  => 'pending',
+                'gateway' => $gatewayName,
                 'response' => $gatewayOrder,
             ]);
 
@@ -44,7 +45,8 @@ final class PaymentRecorder {
             $payment->update(['status' => 'succeeded']);
             $payment->attempts()->latest()->update([
                 'status' => 'succeeded',
-                'paymob_transaction_id' => $transactionId,
+                'gateway_transaction_id' => $transactionId,
+                'gateway_integration_id' => $payload['integration_id'] ?? null,
                 'response' => $payload,
             ]);
             /** @var Purchasable $item */
@@ -58,7 +60,8 @@ final class PaymentRecorder {
             $payment->update(['status' => 'failed']);
             $payment->attempts()->latest()->update([
                 'status' => 'failed',
-                'paymob_transaction_id' => $transactionId,
+                'gateway_transaction_id' => $transactionId,
+                'gateway_integration_id' => $payload['integration_id'] ?? null,
                 'response' => $payload,
             ]);
             /** @var Purchasable $item */

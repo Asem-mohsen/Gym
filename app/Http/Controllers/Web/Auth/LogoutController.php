@@ -3,50 +3,47 @@
 namespace App\Http\Controllers\Web\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\SiteSetting;
 use App\Services\Auth\LogoutService;
-use App\Services\GymContextService;
 use Illuminate\Http\Request;
 
 class LogoutController extends Controller
 {
-    protected $logoutService;
-    protected $gymContextService;
-
-    public function __construct(LogoutService $logoutService, GymContextService $gymContextService)
+    public function __construct(protected LogoutService $logoutService)
     {
         $this->logoutService = $logoutService;
-        $this->gymContextService = $gymContextService;
     }
 
-    public function logoutFromCurrentSession(Request $request)
+    public function logoutFromCurrentSession(Request $request, SiteSetting $siteSetting)
     {
         $this->logoutService->logoutFromCurrentSession($request);
         
-        $gymContext = $this->gymContextService->getCurrentGymContext();
-
-        if($gymContext) {
-            return redirect()->route('auth.login.index', ['siteSetting' => $gymContext['slug']])->with('success', 'You\'ve been logged out from this session.');
+        if($siteSetting) {
+            return redirect()->route('auth.login.index', ['siteSetting' => $siteSetting->slug])->with('success', 'You\'ve been logged out from this session.');
         }
 
         return redirect()->route('gym.selection')->with('success', 'You\'ve been logged out from this session.');
     }
 
-    public function logoutFromAllSessions(Request $request)
+    public function logoutFromAllSessions(Request $request, SiteSetting $siteSetting)
     {
         $this->logoutService->logoutFromAllSessions($request);
         
-        $gymContext = $this->gymContextService->getCurrentGymContext();
-
-        if($gymContext) {
-            return redirect()->route('auth.login.index', ['siteSetting' => $gymContext['slug']])->with('success', 'Logged out from all sessions.');
+        if($siteSetting) {
+            return redirect()->route('auth.login.index', ['siteSetting' => $siteSetting->slug])->with('success', 'Logged out from all sessions.');
         }
 
         return redirect()->route('gym.selection')->with('success', 'Logged out from all sessions.');
     }
 
-    public function logoutFromOtherSessions(Request $request)
+    public function logoutFromOtherSessions(Request $request, SiteSetting $siteSetting)
     {
         $this->logoutService->logoutFromOtherSessions($request);
-        return back()->with('success', 'Logged out from other sessions.');
+
+        if($siteSetting) {
+            return redirect()->route('auth.login.index', ['siteSetting' => $siteSetting->slug])->with('success', 'Logged out from other sessions.');
+        }
+
+        return redirect()->route('gym.selection')->with('success', 'Logged out from other sessions.');
     }
 }

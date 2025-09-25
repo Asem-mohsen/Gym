@@ -57,7 +57,7 @@ class CheckinService
      */
     public function validateCheckin(User $user, $gym, ?string $checkinType = null): array
     {
-        if (!$user->gyms()->where('site_setting_id', $gym->id)->exists()) {
+        if (!$user->gyms()->whereKey($gym->id)->exists()) {
             return [
                 'valid' => false,
                 'message' => 'User is not associated with this gym.',

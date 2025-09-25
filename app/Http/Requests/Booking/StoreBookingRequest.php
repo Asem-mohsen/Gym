@@ -22,6 +22,7 @@ class StoreBookingRequest extends FormRequest
             'branch_id'     => 'nullable|integer|exists:branches,id',
             'booking_date'  => 'nullable|date',
             'method'        => 'required|string|in:card,wallet,kiosk,cash,paypal,credit_card,debit_card',
+            'is_free'       => 'nullable|boolean',
         ];
     }
 }

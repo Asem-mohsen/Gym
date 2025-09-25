@@ -18,7 +18,10 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('content');
             $table->text('excerpt')->nullable();
-            $table->string('image')->nullable();
+            $table->string('quote_author_name')->nullable();
+            $table->string('quote_author_title')->nullable();
+            $table->text('author_comment')->nullable();
+            $table->text('description')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
             $table->timestamps();

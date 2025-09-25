@@ -10,7 +10,7 @@
             </div>
 
             <div class="mt-4 flex items-center justify-between">
-                <form method="POST" action="{{ route('auth.forget-password.send-code' , ['siteSetting' => $gymContext['slug']]) }}">
+                <form method="POST" action="{{ route('auth.forget-password.send-code' , ['siteSetting' => $siteSetting->slug]) }}">
                     @csrf
 
                     <div class="fv-row mb-8">
@@ -28,7 +28,7 @@
                 </form>
 
 
-                <a href="{{ route('auth.login.index', ['siteSetting' => $gymContext['slug']]) }}" id="kt_sign_in_submit" class="btn btn-secondary mt-3">
+                <a href="{{ route('auth.login.index', ['siteSetting' => $siteSetting->slug]) }}" id="kt_sign_in_submit" class="btn btn-secondary mt-3">
                     <span class="indicator-label">{{ __('Back to Login') }}</span>
                     <span class="indicator-progress">Please wait... 
                     <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>

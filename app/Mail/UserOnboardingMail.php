@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -22,14 +23,16 @@ class UserOnboardingMail extends Mailable
     public $user;
     public $resetUrl;
     public $gymName;
+    public $gymContactEmail;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(User $user, string $gymName)
+    public function __construct(User $user, string $gymName, ?string $gymContactEmail = null)
     {
         $this->user = $user;
         $this->gymName = $gymName;
+        $this->gymContactEmail = $gymContactEmail;
         
         $token = Str::random(64);
         
@@ -70,6 +73,13 @@ class UserOnboardingMail extends Mailable
     {
         return new Envelope(
             subject: 'Welcome to ' . $this->gymName . ' - Set Your Password',
+            from: new Address(
+                $this->gymContactEmail ?: config('mail.from.address'),
+                $this->gymName
+            ),
+            replyTo: $this->gymContactEmail ? 
+                [new Address($this->gymContactEmail, $this->gymName)] : 
+                [],
         );
     }
 

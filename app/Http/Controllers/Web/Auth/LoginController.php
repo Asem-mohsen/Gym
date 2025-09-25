@@ -5,51 +5,47 @@ namespace App\Http\Controllers\Web\Auth;
 use Exception;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Models\SiteSetting;
 use App\Services\Auth\AuthService;
-use App\Services\{ GymContextService, GymBrandingService };
+use App\Services\GymBrandingService ;
 use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
     public function __construct(
         private AuthService $authService,
-        private GymContextService $gymContextService,
         private GymBrandingService $gymBrandingService
     ) {
     }
 
-    public function index()
+    public function index(SiteSetting $siteSetting)
     {
-        $gymContext = $this->gymContextService->getCurrentGymContext();
-        
         $brandingData = null;
         $gymCssVariables = null;
         
-        if ($gymContext && isset($gymContext['id'])) {
+        if ($siteSetting && isset($siteSetting->id)) {
             try {
-                $brandingData = $this->gymBrandingService->getBrandingForAdmin($gymContext['id']);
-                $gymCssVariables = $this->gymBrandingService->generateCssVariables($gymContext['id']);
+                $brandingData = $this->gymBrandingService->getBrandingForAdmin($siteSetting->id);
+                $gymCssVariables = $this->gymBrandingService->generateCssVariables($siteSetting->id);
             } catch (Exception $e) {
                 Log::warning('Failed to load branding data for login page: ' . $e->getMessage());
             }
         }
         
-        return view('auth.login', compact('gymContext', 'brandingData', 'gymCssVariables'));
+        return view('auth.login', compact('siteSetting', 'brandingData', 'gymCssVariables'));
     }
 
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request, SiteSetting $siteSetting)
     {
         try {
             $credentials = $request->only(['email', 'password']);
             $user = $this->authService->webLoign($credentials);
 
-            $gymContext = $this->gymContextService->getCurrentGymContext();
-            
             if ($request->ajax() || $request->expectsJson()) {
-                if ($gymContext && $user->hasRole('regular_user')) {
+                if ($siteSetting && $user->hasRole('regular_user')) {
                     return response()->json([
                         'message' => 'Login successful!',
-                        'redirect' => route('user.home', ['siteSetting' => $gymContext['slug']])
+                        'redirect' => route('user.home', ['siteSetting' => $siteSetting->slug])
                     ]);
                 }
                 
@@ -59,8 +55,8 @@ class LoginController extends Controller
                 ]);
             }
 
-            if ($gymContext && $user->hasRole('regular_user')) {
-                return redirect()->route('user.home', ['siteSetting' => $gymContext['slug']]);
+            if ($siteSetting && $user->hasRole('regular_user')) {
+                return redirect()->route('user.home', ['siteSetting' => $siteSetting->slug]);
             }
 
             return redirect()->route('admin.dashboard');

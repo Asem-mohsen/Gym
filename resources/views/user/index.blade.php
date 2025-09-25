@@ -160,7 +160,7 @@
                                 <div class="bi-text mt-3">
                                     <div class="d-flex align-items-center justify-content-between gap-2">
                                         <h4 class="text-white">{{ $branch->name }}</h4>
-                                        <span class="badge badge-{{ $branch->type === 'mix' ? 'primary' : ($branch->type === 'women' ? 'pink' : 'info') }}">
+                                        <span class="badge badge-{{ $branch->type === 'mix' ? 'primary' : ($branch->type === 'ladies' ? 'pink' : 'info') }}">
                                             {{ ucfirst($branch->type) }}
                                         </span>
                                     </div>

@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -23,6 +24,7 @@ class AdminOnboardingMail extends Mailable implements ShouldQueue
     public $gymName;
     public $gymSlug;
     public $token;
+    public $gymContactEmail;
     
     /**
      * The number of seconds the job can run before timing out.
@@ -32,12 +34,13 @@ class AdminOnboardingMail extends Mailable implements ShouldQueue
     /**
      * Create a new message instance.
      */
-    public function __construct(User $user, string $gymName, string $gymSlug, string $token)
+    public function __construct(User $user, string $gymName, string $gymSlug, string $token, ?string $gymContactEmail = null)
     {
         $this->user = $user;
         $this->gymName = $gymName;
         $this->gymSlug = $gymSlug;
         $this->token = $token;
+        $this->gymContactEmail = $gymContactEmail;
 
         $this->resetUrl = URL::temporarySignedRoute(
             'auth.admin-setup-password',
@@ -55,6 +58,13 @@ class AdminOnboardingMail extends Mailable implements ShouldQueue
     {
         return new Envelope(
             subject: 'Welcome to ' . $this->gymName . ' - Admin Account Setup',
+            from: new Address(
+                $this->gymContactEmail ?: config('mail.from.address'),
+                $this->gymName
+            ),
+            replyTo: $this->gymContactEmail ? 
+                [new Address($this->gymContactEmail, $this->gymName)] : 
+                [],
             tags: ['admin-onboarding', 'user:' . $this->user->id, 'gym:' . $this->gymSlug],
             metadata: [
                 'user_id' => $this->user->id,

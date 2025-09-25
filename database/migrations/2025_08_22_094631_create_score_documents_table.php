@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('document_type');
             $table->boolean('is_active')->default(true);
+            $table->boolean('is_internal')->default(false);
             $table->datetime('published_at')->nullable();
             $table->timestamps();
         });

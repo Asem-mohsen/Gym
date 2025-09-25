@@ -22,7 +22,6 @@ use App\Http\Controllers\API\ClassesController;
 use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\SiteSettingController;
 use App\Http\Controllers\API\PaymentController;
-use App\Http\Controllers\API\GymContextController;
 use App\Http\Controllers\API\CheckinController;
 use App\Http\Controllers\API\GymSelectionController;
 use App\Http\Controllers\API\InvitationController;
@@ -31,30 +30,8 @@ use App\Http\Controllers\API\NotificationController;
 // API Routes
 Route::prefix('v1')->group(function(){
 
-    // Gym Context Management (available for both guests and authenticated users)
-    Route::controller(GymContextController::class)->group(function(){
-        Route::get('/gym-context', 'getCurrentContext');
-        Route::post('/gym-context', 'updateContext');
-        Route::delete('/gym-context', 'clearContext');
-        Route::post('/gym-context/validate', 'validateContext');
-    });
-
     // User Authencticated
     Route::middleware('auth:sanctum')->group(function () {
-
-        Route::prefix('profile')->group(function(){
-            Route::controller(UserController::class)->group(function(){
-                Route::get('/', 'profile');
-                Route::put('/', 'update');
-                Route::delete('/', 'destroy');
-            });
-        });
-
-        Route::prefix('logout')->controller(LogoutController::class)->group(function(){
-            Route::post('/current', 'logoutFromCurrentSession');
-            Route::post('/all',  'logoutFromAllSessions');
-            Route::post('/others', 'logoutFromOtherSessions');
-        });
 
         // Notification routes for authenticated users
         Route::prefix('notifications')->controller(NotificationController::class)->group(function(){
@@ -70,6 +47,24 @@ Route::prefix('v1')->group(function(){
         Route::prefix('{gym:slug}')->middleware(['store.gym.context', 'share.site.setting', 'check.gym.visibility'])->group(function(){
             Route::controller(PaymentController::class)->group(function(){
                 Route::post('/payments', 'initializePayment');
+            });
+
+            Route::prefix('booking')->controller(BookingController::class)->group(function(){
+                Route::post('/', 'store');
+            });
+
+            Route::prefix('profile')->group(function(){
+                Route::controller(UserController::class)->group(function(){
+                    Route::get('/', 'profile');
+                    Route::put('/', 'update');
+                    Route::delete('/', 'destroy');
+                });
+            });
+    
+            Route::prefix('logout')->controller(LogoutController::class)->group(function(){
+                Route::post('/current', 'logoutFromCurrentSession');
+                Route::post('/all',  'logoutFromAllSessions');
+                Route::post('/others', 'logoutFromOtherSessions');
             });
         });
     });
@@ -182,21 +177,14 @@ Route::prefix('v1')->group(function(){
         });
 
         // Check-in routes
-        Route::prefix('checkin')->group(function(){
-            Route::controller(CheckinController::class)->group(function(){
-                Route::post('/self', 'selfCheckin');
-                Route::post('/gate', 'gateCheckin');
-                Route::get('/personal-qr', 'getPersonalQr');
-                Route::get('/stats', 'getCheckinStats');
-                Route::get('/history', 'getUserCheckinHistory');
-                Route::post('/validate-token', 'validateQrToken');
-            });
+        Route::prefix('checkin')->controller(CheckinController::class)->group(function(){
+            Route::post('/self', 'selfCheckin');
+            Route::post('/gate', 'gateCheckin');
+            Route::get('/personal-qr', 'getPersonalQr');
+            Route::get('/history', 'getUserCheckinHistory');
+            Route::match(['get', 'post'], '/validate-token', 'validateQrToken');
         });
 
-    });
-
-    Route::prefix('booking')->controller(BookingController::class)->group(function(){
-        Route::post('/', 'store');
     });
 
     Route::post('/payments/intent', [PaymentController::class, 'intent']);
