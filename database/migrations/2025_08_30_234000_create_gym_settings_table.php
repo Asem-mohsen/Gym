@@ -31,7 +31,9 @@ return new class extends Migration
             $table->json('section_styles')->nullable(); // Custom styles for each section
             
             // Media Settings (JSON)
-            $table->json('media_settings')->nullable(); // Home banner, about banner, etc.
+            $table->json('media_settings')->nullable();   // Home banner, about banner, etc.
+            $table->json('page_texts')->nullable();
+            $table->json('repeater_fields')->nullable();
             
             $table->timestamps();
             

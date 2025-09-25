@@ -20,6 +20,18 @@ return new class extends Migration
         throw_if(empty($tableNames), new Exception('Error: config/permission.php not loaded. Run [php artisan config:clear] and try again.'));
         throw_if($teams && empty($columnNames['team_foreign_key'] ?? null), new Exception('Error: team_foreign_key on config/permission.php not loaded. Run [php artisan config:clear] and try again.'));
 
+        // Create permissions table if it doesn't exist
+        if (!Schema::hasTable($tableNames['permissions'])) {
+            Schema::create($tableNames['permissions'], static function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->string('name');
+                $table->string('guard_name');
+                $table->timestamps();
+
+                $table->unique(['name', 'guard_name']);
+            });
+        }
+
         // Add guard_name column to existing roles table if it doesn't exist
         if (!Schema::hasColumn($tableNames['roles'], 'guard_name')) {
             Schema::table($tableNames['roles'], static function (Blueprint $table) {
@@ -127,6 +139,7 @@ return new class extends Migration
         Schema::drop($tableNames['role_has_permissions']);
         Schema::drop($tableNames['model_has_roles']);
         Schema::drop($tableNames['model_has_permissions']);
+        Schema::drop($tableNames['permissions']);
         
         // Remove guard_name column from roles table
         Schema::table($tableNames['roles'], static function (Blueprint $table) {

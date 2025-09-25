@@ -15,8 +15,8 @@ class AdminSiteAssignmentSeeder extends Seeder
     public function run(): void
     {
         // Get all admin users
-        $adminUsers = User::whereHas('role', function($query) {
-            $query->where('name', 'Admin');
+        $adminUsers = User::whereHas('roles', function($query) {
+            $query->where('name', 'admin');
         })->get();
         
         // Get all site settings

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('branch_id')->constrained()->onDelete('cascade');
             $table->date('start_date');
             $table->date('end_date');
+            $table->integer('invitations_used')->default(0);
             $table->enum('status', ['active', 'expired', 'cancelled', 'pending'])->default('active');
             $table->timestamps();
             $table->softDeletes();

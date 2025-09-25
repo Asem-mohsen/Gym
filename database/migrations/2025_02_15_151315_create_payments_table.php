@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('branch_id')->nullable()->constrained('branches')->onDelete('set null');
             $table->foreignId('site_setting_id')->nullable()->constrained()->onDelete('set null');
             $table->string('merchant_order_id')->nullable();
             $table->morphs('paymentable');
@@ -23,6 +24,7 @@ return new class extends Migration
             $table->foreignId('offer_id')->nullable()->constrained()->onDelete('set null');
             $table->enum('status', ['pending', 'completed', 'failed','cash_pending'])->default('pending');
             $table->string('currency')->default('EGP');
+            $table->enum('payment_method', ['cash', 'card', 'visa','credit_card','debit_card','bank_transfer','wallet','paypal','other'])->default('card');
             $table->json('meta')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->timestamp('failed_at')->nullable();
