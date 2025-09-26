@@ -71,4 +71,4 @@ jobs:
             $PHP_BIN artisan view:clear
             $PHP_BIN artisan route:clear
 
-            echo "Deployment completed successfully!"
+            echo "Deployment completed successfully!" 
