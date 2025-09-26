@@ -1,0 +1,43 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - development
+      - staging
+      - production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set environment variables
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/development" ]]; then
+            echo "DEPLOY_PATH=${{ secrets.DEV_PATH }}" >> $GITHUB_ENV
+            echo "BRANCH_NAME=development" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+            echo "DEPLOY_PATH=${{ secrets.STG_PATH }}" >> $GITHUB_ENV
+            echo "BRANCH_NAME=staging" >> $GITHUB_ENV
+          else
+            echo "DEPLOY_PATH=${{ secrets.PROD_PATH }}" >> $GITHUB_ENV
+            echo "BRANCH_NAME=production" >> $GITHUB_ENV
+          fi
+
+      - name: Set up SSH and build script
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.IP }}
+          username: ${{ secrets.USER_NAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          envs: DEPLOY_PATH,BRANCH_NAME
+          script: |
+            echo "DEPLOY_PATH is set to $DEPLOY_PATH"
+            echo "BRANCH_NAME is set to $BRANCH_NAME"
+            cd $DEPLOY_PATH
+            chmod u+x build-script.sh 
+            ./build-script.sh
