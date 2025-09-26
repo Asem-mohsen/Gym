@@ -74,7 +74,7 @@ class UserOnboardingMail extends Mailable
         return new Envelope(
             subject: 'Welcome to ' . $this->gymName . ' - Set Your Password',
             from: new Address(
-                $this->gymContactEmail ?: config('mail.from.address'),
+                config('mail.from.address'),
                 $this->gymName
             ),
             replyTo: $this->gymContactEmail ? 

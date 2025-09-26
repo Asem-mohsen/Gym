@@ -29,7 +29,7 @@ class InvitationMail extends Mailable
         return new Envelope(
             subject: 'You\'re Invited to Join ' . $this->invitation->gym->gym_name,
             from: new Address(
-                $this->invitation->gym->contact_email ?: config('mail.from.address'),
+                config('mail.from.address'),
                 $this->invitation->gym->gym_name
             ),
             replyTo: $this->invitation->gym->contact_email ? 

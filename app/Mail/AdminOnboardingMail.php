@@ -59,7 +59,7 @@ class AdminOnboardingMail extends Mailable implements ShouldQueue
         return new Envelope(
             subject: 'Welcome to ' . $this->gymName . ' - Admin Account Setup',
             from: new Address(
-                $this->gymContactEmail ?: config('mail.from.address'),
+                config('mail.from.address'),
                 $this->gymName
             ),
             replyTo: $this->gymContactEmail ? 

@@ -36,9 +36,7 @@ class PasswordResetMail extends Mailable
         return new Envelope(
             subject: $subject,
             from: new Address(
-                ($this->gym && $this->gym->contact_email) ? 
-                    $this->gym->contact_email : 
-                    config('mail.from.address'),
+                config('mail.from.address'),
                 $this->gym ? $this->gym->gym_name : config('mail.from.name')
             ),
             replyTo: ($this->gym && $this->gym->contact_email) ? 

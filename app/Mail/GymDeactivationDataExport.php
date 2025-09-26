@@ -36,7 +36,7 @@ class GymDeactivationDataExport extends Mailable
         return new Envelope(
             subject: 'Gym Deactivation - Your Data Export',
             from: new Address(
-                $this->gym->contact_email ?: config('mail.from.address'),
+                config('mail.from.address'),
                 $this->gym->gym_name
             ),
             replyTo: $this->gym->contact_email ? 

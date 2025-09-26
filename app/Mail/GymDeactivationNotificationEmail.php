@@ -30,7 +30,7 @@ class GymDeactivationNotificationEmail extends Mailable implements ShouldQueue
         return new Envelope(
             subject: 'Important Notice: ' . $this->gym->gym_name . ' Gym Deactivation',
             from: new Address(
-                $this->gym->contact_email ?: config('mail.from.address'),
+                config('mail.from.address'),
                 $this->gym->gym_name
             ),
             replyTo: $this->gym->contact_email ? 
