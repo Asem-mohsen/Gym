@@ -40,4 +40,4 @@ jobs:
             echo "BRANCH_NAME is set to $BRANCH_NAME"
             cd $DEPLOY_PATH
             chmod u+x build-script.sh 
-            ./build-script.sh
+            ../build-script.sh
