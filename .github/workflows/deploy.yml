@@ -27,7 +27,7 @@ jobs:
             echo "BRANCH_NAME=production" >> $GITHUB_ENV
           fi
 
-      - name: Set up SSH and build script
+      - name: Set up SSH and deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.IP }}
@@ -39,5 +39,23 @@ jobs:
             echo "DEPLOY_PATH is set to $DEPLOY_PATH"
             echo "BRANCH_NAME is set to $BRANCH_NAME"
             cd $DEPLOY_PATH
-            chmod u+x build-script.sh 
-            ../build-script.sh
+            
+            # Pull the latest changes from the git repository
+            git fetch origin $BRANCH_NAME
+            git reset --hard origin/$BRANCH_NAME
+            git clean -df
+            
+            # Install/update composer dependencies
+            composer install --no-dev --optimize-autoloader
+            composer dump-autoload
+            
+            # Run database migrations
+            php artisan migrate --force
+            
+            # Clear caches
+            php artisan config:clear
+            php artisan cache:clear
+            php artisan view:clear
+            php artisan route:clear
+            
+            echo "Deployment completed successfully!"
