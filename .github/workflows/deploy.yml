@@ -38,12 +38,20 @@ jobs:
           script: |
             echo "DEPLOY_PATH is set to $DEPLOY_PATH"
             echo "BRANCH_NAME is set to $BRANCH_NAME"
+
+            # Make sure directory exists
+            mkdir -p $DEPLOY_PATH
             cd $DEPLOY_PATH
             
-            # Pull the latest changes from the git repository
-            git fetch origin $BRANCH_NAME
-            git reset --hard origin/$BRANCH_NAME
-            git clean -df
+            if [ ! -d ".git" ]; then
+              echo "⚡ No git repo found. Cloning fresh..."
+              git clone -b $BRANCH_NAME git@github.com:YOUR_USERNAME/YOUR_REPO.git .
+            else
+              echo "⚡ Git repo exists. Updating..."
+              git fetch origin $BRANCH_NAME
+              git reset --hard origin/$BRANCH_NAME
+              git clean -df
+            fi
             
             # Install/update composer dependencies
             composer install --no-dev --optimize-autoloader
