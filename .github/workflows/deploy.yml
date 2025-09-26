@@ -47,12 +47,15 @@ jobs:
               echo "⚡ No git repo found. Cloning fresh..."
               git clone -b $BRANCH_NAME git@github.com:YOUR_USERNAME/YOUR_REPO.git .
             else
-              echo "⚡ Git repo exists. Updating..."
+              echo "⚡ Git repo exists. Pulling latest changes..."
               git fetch origin $BRANCH_NAME
               git reset --hard origin/$BRANCH_NAME
               git clean -df
             fi
             
+            # Ensure correct PHP version is used
+            export PATH=/opt/alt/php83/usr/bin:$PATH
+
             # Install/update composer dependencies
             composer install --no-dev --optimize-autoloader
             composer dump-autoload
