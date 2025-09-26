@@ -1,4 +1,14 @@
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-X1VS4J5MM1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-X1VS4J5MM1');
+    </script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -78,10 +88,10 @@
         </script>
     @else
         <!-- Default Meta Tags when no gym context -->
-        <title>@yield('title', 'Gymify - Multi-Tenant Gym Management Platform')</title>
-        <meta name="description" content="@yield('meta_description', 'Gymify is a comprehensive multi-tenant gym management platform. Connect with your local gym for premium fitness training and wellness services.')">
-        <meta name="keywords" content="@yield('meta_keywords', 'gymify, gym management, fitness platform, multi-tenant, gym software')">
-        <meta name="author" content="Gymify">
+        <title>@yield('title', 'Gymivida - Gym Management Platform')</title>
+        <meta name="description" content="@yield('meta_description', 'Gymivida is a comprehensive gym management platform. Connect with your local gym for premium fitness training and wellness services.')">
+        <meta name="keywords" content="@yield('meta_keywords', 'Gymivida, gym management, fitness platform, gym software')">
+        <meta name="author" content="Gymivida">
         <meta name="robots" content="index, follow">
         <link rel="icon" type="image/x-icon" href="{{ asset('assets/user/img/favicon.ico') }}">
         <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/user/img/favicon.ico') }}">

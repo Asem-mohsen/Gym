@@ -55,10 +55,10 @@
         <meta name="application-name" content="{{ $site->gym_name }} Admin">
     @else
         <!-- Default Admin Meta Tags when no gym context -->
-        <title>@yield('title', 'Gymify Admin Dashboard')</title>
-        <meta name="description" content="@yield('meta_description', 'Gymify Admin Dashboard - Multi-tenant gym management platform administration.')">
-        <meta name="keywords" content="@yield('meta_keywords', 'gymify, admin, dashboard, gym management, multi-tenant')">
-        <meta name="author" content="Gymify">
+        <title>@yield('title', 'Gymivida Admin Dashboard')</title>
+        <meta name="description" content="@yield('meta_description', 'Gymivida Admin Dashboard - Gym management platform administration.')">
+        <meta name="keywords" content="@yield('meta_keywords', 'Gymivida, admin, dashboard, gym management')">
+        <meta name="author" content="Gymivida">
         
         <!-- Prevent Search Engine Indexing -->
         <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate">

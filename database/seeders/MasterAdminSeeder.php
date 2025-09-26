@@ -15,11 +15,11 @@ class MasterAdminSeeder extends Seeder
     public function run(): void
     {
         $admin = User::create([
-            'name' => 'Gymify Admin',
-            'email' => 'gymify@gmail.com',
-            'password' => bcrypt('gymify@gmail.com'),
+            'name' => 'Gymivida Admin',
+            'email' => 'Gymivida@gmail.com',
+            'password' => bcrypt('Gymivida@gmail.com'),
             'password_set_at' => now(),
-            'address' => 'gymify location',
+            'address' => 'Gymivida location',
             'gender' => 'male',
             'country' => 'Egypt',
             'city' => 'Cairo',
