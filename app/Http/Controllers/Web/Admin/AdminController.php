@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
+    protected int $siteSettingId;
+
     public function __construct(protected AdminService $adminService ,protected RoleService $roleService , protected SiteSettingService $siteSettingService , protected RoleAssignmentService $roleAssignmentService, protected BranchService $branchService)
     {
         $this->adminService = $adminService;
@@ -19,14 +21,14 @@ class AdminController extends Controller
         $this->siteSettingService = $siteSettingService;
         $this->roleAssignmentService = $roleAssignmentService;
         $this->branchService = $branchService;
+        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
     }
 
     public function index(Request $request)
     {
         try {
-            $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-            $admins = $this->adminService->getAdmins($siteSettingId,$request->get('branch_id'));
-            $branches = $this->branchService->getBranches($siteSettingId);
+            $admins = $this->adminService->getAdmins($this->siteSettingId,$request->get('branch_id'));
+            $branches = $this->branchService->getBranches($this->siteSettingId);
 
             return view('admin.admins.index', compact('admins', 'branches'));
         } catch (Exception $e) {
@@ -36,17 +38,15 @@ class AdminController extends Controller
 
     public function create()
     {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
         $roles = $this->roleAssignmentService->getRoles(['admin']);
-        $branches = $this->branchService->getBranches($siteSettingId);
+        $branches = $this->branchService->getBranches($this->siteSettingId);
         return view('admin.admins.create', compact('roles', 'branches'));
     }
 
     public function store(AddAdminRequest $request)
     {
         try {
-            $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-            $this->adminService->createAdmin($request->validated() , $siteSettingId);
+            $this->adminService->createAdmin($request->validated() , $this->siteSettingId);
             return redirect()->route('admins.index')->with('success', 'Admin created successfully. An onboarding email has been sent to set their password.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while creating a new admin, please try again in a few minutes.');
@@ -55,15 +55,13 @@ class AdminController extends Controller
 
     public function edit(User $admin)
     {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
         $roles = $this->roleAssignmentService->getRoles(['admin']);
-        $branches = $this->branchService->getBranches($siteSettingId);
+        $branches = $this->branchService->getBranches($this->siteSettingId);
         return view('admin.admins.edit', compact('admin', 'roles', 'branches'));
     }
 
     public function show(User $admin)
     {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
         $roles = $this->roleAssignmentService->getRoles(['admin']);
         $admin->load(['photos' => function($query) {
             $query->orderBy('sort_order')->orderBy('created_at', 'desc');
@@ -74,8 +72,7 @@ class AdminController extends Controller
     public function update(UpdateAdminRequest $request, User $admin)
     {
         try {
-            $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-            $this->adminService->updateAdmin($admin, $request->validated(), $siteSettingId);
+            $this->adminService->updateAdmin($admin, $request->validated(), $this->siteSettingId);
             return redirect()->route('admins.index')->with('success', 'Admin updated successfully.');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Error happened while updating admin, please try again in a few minutes.');
@@ -86,8 +83,7 @@ class AdminController extends Controller
     {
         try {
             if ($this->adminService->isAdminBranchManager($admin)) {
-                $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-                $availableAdmins = $this->adminService->getAvailableAdminsForReassignment($siteSettingId, $admin->id);
+                $availableAdmins = $this->adminService->getAvailableAdminsForReassignment($this->siteSettingId, $admin->id);
                 
                 $availableAdminsWithImage = $availableAdmins->map(function($admin) {
                     $userImage = $admin->user_image;
@@ -151,9 +147,7 @@ class AdminController extends Controller
     public function resendOnboardingEmail(User $admin)
     {
         try {
-            $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-            
-            $this->adminService->sendOnboardingEmail($admin, $siteSettingId);
+            $this->adminService->sendOnboardingEmail($admin, $this->siteSettingId);
             
             return redirect()->back()->with('success', 'Onboarding email has been resent successfully.');
 

@@ -101,10 +101,12 @@
                         <div class="quick-actions">
                             <h6 class="mb-4"><i class="fa fa-history mr-2"></i>Quick Actions</h6>
                             <div class="action-buttons">
-                                <a href="{{ route('user.checkin.personal-qr', $siteSetting->slug) }}" class="secondary-btn">
-                                    <i class="fa fa-qrcode me-2"></i>
-                                    View My QR Code
-                                </a>
+                                @if($checkinSettings->enable_gate_scan)
+                                    <a href="{{ route('user.checkin.personal-qr', $siteSetting->slug) }}" class="secondary-btn">
+                                        <i class="fa fa-qrcode me-2"></i>
+                                        View My QR Code
+                                    </a>
+                                @endif
                                 <a href="{{ route('user.checkin.history', $siteSetting->slug) }}" class="secondary-btn">
                                     <i class="fa fa-history me-2"></i>
                                     Check-in History

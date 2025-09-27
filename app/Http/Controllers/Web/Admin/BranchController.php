@@ -120,11 +120,8 @@ class BranchController extends Controller
         
         foreach ($openingHoursData as $index => $hoursData) {
             if (!empty($hoursData['days']) && is_array($hoursData['days'])) {
-                // Handle is_closed - if not present, default to false
-                $isClosed = false;
-                if (isset($hoursData['is_closed'])) {
-                    $isClosed = in_array($hoursData['is_closed'], ['1', 1, true, 'true'], true);
-                }
+                // Handle is_closed - now guaranteed to be present due to prepareForValidation
+                $isClosed = (bool) $hoursData['is_closed'];
                 
                 $preparedData[] = [
                     'days' => $hoursData['days'],

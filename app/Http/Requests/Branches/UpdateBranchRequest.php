@@ -16,6 +16,34 @@ class UpdateBranchRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation()
+    {
+        $openingHours = $this->input('opening_hours', []);
+        
+        foreach ($openingHours as $index => $hoursData) {
+            // Handle is_closed field - convert array to single value if needed
+            if (isset($hoursData['is_closed'])) {
+                if (is_array($hoursData['is_closed'])) {
+                    // If it's an array, take the first value
+                    $openingHours[$index]['is_closed'] = !empty($hoursData['is_closed']) ? (bool) $hoursData['is_closed'][0] : false;
+                } else {
+                    // If it's not an array, convert to boolean
+                    $openingHours[$index]['is_closed'] = (bool) $hoursData['is_closed'];
+                }
+            } else {
+                // If not set (unchecked checkbox), set it to false
+                $openingHours[$index]['is_closed'] = false;
+            }
+        }
+        
+        $this->merge([
+            'opening_hours' => $openingHours
+        ]);
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
@@ -44,9 +72,9 @@ class UpdateBranchRequest extends FormRequest
             'opening_hours' => ['nullable', 'array'],
             'opening_hours.*.days' => ['required_with:opening_hours', 'array', 'min:1'],
             'opening_hours.*.days.*' => ['in:monday,tuesday,wednesday,thursday,friday,saturday,sunday'],
-            'opening_hours.*.opening_time' => ['nullable', 'date_format:H:i', 'required_without:opening_hours.*.is_closed'],
-            'opening_hours.*.closing_time' => ['nullable', 'date_format:H:i', 'required_without:opening_hours.*.is_closed'],
-            'opening_hours.*.is_closed' => ['nullable', 'in:0,1,true,false'],
+            'opening_hours.*.opening_time' => ['nullable', 'date_format:H:i'],
+            'opening_hours.*.closing_time' => ['nullable', 'date_format:H:i'],
+            'opening_hours.*.is_closed' => ['nullable', 'boolean'],
             'main_image'   => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:3072'],
             'gallery_images' => ['nullable', 'array'],
             'gallery_images.*' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
@@ -62,7 +90,26 @@ class UpdateBranchRequest extends FormRequest
             $openingHours = $this->input('opening_hours', []);
             
             foreach ($openingHours as $index => $hoursData) {
-                if (!empty($hoursData['opening_time']) && !empty($hoursData['closing_time']) && !($hoursData['is_closed'] ?? false)) {
+                // is_closed is now guaranteed to be a boolean due to prepareForValidation
+                $isClosed = (bool) ($hoursData['is_closed'] ?? false);
+                
+                // If not closed, opening_time and closing_time are required
+                if (!$isClosed) {
+                    if (empty($hoursData['opening_time'])) {
+                        $validator->errors()->add(
+                            "opening_hours.{$index}.opening_time",
+                            "The opening time is required when the branch is not closed."
+                        );
+                    }
+                    if (empty($hoursData['closing_time'])) {
+                        $validator->errors()->add(
+                            "opening_hours.{$index}.closing_time",
+                            "The closing time is required when the branch is not closed."
+                        );
+                    }
+                }
+                
+                if (!empty($hoursData['opening_time']) && !empty($hoursData['closing_time']) && !$isClosed) {
                     $openingTime = $hoursData['opening_time'];
                     $closingTime = $hoursData['closing_time'];
                     

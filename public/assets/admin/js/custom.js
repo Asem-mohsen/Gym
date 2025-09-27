@@ -27,14 +27,29 @@ function loadNotifications(page = 1, append = false) {
     
     isLoading = true;
     
-    fetch(`/admin/notifications/user-notifications?page=${page}`)
+    fetch(`/admin/notifications/user-notifications?page=${page}`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
         .then(response => {
+            // Check if response is JSON, if not, don't process it
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                console.warn('Notification endpoint returned non-JSON response, skipping notification load');
+                return null;
+            }
+            
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
         })
         .then(data => {
+            if (!data) return; // Skip if no data
+            
             if (data.notifications) {
                 if (append) {
                     appendNotifications(data.notifications);
@@ -47,8 +62,11 @@ function loadNotifications(page = 1, append = false) {
                 currentPage = page;
             } else {
                 if (!append) {
-                    document.getElementById('notifications-list').innerHTML = 
-                        '<div class="text-center text-muted py-4">No notifications</div>';
+                    const container = document.getElementById('notifications-list');
+                    if (container) {
+                        container.innerHTML = 
+                            '<div class="text-center text-muted py-4">No notifications</div>';
+                    }
                 }
                 hasMoreNotifications = false;
             }
@@ -132,14 +150,34 @@ function createNotificationHTML(notification) {
 }
 
 function updateNotificationBadge() {
-    fetch('/admin/notifications/user-notifications')
+    // Only update badge if we're not already on the notifications page to prevent redirect loops
+    if (window.location.pathname.includes('/admin/notifications/user-notifications')) {
+        return;
+    }
+    
+    fetch('/admin/notifications/user-notifications', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
         .then(response => {
+            // Check if response is JSON, if not, don't process it
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                console.warn('Notification endpoint returned non-JSON response, skipping badge update');
+                return null;
+            }
+            
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
         })
         .then(data => {
+            if (!data) return; // Skip if no data
+            
             const badge = document.getElementById('notification-badge');
             if (badge) {
                 const unreadCount = data.notifications ? data.notifications.filter(n => !n.read_at).length : 0;
@@ -154,6 +192,7 @@ function updateNotificationBadge() {
         })
         .catch(error => {
             console.error('Error updating notification badge:', error);
+            // Don't redirect or show user-facing errors for badge updates
         });
 }
 
@@ -163,11 +202,21 @@ function markNotificationAsRead(notificationId) {
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        // Check if response is JSON, if not, don't process it
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            console.warn('Mark read endpoint returned non-JSON response');
+            return null;
+        }
+        return response.json();
+    })
     .then(data => {
-        if (data.success) {
+        if (data && data.success) {
             loadNotifications();
             updateNotificationBadge();
         }
@@ -183,16 +232,25 @@ function markAllNotificationsAsRead() {
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         }
     })
     .then(response => {
+        // Check if response is JSON, if not, don't process it
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            console.warn('Mark all read endpoint returned non-JSON response');
+            return null;
+        }
+        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json();
     })
     .then(data => {
-        if (data.success) {
+        if (data && data.success) {
             loadNotifications();
             updateNotificationBadge();
         }
@@ -255,9 +313,11 @@ function initializePusher() {
                 toastr.info(data.notification.message || 'New notification received', data.notification.title || 'Notification');
             }
             
-            // Reload notifications
-            loadNotifications();
-            updateNotificationBadge();
+            // Reload notifications and update badge (only if not on notifications page)
+            if (!window.location.pathname.includes('/admin/notifications/user-notifications')) {
+                loadNotifications();
+                updateNotificationBadge();
+            }
         });
 }
 

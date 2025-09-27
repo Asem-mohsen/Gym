@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 
 class SubscriptionController extends Controller
 {
+    protected int $siteSettingId;
     public function __construct(
         protected SubscriptionService $subscriptionService ,
         protected UserService $userService,
@@ -25,11 +26,12 @@ class SubscriptionController extends Controller
         $this->branchService = $branchService;
         $this->offerService = $offerService;
         $this->siteSettingService = $siteSettingService;
+        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
     }
 
     public function index(Request $request)
     {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
+        $siteSettingId = $this->siteSettingId;
         $branchId = $request->get('branch_id');
         $status = $request->get('status');
         $membershipId = $request->get('membership_id');
@@ -53,20 +55,18 @@ class SubscriptionController extends Controller
 
     public function create()
     {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $memberships = $this->membershipService->getMemberships(siteSettingId: $siteSettingId);
-        $users    = $this->userService->getUsers($siteSettingId );
-        $branches = $this->branchService->getBranches($siteSettingId);
+        $memberships = $this->membershipService->getMemberships(siteSettingId: $this->siteSettingId);
+        $users    = $this->userService->getUsers($this->siteSettingId );
+        $branches = $this->branchService->getBranches($this->siteSettingId);
 
         return view('admin.subscriptions.create',get_defined_vars());
     }
 
     public function edit(Request $request , Subscription $subscription)
     {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $memberships = $this->membershipService->getMemberships(siteSettingId: $siteSettingId);
-        $users    = $this->userService->getUsers($siteSettingId );
-        $branches = $this->branchService->getBranches($siteSettingId);
+        $memberships = $this->membershipService->getMemberships(siteSettingId: $this->siteSettingId);
+        $users    = $this->userService->getUsers($this->siteSettingId );
+        $branches = $this->branchService->getBranches($this->siteSettingId);
         $subscription = $this->subscriptionService->showSubscription($subscription->id);
 
         return view('admin.subscriptions.edit',get_defined_vars());
@@ -110,8 +110,7 @@ class SubscriptionController extends Controller
 
     public function getOffers()
     {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        $offers = $this->offerService->fetchOffers($siteSettingId );
+        $offers = $this->offerService->fetchOffers($this->siteSettingId);
         return response()->json(['offers' => $offers]);
     }
 }

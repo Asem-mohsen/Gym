@@ -18,18 +18,27 @@
         <ul>
             <li class="{{ request()->routeIs('user.home') ? 'active' : '' }}"><a href="{{ route('user.home', ['siteSetting' => $siteSetting->slug]) }}">Home</a></li>
             <li class="{{ request()->routeIs('user.about-us') ? 'active' : '' }}"><a href="{{ route('user.about-us', ['siteSetting' => $siteSetting->slug]) }}">About Us</a></li>
-            <li class="{{ request()->routeIs('user.classes.index') ? 'active' : '' }}"><a href="{{ route('user.classes.index', ['siteSetting' => $siteSetting->slug]) }}">Classes</a></li>
-            <li class="{{ request()->routeIs('user.services.index') ? 'active' : '' }}"><a href="{{ route('user.services.index', ['siteSetting' => $siteSetting->slug]) }}">Services</a></li>
-            <li class="{{ request()->routeIs('user.team') ? 'active' : '' }}"><a href="{{ route('user.team', ['siteSetting' => $siteSetting->slug]) }}">Our Team</a></li>
-            <li><a href="#">Pages</a>
-                <ul class="dropdown">
-                    <li ><a href="{{ route('user.gallery', ['siteSetting' => $siteSetting->slug]) }}">Gallery</a></li>
-                    {{-- <li><a href="{{route('user.bmi-calculator')}}">Bmi calculate</a></li> --}}
-                    <li><a href="{{ route('user.blog', ['siteSetting' => $siteSetting->slug]) }}">Our blog</a></li>
-                    <li><a href="{{route('user.gallery' , ['siteSetting' => $siteSetting->slug])}}">Gallery</a></li>
-                    <li><a href="{{route('user.blog' , ['siteSetting' => $siteSetting->slug])}}">Our blog</a></li>
-                </ul>
-            </li>
+            @if($gymFeatures['classes'])
+                <li class="{{ request()->routeIs('user.classes.index') ? 'active' : '' }}"><a href="{{ route('user.classes.index', ['siteSetting' => $siteSetting->slug]) }}">Classes</a></li>
+            @endif
+            @if($gymFeatures['services'])
+                <li class="{{ request()->routeIs('user.services.index') ? 'active' : '' }}"><a href="{{ route('user.services.index', ['siteSetting' => $siteSetting->slug]) }}">Services</a></li>
+            @endif
+            @if($gymFeatures['team'])
+                <li class="{{ request()->routeIs('user.team') ? 'active' : '' }}"><a href="{{ route('user.team', ['siteSetting' => $siteSetting->slug]) }}">Our Team</a></li>
+            @endif
+            @if($gymFeatures['gallery'] || $gymFeatures['blog'])
+                <li><a href="#">Pages</a>
+                    <ul class="dropdown">
+                        @if($gymFeatures['gallery'])
+                            <li><a href="{{ route('user.gallery', ['siteSetting' => $siteSetting->slug]) }}">Gallery</a></li>
+                        @endif
+                        @if($gymFeatures['blog'])
+                            <li><a href="{{ route('user.blog', ['siteSetting' => $siteSetting->slug]) }}">Our blog</a></li>
+                        @endif
+                    </ul>
+                </li>
+            @endif
             <li><a href="{{route('user.contact', ['siteSetting' => $siteSetting->slug])}}">Contact</a></li>
             @auth
                 <li class="{{ request()->routeIs('user.invitations.*') ? 'active' : '' }}"><a href="{{ route('user.invitations.index', ['siteSetting' => $siteSetting->slug]) }}">My Invitations</a></li>
@@ -61,15 +70,31 @@
                 <nav class="nav-menu">
                     <ul>
                         <li class="{{ request()->routeIs('user.home') ? 'active' : '' }}"><a href="{{ route('user.home', ['siteSetting' => $siteSetting->slug]) }}">Home</a></li>
-                        <li class="{{ request()->routeIs('user.classes.index') ? 'active' : '' }}"><a href="{{ route('user.classes.index', ['siteSetting' => $siteSetting->slug]) }}">Classes</a></li>
-                        <li class="{{ request()->routeIs('user.services.index') ? 'active' : '' }}"><a href="{{ route('user.services.index', ['siteSetting' => $siteSetting->slug]) }}">Services</a></li>
-                        <li class="{{ request()->routeIs('user.about-us') || request()->routeIs('user.team') || request()->routeIs('user.gallery') || request()->routeIs('user.blog') || request()->routeIs('user.team') ? 'active' : '' }}"><a href="#">About Us</a>
+                        @if($gymFeatures['classes'])
+                            <li class="{{ request()->routeIs('user.classes.index') ? 'active' : '' }}"><a href="{{ route('user.classes.index', ['siteSetting' => $siteSetting->slug]) }}">Classes</a></li>
+                        @endif
+                        @if($gymFeatures['services'])
+                            <li class="{{ request()->routeIs('user.services.index') ? 'active' : '' }}"><a href="{{ route('user.services.index', ['siteSetting' => $siteSetting->slug]) }}">Services</a></li>
+                        @endif
+                        @php
+                            $aboutUsRoutes = ['user.about-us'];
+                            if($gymFeatures['team']) $aboutUsRoutes[] = 'user.team';
+                            if($gymFeatures['gallery']) $aboutUsRoutes[] = 'user.gallery';
+                            if($gymFeatures['blog']) $aboutUsRoutes[] = 'user.blog';
+                            $aboutUsActive = request()->routeIs($aboutUsRoutes);
+                        @endphp
+                        <li class="{{ $aboutUsActive ? 'active' : '' }}"><a href="#">About Us</a>
                             <ul class="dropdown">
                                 <li class="{{ request()->routeIs('user.about-us') ? 'active' : '' }}"><a href="{{ route('user.about-us', ['siteSetting' => $siteSetting->slug]) }}">About us</a></li>
-                                {{-- <li><a href="{{ route('user.bmi-calculator') }}">Bmi calculate</a></li> --}}
-                                <li class="{{ request()->routeIs('user.team') ? 'active' : '' }}"><a href="{{ route('user.team', ['siteSetting' => $siteSetting->slug]) }}">Our team</a></li>
-                                <li class="{{ request()->routeIs('user.gallery') ? 'active' : '' }}"><a href="{{ route('user.gallery', ['siteSetting' => $siteSetting->slug]) }}">Gallery</a></li>
-                                <li class="{{ request()->routeIs('user.blog') ? 'active' : '' }}"><a href="{{ route('user.blog', ['siteSetting' => $siteSetting->slug]) }}">Our blog</a></li>
+                                @if($gymFeatures['team'])
+                                    <li class="{{ request()->routeIs('user.team') ? 'active' : '' }}"><a href="{{ route('user.team', ['siteSetting' => $siteSetting->slug]) }}">Our team</a></li>
+                                @endif
+                                @if($gymFeatures['gallery'])
+                                    <li class="{{ request()->routeIs('user.gallery') ? 'active' : '' }}"><a href="{{ route('user.gallery', ['siteSetting' => $siteSetting->slug]) }}">Gallery</a></li>
+                                @endif
+                                @if($gymFeatures['blog'])
+                                    <li class="{{ request()->routeIs('user.blog') ? 'active' : '' }}"><a href="{{ route('user.blog', ['siteSetting' => $siteSetting->slug]) }}">Our blog</a></li>
+                                @endif
                             </ul>
                         </li>
                         <li class="{{ request()->routeIs('user.contact') ? 'active' : '' }}"><a href="{{ route('user.contact', ['siteSetting' => $siteSetting->slug]) }}">Contact</a></li>
@@ -102,9 +127,11 @@
                                 <a class="dropdown-item" href="{{ route('profile.index', ['siteSetting' => $siteSetting->slug]) }}">
                                     <i class="fa fa-user-circle"></i> My Profile
                                 </a>
-                                <a class="dropdown-item" href="{{ route('user.checkin.self', ['siteSetting' => $siteSetting->slug]) }}">
-                                    <i class="fa fa-check"></i> Gym Entrance
-                                </a>
+                                @if($gymFeatures['checkin'])
+                                    <a class="dropdown-item" href="{{ route('user.checkin.self', ['siteSetting' => $siteSetting->slug]) }}">
+                                        <i class="fa fa-check"></i> Gym Entrance
+                                    </a>
+                                @endif
                                 <a class="dropdown-item" href="{{ route('user.invitations.index', ['siteSetting' => $siteSetting->slug]) }}">
                                     <i class="fa fa-envelope"></i> My Invitations
                                 </a>

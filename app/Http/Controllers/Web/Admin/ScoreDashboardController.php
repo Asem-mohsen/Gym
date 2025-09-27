@@ -14,16 +14,18 @@ use Illuminate\Support\Facades\Auth;
 class ScoreDashboardController extends Controller
 {
     protected $siteSettingService;
+    protected $siteSettingId;
 
     public function __construct(SiteSettingService $siteSettingService)
     {
         $this->siteSettingService = $siteSettingService;
+        $this->siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
     }
 
     public function index()
     {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        
+        $siteSettingId = $this->siteSettingId;
+
         // Get branch scores for this gym
         $branchScores = BranchScore::whereHas('branch', function($query) use ($siteSettingId) {
             $query->where('site_setting_id', $siteSettingId);
@@ -55,10 +57,7 @@ class ScoreDashboardController extends Controller
 
     public function show(BranchScore $branchScore)
     {
-        // Check if the user has access to this branch score
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        
-        if ($branchScore->branch->site_setting_id !== $siteSettingId) {
+        if ($branchScore->branch->site_setting_id !== $this->siteSettingId) {
             abort(403, 'Unauthorized access to this branch score.');
         }
 
@@ -69,9 +68,7 @@ class ScoreDashboardController extends Controller
 
     public function create()
     {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        
-        $branches = Branch::where('site_setting_id', $siteSettingId)
+        $branches = Branch::where('site_setting_id', $this->siteSettingId)
             ->whereDoesntHave('score')
             ->get();
 
@@ -86,11 +83,9 @@ class ScoreDashboardController extends Controller
             'notes' => 'nullable|string|max:1000',
         ]);
 
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        
         // Verify the branch belongs to this gym
         $branch = Branch::where('id', $request->branch_id)
-            ->where('site_setting_id', $siteSettingId)
+            ->where('site_setting_id', $this->siteSettingId)
             ->firstOrFail();
 
         $branchScore = BranchScore::create([
@@ -116,10 +111,7 @@ class ScoreDashboardController extends Controller
 
     public function edit(BranchScore $branchScore)
     {
-        // Check if the user has access to this branch score
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        
-        if ($branchScore->branch->site_setting_id !== $siteSettingId) {
+        if ($branchScore->branch->site_setting_id !== $this->siteSettingId) {
             abort(403, 'Unauthorized access to this branch score.');
         }
 
@@ -128,10 +120,7 @@ class ScoreDashboardController extends Controller
 
     public function update(Request $request, BranchScore $branchScore)
     {
-        // Check if the user has access to this branch score
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        
-        if ($branchScore->branch->site_setting_id !== $siteSettingId) {
+        if ($branchScore->branch->site_setting_id !== $this->siteSettingId) {
             abort(403, 'Unauthorized access to this branch score.');
         }
 
@@ -171,8 +160,7 @@ class ScoreDashboardController extends Controller
 
     public function documents()
     {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        
+        $siteSettingId = $this->siteSettingId;
         $documents = Document::whereHas('siteSettings', function($query) use ($siteSettingId) {
             $query->where('site_settings.id', $siteSettingId);
         })->orWhereDoesntHave('siteSettings')->where('is_active', true)->get();
@@ -182,10 +170,8 @@ class ScoreDashboardController extends Controller
 
     public function downloadDocument(Document $document)
     {
-        $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-        
         // Check if the document is available for this gym
-        $isAvailable = $document->siteSettings()->where('site_settings.id', $siteSettingId)->exists() 
+        $isAvailable = $document->siteSettings()->where('site_settings.id', $this->siteSettingId)->exists() 
             || $document->siteSettings()->count() === 0;
 
         if (!$isAvailable) {
