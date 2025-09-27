@@ -248,10 +248,12 @@ class GymDataImportController extends Controller
                     'is_available (Required: 1=yes, 0=no)', 
                     'branch_assignment (Required, comma-separated branch names, e.g., "Main Branch,Women Branch")'
                 ],
-                ['Personal Training', 'Personal Training', 'تدريب شخصي', 'One-on-one personal training session', '60', '100.00', '1', 'paid_booking', '1', 'Main Branch,Women Branch'],
                 ['Nutrition Consultation', 'Nutrition Consultation', 'استشارة تغذية', 'Professional nutrition advice and meal planning', '45', '75.00', '1', 'paid_booking', '1', 'Main Branch'],
                 ['Fitness Assessment', 'Fitness Assessment', 'تقييم اللياقة', 'Comprehensive fitness evaluation and goal setting', '30', '50.00', '1', 'paid_booking', '1', 'Main Branch,Women Branch'],
                 ['Free Consultation', 'Free Consultation', 'استشارة مجانية', 'Free initial consultation', '30', '0.00', '0', 'free_booking', '1', 'Main Branch'],
+                ['Sauna', 'Sauna', 'ساونا', 'Relaxing sauna session', '30', '0.00', '0', 'unbookable', '1', 'Main Branch'],
+                ['Gaguzzi', 'Gaguzzi', 'جاكوزي', 'Jacuzzi hydrotherapy session', '30', '100.00', '1', 'paid_booking', '1', 'Main Branch'],
+                ['Steam', 'Steam', 'بخار', 'Steam room relaxation session', '30', '0.00', '0', 'free_booking', '1', 'Main Branch'],
             ],
             'Subscriptions' => [
                 [

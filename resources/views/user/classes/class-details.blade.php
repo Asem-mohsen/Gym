@@ -141,40 +141,44 @@
                 </div>
                 <div class="col-lg-4 col-md-8">
                     <div class="sidebar-option">
-                        <div class="so-categories">
-                            <h5 class="title">Categories</h5>
-                            <ul>
-                                @foreach ($categories as $category)
-                                    <li><a href="#">{{ $category->name }} <span>{{ $category->blog_posts_count }}</span></a></li>
+                        @if($categories->count() > 0)
+                            <div class="so-categories">
+                                <h5 class="title">Categories</h5>
+                                <ul>
+                                    @foreach ($categories as $category)
+                                        <li><a href="#">{{ $category->name }} <span>{{ $category->blog_posts_count }}</span></a></li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        @if($blogPosts->count() > 0)
+                            <div class="so-latest">
+                                <h5 class="title">Latest posts</h5>
+                                @foreach ($blogPosts as $index => $blogPost)
+                                    @if($index === 0)
+                                        <div class="latest-large set-bg" data-setbg="{{ $blogPost->getFirstMediaUrl('blog_post_images') }}">
+                                            <div class="ll-text">
+                                                <h5><a href="{{ route('user.blog.show', ['siteSetting' => $siteSetting->slug, 'blogPost' => $blogPost->id]) }}">{{ $blogPost->title }}</a></h5>
+                                                <ul>
+                                                    <li>{{ $blogPost->published_at->format('d F Y') }}</li>
+                                                    <li>{{ $blogPost->comments->count() }} Comment</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="latest-item">
+                                            <div class="li-pic">
+                                                <img src="{{ $blogPost->getFirstMediaUrl('blog_post_images') }}" alt="">
+                                            </div>
+                                            <div class="li-text">
+                                                <h6><a href="{{ route('user.blog.show', ['siteSetting' => $siteSetting->slug, 'blogPost' => $blogPost->id]) }}">{{ $blogPost->title }}</a></h6>
+                                                <span class="li-time">{{ $blogPost->published_at->format('d F Y') }}</span>
+                                            </div>
+                                        </div>
+                                    @endif
                                 @endforeach
-                            </ul>
-                        </div>
-                        <div class="so-latest">
-                            <h5 class="title">Latest posts</h5>
-                            @foreach ($blogPosts as $index => $blogPost)
-                                @if($index === 0)
-                                    <div class="latest-large set-bg" data-setbg="{{ $blogPost->getFirstMediaUrl('blog_post_images') }}">
-                                        <div class="ll-text">
-                                            <h5><a href="{{ route('user.blog.show', ['siteSetting' => $siteSetting->slug, 'blogPost' => $blogPost->id]) }}">{{ $blogPost->title }}</a></h5>
-                                            <ul>
-                                                <li>{{ $blogPost->published_at->format('d F Y') }}</li>
-                                                <li>{{ $blogPost->comments->count() }} Comment</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                @else
-                                    <div class="latest-item">
-                                        <div class="li-pic">
-                                            <img src="{{ $blogPost->getFirstMediaUrl('blog_post_images') }}" alt="">
-                                        </div>
-                                        <div class="li-text">
-                                            <h6><a href="{{ route('user.blog.show', ['siteSetting' => $siteSetting->slug, 'blogPost' => $blogPost->id]) }}">{{ $blogPost->title }}</a></h6>
-                                            <span class="li-time">{{ $blogPost->published_at->format('d F Y') }}</span>
-                                        </div>
-                                    </div>
-                                @endif
-                            @endforeach
-                        </div>
+                            </div>
+                        @endif
                         <div class="so-banner set-bg" data-setbg="{{ asset('assets/user/img/sidebar-banner.jpg') }}">
                             <h5>{{$class->name}}</h5>
                         </div>
