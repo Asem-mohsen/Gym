@@ -29,7 +29,7 @@ class AccountDeletionEmail extends Mailable
         return new Envelope(
             subject: 'We\'ll Miss You at ' . $this->gym->getTranslation('gym_name', 'en'),
             from: new Address(
-                $this->gym->contact_email ?: config('mail.from.address'),
+                config('mail.from.address'),
                 $this->gym->getTranslation('gym_name', 'en')
             ),
             replyTo: $this->gym->contact_email ? 

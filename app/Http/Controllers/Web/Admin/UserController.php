@@ -26,9 +26,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         try {
-            $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-            
-            $users = $this->userService->getUsers($siteSettingId);
+            $users = $this->userService->getUsers($this->siteSettingId);
             
             return view('admin.users.index', compact('users'));
         } catch (Exception $e) {
@@ -106,8 +104,7 @@ class UserController extends Controller
                 return redirect()->back()->with('error', 'This user has already set their password. Onboarding email is not needed.');
             }
 
-            $siteSettingId = $this->siteSettingService->getCurrentSiteSettingId();
-            $this->userService->sendOnboardingEmail($user, $siteSettingId);
+            $this->userService->sendOnboardingEmail($user, $this->siteSettingId);
             
             return redirect()->back()->with('success', 'Onboarding email has been resent successfully.');
 

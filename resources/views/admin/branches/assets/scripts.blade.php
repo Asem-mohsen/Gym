@@ -110,4 +110,180 @@ function initCoordinateExtraction() {
         }
     });
 }
+
+// Image preview functionality
+function initImagePreview() {
+    // Main image preview
+    $('#main_image').on('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#main_image_preview_img').attr('src', e.target.result);
+                $('#main_image_preview').show();
+            };
+            reader.readAsDataURL(file);
+        } else {
+            $('#main_image_preview').hide();
+        }
+    });
+
+    // Gallery images preview
+    $('#gallery_images').on('change', function(e) {
+        const files = e.target.files;
+        const previewContainer = $('#gallery_preview_container');
+        const previewDiv = $('#gallery_images_preview');
+        
+        // Clear previous previews
+        previewContainer.empty();
+        
+        if (files.length > 0) {
+            previewDiv.show();
+            
+            Array.from(files).forEach(function(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewHtml = `
+                        <div class="col-md-3 mb-3">
+                            <img src="${e.target.result}" alt="Preview" class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
+                        </div>
+                    `;
+                    previewContainer.append(previewHtml);
+                };
+                reader.readAsDataURL(file);
+            });
+        } else {
+            previewDiv.hide();
+        }
+    });
+}
+
+// Opening hours functionality
+function initOpeningHours() {
+    // Handle closed toggle
+    $(document).on('change', '.closed-toggle', function() {
+        const timeInputs = $(this).closest('.card-body').find('.time-inputs');
+        const isClosed = $(this).is(':checked');
+        
+        if (isClosed) {
+            timeInputs.find('input[type="time"]').prop('disabled', true).val('').removeAttr('required');
+            $(this).val('1');
+            // Remove any existing hidden input
+            $(this).siblings('input[type="hidden"]').remove();
+        } else {
+            timeInputs.find('input[type="time"]').prop('disabled', false).attr('required', 'required');
+            // Remove the value attribute so it doesn't send anything when unchecked
+            $(this).removeAttr('value');
+        }
+    });
+    
+    // Initialize existing checkboxes
+    $('.closed-toggle').each(function() {
+        const timeInputs = $(this).closest('.card-body').find('.time-inputs');
+        const isClosed = $(this).is(':checked');
+        
+        if (isClosed) {
+            timeInputs.find('input[type="time"]').prop('disabled', true).removeAttr('required');
+            $(this).val('1');
+        } else {
+            timeInputs.find('input[type="time"]').prop('disabled', false).attr('required', 'required');
+            // Remove the value attribute so it doesn't send anything when unchecked
+            $(this).removeAttr('value');
+        }
+    });
+}
+
+$(document).ready(function() {
+    // Initialize opening hours repeater
+    $('#opening-hours-repeater').repeater({
+        initEmpty: false,
+        show: function() {
+            $(this).slideDown();
+            fixRepeaterIds();
+        },
+        hide: function(deleteElement) {
+            $(this).slideUp(deleteElement);
+        }
+    });
+    
+    initOpeningHours();
+    initDayConflictDetection();
+});
+
+function fixRepeaterIds() {
+    $('#opening-hours-repeater [data-repeater-item]').each(function(index) {
+        const $item = $(this);
+        
+        // Fix day checkboxes
+        $item.find('.day-checkbox').each(function() {
+            const $checkbox = $(this);
+            const dayValue = $checkbox.val();
+            const newId = `day_${dayValue}_${index}`;
+            $checkbox.attr('id', newId);
+            $checkbox.attr('name', `opening_hours[${index}][days][]`);
+            $checkbox.next('label').attr('for', newId);
+        });
+        
+        // Fix closed toggle
+        const $closedToggle = $item.find('.closed-toggle');
+        
+        // Remove any duplicate closed-toggle elements to prevent array issues
+        $item.find('.closed-toggle').not(':first').remove();
+        const $singleClosedToggle = $item.find('.closed-toggle').first();
+        
+        $singleClosedToggle.attr('id', `closed_${index}`);
+        $singleClosedToggle.attr('name', `opening_hours[${index}][is_closed]`);
+        $singleClosedToggle.next('label').attr('for', `closed_${index}`);
+        
+        // Initialize closed toggle value
+        if ($singleClosedToggle.is(':checked')) {
+            $singleClosedToggle.val('1');
+        } else {
+            $singleClosedToggle.removeAttr('value');
+        }
+        
+        // Fix time inputs
+        $item.find('input[name*="opening_time"]').attr('name', `opening_hours[${index}][opening_time]`);
+        $item.find('input[name*="closing_time"]').attr('name', `opening_hours[${index}][closing_time]`);
+    });
+    
+    // Update day conflicts after fixing IDs
+    updateDayConflicts();
+}
+
+function updateDayConflicts() {
+    const selectedDays = new Set();
+    
+    // Collect all selected days from existing time slots
+    $('#opening-hours-repeater [data-repeater-item]').each(function() {
+        const $item = $(this);
+        $item.find('.day-checkbox:checked').each(function() {
+            selectedDays.add($(this).val());
+        });
+    });
+    
+    // Disable already selected days in all time slots
+    $('#opening-hours-repeater [data-repeater-item]').each(function() {
+        const $item = $(this);
+        $item.find('.day-checkbox').each(function() {
+            const $checkbox = $(this);
+            const dayValue = $checkbox.val();
+            const isChecked = $checkbox.is(':checked');
+            
+            if (selectedDays.has(dayValue) && !isChecked) {
+                $checkbox.prop('disabled', true);
+                $checkbox.next('label').addClass('text-muted');
+            } else {
+                $checkbox.prop('disabled', false);
+                $checkbox.next('label').removeClass('text-muted');
+            }
+        });
+    });
+}
+
+function initDayConflictDetection() {
+    $(document).on('change', '.day-checkbox', function() {
+        updateDayConflicts();
+    });
+}
 </script>

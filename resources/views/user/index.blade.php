@@ -177,35 +177,37 @@
     <!-- Branches Section End -->
 
     <!-- Classes Section Begin -->
-    <section class="classes-section spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="section-title">
-                        <span>Our Classes</span>
-                        <h2>WHAT WE CAN OFFER</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                @foreach ($classes as $index => $class)
-                    <div class="col-lg-{{ in_array($index, [3, 4]) ? '6' : '4' }} col-md-6">
-                        <div class="class-item">
-                            <div class="ci-pic">
-                                <img src="{{ $class->getFirstMediaUrl('class_images') }}" alt="">
-                            </div>
-                            <div class="ci-text">
-                                <span>{{ $class->type }}</span>
-                                <h5>{{ $class->name }}</h5>
-                                <a href="{{ route('user.classes.show', ['siteSetting' => $siteSetting->slug, 'class' => $class->id]) }}"><i class="fa fa-angle-right"></i></a>
-                            </div>
+    @if ($gymFeatures['classes'] && isset($classes) && $classes->count() > 0)
+        <section class="classes-section spad">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="section-title">
+                            <span>Our Classes</span>
+                            <h2>WHAT WE CAN OFFER</h2>
                         </div>
                     </div>
-                @endforeach
+                </div>
+                <div class="row">
+                    @foreach ($classes as $index => $class)
+                        <div class="col-lg-{{ in_array($index, [3, 4]) ? '6' : '4' }} col-md-6">
+                            <div class="class-item">
+                                <div class="ci-pic">
+                                    <img src="{{ $class->getFirstMediaUrl('class_images') }}" alt="">
+                                </div>
+                                <div class="ci-text">
+                                    <span>{{ $class->type }}</span>
+                                    <h5>{{ $class->name }}</h5>
+                                    <a href="{{ route('user.classes.show', ['siteSetting' => $siteSetting->slug, 'class' => $class->id]) }}"><i class="fa fa-angle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </div>
-        </div>
-    </section>
-    <!-- ChoseUs Section End -->
+        </section>
+    @endif
+    <!-- Classes Section End -->
 
     <!-- Banner Section Begin -->
     @php
@@ -264,7 +266,7 @@
     <!-- Pricing Membership Section End -->
 
     <!-- Gallery Section Begin -->
-    @if ($galleries->count() > 0)
+    @if ($gymFeatures['gallery'] && $galleries->count() > 0)
         <div class="gallery-section">
             <div class="gallery">
                 <div class="grid-sizer"></div>
@@ -286,28 +288,30 @@
     <!-- Gallery Section End -->
 
     <!-- Team Section Begin -->
-    <section class="team-section spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="team-title">
-                        <div class="section-title">
-                            <span>Our Team</span>
-                            <h2>TRAIN WITH EXPERTS</h2>
+    @if ($gymFeatures['team'] && isset($trainers) && $trainers->count() > 0)
+        <section class="team-section spad">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="team-title">
+                            <div class="section-title">
+                                <span>Our Team</span>
+                                <h2>TRAIN WITH EXPERTS</h2>
+                            </div>
+                            <a href="{{ route('user.contact' , ['siteSetting' => $siteSetting->slug]) }}" class="primary-btn btn-normal appoinment-btn">appointment</a>
                         </div>
-                        <a href="{{ route('user.contact' , ['siteSetting' => $siteSetting->slug]) }}" class="primary-btn btn-normal appoinment-btn">appointment</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="ts-slider owl-carousel">
+                        @foreach ($trainers as $trainer)
+                            <x-our-team-card :trainer="$trainer" />
+                        @endforeach
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="ts-slider owl-carousel">
-                    @foreach ($trainers as $trainer)
-                        <x-our-team-card :trainer="$trainer" />
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </section>
+        </section>
+    @endif
     <!-- Team Section End -->
 
 @endsection

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\SiteSetting;
 use App\Observers\{SiteSettingObserver, PermissionTableObserver};
+use App\Http\View\Composers\GymFeatureComposer;
 use Illuminate\Support\ServiceProvider;
 use App\Services\GymBrandingService;
 use Illuminate\Support\Facades\View;
@@ -28,24 +29,6 @@ class AppServiceProvider extends ServiceProvider
         PermissionTableObserver::watchRolePermissions();
         PermissionTableObserver::watchModelPermissions();
 
-        // Share gym branding data with all views
-        // View::composer('*', function ($view) {
-        //     try {
-        //         $gymBrandingService = app(GymBrandingService::class);
-        //         $branding = $gymBrandingService->getCurrentGymBranding(auth()->user()->getCurrentSite()->id);
-        //         $cssVariables = $gymBrandingService->generateCssVariables();
-
-        //         $view->with([
-        //             'gymBranding' => $branding,
-        //             'gymCssVariables' => $cssVariables
-        //         ]);
-        //     } catch (\Exception $e) {
-        //         // Fallback to defaults if there's an error
-        //         $view->with([
-        //             'gymBranding' => [],
-        //             'gymCssVariables' => ''
-        //         ]);
-        //     }
-        // });
+        View::composer('*', GymFeatureComposer::class);
     }
 }

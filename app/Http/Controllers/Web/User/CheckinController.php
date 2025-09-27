@@ -36,7 +36,7 @@ class CheckinController extends Controller
         // Validate user can check in
         $validation = $this->checkinService->validateCheckin($user, $siteSetting, 'self_scan');
 
-        return view('user.checkin.self', compact('siteSetting', 'user', 'validation'));
+        return view('user.checkin.self', compact('siteSetting', 'user', 'validation', 'checkinSettings'));
     }
 
     /**

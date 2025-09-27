@@ -56,8 +56,12 @@
                     <h4>Useful links</h4>
                     <ul>
                         <li><a href="{{route('user.about-us' , ['siteSetting' => $siteSetting->slug])}}">About</a></li>
-                        <li><a href="{{route('user.blog' , ['siteSetting' => $siteSetting->slug])}}">Blog</a></li>
-                        <li><a href="{{route('user.classes.index' , ['siteSetting' => $siteSetting->slug])}}">Classes</a></li>
+                        @if($gymFeatures['blog'])
+                            <li><a href="{{route('user.blog' , ['siteSetting' => $siteSetting->slug])}}">Blog</a></li>
+                        @endif
+                        @if($gymFeatures['classes'])
+                            <li><a href="{{route('user.classes.index' , ['siteSetting' => $siteSetting->slug])}}">Classes</a></li>
+                        @endif
                         <li><a href="{{route('user.memberships.index' , ['siteSetting' => $siteSetting->slug])}}">Memberships</a></li>
                     </ul>
                 </div>
@@ -72,24 +76,28 @@
                             <li><a href="{{route('auth.login.index', ['siteSetting' => $siteSetting->slug])}}">Login</a></li>
                             <li><a href="{{route('auth.register.index', ['siteSetting' => $siteSetting->slug])}}">Register</a></li>
                         @endif
-                        <li><a href="{{route('user.services.index' , ['siteSetting' => $siteSetting->slug])}}">Services</a></li>
+                        @if($gymFeatures['services'])
+                            <li><a href="{{route('user.services.index' , ['siteSetting' => $siteSetting->slug])}}">Services</a></li>
+                        @endif
                         <li><a href="{{route('user.contact' , ['siteSetting' => $siteSetting->slug])}}">Contact Us</a></li>
                     </ul>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6">
-                <div class="fs-widget">
-                    <h4>Tips & Guides</h4>
-                    @foreach ($blogPosts as $blogPost)
-                        <div class="fw-recent">
-                            <h6><a href="{{route('user.blog.show', ['blogPost' => $blogPost->id, 'siteSetting' => $siteSetting->slug])}}">{{$blogPost->title}}</a></h6>
-                            <ul>
-                                <li>{{$blogPost->created_at->diffForHumans()}}</li>
-                                <li>{{$blogPost->comments->count()}} Comment</li>
-                            </ul>
-                        </div>
-                    @endforeach
-                </div>
+                @if($gymFeatures['blog'] && isset($blogPosts) && $blogPosts->count() > 0)
+                    <div class="fs-widget">
+                        <h4>Tips & Guides</h4>
+                        @foreach ($blogPosts as $blogPost)
+                            <div class="fw-recent">
+                                <h6><a href="{{route('user.blog.show', ['blogPost' => $blogPost->id, 'siteSetting' => $siteSetting->slug])}}">{{$blogPost->title}}</a></h6>
+                                <ul>
+                                    <li>{{$blogPost->created_at->diffForHumans()}}</li>
+                                    <li>{{$blogPost->comments->count()}} Comment</li>
+                                </ul>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
         <div class="row">
